@@ -1,0 +1,31 @@
+#!/usr/bin/make -f
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+
+ifneq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
+    BUILD_FLAGS := BUILD_CFG=debug BUILD_QUICK=1
+else
+    BUILD_FLAGS := 
+endif
+#ifeq (,$(filter nostrip,$(DEB_BUILD_OPTIONS)))
+#endif
+
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+    NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+    BUILD_FLAGS += -j $(NUMJOBS)
+endif
+
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+    BUILD_FLAGS += TEST=1
+endif
+
+build/bombono-dvd::
+	# :KLUDGE: -Wno-extra due to boost warnings
+	scons -k $(BUILD_FLAGS) CFLAGS='-Wno-extra' PREFIX=/usr DESTDIR=$(CURDIR)/debian/bombono-dvd
+
+cleanbuilddir/bombono-dvd::
+	rm -rf build config.opts
+
+install/bombono-dvd::
+	scons install
+

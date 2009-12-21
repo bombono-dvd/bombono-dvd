@@ -1,0 +1,31 @@
+INQUIRY:                [Optiarc ][DVD RW AD-7203A ][1.06]
+GET [CURRENT] CONFIGURATION:
+ Mounted Media:         12h, DVD-RAM
+ Current Write Speed:   3.0x1385=4155KB/s
+ Write Speed #0:        3.0x1385=4155KB/s
+ Write Speed #1:        2.0x1385=2770KB/s
+GET [CURRENT] PERFORMANCE:
+ Write Performance:     3.0x1385=4155KB/s@[0 -> 2236704]
+ Speed Descriptor#0:    03/2236704 R@3.0x1385=4155KB/s W@3.0x1385=4155KB/s
+ Speed Descriptor#1:    03/2236704 R@2.0x1385=2770KB/s W@2.0x1385=2770KB/s
+READ DVD STRUCTURE[#0h]:
+ Media Book Type:       16h, DVD-RAM book [revision 6]
+ Legacy lead-out at:    2314080*2KB=4739235840
+DVD-RAM SPARE AREA INFORMATION:
+ Primary SA:            12800/12800=100.0% free
+READ DISC INFORMATION:
+ Disc status:           other
+ Number of Sessions:    1
+ State of Last Session: complete
+ "Next" Track:          1
+ Number of Tracks:      1
+READ FORMAT CAPACITIES:
+ formatted:		2236704*2048=4580769792
+ 00h(800):		2236704*2048=4580769792
+ 00h(800):		2295072*2048=4700307456
+ 01h(800):		2226976*2048=4560846848
+FABRICATED TOC:
+ Track#1  :             14@0
+ Track#AA :             14@2236704
+ Multi-session Info:    #1@0
+READ CAPACITY:          2236704*2048=4580769792

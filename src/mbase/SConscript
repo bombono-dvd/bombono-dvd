@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+Import('mbase_env', 'user_options_dict')
+
+lib_mbase_env = mbase_env.Clone()
+lib_path  = user_options_dict['LIB_BUILD_DIR']
+
+######
+# lib
+lib_src_files = [
+                 'composite/component.cpp',
+                 'obj_bind.cpp',
+                 #'resources.cpp',
+
+                 'project/archieve.cpp',
+                 'project/handler.cpp',
+                 'project/media.cpp',
+                 'project/menu.cpp',
+                 'project/srl-common.cpp',
+                 'project/srl-db.cpp',
+                 'project/table.cpp',
+                ]
+
+resource_defines = []
+if 'install' in BUILD_TARGETS:
+    resource_defines = [('DATA_PREFIX', '\'\"' + user_options_dict['INST_DATA_PREFIX'] + '\"\'')]
+
+# add define to CPPDEFINES, not replace old CPPDEFINES
+resources_obj = lib_mbase_env.Object('resources.cpp', CPPDEFINES = resource_defines + lib_mbase_env['CPPDEFINES'])
+
+# Precompiled header install
+user_options_dict['SetPCH'](lib_mbase_env, '_pc_.h')
+
+mbase_lib_name = 'MdBase'
+lib_mbase_env.Library( target = lib_path+'/'+mbase_lib_name, source = lib_src_files + resources_obj )
+
+######
+# bin
+
+# we like tests
+Import('TestSConscript')
+TestSConscript([
+                'TestSConscript',
+               ])
+

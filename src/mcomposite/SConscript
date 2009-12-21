@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+Import('mcomposite_env', 'user_options_dict')
+
+lib_mcomposite_env = mcomposite_env.Clone()
+bin_mcomposite_env  = mcomposite_env.Clone()
+
+source_files = [
+                #'gm_resize.cpp',
+                #'mcomponent.cpp',
+                #'megg.cpp',
+                'mmedia.cpp',
+                'mmpeg.cpp',
+                'mmpeg_demux.cpp',
+                'moptions.cpp',
+                'mstring.cpp',
+                'mtheme.cpp',
+                'mutils.cpp',
+                'mvisitor.cpp',
+                'myuvcontext.cpp'
+               ]
+
+lib_path  = user_options_dict['LIB_BUILD_DIR']
+bin_path  = user_options_dict['BIN_BUILD_DIR']
+mlib_name = 'MdComposite'
+
+lib_mcomposite_env.Library( target = lib_path+'/'+mlib_name, source = source_files )
+
+bin_mcomposite_env.Prepend( LIBS = [mlib_name, 'MdBase', 'MdDemuxer', 'MdLib'] )
+bin_mcomposite_env.Program( target = bin_path + '/mcomposite', source = ['main.cpp'] )
+
+# we like tests
+Import('TestSConscript')
+TestSConscript([
+                'tests/SConscript',
+               ])
+

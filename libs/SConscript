@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+
+import BuildVars as BV
+Import('env', 'menv', 'user_options_dict')
+
+#
+# Boost
+#
+
+embedded_boost = not user_options_dict['USE_EXT_BOOST']
+if embedded_boost:
+    # use embedded version
+    user_options_dict['BOOST_INCLUDE'] = ['#libs/boost-lib']
+    user_options_dict['BOOST_LIBPATH'] = []
+else:
+    # use only lists for build params
+    user_options_dict['BOOST_INCLUDE'] = [user_options_dict['BOOST_INCLUDE']]
+    user_options_dict['BOOST_LIBPATH'] = [user_options_dict['BOOST_LIBPATH']]
+
+boost_dict = { 'LIBPATH' : user_options_dict['BOOST_LIBPATH'] }
+if user_options_dict['BUILD_QUICK']:
+    boost_dict['CPP_POST_FLAGS'] = BV.MakeIncludeOptions(user_options_dict['BOOST_INCLUDE'], 1)
+else:
+    boost_dict['CPPPATH'] = user_options_dict['BOOST_INCLUDE']
+if not embedded_boost:
+    boost_dict['CPPDEFINES'] = ['EXT_BOOST']
+
+boost_env = menv.Clone()
+boost_env.AppendUnique(**boost_dict)
+Export('boost_env')
+
+# Boost.Test data
+boost_test_dict = { 'LIBS' : ['boost_unit_test_framework'] }
+Export('boost_test_dict')
+
+if embedded_boost:
+    # build, f.e. libboost_unit_test_framework.a 
+    #SConscript( BV.BuildDir+'/libs/boost-lib/SConscript' )
+    SConscript( 'boost-lib/SConscript' )
+
+#
+# mpeg2dec
+#
+
+mpeg2dec_src = 'mpeg2dec'
+
+# install libmpeg2 for use by the project
+lib_mpeg_prefix = mpeg2dec_src + '/libmpeg2/'
+env.Install(dir = '../lib', 
+    source = [ lib_mpeg_prefix+'libmpeg2.a', lib_mpeg_prefix+'convert/libmpeg2convert.a' ] )
+
+# # for config.h + = './include'
+# include_dir = Dir(mpeg2dec_src+'/include')
+# libmpeg2_dict = {
+#                   'CPPPATH' : [include_dir, include_dir.srcnode()],
+#                   'LIBS': ['mpeg2', 'mpeg2convert']
+#                 }
+user_options_dict['LIBMPEG2_DICT'] = { 'LIBS': ['mpeg2', 'mpeg2convert'] }
+
+SConscript([
+            mpeg2dec_src + '/SConscript',
+           ])
+
+

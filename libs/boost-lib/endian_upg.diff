@@ -1,0 +1,15 @@
+--- libs/boost-lib/boost/detail/endian.hpp	2009-04-18 23:28:38.000000000 +0400
++++ /home/ilya/opt/programming/atom-project/Temp/bombono-dvd/bombono-dvd-0.5.1/libs/boost-lib/boost/detail/endian.hpp	2009-09-09 01:15:49.000000000 +0400
+@@ -47,7 +47,11 @@
+ #elif defined(__i386__) || defined(__alpha__) \
+    || defined(__ia64) || defined(__ia64__) \
+    || defined(_M_IX86) || defined(_M_IA64) \
+-   || defined(_M_ALPHA)
++   || defined(_M_ALPHA) || defined(__amd64) \
++   || defined(__amd64__) || defined(_M_AMD64) \
++   || defined(__x86_64) || defined(__x86_64__) \
++   || defined(_M_X64) || defined(__bfin__)
++
+ # define BOOST_LITTLE_ENDIAN
+ # define BOOST_BYTE_ORDER 1234
+ #else

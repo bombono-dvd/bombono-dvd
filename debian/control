@@ -1,0 +1,20 @@
+Source: bombono-dvd
+Section: graphics
+Priority: optional
+Maintainer: Ilya Murav'jov <muravev@yandex.ru>
+Build-Depends: cdbs, debhelper (>= 4.1.0), scons, libdvdread-dev, libgtkmm-2.4-dev, libxml++2.6-dev, libmjpegtools-dev, libgraphicsmagick++1-dev
+Homepage: http://www.bombono.org
+Standards-Version: 3.6.2
+
+Package: bombono-dvd
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, dvdauthor, mjpegtools, dvd+rw-tools, scons, toolame
+Suggests: totem
+Description: DVD authoring program with nice and clean GUI
+ Bombono DVD is easy to use program for making DVD-Video.
+ The main features of Bombono DVD are:
+  * excellent MPEG viewer: Timeline and Monitor
+  * real WYSIWYG Menu Editor with live thumbnails
+  * comfortable Drag-N-Drop support
+  * you can author to folder, make ISO-image or burn directly to DVD
+  * reauthoring: you can import video from DVD discs.

@@ -1,0 +1,137 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+from SConsTwin import MakeGenAction
+import os
+
+# поменьше служебных файлов на виду
+tmp_dir = 'temp'
+if os.path.isdir(tmp_dir) == 0:
+    os.makedirs(tmp_dir)
+SConsignFile(tmp_dir + os.sep + '.sconsign')
+
+# нужен правильный $PATH и т.д.
+# просто Replace() не дают сделать
+DefaultEnvironment().Replace(ENV = os.environ)
+
+# звук тишины для неподвижных меню
+def GetkHzArgForToolame(kHz):
+    import os
+    import re
+    #s = "tooLAME version 0.2l"
+    s = os.popen("toolame -v").read()
+    #print s
+
+    m = re.compile("tooLAME version 0\.2(.)", re.M).search(s)
+
+    res = kHz
+    if m and m.group(1) == 'l':
+        pass # classic toolame
+    else:
+        res = res * 1000 # twolame or similar
+    return res
+
+argHz = GetkHzArgForToolame(48)
+Command('Silent.mp2', [], "dd if=/dev/zero bs=4 count=1920 | toolame -b 128 -s %d /dev/stdin $TARGET" % argHz)
+
+# основная функция создания меню
+import ADVD
+MakeADVDMenu = ADVD.MakeMenu 
+Export('MakeADVDMenu')
+
+import ASettings
+SConscript([menu + '/SConscript' for menu in ASettings.List])
+
+#
+# Получение опций
+#
+user_options = Options(None, ARGUMENTS)
+user_options.AddOptions(
+        ('DVDLabel', 'DVD Label', ASettings.DVDLabel),
+        ('DVDDrive', 'DVD drive to burn', ASettings.DVDDrive),
+        ('DVDSpeed', 'Writing speed', ASettings.DVDSpeed)
+    )
+user_options_env = Environment(ENV = os.environ, options = user_options)
+Help(user_options.GenerateHelpText(user_options_env))
+user_options_dict = user_options_env.Dictionary()
+
+DVDLabel = user_options_env['DVDLabel']
+DVDDrive = user_options_env['DVDDrive']
+DVDSpeed = float(user_options_env['DVDSpeed'])
+
+#
+# Основная цель
+#
+dvd_dir = 'dvd'
+# так как директория не может быть целью для команд, то выберем главный файл
+dvd_scons_target = dvd_dir + '/VIDEO_TS/VIDEO_TS.IFO'
+main_target = Command(dvd_scons_target, ['DVDAuthor.xml'] + ASettings.List,
+                      [
+                        Delete(dvd_dir),
+                        "dvdauthor -o " + dvd_dir + " -x $SOURCE",
+                      ])
+Clean(main_target, dvd_dir)
+Default(dvd_dir)
+
+#
+# Дополнительные цели
+#
+def ParentDir(fname):
+    import os
+    return os.path.dirname(fname)
+
+def GetDVDDir(video_ts_source, is_abs):
+    dvd_dir = video_ts_source.path
+    if is_abs:
+        dvd_dir = video_ts_source.abspath
+    return ParentDir(ParentDir(dvd_dir))
+
+# /totem - специально никогда недоступная цель, которую вызываем через нормальный alias
+# по-другому не знаю как сделать всегда выполняющуюся цель
+def MakeAbstractName(target_name):
+    return "/__" + target_name
+
+def MakeAbstractCommandForDVDDir(target_name, command_action):
+    abs_name = MakeAbstractName(target_name)
+    abs_target = Command(abs_name, [dvd_scons_target], MakeGenAction(command_action)) # command_gen(abs_name)
+    Alias(target_name, abs_target)
+
+# 
+# * воспроизвести результат в Totem
+#
+# всю директорию указывать нельзя - scons будет пытаться со всех файлов брать md5="тупить на 4Gb"
+def GenTotemAction(source, target, env, for_signature):
+    return "totem dvd://%s" % (GetDVDDir(source[0], 1)) # 'totem dvd://${SOURCES[0].abspath}')
+
+MakeAbstractCommandForDVDDir("totem", GenTotemAction)
+
+DVDLabelOption = ''
+if DVDLabel:
+    DVDLabelOption = " -V '" + DVDLabel + "'"
+
+def MkIsoArgs(source):
+    return '%s -dvd-video %s' % (DVDLabelOption, GetDVDDir(source[0], 0))
+#
+# * записать iso-образ
+#
+def GenIsoAction(source, target, env, for_signature):
+    return "mkisofs%s > %s" % (MkIsoArgs(source), target[0].path)
+
+# Замечание: 'scons -c' не удаляет iso, надо 'scons -c dvd.iso'
+Command(dvd_dir + '.iso', [dvd_scons_target], MakeGenAction(GenIsoAction)) # "mkisofs -dvd-video $SOURCE > $TARGET")
+
+DVDDriveArg    = '/dev/null'
+if DVDDrive:
+    DVDDriveArg = DVDDrive
+
+DVDSpeedOption = ''
+if DVDSpeed:
+    DVDSpeedOption = ' -speed=' + str(DVDSpeed)
+#
+# * прожечь на DVD = "growisofs -dry-run -dvd-compat -Z /dev/dvd -dvd-video dvd"
+# -use-the-force-luke=tty - чтобы без сомнений переписывал сожержимое DVD-+RW
+def GenBurnAction(source, target, env, for_signature):
+    return "growisofs -dvd-compat -use-the-force-luke=tty%s -Z %s%s" % (DVDSpeedOption, DVDDriveArg, MkIsoArgs(source))
+
+MakeAbstractCommandForDVDDir("burn", GenBurnAction)
+

@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<AProject Version="0.5">
+<!--This document is for "Bombono DVD" program-->
+  <Globals PAL="1" First-Play="Media.1">
+    <DefMenuParams Aspect="2">
+      <Resolution x="720" y="576"/>
+    </DefMenuParams>
+  </Globals>
+  <Medias>
+    <Media Name="Autumn" Path="../../../Autumn.mpg" Type="Video">
+      <Part Name="Chapter 1">9.7999999999999989</Part>
+      <Part Name="Chapter 2">20</Part>
+      <Part Name="Chapter 3">30</Part>
+    </Media>
+    <Media Name="transition" Path="../../../transition.mpg" Type="Video">
+      <Part Name="Chapter">6</Part>
+    </Media>
+    <Media Name="Title" Path="../../../samples/backgrounds/space-01.jpg" Type="StillPicture"/>
+  </Medias>
+  <Menus>
+    <Menu Name="Billiard" BGRef="Media.0" Color="#f0e000ff">
+      <Params Aspect="2">
+        <Resolution x="720" y="576"/>
+      </Params>
+      <MenuItems>
+        <MenuItem Name="" Frame="ogradient" Type="Frame Item" Ref="Menu.2">
+          <Placement lft="371" top="73" rgt="621" btm="223"/>
+        </MenuItem>
+        <MenuItem Name="" Frame="oval" Type="Frame Item" Ref="Media.1">
+          <Placement lft="375" top="286" rgt="625" btm="436"/>
+        </MenuItem>
+        <MenuItem Name="My Text" Font="Kedage 39.041015625" Underline="1" Color="#f0e0f0ff" Type="Text Item" Ref="Media.0.0">
+          <Placement lft="78" top="339" rgt="276" btm="392"/>
+        </MenuItem>
+        <MenuItem Name="" Frame="gradient" Type="Frame Item" Ref="Menu.1">
+          <Placement lft="72" top="58" rgt="285" btm="177"/>
+        </MenuItem>
+      </MenuItems>
+    </Menu>
+    <Menu Name="W/O Back" BGRef="Media.1" Color="#000000ff">
+      <Params Aspect="2">
+        <Resolution x="720" y="576"/>
+      </Params>
+      <MenuItems>
+        <MenuItem Name="" Frame="roundrect" Type="Frame Item" Ref="Media.0.0">
+          <Placement lft="150" top="100" rgt="550" btm="450"/>
+        </MenuItem>
+      </MenuItems>
+    </Menu>
+    <Menu Name="Menu 4" BGRef="Media.0" Color="#000000ff">
+      <Params Aspect="2">
+        <Resolution x="720" y="576"/>
+      </Params>
+      <MenuItems>
+        <MenuItem Name="" Frame="cell" Type="Frame Item" Ref="Media.1.0">
+          <Placement lft="427" top="135" rgt="656" btm="275"/>
+        </MenuItem>
+        <MenuItem Name="Part 2" Font="Sans 33.2119140625" Underline="0" Color="#f0e060ff" Type="Text Item" Ref="">
+          <Placement lft="105" top="417" rgt="235" btm="470"/>
+        </MenuItem>
+        <MenuItem Name="" Frame="stonerect" Type="Frame Item" Ref="Media.1">
+          <Placement lft="98" top="51" rgt="317" btm="194"/>
+        </MenuItem>
+      </MenuItems>
+    </Menu>
+  </Menus>
+</AProject>

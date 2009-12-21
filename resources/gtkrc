@@ -1,0 +1,100 @@
+style "TrackBrowserStyle"
+{
+    #GtkTreeView    ::vertical-separator = 15
+    #GtkTreeView    ::horizontal-separator = 0
+    #GtkTreeView    ::tree-line-width    = 10
+
+    #GtkTreeView    ::expander_size        = 15
+}
+
+style "MenuEntryStyle"
+{
+    font_name = "13"
+}
+
+style "MListButtonBoxStyle"
+{
+    GtkButtonBox    ::child-min-width = 70
+}
+
+# :TODO: replace by 'widget' expr
+# widget "*.TrackBrowser" style "TrackBrowserStyle"
+widget_class "*GtkTreeView" style "TrackBrowserStyle"
+
+widget "*MenuBrowser.GtkEntry" style "MenuEntryStyle"
+widget "*MListButtonBox" style "MListButtonBoxStyle"
+
+#
+# TrackLayout
+# 
+style "TrackLayoutStyle"
+{
+    GtkPaned       ::handle_size    = 0
+}
+
+style "NonActiveButtonStyle"
+{
+                     xthickness        = 1
+                     ythickness        = 1
+    GtkWidget      ::focus-padding     = 0
+    GtkWidget      ::focus-line-width  = 0
+}
+
+style "ScaleTrackButtonStyle" = "NonActiveButtonStyle"
+{
+    GtkButton      ::inner_border    = { 1, 1, 1, 3 }
+}
+
+style "DVDLabelButtonStyle" = "NonActiveButtonStyle"
+{
+    GtkButton      ::inner_border    = { 4, 4, 1, 1 }
+}
+
+style "BigLabelEntryStyle"
+{
+    #font_name = "FreeSans Bold 11"
+    font_name = "Nimbus Sans L Bold Condensed 13"
+}
+
+style "MenuNotebookStyle"
+{
+    #xthickness = 0
+    ythickness = 0
+}
+#widget "*MenuNotebook" style "MenuNotebookStyle"
+
+widget "*AppXPaned" style "TrackLayoutStyle"
+widget "*ScaleTrackButton" style "ScaleTrackButtonStyle"
+widget "*DVDLabelButton" style "DVDLabelButtonStyle"
+#widget "DVDLabelButton" style "DVDLabelButtonStyle"
+widget "*BigLabelEntry" style "BigLabelEntryStyle"
+
+style "NewProjectStyle"
+{
+    GtkDialog    ::content-area-border = 0
+}
+widget "*NewProject" style "NewProjectStyle"
+
+style "AboutDialogStyle"
+{
+    bg_pixmap[NORMAL]="about-back.png"
+}
+widget "*AboutBombonoDVD" style "AboutDialogStyle"
+style "AboutDialogTextStyle"
+{
+    fg[NORMAL] = "#ffffff"
+    fg[PRELIGHT] = "#ffffff"
+}
+widget "*AboutBombonoDVD*GtkLabel" style "AboutDialogTextStyle"
+
+style "AboutDialogButtonStyle"
+{
+    GtkWidget::link-color = "#ffffff"
+    #bg_pixmap[NORMAL]="about-back.png"
+    bg[PRELIGHT] = "#398799"
+    bg[NORMAL] = "#398799"
+}
+# :TODO: why dont work "*AboutBombonoDVD*<GtkButton>" ?
+widget "*AboutBombonoDVD*GtkLinkButton" style "AboutDialogButtonStyle"
+widget "*AboutBombonoDVD*GtkButton" style "AboutDialogButtonStyle"
+

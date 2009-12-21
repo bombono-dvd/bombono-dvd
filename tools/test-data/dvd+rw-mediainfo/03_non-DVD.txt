@@ -1,0 +1,3 @@
+:-( non-DVD media mounted, exiting...
+INQUIRY:                [Slimtype][DVDRW SOSW-833S ][VRS1]
+GET [CURRENT] CONFIGURATION:

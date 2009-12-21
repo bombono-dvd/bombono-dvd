@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+Import('mdemux_tests_env', 'user_options_dict', 'UnitTest')
+
+lib_mdemux_tests_env = mdemux_tests_env.Clone()
+bin_mdemux_tests_env = mdemux_tests_env.Clone()
+
+lib_path  = user_options_dict['LIB_BUILD_DIR']
+#bin_path  = user_options_dict['BIN_BUILD_DIR']
+
+######
+# lib
+mdemux_tests_lib_name = 'mdemux_tests'
+lib_src_files = [
+                 'log.cpp',
+                ]
+
+# Precompiled header install
+user_options_dict['SetPCH'](lib_mdemux_tests_env, '_pc_.h', [bin_mdemux_tests_env])
+
+lib_mdemux_tests_env.Library( target = lib_path +'/'+mdemux_tests_lib_name, source = lib_src_files )
+
+######
+# bin
+
+bin_mdemux_tests_env.Prepend( LIBS = [mdemux_tests_lib_name, 'mlib_tests', 'MdComposite', 'MdDemuxer', 'MdLib'] )
+
+test_prg_name = 'mdemux_tests'
+source_files = [
+                'test_dvdread.cpp',
+                'test_main.cpp',
+                'test_mpeg2.cpp',
+               ]
+
+bin_mdemux_tests_env.Program( target = test_prg_name, source = source_files )
+
+UnitTest(test_prg_name, bin_mdemux_tests_env)
+
+#
+# simple utility - cut mpeg by time
+#
+bin_mdemux_tests_env.Program( target = 'cutmpeg', source = 'cutmpeg.cpp' )
+#
+# benchmark for Mpeg::Player
+#
+bin_mdemux_tests_env.Program( target = 'mpeg2bench', source = 'mpeg2bench.cpp' )
+
+#
+# lpcm2wav
+#
+bin_mdemux_tests_env.Program( target = 'lpcm2wav', source = 'lpcm2wav.cpp' )
+
+#
+# ac3_splitter
+#
+bin_mdemux_tests_env.Program( target = 'ac3_splitter', source = 'ac3_splitter.cpp' )
+

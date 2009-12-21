@@ -1,0 +1,62 @@
+        About Bombono DVD.
+
+Bombono DVD is DVD authoring program with nice and clean GUI.
+The project homepage is
+
+    http://www.bombono.org
+
+Bombono DVD is 'Open Source' and licensed under GPL 
+(GNU General Public License, version 2), see COPYING. Boost Library is under 
+Boost Software License Version 1.0, see boost-lib/LICENSE_1_0.txt.
+
+Version: 0.5.2
+
+Author:
+ Ilya Murav'jov <muravev@yandex.ru>
+
+Design:
+ Ilya Murav'jov
+ Aleksandr Finogentov
+
+
+Installation Instructions
+=========================
+
+I. Requirements:
+ o gtk+           >= 2.8,- http://www.gtk.org/
+ o gtkmm          >= 2.4,- http://www.gtkmm.org/
+ o SCons          >= 0.96.1,- http://www.scons.org/
+ o GraphicsMagick >= 1.1.7,- http://www.graphicsmagick.org/
+ o mjpegtools     >= 1.8.0,- http://mjpeg.sourceforge.net/
+ o libdvdread     - http://www.dtek.chalmers.se/groups/dvd/
+ o dvdauthor      - http://dvdauthor.sourceforge.net/
+ o dvd+rw-tools   - http://fy.chalmers.se/~appro/linux/DVD+RW/
+ o toolame        - http://sourceforge.net/projects/toolame/
+ o libxml++       - http://libxmlplusplus.sourceforge.net/
+
+II. You need SCons to build Bombono DVD - maybe the best build tool ever. ;) 
+SCons is just make&autotools&libtool all together. Type:
+ 1) unpack
+    $ tar -xjf bombono-dvd-0.5.tar.bz2 
+    $ cd bombono-dvd-0.5
+ 2) build
+    $ scons
+ 3) install (to /usr/local)
+    $ sudo scons install
+  or to anywhere
+    $ sudo scons PREFIX=<anywhere> install
+
+You can see other options to build:
+    $ scons -h
+For instance:
+    $ scons BUILD_CFG=debug     # for debugging
+    $ scons TEST=1              # run tests
+
+III. Packaging Bombono DVD:
+ - see ./debian for Debian-based distros
+ - see ./tools/scripts/bombono-dvd.spec for RPM-based distros
+
+
+Documentation
+=============
+See http://www.bombono.org/Documentation

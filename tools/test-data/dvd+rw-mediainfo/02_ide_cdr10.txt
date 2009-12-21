@@ -1,0 +1,2 @@
+:-( not a DVD unit
+INQUIRY:                [NECVMWar][VMware IDE CDR10][1.00]

@@ -1,0 +1,33 @@
+INQUIRY:                [Slimtype][DVDRW SOSW-833S ][VRS1]
+GET [CURRENT] CONFIGURATION:
+ Mounted Media:         13h, DVD-RW Restricted Overwrite
+ Media ID:              TDK601saku  
+ Current Write Speed:   4.0x1385=5540KB/s
+ Write Speed #0:        4.0x1385=5540KB/s
+ Write Speed #1:        2.0x1385=2770KB/s
+GET [CURRENT] PERFORMANCE:
+ Write Performance:     1.6x1385=2216KB/s@0 -> 1.8x1385=2488KB/s@188927
+ Speed Descriptor#0:    00/188927 R@6.0x1385=8310KB/s W@4.0x1385=5540KB/s
+ Speed Descriptor#1:    00/188927 R@6.0x1385=8310KB/s W@2.0x1385=2770KB/s
+READ DVD STRUCTURE[#10h]:
+ Media Book Type:       33h, DVD-RW book [revision 3]
+ Legacy lead-out at:    2298496*2KB=4707319808
+READ DVD STRUCTURE[#0h]:
+ Media Book Type:       33h, DVD-RW book [revision 3]
+ Last border-out at:    188928*2KB=386924544
+READ DISC INFORMATION:
+ Disc status:           complete
+ Number of Sessions:    1
+ State of Last Session: complete
+ Number of Tracks:      1
+READ TRACK INFORMATION[#1]:
+ Track State:           complete incremental
+ Track Start Address:   0*2KB
+ Free Blocks:           0*2KB
+ Fixed Packet Size:     16*2KB
+ Track Size:            188928*2KB
+FABRICATED TOC:
+ Track#1  :             14@0
+ Track#AA :             14@188928
+ Multi-session Info:    #1@0
+READ CAPACITY:          188928*2048=386924544

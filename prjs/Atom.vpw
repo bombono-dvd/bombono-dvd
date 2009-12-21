@@ -1,0 +1,25 @@
+<!DOCTYPE Workspace SYSTEM "http://www.slickedit.com/dtd/vse/10.0/vpw.dtd">
+<Workspace Version="10.0" VendorName="SlickEdit">
+	<Environment>
+		<Set Name="LANG" Value="C"/>
+		<Set Name="SCONS" Value="scons -k BUILD_BRIEF=1"/>
+		<Set Name="SC_BUILD_DIR" Value="build/"/>
+		<Set Name="SC_COMPILE_NAME" Value='%XE`compose_output_dir.py "%p%n" "%rw" "%(SC_BUILD_DIR)"`%oe'/>
+		<Set Name="ATOM_LOG" Value="warn"/>
+	</Environment>
+	<Projects>
+		<Project File="boost-lib.vpj"/>
+		<Project File="boost-logging.vpj"/>
+		<Project File="libmpeg2.vpj"/>
+		<Project File="mbase.vpj"/>
+		<Project File="mbase_tests.vpj"/>
+		<Project File="mcomposite.vpj"/>
+		<Project File="mcomposite_tests.vpj"/>
+		<Project File="mdemux.vpj"/>
+		<Project File="mdemux_tests.vpj"/>
+		<Project File="mgui.vpj"/>
+		<Project File="mgui_tests.vpj"/>
+		<Project File="mlib.vpj"/>
+		<Project File="mlib_tests.vpj"/>
+	</Projects>
+</Workspace>

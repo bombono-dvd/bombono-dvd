@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+Import('mgui_tests_env', 'user_options_dict', 'UnitTest')
+
+bin_mgui_tests_env = mgui_tests_env.Clone()
+
+bin_mgui_tests_env.Prepend( LIBS = ['MdEditor', 'mbase_tests', 'mdemux_tests', 'mlib_tests', 'MdBase',
+                                    'MdDemuxer', 'MdLib'] )
+
+test_prg_name = 'mgui_tests'
+source_files = [
+                'clearlooks.cpp',
+                'test_author.cpp',
+                'test_burn.cpp',
+                'test_compile.cpp',
+                'test_dnd.cpp',
+                'test_dvdimport.cpp',
+                'test_execute.cpp',
+                'test_meditor.cpp',
+                'test_menu.cpp',
+                'test_main.cpp',
+                'test_mbrowser.cpp',
+                'test_redivide.cpp',
+                'test_stream_utils.cpp',
+                #'test_scaled_text.cpp',
+                'test_text.cpp',
+                'test_treeview.cpp',
+                'test_trk_win.cpp',
+               ]
+
+# Precompiled header install
+user_options_dict['SetPCH'](bin_mgui_tests_env, '_pc_.h')
+
+bin_mgui_tests_env.Program( target = test_prg_name, source = source_files )
+
+import os
+if os.environ.has_key('DISPLAY'):
+    UnitTest(test_prg_name, bin_mgui_tests_env)
+else:
+    print "Warning: X Display is not found. GUI tests are disabled."
+

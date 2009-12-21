@@ -1,0 +1,120 @@
+#!/usr/bin/env python
+
+#######################
+# Port from Automake.am
+#
+#SUBDIRS = autotools include libmpeg2 libvo doc src vc++ test
+#
+#EXTRA_DIST = bootstrap CodingStyle
+
+# :BUG: cant use 'autoconf' system in SCons with BuildDir()
+# because log_file cant be written to build dir
+#SConscript(['SConscript.autoconf'])
+
+import BuildVars
+Import('env', 'user_options_dict')
+
+libmpeg2_env = env.Clone()
+
+if BuildVars.IsGccCompiler():
+    warn_flags    = ['-Wall', '-fno-common']
+    if BuildVars.BuildProfile:
+        release_flags = []
+    else:
+        release_flags = ['-fomit-frame-pointer']
+else:
+    warn_flags    = []
+    release_flags = []
+
+defines = ['HAVE_CONFIG_H']
+cflags  = warn_flags
+if BuildVars.IsDebugCfg():
+    defines += ['DEBUG']
+else:
+    cflags += release_flags
+
+# Arch flags should be set via command options like "scons CFLAGS='-mtune=i686' CXXFLAGS='-mtune=i686'"
+# # arch-specific flags
+# if BuildVars.IsGccCompiler():
+#     if BuildVars.IsX86Arch():
+#         str = BuildVars.GetArch() # f.e., i586
+#         if str[1] in ['3', '4', '5', '6']:
+#             cflags += ['-mtune=i' + str[1] + '86']
+#     elif BuildVars.IsSparcArch():
+#         cflags += ['-mcpu=ultrasparc', '-mvis']
+
+#
+libmpeg2_env.Append(CCFLAGS = cflags, CPPDEFINES = defines)
+
+def AddDescDefine(cfg_file, name, is_on = 1, val = '""', **opt):
+    opt.update({'is_on':is_on, 'val':val})
+    BuildVars.AddDefine(cfg_file, name, **opt)
+
+def AddMpeg2DecDesc(cfg_file):
+    AddDescDefine(cfg_file, 'PACKAGE', val = '"mpeg2dec"', comment = "Name of package")
+    AddDescDefine(cfg_file, 'PACKAGE_BUGREPORT', 
+        comment = "Define to the address where bug reports for this package should be sent.")
+    AddDescDefine(cfg_file, 'PACKAGE_NAME', 
+        comment = "Define to the full name of this package.")
+    AddDescDefine(cfg_file, 'PACKAGE_STRING', 
+        comment = "Define to the full name and version of this package.")
+    AddDescDefine(cfg_file, 'PACKAGE_TARNAME', 
+        comment = "Define to the one symbol short name of this package.")
+    AddDescDefine(cfg_file, 'PACKAGE_VERSION', 
+        comment = "Define to the version of this package.")
+    AddDescDefine(cfg_file, 'VERSION', val = '"0.4.0b"', comment = "Version number of package")
+
+
+def GenerateMpeg2DecCfg(target, source, env):
+    cfg_file = open(target[0].path, 'w')
+    print >> cfg_file, "/* Auto-generated header */"
+    print >> cfg_file
+    print >> cfg_file, '#include <cfg/config.h>'
+
+    BuildVars.AddDefine(cfg_file, 'ACCEL_DETECT', is_on = 1, comment = "autodetect accelerations")
+    BuildVars.AddDefine(cfg_file, 'LIBVO_DX',     is_on = 0, comment = "libvo DirectX support")
+    BuildVars.AddDefine(cfg_file, 'LIBVO_MJPEGTOOLS', is_on = 0, comment = "libvo mjpegtools support")
+
+    # :TODO: make use of SDL and turn this on
+    BuildVars.AddDefine(cfg_file, 'LIBVO_SDL', is_on = 0, comment = "libvo SDL support")
+    BuildVars.AddDefine(cfg_file, 'LIBVO_X11', is_on = 0, comment = "libvo X11 support")
+    BuildVars.AddDefine(cfg_file, 'LIBVO_XV',  is_on = 0, comment = "libvo Xv support")
+    BuildVars.AddDefine(cfg_file, 'MPEG2DEC_GPROF', is_on = 0)
+
+    # Package description
+    AddMpeg2DecDesc(cfg_file)
+
+    BuildVars.AddDefine(cfg_file, 'TIME_WITH_SYS_TIME', is_on = 1, val = '1', 
+        comment = "Define to 1 if you can safely include both <sys/time.h> and <time.h>.")
+
+    # :TODO: delete?
+    BuildVars.AddDefine(cfg_file, 'X_DISPLAY_MISSING', is_on = 1, val = '1', 
+        comment = "Define to 1 if the X Window System is missing or not being used.")
+    # legacy (see Autoconfig)
+    # BuildVars.AddDefine(cfg_file, 'STDC_HEADERS', is_on = 1, val = '1')
+    # BuildVars.AddDefine(cfg_file, '_FILE_OFFSET_BITS', is_on = 1, val = '1')
+    # BuildVars.AddDefine(cfg_file, '_LARGE_FILES', is_on = 1, val = '1')
+
+    cfg_file.close()
+
+BuildVars.MakeConfigFile(target = 'include/config.h', source = [], gen_function = GenerateMpeg2DecCfg)
+
+# for config.h + = './include'
+include_dir = Dir('include')
+libmpeg2_env.Append(CPPPATH = [include_dir, include_dir.srcnode()])
+Export('libmpeg2_env')
+
+libvo_env = libmpeg2_env.Clone()
+# libvo_env.Append(CPPPATH = ['/usr/include/SDL'], DEFINES = ['_REENTRANT'])
+# libvo_env.Append(LIBPATH = ['/usr/X11R6/lib'])
+# libvo_env.Append(LIBS=['SM', 'ICE', 'X11', 'Xext', 'Xv', 'SDL','pthread'])
+
+Export('libvo_env')
+
+SConscript([
+            'libmpeg2/SConscript',
+            'libvo/SConscript',
+            #'doc/SConscript',
+            'src/SConscript',
+           ])
+

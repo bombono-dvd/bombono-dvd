@@ -1,0 +1,11 @@
+#include <boost/test/auto_unit_test.hpp>
+#include <boost/type_traits/is_member_pointer.hpp>
+
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
+#include <boost/lambda/if.hpp>
+
+#include <boost/function.hpp>
+
+// проверить полноту "вырезанной"  части из Boost:
+// LANG=C g++ -I. -H -x c++ test_include 2>&1 | grep error

@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<AProject Version="0.4">
+<!--This document is for "The Atom Project" program-->
+  <Globals PAL="1">
+    <DefMenuParams Aspect="2">
+      <Resolution x="721" y="576"/>
+    </DefMenuParams>
+  </Globals>
+  <Medias>
+    <Media Name="Autumn" Path="../../../Autumn.mpg" Type="Video">
+      <Part Name="Chapter 1">10</Part>
+      <Part Name="Chapter 2">20</Part>
+      <Part Name="Chapter 3">30</Part>
+    </Media>
+    <Media Name="AcerTX" Path="../../../AcerTX.jpg" Type="StillPicture"/>
+    <Media Name="transition" Path="../../../transition.mpg" Type="Video">
+      <Part Name="Chapter">6</Part>
+    </Media>
+<!-- 
+    <Media Name="Flower" Path="./flower.jpg" Type="StillPicture"/> 
+-->
+    <Media Name="Title" Path="../../../samples/Screenshots/Billiard/Title.png" Type="StillPicture"/> 
+<!-- 
+    <Media Name="Kurta" Path="../../../samples/Screenshots/Billiard/4-Part_1-Kurta.png" Type="StillPicture"/> 
+    <Media Name="Onichenko-win" Path="../../../samples/Screenshots/Billiard/9-Onichenko-win.png" Type="StillPicture"/> 
+-->
+  </Medias>
+  <Menus>
+    <Menu Name="Billiard" BGRef="Media.3">
+      <Params Aspect="2">
+        <Resolution x="720" y="576"/>
+      </Params>
+      <MenuItems>
+        <MenuItem Name="Frame" Frame="stonerect" Type="Frame Item" Ref="Media.2.0">
+          <Placement lft="75" top="40" rgt="325" btm="190"/>
+        </MenuItem>
+        <MenuItem Name="Frame" Frame="ogradient" Type="Frame Item" Ref="Media.1">
+          <Placement lft="75" top="300" rgt="325" btm="450"/>
+        </MenuItem>
+        <MenuItem Name="My Text" Font="Sans Bold 34.3017578125" Type="Text Item" Ref="Media.1">
+          <Placement lft="400" top="300" rgt="600" btm="350"/>
+        </MenuItem>
+      </MenuItems>
+    </Menu>
+    <Menu Name="W/O Back" BGRef="Media.2">
+      <Params Aspect="2">
+        <Resolution x="720" y="576"/>
+      </Params>
+      <MenuItems>
+        <MenuItem Name="Frame" Frame="" Type="Frame Item" Ref="Menu.2">
+          <Placement lft="150" top="100" rgt="550" btm="450"/>
+        </MenuItem>
+      </MenuItems>
+    </Menu>
+    <Menu Name="Menu 3" BGRef="Media.1">
+      <Params Aspect="2">
+        <Resolution x="720" y="576"/>
+      </Params>
+      <MenuItems>
+        <MenuItem Name="Frame" Frame="rect" Type="Frame Item" Ref="Menu.1">
+          <Placement lft="150" top="100" rgt="550" btm="450"/>
+        </MenuItem>
+      </MenuItems>
+    </Menu>
+  </Menus>
+</AProject>

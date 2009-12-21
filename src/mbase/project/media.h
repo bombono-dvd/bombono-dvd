@@ -1,0 +1,180 @@
+//
+// mbase/project/media.h
+// This file is part of Bombono DVD project.
+//
+// Copyright (c) 2008-2009 Ilya Murav'jov
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+// 
+
+#ifndef __MBASE_PROJECT_MEDIA_H__
+#define __MBASE_PROJECT_MEDIA_H__
+
+#include <mlib/ptr.h>
+
+#include "const.h"
+#include "object.h"
+
+namespace Project
+{
+
+class Archieve;
+
+template<class SimpleObj, class ParentObj = Object>
+class PSO: public SimpleVisitorObject<SimpleObj, ParentObj, ObjVisitor>
+{};
+
+
+class Media: public Object
+{
+    public:
+        std::string mdName; // название
+
+                     void  Serialize(Archieve& ar);
+                           // :TODO: добавить "папки"
+                     bool  IsFolder() { return false; }
+                           // тип медиа
+    virtual   std::string  TypeString() = 0; 
+
+    protected:
+
+          virtual    void  SerializeImpl(Archieve& ar) = 0;
+};
+
+// объект, представляющий один (медиа)файл
+class StorageMD: public Media
+{
+    public:
+
+                     void  MakeByPath(const std::string& path, bool cnv_to_utf8 = true,
+                                      const std::string& cur_dir = std::string());
+    
+        const std::string& GetPath() { return mdPath; }
+
+          protected:
+
+              std::string mdPath; // абсолютный адрес медиа
+
+                           // в отличие от GetPath(), требуется только для 
+                           // MakeByPath()
+                     void  SetPath(const std::string& abs_path);
+        virtual      void  SerializeImpl(Archieve& ar);
+};
+
+// typedef ptr::shared<Media> MediaItem;
+// typedef ptr::shared<StorageMD> StorageItem;
+typedef boost::intrusive_ptr<Media> MediaItem;
+typedef boost::intrusive_ptr<StorageMD> StorageItem;
+
+// изображение
+class StillImageMD: public PSO<StillImageMD, StorageMD> // от StorageMD
+{
+    typedef StorageMD MyParent;
+    public:
+            
+    virtual   std::string  TypeString() { return "Still Picture"; }
+        virtual      void  SerializeImpl(Archieve& ar);
+};
+
+class VideoMD;
+class VideoChapterMD;
+// typedef ptr::shared<VideoChapterMD> ChapterItem;
+// typedef ptr::shared<VideoMD> VideoItem;
+typedef boost::intrusive_ptr<VideoChapterMD> ChapterItem;
+typedef boost::intrusive_ptr<VideoMD> VideoItem;
+
+// видео
+class VideoMD: public PSO<VideoMD, StorageMD> // от StorageMD
+{
+    typedef StorageMD MyParent;
+    public:
+        typedef std::vector<ChapterItem> ListType;
+        typedef      ListType::iterator  Itr;
+
+                void  AddChapter(ChapterItem chp);
+                void  OrderByTime();
+
+ virtual std::string  TypeString() { return "Video"; }
+            ListType& List() { return chpLst; }
+    virtual     void  SerializeImpl(Archieve& ar);
+                
+    protected:
+
+        ListType  chpLst; // список глав
+};
+
+
+// глава в видео
+class VideoChapterMD: public PSO<VideoChapterMD, Media> // от Media
+{
+    public:
+      VideoMD * const  owner;
+               double  chpTime; // начало 
+
+       static ChapterItem  CreateChapter(VideoMD* owner, double time)
+                           {
+                               ChapterItem chp(new VideoChapterMD(owner, time));
+                               owner->AddChapter(chp);
+                               return chp;
+                           }
+
+      virtual std::string  TypeString() { return "Chapter"; }
+       virtual       void  SerializeImpl(Archieve& ar);
+ 
+    protected:
+
+                    VideoChapterMD(): owner(0), chpTime(0) {}
+
+                    VideoChapterMD(VideoMD* own, double time)
+                        : owner(own), chpTime(time) 
+                    {}
+
+                    friend VideoChapterMD* MakeEmptyChapter();
+};
+
+// для служебных целей (вроде поиска)
+inline VideoChapterMD* MakeEmptyChapter() { return new VideoChapterMD; }
+
+// :TRICKY: используются dynamic/static-приведения
+// более универсальный механизм - посетитель ObjVisitor
+ChapterItem IsChapter(MediaItem mi);
+VideoItem   IsVideo(MediaItem mi);
+StorageItem IsStorage(MediaItem mi);
+
+inline StorageItem GetAsStorage(MediaItem mi)
+{
+    return ptr::static_pointer_cast<StorageMD>(mi);
+}
+
+
+inline VideoMD::ListType& GetList(ChapterItem chp) { return chp->owner->List(); }
+
+// найти позицию главы в видео (owner)
+VideoMD::Itr ChapterPos(ChapterItem chp);
+inline int ChapterPosInt(ChapterItem chp) { return ChapterPos(chp) - GetList(chp).begin(); }
+
+// получить имя файла, по которому открывать медиа
+std::string GetFilename(StorageMD& smd);
+std::string MakeAutoName(const std::string& str, int old_sz);
+
+// удаление объекта
+void DeleteMedia(MediaItem mi);
+void DeleteChapter(VideoMD::ListType& chp_lst, VideoMD::Itr itr);
+
+} // namespace Project
+
+#endif // #ifndef __MBASE_PROJECT_MEDIA_H__
+
+

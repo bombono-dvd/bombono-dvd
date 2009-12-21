@@ -1,0 +1,33 @@
+# Project: logginggcc
+# Makefile created by Dev-C++ 4.9.9.2
+
+CPP  = g++.exe
+CC   = gcc.exe
+WINDRES = windres.exe
+RES  = 
+OBJ  = main.o ../../tests/format/test_simple_formatter.o $(RES)
+LINKOBJ  = main.o ../../tests/format/test_simple_formatter.o $(RES)
+LIBS =  -L"C:/Dev-Cpp/lib"  
+INCS =  -I"C:/Dev-Cpp/include"  -I"."  -I"../../../.." 
+CXXINCS =  -I"C:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"C:/Dev-Cpp/include/c++/3.4.2/backward"  -I"C:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"C:/Dev-Cpp/include/c++/3.4.2"  -I"C:/Dev-Cpp/include"  -I".."  -I"D:/boosts/boost_1_33_1"  -I"."  -I"../../../.." 
+BIN  = logginggcc.exe
+CXXFLAGS = $(CXXINCS)  
+CFLAGS = $(INCS)  
+RM = rm -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before logginggcc.exe all-after
+
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o "logginggcc.exe" $(LIBS)
+
+main.o: main.cpp
+	$(CPP) -c main.cpp -o main.o $(CXXFLAGS)
+
+../../tests/format/test_simple_formatter.o: ../../tests/format/test_simple_formatter.cpp
+	$(CPP) -c ../../tests/format/test_simple_formatter.cpp -o ../../tests/format/test_simple_formatter.o $(CXXFLAGS)

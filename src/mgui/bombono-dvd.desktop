@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=Bombono DVD
+Comment=DVD authoring program
+Icon=bombono-dvd
+Exec=bombono-dvd
+Categories=Video;AudioVideo;DiscBurning;GTK;
+Terminal=false

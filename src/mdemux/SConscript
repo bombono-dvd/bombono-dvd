@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+Import('mdemux_env', 'user_options_dict')
+
+lib_mdemux_env = mdemux_env.Clone()
+bin_mdemux_env = mdemux_env.Clone()
+
+lib_path  = user_options_dict['LIB_BUILD_DIR']
+bin_path  = user_options_dict['BIN_BUILD_DIR']
+
+######
+# lib
+lib_src_files = [
+                 'decoder.cpp',
+                 'dvdread.cpp',
+                 #'log.cpp',
+                 'mpeg.cpp',
+                 'mpeg_video.cpp',
+                 'player.cpp',
+                 'seek.cpp',
+                 'service.cpp',
+                 'trackbuf.cpp',
+                 'videoline.cpp',
+                ]
+
+mdemux_lib_name = 'MdDemuxer'
+lib_mdemux_env.Library( target = lib_path+'/'+mdemux_lib_name, source = lib_src_files )
+
+######
+# bin
+
+bin_mdemux_env.Prepend( LIBS = [mdemux_lib_name, 'MdLib'] )
+
+#
+# simple utility - demux mpeg/vob for elementary streams
+#
+mpeg2demux_bin = bin_mdemux_env.Program( target = bin_path + '/mpeg2demux', source = 'mpeg2demux.cpp' )
+bin_mdemux_env.Install(user_options_dict['BIN_PREFIX'], mpeg2demux_bin)
+
+# we like tests
+Import('TestSConscript')
+TestSConscript([
+                'tests/SConscript',
+               ])
+

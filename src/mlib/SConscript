@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+Import('mlib_env', 'user_options_dict')
+
+lib_mlib_env = mlib_env.Clone()
+bin_mlib_env = mlib_env.Clone()
+
+lib_path  = user_options_dict['LIB_BUILD_DIR']
+#bin_path  = user_options_dict['BIN_BUILD_DIR']
+
+######
+# lib
+lib_src_files = [
+                 'dataware.cpp',
+                 'filesystem.cpp',
+                 'geom2d.cpp',
+                 'read_stream.cpp',
+                 'stream.cpp',
+                 'tech.cpp',
+
+                 'sdk/logger.cpp',
+                 #'sdk/memmem.cpp',
+                 'sdk/misc.cpp',
+                 'sdk/stream_util.cpp',
+                 'sdk/system.cpp'
+                ]
+
+mlib_lib_name = 'MdLib'
+lib_mlib_env.Library( target = lib_path+'/'+mlib_lib_name, source = lib_src_files )
+
+######
+# bin
+
+#bin_mlib_env.Prepend( LIBS = [lib_mlib_env] )
+#bin_mlib_env.Program( target = bin_path + '/mliber', source = ['mlib.cpp'] )
+
+# we like tests
+Import('TestSConscript')
+TestSConscript([
+                'tests/SConscript',
+               ])
+

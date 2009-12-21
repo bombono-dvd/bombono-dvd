@@ -1,0 +1,397 @@
+#!/usr/bin/env python
+
+#
+# Make configuration like autoconf
+#
+
+import sys
+from BuildVars import *
+
+Import('user_options_dict')
+
+ConfigDict = {}
+user_options_dict['CONFIGURATION'] = ConfigDict
+
+############################################
+
+def GetYesNo(bool_type):
+    if bool_type:
+        return 'yes'
+    return 'no'
+
+gnu_compiler_text = """
+int main()
+{
+#ifndef __GNUC__
+    choke me
+#endif
+    return 0;
+}
+"""
+
+def CheckGNUCompiler(context):
+    context.Message( 'Checking whether we are using the GNU C compiler ... ' )
+
+    ret = context.TryCompile(gnu_compiler_text, '.c')
+    context.Result( GetYesNo(ret) )
+    return ret
+
+# copy-n-paste from linuxdcpp project :)
+def CheckPKGConfig(context):
+	context.Message('Checking for pkg-config ... ')
+	ret = context.TryAction('pkg-config --version')[0]
+	context.Result( GetYesNo(ret) )
+	return ret
+
+def CheckTimeval(context):
+    context.Message( 'Checking for struct timeval ... ' )
+    ret = context.TryLink("""
+#include <sys/time.h>
+#include <time.h>
+
+int main ()
+{
+    if( (struct timeval *)0 )
+        return 0;
+    if( sizeof(struct timeval) )
+        return 0;
+    return 0;
+}
+""", '.c')
+    context.Result( GetYesNo(ret) )
+    return ret
+
+altivec_text = """
+%s
+int main ()
+{
+    typedef vector int t;
+    vec_ld(0, (unsigned char *)0);
+    return 0;
+}
+"""
+
+def CheckAltivec(context, is_altivec):
+    ret, is_altivec.value = 0, 0
+
+    context.Message( 'Checking for AltiVec support ... ' )
+    origCCFLAGS = context.env['CCFLAGS']
+    for try_cflags in ['-mpim-altivec', '-faltivec', '-maltivec', '-fvec']:
+        context.env.Replace(CCFLAGS = origCCFLAGS+[try_cflags])
+        if context.TryLink(altivec_text % '', '.c'):
+            ret = 1
+            break
+        if context.TryLink(altivec_text % 'include <altivec.h>', '.c'):
+            is_altivec.value = 1
+            ret = 1
+            break
+
+    context.Result( GetYesNo(ret) )
+    context.env.Replace(CCFLAGS = origCCFLAGS)
+    return ret
+
+align_text = """
+int main ()
+{
+    static struct s 
+    {
+        char a;
+        char b __attribute__ ((aligned(%s)));
+    } S = {0, 0};
+    switch (1) 
+    {
+    case 0:
+    case (int)(&((struct s *)0)->b) == %s:
+        return 0;
+    }
+    return (long)&S;
+}
+"""
+
+def CheckMaxAligning(context):
+    context.Message( 'Checking maximum supported data alignment ... ' )
+    origCCFLAGS = context.env['CCFLAGS']
+
+    if IsGccCompiler():
+        context.env.Append(CCFLAGS = ['-Werror'])
+    max_align = 0
+    for try_align in [2, 4, 8, 16, 32, 64]:
+        if context.TryLink(align_text % (try_align, try_align), '.c'):
+            max_align = try_align
+
+    ret = (max_align != 0)
+    if ret:
+        context.Result( str(max_align) )
+    else:
+        context.Result( GetYesNo(ret) )
+    context.env.Replace(CCFLAGS = origCCFLAGS)
+    return max_align
+
+builtin_expext_text = """
+int foo (int a)
+{
+    a = __builtin_expect (a, 10);
+    return a == 10 ? 0 : 1;
+}
+"""
+
+def GetFlags(opt_name, env):
+    return env.get(opt_name, [])
+
+def CheckBuiltinExpect(context):
+    context.Message( 'Checking whether compiler understands __builtin_expect ... ' )
+    if IsGccCompiler():
+        origLINKFLAGS, origLIBS = GetFlags('LINKFLAGS', context.env), GetFlags('LIBS', context.env)
+    
+        context.env.Append(LINKFLAGS = ['-nostdlib', '-nostartfiles'], LIBS = ['gcc'])
+        ret = context.TryLink(builtin_expext_text, '.c')
+    
+        context.env.Replace(LINKFLAGS = origLINKFLAGS, LIBS = origLIBS)
+    else:
+        ret = 0
+
+    context.Result( GetYesNo(ret) )
+    return ret
+
+sigtype_text = """
+#include <signal.h>
+#ifdef signal
+# undef signal
+#endif
+
+void (*signal ()) ();
+int main ()
+{
+    int i;
+    return 0;
+}
+"""
+
+def CheckSignalRetType(context):
+    context.Message( 'Checking return type of signal handlers ... ' )
+
+    type = "void"
+    if context.TryLink(sigtype_text, '.c'):
+        context.Result( "void" )
+    else:
+        context.Result( "int (assumed)" )
+        type = "int"
+    return type
+
+inline_text = """
+%s int foo() { return 0; }
+"""
+def CheckCInline(context):
+    context.Message( 'Checking for inline ... ' )
+
+    inline_word = ''
+    for word in ['inline', '__inline__', '__inline']:
+        if context.TryCompile(inline_text % word, '.c'):
+            inline_word = word
+            break
+    context.Result( GetYesNo(inline_word != '') + " ('" + inline_word + "')" )
+    return inline_word
+
+restrict_text = """
+int foo() 
+{
+    char * %s p;
+    return 0; 
+}
+"""
+def CheckRestrictWord(context):
+    context.Message( 'Checking for restrict ... ' )
+
+    restrict_word = '' # empty
+    for word in ['restrict', '__restrict__', '__restrict']:
+        if context.TryCompile(restrict_text % word, '.c'):
+            restrict_word = word
+            break
+
+    context.Result( GetYesNo(restrict_word != '') + " ('" + restrict_word + "')")
+    return word
+
+def AddCfgVariable(key, **cfg_var):
+    assert not(key in ConfigDict.keys())
+    ConfigDict[key] = cfg_var
+
+def AddCfgName(name, is_on, **opt):
+    key = name.upper()
+    key = key.replace(':', '_')
+    key = key.replace('.', '_')
+    key = key.replace('/', '_')
+    key = key.replace(' ', '_')
+    key = 'HAVE_' + key
+
+    cfg_var = { 'is_on' : is_on, 'val' : str(1) }
+    cfg_var.update(opt)
+
+    AddCfgVariable(key, **cfg_var)
+
+def CfgCheckCHeader(conf, header_name):
+    ret = conf.CheckCHeader(header_name)
+
+    AddCfgName(header_name, ret, ccomment = header_name)
+
+############################################
+
+env = Environment(ENV = os.environ)
+
+conf_dir = user_options_dict['ConfigDir']
+log_file = conf_dir + "/config.log"
+conf = Configure(
+        env,
+        custom_tests = 
+        {
+            'CheckGNUCompiler'  : CheckGNUCompiler,
+            'CheckPKGConfig'    : CheckPKGConfig,
+            'CheckTimeval'      : CheckTimeval, 
+            'CheckAltivec'      : CheckAltivec,
+            'CheckMaxAligning'  : CheckMaxAligning,
+            'CheckBuiltinExpect': CheckBuiltinExpect,
+            'CheckSignalRetType': CheckSignalRetType,
+            'CheckCInline'      : CheckCInline,
+            'CheckRestrictWord' : CheckRestrictWord,
+        },
+        conf_dir = conf_dir, 
+        log_file = log_file)
+
+# :TODO: change compiler to BuildVars.Cc and so on
+conf.env.Replace(CC = Cc)
+conf.env.Append(**user_options_dict['DVDREAD_DICT'])
+
+#
+# 0 Tools checks
+# 
+
+# is gcc?
+user_options_dict["IS_GCC"] = conf.CheckGNUCompiler()
+# pkg-config
+if not conf.CheckPKGConfig():
+    ErrorAndExit("'pkg-config' utility is not found.")
+
+# now we know the compiler, set all that config options
+user_options_dict['AdjustConfigOptions'](conf.env)
+
+#
+# 1 architecture options
+#
+arch_dict = { 
+             'ARCH_X86'   : 0, 
+             'ARCH_PPC'   : 0, 
+             'ARCH_SPARC' : 0, 
+             'ARCH_ALPHA' : 0, 
+            }
+set_altivec = 0
+if IsGccCompiler():
+    if IsX86Arch():
+        arch_dict['ARCH_X86'] = 1
+    elif IsPPCArch():
+        class is_altivec:
+            pass
+        is_av = is_altivec()
+        arch_dict['ARCH_PPC'] = conf.CheckAltivec(is_altivec = is_av)
+        set_altivec = is_av.value
+    elif IsSparcArch():
+        arch_dict['ARCH_SPARC'] = 1
+    elif IsAlphaArch():
+        arch_dict['ARCH_ALPHA'] = 1
+
+def SetArch(name, is_on):
+    str = name[5:].lower() + ' architecture'
+    cfg_var = { 'is_on' : is_on, 'val' : None, 'comment' : str }
+    AddCfgVariable(name, **cfg_var)
+
+for name in arch_dict.keys():
+    SetArch(name, arch_dict[name])
+AddCfgName('altivec.h', set_altivec, ccomment = 'altivec.h')
+
+#
+# 2 header existance
+#
+
+def CfgCheckCHeaderList(conf, hdr_list):
+    for hdr in hdr_list:
+        CfgCheckCHeader(conf, hdr)
+
+CfgCheckCHeaderList(conf, ['sys/types.h', 'sys/stat.h', 'stdlib.h', 'string.h', 
+    'memory.h', 'strings.h', 'inttypes.h', 'stdint.h', 'unistd.h'])
+
+CfgCheckCHeader(conf, 'dlfcn.h')
+
+CfgCheckCHeaderList(conf, ['sys/timeb.h', 'sys/time.h', 'time.h', 'io.h'])
+
+#
+# 3 functions and structs
+#
+
+AddCfgName('struct timeval', conf.CheckTimeval(), ocomment = "type `struct timeval'")
+
+AddCfgName('ftime', conf.CheckFunc('ftime'), ocomment = "`ftime' function")
+
+AddCfgName('gettimeofday',  conf.CheckFunc('gettimeofday'), ocomment = "`gettimeofday' function")
+
+#
+# 4 misc
+#
+
+align = conf.CheckMaxAligning()
+AddCfgVariable('ATTRIBUTE_ALIGNED_MAX', is_on = (align != 0), val = align, 
+    comment = "maximum supported data alignment" )
+
+AddCfgVariable('HAVE_BUILTIN_EXPECT', is_on = conf.CheckBuiltinExpect(),
+    ocomment = "`__builtin_expect' function")
+
+AddCfgVariable('RETSIGTYPE', is_on = 1, val = conf.CheckSignalRetType(), 
+    comment = "Define as the return type of signal handlers (`int' or `void').")
+
+AddCfgVariable('WORDS_BIGENDIAN', is_on = (sys.byteorder == 'big'), val = 1, comment = 
+"""Define to 1 if your processor stores words with the most significant byte
+   first (like Motorola and SPARC, unlike Intel and VAX).""")
+
+inline_word = conf.CheckCInline()
+if inline_word == 'inline':
+    inline_def = '#undef'
+else:
+    inline_def = '#define inline'
+inline_text = """#ifndef __cplusplus
+%s %s
+#endif""" % (inline_def, inline_word)
+AddCfgVariable('inline', text = inline_text, comment = 
+"""Define to `__inline__' or `__inline' if that's what the C compiler
+   calls it, or to nothing if 'inline' is not supported under any name.""")
+
+AddCfgVariable('restrict', is_on = 1, val = conf.CheckRestrictWord(), comment = 
+"""Define as `__restrict' if that's what the C compiler calls it, or to
+   nothing if it is not supported.""")
+
+if not conf.CheckLib("dvdread", "DVDOpenFile"):
+    ErrorAndExit("Can't find library libdvdread!")
+
+#
+# 5 File checks
+#
+
+#/* Number of bits in a file offset, on hosts where this is settable. */
+#define _FILE_OFFSET_BITS 64
+
+#/* Define for large files, on AIX-style hosts. */
+#/* #undef _LARGE_FILES */
+
+conf.Finish()
+
+########################################################
+# Other checks
+
+#
+# Our purpose is not to describe all the checks that classical 'autoconf' tool
+# has; so we assume the following requirements:
+#  - C compiler fully meet the standard C90, probably with some 'extensions'
+#  - C++ compiler fully meet the standard C++98, probably with some 'extensions'
+#
+
+# So, we assume (and dont check those) that:
+#  - we have ANSI C header like stdlib.h, stdarg.h, ... (STDC_HEADERS)
+#  - we have `const', `unsigned', `size_t', `volatile'
+#  - we can calc sizes of types by sizeof (SIZEOF_CHAR, SIZEOF_VOIDP, ...)
+

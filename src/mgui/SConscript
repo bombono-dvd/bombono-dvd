@@ -1,0 +1,116 @@
+#!/usr/bin/env python
+Import('mgui_env', 'user_options_dict')
+
+lib_mgui_env = mgui_env.Clone()
+bin_mgui_env = mgui_env.Clone()
+
+lib_path  = user_options_dict['LIB_BUILD_DIR']
+bin_path  = user_options_dict['BIN_BUILD_DIR']
+
+######
+# lib
+lib_src_files = [
+                 'dvdimport.cpp',
+                 'img-factory.cpp',
+                 'img_utils.cpp',
+                 'mcommon_vis.cpp',
+                 'menu-rgn.cpp',
+                 'redivide.cpp',
+                 'stream_utils.cpp',
+                 'theme.cpp',
+                 'timer.cpp',
+                 'win_utils.cpp',
+
+                 # author
+                 'author/burn.cpp',
+                 'author/execute.cpp',
+                 'author/gb_devices.c',
+                 'author/indicator.cpp',
+                 'author/output.cpp',
+                 'author/render.cpp',
+                 'author/script.cpp',
+
+                 # editor
+                 'editor/actions.cpp',
+                 'editor/bind.cpp',
+                 'editor/kit.cpp',
+                 'editor/region.cpp',
+                 'editor/render.cpp',
+                 'editor/select.cpp',
+                 'editor/text.cpp',
+                 'editor/tool.cpp',
+                 'editor/toolbar.cpp',
+                 'editor/txtool.cpp',
+
+                 # project
+                 'project/browser.cpp',
+                 'project/mconstructor.cpp',
+                 'project/mb-actions.cpp',
+                 'project/media-browser.cpp',
+                 'project/menu-actions.cpp',
+                 'project/menu-browser.cpp',
+                 'project/menu-render.cpp',
+                 'project/thumbnail.cpp',
+
+                 # render
+                 'render/common.cpp',
+                 'render/rgba.cpp',
+
+                 # sdk
+                 'sdk/browser.cpp',
+                 'sdk/dndtreeview.cc',
+                 'sdk/entry.cpp',
+                 'sdk/gnc-gtk-utils.c',
+                 #'sdk/magick_pixbuf.cpp',
+                 'sdk/cairo_utils.cpp',
+                 'sdk/clearlooks.cpp',
+                 'sdk/player_utils.cpp',
+                 #'sdk/libgnome/gnome-exec.c',
+                 'sdk/libgnome/gnome-util.c',
+
+                 # timeline
+                 'timeline/layout.cpp',
+                 'timeline/layout-draw.cpp',
+                 'timeline/monitor.cpp',
+                 'timeline/mviewer.cpp',
+                 'timeline/select.cpp',
+                 'timeline/service.cpp',
+                ]
+
+# Precompiled header install
+# :ATTENTION: if you use precompiled header in another project then point it out in
+# SetPCH() function' argument 'additional_envs', like bin_mgui_env here!
+user_options_dict['SetPCH'](lib_mgui_env, '_pc_.h', [bin_mgui_env])
+
+mgui_lib_name = 'MdEditor'
+lib_mgui_env.Library( target = lib_path+'/'+mgui_lib_name, source = lib_src_files )
+
+######
+# bin
+
+bin_mgui_env.Prepend( LIBS = [mgui_lib_name, 'MdBase', 'MdDemuxer', 'MdLib'] )
+# MEditor
+#bin_mgui_env.Program( target = bin_path + '/meditor', source = ['mgui.cpp'] )
+# MViewer
+viewer_bin = bin_mgui_env.Program( target = bin_path + '/mviewer', source = ['timeline/mviewer-main.cpp'] )
+
+#
+# Bombono DVD
+#
+bombono_bin = bin_mgui_env.Program( target = bin_path + '/bombono-dvd', source = ['project/mconstructor-main.cpp'] )
+bin_mgui_env.Install(user_options_dict['BIN_PREFIX'], bombono_bin) # + viewer_bin)
+
+# .desktop
+dest_prefix = user_options_dict['DEST_PREFIX']
+import os
+desktop_dir = os.path.join(dest_prefix, "share", "applications")
+mgui_env.Alias('install', mgui_env.Install(desktop_dir, 'bombono-dvd.desktop'))
+pixmap_path = os.path.join(dest_prefix, "share", "pixmaps", "bombono-dvd.png")
+mgui_env.Alias('install', mgui_env.InstallAs(pixmap_path, '#resources/icons/bombono-dvd_32px.png'))
+
+# we like tests
+Import('TestSConscript')
+TestSConscript([
+                'tests/SConscript',
+               ])
+

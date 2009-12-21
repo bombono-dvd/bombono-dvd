@@ -1,0 +1,5 @@
+12:32 [1] must be prefixed by index and time , enter is appended as well 1
+12:32 [2] must be prefixed by index and time , enter is appended as well 2
+12:32 [3] must be prefixed by index and time , enter is appended as well 3
+must be prefixed by time , no enter 4
+must be prefixed by time , no enter 5

@@ -1,0 +1,20 @@
+#!/usr/bin/env python
+Import('mcomposite_tests_env', 'user_options_dict', 'UnitTest')
+
+bin_mcomposite_tests_env = mcomposite_tests_env.Clone()
+bin_mcomposite_tests_env.Prepend( LIBS = ['mlib_tests', 'MdComposite', 'MdBase', 'MdDemuxer', 'MdLib'] )
+
+test_prg_name = 'mcomposite_tests'
+source_files = [
+                'test_main.cpp',
+                'test_mcomposite.cpp',
+                'test_mmpeg.cpp',
+                ]
+
+# Precompiled header install
+user_options_dict['SetPCH'](bin_mcomposite_tests_env, '_pc_.h')
+
+bin_mcomposite_tests_env.Program( target = test_prg_name, source = source_files )
+
+UnitTest(test_prg_name, bin_mcomposite_tests_env)
+
