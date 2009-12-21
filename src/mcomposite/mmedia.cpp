@@ -119,13 +119,13 @@ void InitImage(Magick::Image& img, int wdh, int hgt)
     img.modifyImage();
     img.type(MagickLib::TrueColorType); // неявный перевод в RGBColorspace
 
-#if (MagickLibVersion < 0x030000) || ((MagickLibVersion >= 0x100000) && (MagickLibVersion < 0x300000))
+#if (MagickLibVersion < 0x020000) || ((MagickLibVersion >= 0x100000) && (MagickLibVersion < 0x200000))
 // см. configure.ac: из-за превышения 9 номер интерфейса (major interface) увелич. в 10 раз
-#define GM2_ABI
+#define GM1_ABI
 #endif
 
-    // с интерфейса >= 3 (версия 1.3) инициализация проходит при первом обращении Pixels::set|getConst()
-#ifdef GM2_ABI
+    // с интерфейса >= 2 (версия 1.2) инициализация проходит при первом обращении Pixels::set|getConst()
+#ifdef GM1_ABI
     // 2 - выделить и инициализировать ресурсы для хранения собственно
     //     данных и кеша представлений
     MagickLib::OpenCache(img.image(), MagickLib::IOMode);

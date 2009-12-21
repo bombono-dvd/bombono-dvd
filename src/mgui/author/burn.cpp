@@ -38,8 +38,10 @@ void devices_clear_devicedata()
 void devices_add_device(const gchar *device_name, const gchar * /*device_id*/,
                         const gchar *device_node, const gint capabilities)
 {
-    // нам нужны резаки DVD
-    if( capabilities & DC_WRITE_DVDR )
+    // требования:
+    // - информация доступна об устройстве
+    // - резаки DVD
+    if( device_name && (capabilities & DC_WRITE_DVDR) )
     {
         //io::cout << "model = " << device_name << ", dev = " << device_node
         //         << ", capabilities = " << capabilities << ", device_id = " << device_id << io::endl;

@@ -48,18 +48,26 @@
 
 gboolean show_trace = FALSE;
 
-gchar**
-gbcommon_get_file_as_list(const gchar *file)
+static gchar*
+get_file_contents(const gchar *file)
 {
 	GB_LOG_FUNC
 	g_return_val_if_fail(file != NULL, NULL);
 
-	gchar **ret = NULL;
 	gchar *contents = NULL;
-	if(g_file_get_contents(file, &contents, NULL, NULL))
-		ret = g_strsplit(contents, "\n", 0);
-	else
-		g_warning("gbcommon_get_file_as_list - Failed to get contents of file [%s]", file);
+	if( !g_file_get_contents(file, &contents, NULL, NULL) )
+		g_warning("get_file_contents - Failed to get contents of file [%s]", file);
+
+	return contents;
+}
+
+gchar**
+gbcommon_get_file_as_list(const gchar *file)
+{
+    gchar **ret = NULL;
+    gchar *contents = get_file_contents(file);
+    if( contents )
+        ret = g_strsplit(contents, "\n", 0);
 
 	g_free(contents);
 	return ret;
@@ -82,9 +90,10 @@ devices_get_ide_device(const gchar *device_node, const gchar *device_node_path,
 	g_return_if_fail(model_name != NULL);
 	g_return_if_fail(device_id != NULL);
 	GB_TRACE("devices_get_ide_device - probing [%s]\n", device_node);
-	gchar *contents = NULL;
+	
 	gchar *file = g_strdup_printf("/proc/ide/%s/model", device_node);
-	if(g_file_get_contents(file, &contents, NULL, NULL))
+    gchar *contents = get_file_contents(file);
+	if( contents )
 	{
 		g_strstrip(contents);
 		*model_name = g_strdup(contents);
@@ -92,10 +101,33 @@ devices_get_ide_device(const gchar *device_node, const gchar *device_node_path,
 		g_free(contents);
 	}
 	else
-	{
 		g_warning("devices_get_ide_device - Failed to open %s", file);
-	}
 	g_free(file);
+}
+
+static char* get_sysfs_attr(const gchar* dev, const gchar* attr)
+{
+	g_return_val_if_fail(dev != NULL, NULL);
+    gchar *file = g_strdup_printf("/sys/block/%s/device/%s", dev, attr);
+    
+    gchar *ret = get_file_contents(file);
+    if( ret )
+        g_strstrip(ret);
+    g_free(file);
+    return ret;
+}
+
+static char* get_sysfs_modelname(const gchar* dev)
+{
+	gchar *model_name = NULL;
+    gchar* vendor = get_sysfs_attr(dev, "vendor");
+    gchar* model  = get_sysfs_attr(dev, "model");
+    if( vendor && model )
+        model_name = g_strdup_printf("%s %s", vendor, model);
+
+    g_free(vendor);
+    g_free(model);
+    return model_name;
 }
 
 void
@@ -112,6 +144,7 @@ devices_get_scsi_device(const gchar *device_node, const gchar *device_node_path,
 	if((devices = gbcommon_get_file_as_list("/proc/scsi/sg/devices")) == NULL)
 	{
 		g_warning("devices_get_scsi_device - Failed to open /proc/scsi/sg/devices");
+        *model_name = get_sysfs_modelname(device_node);
 	}
 	else if((device_strs = gbcommon_get_file_as_list("/proc/scsi/sg/device_strs")) == NULL)
 	{
