@@ -16,23 +16,10 @@ DefaultEnvironment().Replace(ENV = os.environ)
 
 # звук тишины для неподвижных меню
 def GetkHzArgForToolame(kHz):
-    import os
-    import re
-    #s = "tooLAME version 0.2l"
-    s = os.popen("toolame -v").read()
-    #print s
-
-    m = re.compile("tooLAME version 0\.2(.)", re.M).search(s)
-
-    res = kHz
-    if m and m.group(1) == 'l':
-        pass # classic toolame
-    else:
-        res = res * 1000 # twolame or similar
-    return res
+    return kHz * 1000
 
 argHz = GetkHzArgForToolame(48)
-Command('Silent.mp2', [], "dd if=/dev/zero bs=4 count=1920 | toolame -b 128 -s %d /dev/stdin $TARGET" % argHz)
+Command('Silent.mp2', [], "dd if=/dev/zero bs=4 count=1920 | twolame -b 128 -s %d -r - $TARGET" % argHz)
 
 # основная функция создания меню
 import ADVD
