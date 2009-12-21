@@ -46,10 +46,18 @@ def_env = SCons.Defaults.DefaultEnvironment()
 if BuildVars.IsSConsGE_0_96_92(def_env):
     GchAction = SCons.Action.Action('$GCHCOM', '$GCHCOMSTR')
     GchShAction = SCons.Action.Action('$GCHSHCOM', '$GCHSHCOMSTR')
+    
+    # compose gch string from standard one, adding -x c++-header after '-o ' option
+    import re
+    pat = re.compile(re.escape("$TARGET "))
+    def MakeGchString(cmd_str):
+        res = re.subn(pat, "$TARGET -x c++-header ", cmd_str)
+        assert res[1] == 1
+        return res[0]
 
     GetCScannerFunc = lambda : SCons.Scanner.C.CScanner()
-    GCHCOMString    = '$CXX -o $TARGET -x c++-header -c $CXXFLAGS $_CCCOMCOM $SOURCE'
-    GCHSHCOMString  = '$CXX -o $TARGET -x c++-header -c $SHCXXFLAGS $_CCCOMCOM $SOURCE'
+    GCHCOMString    = MakeGchString(def_env['CXXCOM'])   # '$CXX -o $TARGET -x c++-header -c $CXXFLAGS $_CCCOMCOM $SOURCE'
+    GCHSHCOMString  = MakeGchString(def_env['SHCXXCOM']) # '$CXX -o $TARGET -x c++-header -c $SHCXXFLAGS $_CCCOMCOM $SOURCE'
 else:
     # < 0.96.92
     GchAction = SCons.Action.Action('$GCHCOM')

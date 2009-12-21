@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Ilya Murav'jov <muravev@yandex.ru>
 Build-Depends: cdbs, debhelper (>= 4.1.0), scons, libdvdread-dev, libgtkmm-2.4-dev, libxml++2.6-dev, libmjpegtools-dev, libgraphicsmagick++1-dev
 Homepage: http://www.bombono.org
-Standards-Version: 3.6.2
+Standards-Version: 3.7.3
 
 Package: bombono-dvd
 Architecture: any

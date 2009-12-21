@@ -19,6 +19,8 @@ ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
     BUILD_FLAGS += TEST=1
 endif
 
+DEB_INSTALL_MANPAGES_bombono-dvd := debian/bombono-dvd.1 debian/mpeg2demux.1
+
 build/bombono-dvd::
 	# :KLUDGE: -Wno-extra due to boost warnings
 	scons -k $(BUILD_FLAGS) CFLAGS='-Wno-extra' PREFIX=/usr DESTDIR=$(CURDIR)/debian/bombono-dvd

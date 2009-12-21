@@ -9,18 +9,19 @@
 #
 
 # Gnome 2.18.1 
-PKG_CONFIG_PATH=/opt/Gnome2181/lib/pkgconfig:$PKG_CONFIG_PATH
+#PKG_CONFIG_PATH=/opt/Gnome2181/lib/pkgconfig:$PKG_CONFIG_PATH
 
-export PKG_CONFIG_PATH=$ATOM_PATH/Debug/lib/pkgconfig:$PKG_CONFIG_PATH
-export PATH=$ATOM_PATH/Debug/bin:$PATH
+#export PKG_CONFIG_PATH=$ATOM_PATH/Debug/lib/pkgconfig:$PKG_CONFIG_PATH
+#export PATH=$ATOM_PATH/Debug/bin:$PATH
 export LANG=C
 
 # Gtk runtime
-export GTK_PATH=/opt/Gnome2181/lib/gtk-2.0 
-export GTK2_RC_FILES=$ATOM_PATH/gtkrc
+#export GTK_PATH=/opt/Gnome2181/lib/gtk-2.0 
+#export GTK2_RC_FILES=$ATOM_PATH/gtkrc
 
 # SCons
-SCONS_PATH=/home/ilya/opt/programming/atom-project/Temp/scons-1.2.0
-export PYTHONPATH=$SCONS_PATH/engine:$PYTHONPATH
+SCONS_PATH=/home/ilya/opt/programming/atom-project/Temp/scons-0.97
+#export PYTHONPATH=$SCONS_PATH/engine:$PYTHONPATH
+export SCONS_LIB_DIR=$SCONS_PATH/engine
 export PATH=$SCONS_PATH/script:$PATH
 

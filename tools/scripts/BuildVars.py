@@ -121,14 +121,13 @@ def CheckSettings(main_env):
     main_env.Export('UnitTest')
 
     # set brief output
-    SetBriefOutput()
+    SetBriefOutput(main_env)
 
     # to separate our output from SCons'
     print
 
 # Non/Verbose output
-def SetBriefOutput():
-    env = GetDefEnv()
+def SetBriefOutput(env):
     if BuildBrief :
         def GetBaseNameFromTarget(target):
             target_path = str(target[0]) # target[0] is not string somehow
@@ -141,9 +140,13 @@ def SetBriefOutput():
             #target_path = str(target[0]) # target[0] is not string somehow
             return '\nLinking %s ...\n' % (GetBaseNameFromTarget(target))
 
-        def InstallString(dest, source, env, **kw):
+        def _InstallString(dest, source, env, **kw):
             # :TODO: do for faked PCH only
             return ' '
+        InstallString = _InstallString
+        # for >= 0.98.1 strings can be set up only
+        if IsSConsVersionGE((0, 98, 1)):
+            InstallString = ' '
 
         def GCHString(target, source, env, **kw):
             return 'Making precompiled header %s ...' % (target[0])
