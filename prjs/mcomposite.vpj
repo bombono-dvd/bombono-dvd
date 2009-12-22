@@ -1,0 +1,240 @@
+<!DOCTYPE Project SYSTEM "http://www.slickedit.com/dtd/vse/10.0/vpj.dtd">
+<Project
+	Version="10.0"
+	VendorName="SlickEdit"
+	WorkingDir="../">
+	<Config
+		Name="Debug"
+		Type="gnuc"
+		DebugCallbackName="gdb"
+		Version="1"
+		OutputFile="%rw/build/bin/mcomposite"
+		CompilerConfigName="Latest Version"
+		Defines=""
+		ObjectDir="build/src/mcomposite/">
+		<Menu>
+			<Target
+				Name="Compile"
+				MenuCaption="&amp;Compile"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				OutputExts="*.o"
+				SaveOption="SaveAll"
+				RunFromDir="%rw">
+				<Exec CmdLine="%(SCONS) %(SC_COMPILE_NAME)"/>
+			</Target>
+			<Target
+				Name="Link"
+				MenuCaption="&amp;Link"
+				ShowOnMenu="Never"
+				Dialog="_gnuc_options_form Link"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveCurrent"
+				RunFromDir="%rw">
+				<Exec CmdLine='g++ %xup -g -o "%o" %objs'/>
+			</Target>
+			<Target
+				Name="Build"
+				MenuCaption="&amp;Build"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveAll"
+				RunFromDir="%rw">
+				<Exec CmdLine="%(SCONS) %bd"/>
+			</Target>
+			<Target
+				Name="Rebuild"
+				MenuCaption="&amp;Rebuild"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveWorkspaceFiles"
+				RunFromDir="%rw">
+				<Exec CmdLine="%(SCONS) TEST=1 %bd"/>
+			</Target>
+			<Target
+				Name="Debug"
+				MenuCaption="&amp;Debug"
+				Dialog="_gnuc_options_form Run/Debug"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveAll"
+				RunFromDir="%rw"
+				BuildFirst="1">
+				<Exec
+					CmdLine='vsdebugio -prog "%o" %~other'
+					OtherOptions="--frame cell --size 340x225 --offset 330+230 --content ../Autumn.mpg --offset 30+30 --content tools/test-data/flower.jpg -r /dev/null -n 10 -b ../Autumn.mpg"/>
+			</Target>
+			<Target
+				Name="Execute"
+				MenuCaption="E&amp;xecute"
+				Dialog="_gnuc_options_form Run/Debug"
+				BuildFirst="1"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveWorkspaceFiles"
+				RunFromDir="%rw">
+				<Exec
+					CmdLine='"%o" %~other'
+					OtherOptions="--frame cell --size 340x225 --offset 330+230 --content ../Autumn.mpg --offset 30+30 --content tools/test-data/flower.jpg -r /dev/null -n 10 -b ../Autumn.mpg"/>
+			</Target>
+			<Target
+				Name="dash"
+				MenuCaption="-"
+				Deletable="0">
+				<Exec/>
+			</Target>
+			<Target
+				Name="GNU C Options"
+				MenuCaption="GNU C &amp;Options..."
+				ShowOnMenu="HideIfNoCmdLine"
+				Deletable="0"
+				SaveOption="SaveNone">
+				<Exec
+					CmdLine="gnucoptions"
+					Type="Slick-C"/>
+			</Target>
+		</Menu>
+		<Includes/>
+		<Libs PreObjects="0"/>
+	</Config>
+	<Config
+		Name="Release"
+		Type="gnuc"
+		DebugCallbackName="gdb"
+		Version="1"
+		OutputFile="%rw/build/bin/mcomposite"
+		CompilerConfigName="Latest Version"
+		Defines="">
+		<Menu>
+			<Target
+				Name="Compile"
+				MenuCaption="&amp;Compile"
+				Dialog="_gnuc_options_form Compile"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				OutputExts="*.o"
+				SaveOption="SaveCurrent"
+				RunFromDir="%rw">
+				<Exec CmdLine='g++ -c %xup %defd -o "%bd%n%oe" %i "%f"'/>
+			</Target>
+			<Target
+				Name="Link"
+				MenuCaption="&amp;Link"
+				ShowOnMenu="Never"
+				Dialog="_gnuc_options_form Link"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveCurrent"
+				RunFromDir="%rw">
+				<Exec CmdLine='g++ %xup -o "%o" %objs'/>
+			</Target>
+			<Target
+				Name="Build"
+				MenuCaption="&amp;Build"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveAll"
+				RunFromDir="%rw">
+				<Exec CmdLine="%(SCONS) %bd"/>
+			</Target>
+			<Target
+				Name="Rebuild"
+				MenuCaption="&amp;Rebuild"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveWorkspaceFiles"
+				RunFromDir="%rw">
+				<Exec CmdLine="%(SCONS) TEST=1 %bd"/>
+			</Target>
+			<Target
+				Name="Debug"
+				MenuCaption="&amp;Debug"
+				Dialog="_gnuc_options_form Run/Debug"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveAll"
+				RunFromDir="%rw"
+				BuildFirst="1">
+				<Exec
+					CmdLine='vsdebugio -prog "%o" %~other'
+					OtherOptions="--frame cell --size 340x225 --offset 330+230 --content ../Autumn.mpg --offset 30+30 --content tools/test-data/flower.jpg -r /dev/null -n 10 -b ../Autumn.mpg"/>
+			</Target>
+			<Target
+				Name="Execute"
+				MenuCaption="E&amp;xecute"
+				Dialog="_gnuc_options_form Run/Debug"
+				BuildFirst="1"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveWorkspaceFiles"
+				RunFromDir="%rw">
+				<Exec
+					CmdLine='"%o" %~other'
+					OtherOptions="--frame cell --size 340x225 --offset 330+230 --content ../Autumn.mpg --offset 30+30 --content tools/test-data/flower.jpg -r /dev/null -n 10 -b ../Autumn.mpg"/>
+			</Target>
+			<Target
+				Name="dash"
+				MenuCaption="-"
+				Deletable="0">
+				<Exec/>
+			</Target>
+			<Target
+				Name="GNU C Options"
+				MenuCaption="GNU C &amp;Options..."
+				ShowOnMenu="HideIfNoCmdLine"
+				Deletable="0"
+				SaveOption="SaveNone">
+				<Exec
+					CmdLine="gnucoptions"
+					Type="Slick-C"/>
+			</Target>
+		</Menu>
+		<Includes/>
+		<Libs PreObjects="0"/>
+	</Config>
+	<Files>
+		<Folder
+			Name="Header Files"
+			Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
+			<F N="../src/mcomposite/_extlibs_.h"/>
+			<F N="../src/mcomposite/mcomposite.h"/>
+			<F N="../src/mcomposite/mconst.h"/>
+			<F N="../src/mcomposite/mdemux.h"/>
+			<F N="../src/mcomposite/megg.h"/>
+			<F N="../src/mcomposite/mjpeg.h"/>
+			<F N="../src/mcomposite/mmedia.h"/>
+			<F N="../src/mcomposite/mmpeg.h"/>
+			<F N="../src/mcomposite/mmpeg_demux.h"/>
+			<F N="../src/mcomposite/moptions.h"/>
+			<F N="../src/mcomposite/mstring.h"/>
+			<F N="../src/mcomposite/mtech.h"/>
+			<F N="../src/mcomposite/mtheme.h"/>
+			<F N="../src/mcomposite/mutils.h"/>
+			<F N="../src/mcomposite/mvisitor.h"/>
+			<F N="../src/mcomposite/myuvcontext.h"/>
+		</Folder>
+		<Folder
+			Name="Other Files"
+			Filters="">
+			<F N="../src/mcomposite/SConscript"/>
+		</Folder>
+		<Folder
+			Name="Source Files"
+			Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
+			<F N="../src/mcomposite/gm_resize.cpp"/>
+			<F N="../src/mcomposite/main.cpp"/>
+			<F N="../src/mcomposite/megg.cpp"/>
+			<F N="../src/mcomposite/mgui.cpp"/>
+			<F N="../src/mcomposite/mmedia.cpp"/>
+			<F N="../src/mcomposite/mmpeg.cpp"/>
+			<F N="../src/mcomposite/mmpeg_demux.cpp"/>
+			<F N="../src/mcomposite/moptions.cpp"/>
+			<F N="../src/mcomposite/mstring.cpp"/>
+			<F N="../src/mcomposite/mtheme.cpp"/>
+			<F N="../src/mcomposite/mutils.cpp"/>
+			<F N="../src/mcomposite/mvisitor.cpp"/>
+			<F N="../src/mcomposite/myuvcontext.cpp"/>
+		</Folder>
+	</Files>
+</Project>

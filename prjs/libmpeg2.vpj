@@ -1,0 +1,266 @@
+<!DOCTYPE Project SYSTEM "http://www.slickedit.com/dtd/vse/10.0/vpj.dtd">
+<Project
+	Version="10.0"
+	VendorName="SlickEdit"
+	WorkingDir="../">
+	<Config
+		Name="Debug"
+		Type="gnuc"
+		DebugCallbackName="gdb"
+		Version="1"
+		OutputFile="%bdlibmpeg2"
+		CompilerConfigName="Latest Version"
+		ObjectDir="build/libs/mpeg2dec">
+		<Menu>
+			<Target
+				Name="Compile"
+				MenuCaption="&amp;Compile"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				OutputExts="*.o"
+				SaveOption="SaveAll"
+				RunFromDir="%rw">
+				<Exec CmdLine="%(SCONS) %(SC_COMPILE_NAME)"/>
+			</Target>
+			<Target
+				Name="Link"
+				MenuCaption="&amp;Link"
+				ShowOnMenu="Never"
+				Dialog="_gnuc_options_form Link"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveCurrent"
+				RunFromDir="%rw">
+				<Exec CmdLine='gcc %xup -g -o "%o" %f %libs'/>
+			</Target>
+			<Target
+				Name="Build"
+				MenuCaption="&amp;Build"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveWorkspaceFiles"
+				RunFromDir="%rw">
+				<Exec CmdLine="%(SCONS) %bd"/>
+			</Target>
+			<Target
+				Name="Rebuild"
+				MenuCaption="&amp;Rebuild"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveWorkspaceFiles"
+				RunFromDir="%rw">
+				<Exec CmdLine="%(SCONS) TEST=1 %bd"/>
+			</Target>
+			<Target
+				Name="Debug"
+				MenuCaption="&amp;Debug"
+				Dialog="_gnuc_options_form Run/Debug"
+				BuildFirst="1"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveNone"
+				RunFromDir="%rw">
+				<Exec CmdLine='vsdebugio -prog "%o"'/>
+			</Target>
+			<Target
+				Name="Execute"
+				MenuCaption="E&amp;xecute"
+				Dialog="_gnuc_options_form Run/Debug"
+				BuildFirst="1"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveWorkspaceFiles"
+				RunFromDir="%rw">
+				<Exec CmdLine='"%o"'/>
+			</Target>
+			<Target
+				Name="dash"
+				MenuCaption="-"
+				Deletable="0">
+				<Exec/>
+			</Target>
+			<Target
+				Name="GNU C Options"
+				MenuCaption="GNU C &amp;Options..."
+				ShowOnMenu="HideIfNoCmdLine"
+				Deletable="0"
+				SaveOption="SaveNone">
+				<Exec
+					CmdLine="gnucoptions"
+					Type="Slick-C"/>
+			</Target>
+		</Menu>
+	</Config>
+	<Config
+		Name="Release"
+		Type="gnuc"
+		DebugCallbackName="gdb"
+		Version="1"
+		OutputFile="%bdlibmpeg2"
+		CompilerConfigName="Latest Version">
+		<Menu>
+			<Target
+				Name="Compile"
+				MenuCaption="&amp;Compile"
+				Dialog="_gnuc_options_form Compile"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				OutputExts="*.o"
+				SaveOption="SaveCurrent"
+				RunFromDir="%rw">
+				<Exec CmdLine='gcc -c %xup %defd -o "%bd%n%oe" %i "%f"'/>
+			</Target>
+			<Target
+				Name="Link"
+				MenuCaption="&amp;Link"
+				ShowOnMenu="Never"
+				Dialog="_gnuc_options_form Link"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveCurrent"
+				RunFromDir="%rw">
+				<Exec CmdLine='gcc %xup -o "%o" %f %libs'/>
+			</Target>
+			<Target
+				Name="Build"
+				MenuCaption="&amp;Build"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveWorkspaceFiles"
+				RunFromDir="%rw">
+				<Exec CmdLine="%(SCONS) %bd"/>
+			</Target>
+			<Target
+				Name="Rebuild"
+				MenuCaption="&amp;Rebuild"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveWorkspaceFiles"
+				RunFromDir="%rw">
+				<Exec CmdLine="%(SCONS) TEST=1 %bd"/>
+			</Target>
+			<Target
+				Name="Debug"
+				MenuCaption="&amp;Debug"
+				Dialog="_gnuc_options_form Run/Debug"
+				BuildFirst="1"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveNone"
+				RunFromDir="%rw">
+				<Exec CmdLine='vsdebugio -prog "%o"'/>
+			</Target>
+			<Target
+				Name="Execute"
+				MenuCaption="E&amp;xecute"
+				Dialog="_gnuc_options_form Run/Debug"
+				BuildFirst="1"
+				CaptureOutputWith="ProcessBuffer"
+				Deletable="0"
+				SaveOption="SaveWorkspaceFiles"
+				RunFromDir="%rw">
+				<Exec CmdLine='"%o"'/>
+			</Target>
+			<Target
+				Name="dash"
+				MenuCaption="-"
+				Deletable="0">
+				<Exec/>
+			</Target>
+			<Target
+				Name="GNU C Options"
+				MenuCaption="GNU C &amp;Options..."
+				ShowOnMenu="HideIfNoCmdLine"
+				Deletable="0"
+				SaveOption="SaveNone">
+				<Exec
+					CmdLine="gnucoptions"
+					Type="Slick-C"/>
+			</Target>
+		</Menu>
+	</Config>
+	<Files>
+		<Folder
+			Name="Source Files"
+			Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
+			<F N="../libs/mpeg2dec/libmpeg2/alloc.c"/>
+			<F N="../libs/mpeg2dec/src/corrupt_mpeg2.c"/>
+			<F N="../libs/mpeg2dec/libmpeg2/cpu_accel.c"/>
+			<F N="../libs/mpeg2dec/libmpeg2/cpu_state.c"/>
+			<F N="../libs/mpeg2dec/libmpeg2/decode.c"/>
+			<F N="../libs/mpeg2dec/src/dump_state.c"/>
+			<F N="../libs/mpeg2dec/src/extract_mpeg2.c"/>
+			<F N="../libs/mpeg2dec/src/getopt.c"/>
+			<F N="../libs/mpeg2dec/src/gettimeofday.c"/>
+			<F N="../libs/mpeg2dec/libmpeg2/header.c"/>
+			<F N="../libs/mpeg2dec/libmpeg2/idct.c"/>
+			<F N="../libs/mpeg2dec/libmpeg2/idct_alpha.c"/>
+			<F N="../libs/mpeg2dec/libmpeg2/idct_altivec.c"/>
+			<F N="../libs/mpeg2dec/libmpeg2/idct_mmx.c"/>
+			<F N="../libs/mpeg2dec/libmpeg2/motion_comp.c"/>
+			<F N="../libs/mpeg2dec/libmpeg2/motion_comp_alpha.c"/>
+			<F N="../libs/mpeg2dec/libmpeg2/motion_comp_altivec.c"/>
+			<F N="../libs/mpeg2dec/libmpeg2/motion_comp_mmx.c"/>
+			<F N="../libs/mpeg2dec/libmpeg2/motion_comp_vis.c"/>
+			<F N="../libs/mpeg2dec/src/mpeg2dec.c"/>
+			<F N="../libs/mpeg2dec/libmpeg2/convert/rgb.c"/>
+			<F N="../libs/mpeg2dec/libmpeg2/convert/rgb_mmx.c"/>
+			<F N="../libs/mpeg2dec/libmpeg2/convert/rgb_vis.c"/>
+			<F N="../libs/mpeg2dec/doc/sample1.c"/>
+			<F N="../libs/mpeg2dec/doc/sample2.c"/>
+			<F N="../libs/mpeg2dec/doc/sample3.c"/>
+			<F N="../libs/mpeg2dec/doc/sample4.c"/>
+			<F N="../libs/mpeg2dec/doc/sample5.c"/>
+			<F N="../libs/mpeg2dec/doc/sample6.c"/>
+			<F N="../libs/mpeg2dec/libmpeg2/slice.c"/>
+			<F N="../libs/mpeg2dec/libmpeg2/convert/uyvy.c"/>
+			<F N="../libs/mpeg2dec/libvo/video_out.c"/>
+			<F N="../libs/mpeg2dec/libvo/video_out_dx.c"/>
+			<F N="../libs/mpeg2dec/libvo/video_out_null.c"/>
+			<F N="../libs/mpeg2dec/libvo/video_out_pgm.c"/>
+			<F N="../libs/mpeg2dec/libvo/video_out_sdl.c"/>
+			<F N="../libs/mpeg2dec/libvo/video_out_x11.c"/>
+			<F N="../libs/mpeg2dec/libvo/video_out_yuv4m.c"/>
+		</Folder>
+		<Folder
+			Name="Header Files"
+			Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
+			<F N="../libs/mpeg2dec/include/alpha_asm.h"/>
+			<F N="../libs/mpeg2dec/include/attributes.h"/>
+			<F N="../libs/mpeg2dec/libmpeg2/convert/convert_internal.h"/>
+			<F N="../libs/mpeg2dec/src/getopt.h"/>
+			<F N="../libs/mpeg2dec/src/gettimeofday.h"/>
+			<F N="../libs/mpeg2dec/include/mmx.h"/>
+			<F N="../libs/mpeg2dec/include/mpeg2.h"/>
+			<F N="../libs/mpeg2dec/libmpeg2/mpeg2_internal.h"/>
+			<F N="../libs/mpeg2dec/include/mpeg2convert.h"/>
+			<F N="../libs/mpeg2dec/include/tendra.h"/>
+			<F N="../libs/mpeg2dec/include/video_out.h"/>
+			<F N="../libs/mpeg2dec/include/vis.h"/>
+			<F N="../libs/mpeg2dec/libmpeg2/vlc.h"/>
+		</Folder>
+		<Folder
+			Name="Resource Files"
+			Filters="*.ico;*.cur;*.dlg"/>
+		<Folder
+			Name="Bitmaps"
+			Filters="*.bmp"/>
+		<Folder
+			Name="Other Files"
+			Filters="">
+			<F N="../libs/mpeg2dec/acinclude.m4"/>
+			<F N="../libs/mpeg2dec/configure.in"/>
+			<F N="../libs/mpeg2dec/libmpeg2/configure.incl"/>
+			<F N="../libs/mpeg2dec/libvo/configure.incl"/>
+			<F N="../libs/mpeg2dec/src/configure.incl"/>
+			<F N="../libs/mpeg2dec/doc/libmpeg2.txt"/>
+			<F N="../libs/mpeg2dec/test/regression"/>
+			<F N="../libs/SConscript"/>
+			<F N="../libs/mpeg2dec/SConscript"/>
+			<F N="../libs/mpeg2dec/libmpeg2/SConscript"/>
+			<F N="../libs/mpeg2dec/libmpeg2/convert/SConscript"/>
+			<F N="../libs/mpeg2dec/libvo/SConscript"/>
+			<F N="../libs/mpeg2dec/src/SConscript"/>
+		</Folder>
+	</Files>
+</Project>
