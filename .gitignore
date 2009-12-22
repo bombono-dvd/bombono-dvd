@@ -1,0 +1,10 @@
+# After changing: 'git ls-files -i --exclude-standard' should be empty.
+
+*.vpwhistu
+*.vtg
+*.pyc
+
+build/
+config.opts
+
+
