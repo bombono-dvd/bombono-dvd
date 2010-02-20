@@ -214,11 +214,13 @@ void SetTip(Gtk::Widget& wdg, const char* tooltip)
 Gtk::Button* CreateButtonWithIcon(const char* label, const Gtk::BuiltinStockID& stock_id,
                                   const char* tooltip, Gtk::BuiltinIconSize icon_sz)
 {
-    Gtk::Button* btn = Gtk::manage(new Gtk::Button(label));
-    btn->set_image(*Gtk::manage(new Gtk::Image(stock_id, icon_sz)));
+    Gtk::Button& btn = NewManaged<Gtk::Button>(label);
+    Gtk::Image& img  = NewManaged<Gtk::Image>(stock_id, icon_sz);
+    btn.set_image(img);
+    img.set_visible(); // убираем влияние настройки gtk-button-images после включения в кнопку
 
-    SetTip(*btn, tooltip);
-    return btn;
+    SetTip(btn, tooltip);
+    return &btn;
 }
 
 void AddCancelDoButtons(Gtk::Dialog& dialog, Gtk::BuiltinStockID do_id)
@@ -260,7 +262,7 @@ bool ChooseFileSaveTo(std::string& fname, const std::string& title, Gtk::Widget&
 //     bool res = Gtk::RESPONSE_OK == dialog.run();
 //     if( res )
     bool res;
-    for( ; res = Gtk::RESPONSE_OK == dialog.run(); )
+    for( ; res = Gtk::RESPONSE_OK == dialog.run(), res; )
     {
         fname = dialog.get_filename();
         if( fs::exists(fname) && 
