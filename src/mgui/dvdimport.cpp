@@ -194,10 +194,8 @@ static void OnPreparePage(ImportData& id)
             id.numToThumb = 0;
         }
         
-        // бывают случаи вызова prepare на одной странице дважды 
-        // - set_current_page() + "map"
-        if( id.curPage != ipSELECT_VOBS ) // дважды
-            id.thumbIdler.ConnectIdle(bl::bind(&OnSelectIdle, boost::ref(id)));
+        ASSERT( id.curPage != ipSELECT_VOBS );
+        id.thumbIdler.ConnectIdle(bl::bind(&OnSelectIdle, boost::ref(id)));
     }
     else
         id.CloseIdlers();
