@@ -233,15 +233,8 @@ ReaderPtr OpenDVD(const std::string& dvd_path, bool& is_pal)
     return reader;
 }
 
-static void OnSelectSource(ImportData& id)
+static ReaderPtr OpenDVD(const std::string& dvd_path, ImportData& id)
 {
-    if( id.ast.get_current_page() != ipCHOOSE_SOURCE )
-        return;
-
-    // :TODO: порой тупит и выдает "" (файл не выделен якобы)
-    Gtk::FileChooserWidget& fcw = id.srcChooser;
-    std::string dvd_path = fcw.get_filename().raw();
-
     bool is_pal;
     ReaderPtr rd = OpenDVD(dvd_path, is_pal);
     if( rd && id.addToProject && (is_pal != Project::AData().PalTvSystem()) )
@@ -254,6 +247,21 @@ static void OnSelectSource(ImportData& id)
 
     id.reader = rd;
     SetCurPageComplete(id.ast, id.reader);
+
+    return rd;
+}
+
+static void OnSelectSource(ImportData& id)
+{
+    if( id.ast.get_current_page() != ipCHOOSE_SOURCE )
+        return;
+
+    // :TODO: порой тупит и выдает "" (файл не выделен якобы)
+    // Из-за этого errLbl может скрываться когда не надо
+    Gtk::FileChooserWidget& fcw = id.srcChooser;
+    std::string dvd_path = fcw.get_filename().raw();
+
+    OpenDVD(dvd_path, id);
 }
 
 bool SetVobSel(Gtk::TreeIter& itr, bool select_all)
@@ -687,30 +695,26 @@ void RunImport(Gtk::Window& par_win, const std::string& dvd_path)
     id.addToProject = true;
 
     ConstructImporter(id);
-    
-    ReaderPtr rd;
+    //
+    // По опыту с помощником (GtkAssistant) стало ясно:
+    // - до момента show_all() вообще нельзя менять текущую страницу,
+    //   типы страниц и т.д.; иначе легко получить "UB", выражающееся в сегфолтах
+    //   и хз еще в чем
+    // - вывод: хочется изменения в помощнике - создавай его по-другому с самого
+    //   начала (ConstructImporter())
+    //
+    ast.show_all();
+
     if( !dvd_path.empty() )
     {
-        bool is_pal;
-        rd = OpenDVD(dvd_path, is_pal);
-        if( is_pal != Project::AData().PalTvSystem() )
-            rd.reset();
-
         // перейдем в директорию
-        id.srcChooser.select_filename(dvd_path);
+        id.srcChooser.set_filename(dvd_path);
+
+        if( OpenDVD(dvd_path, id) )
+            ast.set_current_page(ipSELECT_VOBS);
     }
 
-    if( rd )
-    {
-        ast.show_all();
-
-        id.reader = rd;
-        ast.set_current_page(ipSELECT_VOBS);
-
-        Gtk::Main::run(ast);
-    }
-    else
-        RunWindow(ast);
+    Gtk::Main::run(ast);
 }
 
 } // namespace DVD
