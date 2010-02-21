@@ -410,6 +410,11 @@ static char* CopyFilePartWithProgress(io::stream& dst, char* buf, int len,
 
 static void OnApply(ImportData& id)
 {
+// смотри коммит ae37d209 в git://git.gnome.org/gtk+
+#if GTK_CHECK_VERSION(2,17,7)
+    id.ast.set_current_page(ipIMPORT_PROC);
+#endif
+
     std::string& dir_path = id.destPath;
     VobArr& arr = id.dvdVobs;
     ASSERT( fs::is_directory(dir_path) );
@@ -482,16 +487,20 @@ static void OnApply(ImportData& id)
         catch(const std::exception& err)
         {
             res = false;
-	    const char* what = err.what();
-	    if( what && (strcmp(what, USERT_BREAK_STR) != 0) )
-	      MessageBox("Import error!", Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, what);
+    	    const char* what = err.what();
+    	    if( what && (strcmp(what, USERT_BREAK_STR) != 0) )
+                MessageBox("Import error!", Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, what);
         }
     }
 
     const char* final = res ? "Videos successfully imported." 
         : "Import has been interrupted." ;
     FillLabelForImport(id.finalMsg, final);
+
+// смотри коммит ae37d209 в git://git.gnome.org/gtk+
+#if !GTK_CHECK_VERSION(2,17,7)
     id.ast.set_current_page(ipEND);
+#endif
 }
 
 static Gtk::VBox& AppendVBoxAsPage(Gtk::Assistant& ast, Gtk::Container*& page)
