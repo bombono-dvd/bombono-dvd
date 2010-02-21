@@ -235,6 +235,10 @@ ReaderPtr OpenDVD(const std::string& dvd_path, bool& is_pal)
 
 static void OnSelectSource(ImportData& id)
 {
+    if( id.ast.get_current_page() != ipCHOOSE_SOURCE )
+        return;
+
+    // :TODO: порой тупит и выдает "" (файл не выделен якобы)
     Gtk::FileChooserWidget& fcw = id.srcChooser;
     std::string dvd_path = fcw.get_filename().raw();
 
@@ -463,7 +467,9 @@ static void OnApply(ImportData& id)
                         std::string err_str;
                         Gtk::TreePath pth;
                         if( !Project::TryAddMedia(fname.c_str(), pth, err_str) )
+                        {    
                             LOG_ERR << "Import error: " << err_str << io::endl;
+                        }
                     }
                 }
         }
@@ -682,38 +688,29 @@ void RunImport(Gtk::Window& par_win, const std::string& dvd_path)
 
     ConstructImporter(id);
     
+    ReaderPtr rd;
     if( !dvd_path.empty() )
     {
-        // реализовать переход сразу на 2ю страницу оказалось
-        // непростым делом:
-        // - после явного открытия reader'а самое главное - 
-        //   не дать srcChooser переустановить его вызовом
-        //   OnSelectSource() =>
-        // - перепробовав все, что можно (и скрытие, и удаление
-        //   первой страницы, ...), стало ясно, что нельзя вызывать
-        //   show_all() окна, если на первой странице =>
-        // - простой переход на 2ю страницу дает сегфолт, если
-        //   ранее не проходил show_all() (см. интересную функцию
-        //   compute_last_button_state()) - пат
-        // - и только смена типа с GTK_ASSISTANT_PAGE_CONTENT на любой
-        //   другой дала нужный результат!
-
         bool is_pal;
-        ReaderPtr rd = OpenDVD(dvd_path, is_pal);
-        if( rd && (is_pal == Project::AData().PalTvSystem()) )
-        {
-            // чтоб не смутить OnPreparePage()
-            id.curPage = ipCHOOSE_SOURCE;
-            id.reader = rd;
+        rd = OpenDVD(dvd_path, is_pal);
+        if( is_pal != Project::AData().PalTvSystem() )
+            rd.reset();
 
-            ast.set_page_type(*ast.get_nth_page(ipSELECT_VOBS), Gtk::ASSISTANT_PAGE_INTRO);
-            ast.set_current_page(ipSELECT_VOBS);
-        }
-        else
-            // не получилось - тогда хотя бы перейдем в директорию
-            id.srcChooser.select_filename(dvd_path);
+        // перейдем в директорию
+        id.srcChooser.select_filename(dvd_path);
     }
-    RunWindow(ast);
+
+    if( rd )
+    {
+        ast.show_all();
+
+        id.reader = rd;
+        ast.set_current_page(ipSELECT_VOBS);
+
+        Gtk::Main::run(ast);
+    }
+    else
+        RunWindow(ast);
 }
 
 } // namespace DVD
