@@ -487,8 +487,6 @@ Export('mgui_tests_env')
 #
 
 prefix = user_options_dict['PREFIX']
-inst_data_prefix = os.path.join(prefix, 'share', 'bombono')
-user_options_dict['INST_DATA_PREFIX'] = inst_data_prefix
 
 dest_dir = str(user_options_dict['DESTDIR'])
 def MakeEndPrefix(prefix_name, f_arg, *args, **kw):
@@ -501,14 +499,17 @@ def MakeEndPrefix(prefix_name, f_arg, *args, **kw):
 
 MakeEndPrefix('DEST_PREFIX', prefix)
 bin_prefix  = MakeEndPrefix('BIN_PREFIX',  prefix, 'bin')
-data_prefix = MakeEndPrefix('DATA_PREFIX', inst_data_prefix, add_to_dict=0)
+data_prefix = MakeEndPrefix('DATA_PREFIX', prefix, 'share', 'bombono', add_to_dict=0)
 
 mgui_env.Alias('install', [bin_prefix, data_prefix])
 # resources
 BV.InstallDir(mgui_env, data_prefix, "resources")
 
+user_options_dict['XGETTEXT_SOURCES'] = []
+
 SConscript([
             BV.BuildDir+'/SConscript',
             BV.BuildDir+'/src/SConscript',
+            BV.BuildDir+'/po/SConscript',
            ])
 

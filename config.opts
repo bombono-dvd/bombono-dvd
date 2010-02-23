@@ -4,7 +4,7 @@ BUILD_DIR = 'build'
 BUILD_PROFILE = False
 BUILD_BRIEF = False
 BUILD_QUICK = True
-PREFIX = '/usr/local'
+PREFIX = '/opt/bombono-dvd'
 DESTDIR = ''
 
 # Compiler information

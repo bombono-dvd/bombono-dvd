@@ -24,7 +24,10 @@
 
 #include <string>
 
-std::string GetDataDir();
+// если 0, то локальный запуск
+const char* GetInstallPrefix();
+// папка resources
+const std::string& GetDataDir();
 
 #endif // #ifndef __MBASE_RESOURCES_H__
 

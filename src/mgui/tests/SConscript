@@ -15,6 +15,7 @@ source_files = [
                 'test_dnd.cpp',
                 'test_dvdimport.cpp',
                 'test_execute.cpp',
+                'test_gettext.cpp',
                 'test_meditor.cpp',
                 'test_menu.cpp',
                 'test_main.cpp',

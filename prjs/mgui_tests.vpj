@@ -203,6 +203,7 @@
 			<F N="../src/mgui/tests/test_dnd.cpp"/>
 			<F N="../src/mgui/tests/test_dvdimport.cpp"/>
 			<F N="../src/mgui/tests/test_execute.cpp"/>
+			<F N="../src/mgui/tests/test_gettext.cpp"/>
 			<F N="../src/mgui/tests/test_main.cpp"/>
 			<F N="../src/mgui/tests/test_mbrowser.cpp"/>
 			<F N="../src/mgui/tests/test_meditor.cpp"/>

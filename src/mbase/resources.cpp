@@ -4,18 +4,27 @@
 
 #include <mlib/filesystem.h>
 
-#define DATADIR  "resources"
-
-std::string GetDataDir()
+const char* GetInstallPrefix()
 {
-#ifdef DATA_PREFIX
-    static std::string res_dir;
-    if( res_dir.empty() )
-        res_dir = (fs::path(DATA_PREFIX) / DATADIR).string();
-    return res_dir;
+#ifdef INSTALL_PREFIX
+    return INSTALL_PREFIX;
 #else
     // работаем локально
-    return DATADIR;
+    return 0;
 #endif
+
+}
+
+#define DATADIR  "resources"
+
+const std::string& GetDataDir()
+{
+    static std::string res_dir;
+    if( res_dir.empty() )
+    {
+        const char* prefix = GetInstallPrefix();
+        res_dir = prefix ? (fs::path(prefix) / "share" / "bombono" / DATADIR).string() : DATADIR ;
+    }
+    return res_dir;
 }
 
