@@ -29,6 +29,7 @@
 #include <mgui/sdk/libgnome/gnome-util.h>
 #include <mgui/project/browser.h> // PackInScrolledWindow()
 #include <mgui/win_utils.h>
+#include <mgui/gettext.h>
 
 #include <mlib/sigc.h>
 #include <mlib/tech.h>
@@ -69,7 +70,7 @@ void ExecState::Clean()
 
 Gtk::Label& ExecState::SetStatus(const std::string& name)
 {
-    return Project::FillAuthorLabel(prgLabel, "Status: " + name);
+    return Project::FillAuthorLabel(prgLabel, _("Status: ") + name);
 }
 
 Gtk::Widget& PackDetails(Gtk::TextView& txt_view)

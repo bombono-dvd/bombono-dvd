@@ -38,6 +38,7 @@
 #include <mgui/author/script.h> // VideoSizeSum()
 #include <mgui/author/output.h> // PackOutput()
 
+#include <mgui/gettext.h>
 #include <mgui/project/handler.h> // RegisterHook()
 #include <mlib/sigc.h>
 #include <mlib/filesystem.h>
@@ -390,20 +391,21 @@ static void OnCloseAboutDlg(Gtk::AboutDialog* dlg, int reps)
 
 static void OnDlgAbout(Gtk::Window& win)
 {
-    const char* license =
-        "This program is free software; you can redistribute it and/or modify\n"
-        "it under the terms of the GNU General Public License as published by\n"
-        "the Free Software Foundation; either version 2 of the License, or\n"
-        "(at your option) any later version.\n"
-        "\n"
-        "This program is distributed in the hope that it will be useful,\n"
-        "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-        "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-        "GNU General Public License for more details.\n"
-        "\n"
-        "You should have received a copy of the GNU General Public License\n"
-        "along with this program; if not, write to the Free Software\n"
-        "Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA";
+    // :TODO: включить кнопку лицензии пока нельзя из ограничения окна About на размер
+    //const char* license =
+    //    "This program is free software; you can redistribute it and/or modify\n"
+    //    "it under the terms of the GNU General Public License as published by\n"
+    //    "the Free Software Foundation; either version 2 of the License, or\n"
+    //    "(at your option) any later version.\n"
+    //    "\n"
+    //    "This program is distributed in the hope that it will be useful,\n"
+    //    "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+    //    "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+    //    "GNU General Public License for more details.\n"
+    //    "\n"
+    //    "You should have received a copy of the GNU General Public License\n"
+    //    "along with this program; if not, write to the Free Software\n"
+    //    "Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA";
 
     HookUpURLs();
 
@@ -437,13 +439,14 @@ static void OnDlgAbout(Gtk::Window& win)
         dlg->set_name(APROJECT_NAME);
         dlg->set_version(APROJECT_VERSION);
         dlg->set_copyright("Copyright \xc2\xa9 2007-2009 Ilya Murav'jov");
-        dlg->set_license(license);
+        //dlg->set_license(license);
         dlg->set_website("http://www.bombono.org");
-        dlg->set_comments(APROJECT_NAME" is a DVD authoring program with nice and clean GUI");
+        dlg->set_comments(_("Bombono DVD is a DVD authoring program with nice and clean GUI"));
         dlg->set_logo(Gdk::Pixbuf::create_from_file(AppendPath(GetDataDir(), "about-front.png")));
         //dlg.set_authors(authors);
         //dlg.set_documenters(documenters);
         //dlg.set_decorated(false);
+        dlg->set_translator_credits(_("translator-credits"));
     
         ForAllWidgets(static_cast<Gtk::Widget&>(*dlg).gobj(), SetNoButtonRelief);
         dlg->signal_response().connect(bl::bind(OnCloseAboutDlg, dlg.get(), bl::_1));
@@ -790,9 +793,6 @@ enum {
 	BRASERO_UTILS_GO
 };
 
-#define N_(arg) (arg)
-#define _(arg)  (arg)
-
 static gchar* 
 brasero_utils_get_size_string(gint64 dsize,
                               gboolean with_unit,
@@ -801,7 +801,10 @@ brasero_utils_get_size_string(gint64 dsize,
 	int unit;
 	int size;
 	int remain = 0;
-	const char *units[] = { "", N_("KiB"), N_("MiB"), N_("GiB") };
+    // раньше Brasero использовал KiB, MiB и GiB, как более точные технически
+    // (вроде как размеры HDD принято измерять по 1GB=1000MB); теперь Brasero
+    // перешел на стандарт KB/MB/GB, ну и BmD тоже (а че, мы не гордые :)
+	const char *units[] = { "", N_("KB"), N_("MB"), N_("GB") };
 
 	if (dsize < 1024) {
 		unit = BRASERO_UTILS_NO_UNIT;
@@ -906,22 +909,22 @@ ConstructorApp::ConstructorApp(): askSaveOnExit(true), isProjectChanged(false)
         Gtk::MenuBar& main_bar = PackStart(hbox, NewManaged<Gtk::MenuBar>());
 
         // Project
-        Gtk::MenuItem& prj_mi = AppendMI(main_bar, NewManaged<Gtk::MenuItem>("_Project", true));
+        Gtk::MenuItem& prj_mi = AppendMI(main_bar, NewManaged<Gtk::MenuItem>(_("_Project"), true));
         {
             RefPtr<Gtk::ActionGroup> prj_actions = Gtk::ActionGroup::create("ProjectActions");
 
             prj_actions->add( Gtk::Action::create("ProjectMenu", "_Project") ); 
-            prj_actions->add( Gtk::Action::create("New",    Gtk::Stock::NEW,  "_New Project"),
+            prj_actions->add( Gtk::Action::create("New",    Gtk::Stock::NEW,  _("_New Project")),
                               Gtk::AccelKey("<control>N"), lambda::bind(&OnNewProject, app_ref) );
-            prj_actions->add( Gtk::Action::create("Open",   Gtk::Stock::OPEN, "_Open..."),
+            prj_actions->add( Gtk::Action::create("Open",   Gtk::Stock::OPEN, _("_Open...")),
                               Gtk::AccelKey("<control>O"), lambda::bind(&OnOpenProject, app_ref) );
-            prj_actions->add( Gtk::Action::create("Save",   Gtk::Stock::SAVE, "_Save"),
+            prj_actions->add( Gtk::Action::create("Save",   Gtk::Stock::SAVE, _("_Save")),
                               Gtk::AccelKey("<control>S"), lambda::bind(&OnSaveProject, app_ref) );
-            prj_actions->add( Gtk::Action::create("SaveAs", Gtk::Stock::SAVE_AS, "Save _As..."),
+            prj_actions->add( Gtk::Action::create("SaveAs", Gtk::Stock::SAVE_AS, _("Save _As...")),
                               lambda::bind(&OnSaveAsProject, app_ref) );
-            prj_actions->add( Gtk::Action::create("Quit",   Gtk::Stock::QUIT, "_Quit"), 
+            prj_actions->add( Gtk::Action::create("Quit",   Gtk::Stock::QUIT, _("_Quit")), 
                               Gtk::AccelKey("<control>Q"), lambda::bind(&QuitApplication, app_ref) );
-            prj_actions->add( Gtk::Action::create("Import DVD", "Add Videos from _DVD", "DVD-Import Assistant"), 
+            prj_actions->add( Gtk::Action::create("Import DVD", _("Add Videos from _DVD"), _("DVD-Import Assistant")), 
                               lambda::bind(&ImportFromDVD, app_ref) );
 
 
@@ -957,13 +960,13 @@ ConstructorApp::ConstructorApp(): askSaveOnExit(true), isProjectChanged(false)
         }
 
         // Go
-        Gtk::MenuItem& go_mi = AppendMI(main_bar, NewManaged<Gtk::MenuItem>("_Go", true));
+        Gtk::MenuItem& go_mi = AppendMI(main_bar, NewManaged<Gtk::MenuItem>(_("_Go"), true));
         go_mi.set_submenu(goMenu);
         Gtk::RadioButtonGroup grp;
         goMenu.append(CreateGoMenuItem(grp, *this)); // первый вставляем сразу
         
         // Help
-        Gtk::Menu& hlp_menu     = MakeSubmenu(AppendMI(main_bar, NewManaged<Gtk::MenuItem>("_Help", true)));
+        Gtk::Menu& hlp_menu     = MakeSubmenu(AppendMI(main_bar, NewManaged<Gtk::MenuItem>(_("_Help"), true)));
         Gtk::MenuItem& about_mi = AppendMI(hlp_menu, *Gtk::manage(new Gtk::ImageMenuItem(Gtk::Stock::ABOUT)));
         about_mi.signal_activate().connect(lambda::bind(&OnDlgAbout, boost::ref(win)));
 
@@ -1064,17 +1067,19 @@ ActionFunctor BuildConstructor(ConstructorApp& app, const std::string& prj_file_
     // * закладки с содержимым
     Gtk::Notebook& nbook = app.BookContent();
     PackMediasWindow(nbook, md_store);
-    app.SetTabName("_Source", 0);
+    app.SetTabName(C_("MainTabs", "_Source"), 0);
     PackMenusWindow(nbook, mn_store, md_store);
-    app.SetTabName("_Menu", 1);
+    app.SetTabName(C_("MainTabs", "_Menu"), 1);
     ActionFunctor after_fnr = PackOutput(app, prj_file_name);
-    app.SetTabName("_Output", 2);
+    app.SetTabName(C_("MainTabs", "_Output"), 2);
 
     return after_fnr;
 }
 
 void RunConstructor(const std::string& prj_file_name, bool ask_save_on_exit)
 {
+    InitI18n();
+
     DBCleanup db_cleanup(false);
     ConstructorApp app;
     app.askSaveOnExit = ask_save_on_exit;
@@ -1092,4 +1097,19 @@ void RunConstructor(const std::string& prj_file_name, bool ask_save_on_exit)
 }
 
 } // namespace Project
+
+void InitI18n()
+{
+    static bool is_init = false;
+    if( !is_init )
+    {
+        is_init = true;
+    
+        setlocale(LC_ALL, "");
+        const char* prefix = GetInstallPrefix();
+        std::string locale_prefix(prefix ? (fs::path(prefix) / "share" / "locale").string() : "build/po/locale");
+        bindtextdomain("bombono-dvd", locale_prefix.c_str());
+        textdomain("bombono-dvd");
+    }
+}
 

@@ -28,6 +28,7 @@
 #include <mgui/timeline/mviewer.h>
 #include <mgui/sdk/packing.h>
 #include <mgui/dialog.h> // MessageBox
+#include <mgui/gettext.h>
 
 #include <mlib/sdk/logger.h>
 #include <mlib/filesystem.h>
@@ -100,9 +101,14 @@ MediaBrowser::MediaBrowser(RefPtr<MediaStore> a_lst)
     SetupURIDrop(*this, bl::bind(&OnURIsDrop, boost::ref(*this), bl::_1, bl::_2));
 }
 
+// Названия типов для i18n
+F_("Video")
+F_("Chapter")
+F_("Still Picture")
+
 void RenderMediaType(Gtk::CellRendererText* rndr, MediaItem mi)
 {
-    rndr->property_text() = mi->TypeString();
+    rndr->property_text() = gettext(mi->TypeString().c_str());
 }
 
 void MediaBrowser::BuildStructure()
@@ -114,7 +120,7 @@ void MediaBrowser::BuildStructure()
 
     // 1 миниатюра + имя
     {
-        Gtk::TreeView::Column& name_cln = *Gtk::manage( new Gtk::TreeView::Column("Name") );
+        Gtk::TreeView::Column& name_cln = *Gtk::manage( new Gtk::TreeView::Column(_("Name")) );
         // ширину колонки можно менять
         name_cln.set_resizable(true);
         
@@ -130,7 +136,7 @@ void MediaBrowser::BuildStructure()
 
     // 3 тип
     {
-        Gtk::TreeView::Column& cln  = *Gtk::manage( new Gtk::TreeView::Column("Type") );
+        Gtk::TreeView::Column& cln  = *Gtk::manage( new Gtk::TreeView::Column(_("Type")) );
         Gtk::CellRendererText& rndr = *Gtk::manage( new Gtk::CellRendererText() );
 
         cln.pack_start(rndr, false);
@@ -188,7 +194,7 @@ void PackMediaBrowser(Gtk::Container& contr, MediaBrowser& brw)
 //     vbox.pack_start(label, Gtk::PACK_SHRINK);
 //     Gtk::Requisition req = label.size_request();
 //     label.set_size_request(0, req.height+10);
-    vbox.pack_start(MakeTitleLabel("Media List"), Gtk::PACK_SHRINK);
+    vbox.pack_start(MakeTitleLabel(_("Media List")), Gtk::PACK_SHRINK);
     PackHSeparator(vbox);
 
 //     Gtk::ScrolledWindow* scr_win = Gtk::manage(new Gtk::ScrolledWindow);
@@ -228,7 +234,7 @@ void PackMediaBrowserAll(Gtk::Container& contr, MediaBrowser& brw, ActionFunctor
         vbox->pack_start(hbox, Gtk::PACK_SHRINK);
         {
             Gtk::Button* add_btn = CreateButtonWithIcon("", Gtk::Stock::ADD, 
-                                                        "Add Media from File Browser");
+                                                        _("Add Media from File Browser"));
             hbox.pack_start(*add_btn);
             //bbox.pack_start(*add_btn);
             add_btn->signal_clicked().connect(add_media_fnr);
@@ -237,13 +243,13 @@ void PackMediaBrowserAll(Gtk::Container& contr, MediaBrowser& brw, ActionFunctor
             SetDefaultButtonOnEveryMap(*add_btn);
 
             Gtk::Button* rm_btn = CreateButtonWithIcon("", Gtk::Stock::REMOVE,
-                                                       "Remove Media");
+                                                       _("Remove Media"));
             hbox.pack_start(*rm_btn);
             //bbox.pack_start(*rm_btn);
             rm_btn->signal_clicked().connect(remove_media_fnr);
 
-            Gtk::Button* edit_btn = CreateButtonWithIcon("Edit", Gtk::Stock::YES,
-                                                         "Make Chapters for Video");
+            Gtk::Button* edit_btn = CreateButtonWithIcon(C_("MediaBrowser", "Edit"), Gtk::Stock::YES,
+                                                         _("Make Chapters for Video"));
             hbox.pack_start(*edit_btn);
             //bbox.pack_start(*edit_btn);
             edit_btn->signal_clicked().connect(edit_media_fnr);

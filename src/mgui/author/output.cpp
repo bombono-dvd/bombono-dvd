@@ -32,6 +32,7 @@
 #include <mgui/sdk/packing.h>
 #include <mgui/sdk/widget.h>
 #include <mgui/timer.h>
+#include <mgui/gettext.h>
 
 #include <mbase/resources.h>
 #include <mlib/filesystem.h>
@@ -60,7 +61,7 @@ Gtk::Button& FillBuildButton(Gtk::Button& btn, bool not_started,
     const char* pix_fname = "button/still.ico";
     const char* tooltip   = not_started ? "Build DVD-Video of the project." : 0 ;
     std::string cancel_name = "_Cancel " + op_name;
-    std::string label     = not_started ? std::string("_Build DVD-Video") : cancel_name.c_str() ;
+    std::string label     = not_started ? std::string(_("_Build DVD-Video")) : cancel_name.c_str() ;
 
     ASSERT( btn.has_screen() ); // ради image-spacing
     int image_spacing = 0;
@@ -160,7 +161,7 @@ ActionFunctor PackOutput(ConstructorApp& app, const std::string& prj_fname)
         {
             Gtk::VBox& box = PackStart(vbox, NewManaged<Gtk::VBox>());
 
-            Gtk::Label& lbl = PackStart(box, MakeAuthorLabel("Select Output _Folder:", true));
+            Gtk::Label& lbl = PackStart(box, MakeAuthorLabel(_("Select Output _Folder:"), true));
             lbl.set_mnemonic_widget(ch_btn);
             // по умолчанию будет директория проекта
             if( !prj_fname.empty() )
@@ -174,14 +175,14 @@ ActionFunctor PackOutput(ConstructorApp& app, const std::string& prj_fname)
             Gtk::Alignment& out_alg = PackStart(vbox, MakeNullAlg());
             Gtk::Alignment& alg = MakeNullAlg();
             alg.set_padding(0, 0, 5, 5);
-            out_alg.add(PackWidgetInFrame(alg, Gtk::SHADOW_ETCHED_IN, " Choose Author Mode: "));
+            out_alg.add(PackWidgetInFrame(alg, Gtk::SHADOW_ETCHED_IN, _(" Choose Author Mode: ")));
 
             Gtk::VBox& mode_box = Add(alg, NewManaged<Gtk::VBox>(false, 2));
 
             Gtk::RadioButtonGroup grp;
             // цель по умолчанию
-            AddAuthoringMode(mode_box, grp, "_Write DVD Folder", Author::modFOLDER, true);
-            AddAuthoringMode(mode_box, grp, "Write Disk _Image", Author::modDISK_IMAGE);
+            AddAuthoringMode(mode_box, grp, _("_Write DVD Folder"), Author::modFOLDER, true);
+            AddAuthoringMode(mode_box, grp, _("Write Disk _Image"), Author::modDISK_IMAGE);
 
             RefPtr<Gtk::SizeGroup> labels_sg = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
             RefPtr<Gtk::SizeGroup> wdg_sg    = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
@@ -190,12 +191,12 @@ ActionFunctor PackOutput(ConstructorApp& app, const std::string& prj_fname)
                 Gtk::Alignment& alg = PackStart(mode_box, MakeSubOptionsAlg());
 
                 Gtk::HBox& box = Add(alg, NewManaged<Gtk::HBox>(false));
-                labels_sg->add_widget(PackStart(box, MakeAuthorLabel("Disc Label: ", false)));
+                labels_sg->add_widget(PackStart(box, MakeAuthorLabel(_("Disc Label: "), false)));
                 Gtk::Entry& ent = PackStart(box, bd.Label());
                 wdg_sg->add_widget(ent);
             }
 
-            Gtk::RadioButton& burn_rb = AddAuthoringMode(mode_box, grp, "Burn to _DVD", Author::modBURN);
+            Gtk::RadioButton& burn_rb = AddAuthoringMode(mode_box, grp, _("Burn to _DVD"), Author::modBURN);
             {
                 Gtk::Alignment& alg = PackStart(mode_box, MakeSubOptionsAlg());
                 Gtk::Table& tbl = Add(alg, NewManaged<Gtk::Table>(2, 2, false));
@@ -203,13 +204,13 @@ ActionFunctor PackOutput(ConstructorApp& app, const std::string& prj_fname)
                 Gtk::ComboBoxText& dvd_btn = bd.DVDDevices();
                 Gtk::ComboBox& speed_btn   = bd.SpeedBtn();
     
-                Gtk::Label& drv_lbl = MakeAuthorLabel("DVD Drive: ", false);
+                Gtk::Label& drv_lbl = MakeAuthorLabel(_("DVD Drive: "), false);
                 labels_sg->add_widget(drv_lbl);
                 tbl.attach(drv_lbl, 0, 1, 0, 1, Gtk::SHRINK);
                 wdg_sg->add_widget(dvd_btn);
                 tbl.attach(dvd_btn, 1, 2, 0, 1, Gtk::SHRINK);
 
-                Gtk::Label& speed_lbl = MakeAuthorLabel("Writing Speed: ", false);
+                Gtk::Label& speed_lbl = MakeAuthorLabel(_("Writing Speed: "), false);
                 labels_sg->add_widget(speed_lbl);
                 tbl.attach(speed_lbl, 0, 1, 1, 2, Gtk::SHRINK);
                 wdg_sg->add_widget(speed_btn);
@@ -220,7 +221,7 @@ ActionFunctor PackOutput(ConstructorApp& app, const std::string& prj_fname)
             }
 
             PackHSeparator(mode_box);
-            AddAuthoringMode(mode_box, grp, "_Rendering only (for experts)", Author::modRENDERING);
+            AddAuthoringMode(mode_box, grp, _("_Rendering only"), Author::modRENDERING);
         }
 
         // *
@@ -228,7 +229,7 @@ ActionFunctor PackOutput(ConstructorApp& app, const std::string& prj_fname)
             Gtk::VBox& box = PackStart(vbox, NewManaged<Gtk::VBox>());
             PackProgressBar(box, es);
 
-            Gtk::Expander& expdr = PackStart(box, NewManaged<Gtk::Expander>("Show/_Hide Details", true));
+            Gtk::Expander& expdr = PackStart(box, NewManaged<Gtk::Expander>(_("Show/_Hide Details"), true));
             Gtk::TextView& txt_view = es.detailsView;
             txt_view.set_size_request(0, 200);
             expdr.add(Author::PackDetails(txt_view));

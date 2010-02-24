@@ -36,6 +36,7 @@
 #include <mgui/render/menu.h>
 #include <mgui/render/editor.h>
 #include <mgui/project/thumbnail.h>
+#include <mgui/gettext.h>
 
 #include <mbase/project/theme.h>
 #include <mlib/sdk/logger.h>
@@ -489,7 +490,7 @@ Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box)
 
         // * кнопка
         Gtk::ToolButton& add_btn = NewManaged<Gtk::ToolButton>(Gtk::StockID(Gtk::Stock::ADD));
-        add_btn.set_tooltip(TooltipFactory(), "Add Item");
+        add_btn.set_tooltip(TooltipFactory(), _("Add Item"));
         tbar.append(add_btn);
         add_btn.signal_clicked().connect( bl::bind(&AddObjectClicked, boost::ref(editor)) );
     }
@@ -511,7 +512,7 @@ Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box)
         AppendToToolbarWithAC(tbar, fonts_ent, true);
         {
             Gtk::Entry& ent = *fonts_ent.get_entry();
-            SetTip(ent, "Font Name");
+            SetTip(ent, _("Font Name"));
             ConnectOnActivate(ent, on_font_change);
         }
 
@@ -527,14 +528,14 @@ Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box)
             Gtk::Entry& ent = *size_ent.get_entry();
             LimitTextInput(ent, "0123456789.,");
             ent.set_width_chars(5);
-            SetTip(ent, "Font Size");
+            SetTip(ent, _("Font Size"));
             ConnectOnActivate(ent, on_font_change);
         }
 
         // * кнопки стилей шрифта
-        SetupStyleBtn(edt_tbar.bldBtn, tbar, "Bold", on_font_change, Gtk::Stock::BOLD);
-        SetupStyleBtn(edt_tbar.itaBtn, tbar, "Italic", on_font_change, Gtk::Stock::ITALIC);
-        SetupStyleBtn(edt_tbar.undBtn, tbar, "Underline", on_font_change, Gtk::Stock::UNDERLINE);
+        SetupStyleBtn(edt_tbar.bldBtn, tbar, _("Bold"), on_font_change, Gtk::Stock::BOLD);
+        SetupStyleBtn(edt_tbar.itaBtn, tbar, _("Italic"), on_font_change, Gtk::Stock::ITALIC);
+        SetupStyleBtn(edt_tbar.undBtn, tbar, _("Underline"), on_font_change, Gtk::Stock::UNDERLINE);
 
         // * кнопка цвета текста
         Gtk::ColorButton& clr_btn = edt_tbar.clrBtn;
@@ -542,9 +543,9 @@ Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box)
         clr_btn.set_color(RGBA::PixelToColor(GOLD_CLR));
         clr_btn.set_alpha(0xffff);
 
-        clr_btn.set_title("Pick a Color for Text");
+        clr_btn.set_title(_("Pick a Color for Text"));
         clr_btn.set_focus_on_click(false);
-        SetTip(clr_btn, "Text Color");
+        SetTip(clr_btn, _("Text Color"));
 
         clr_btn.signal_color_set().connect(bl::bind(&FontNameChanged, boost::ref(editor), true));
         AppendToToolbar(tbar, clr_btn);

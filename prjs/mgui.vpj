@@ -217,6 +217,7 @@
 			<F N="../src/mgui/sdk/entry.h"/>
 			<F N="../src/mgui/author/execute.h"/>
 			<F N="../src/mgui/author/gb_devices.h"/>
+			<F N="../src/mgui/gettext.h"/>
 			<F N="../src/mgui/sdk/libgnome/gnome-exec.h"/>
 			<F N="../src/mgui/sdk/libgnome/gnome-util.h"/>
 			<F N="../src/mgui/project/handler.h"/>

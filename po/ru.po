@@ -8,32 +8,257 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-23 16:15+0300\n"
-"PO-Revision-Date: 2010-02-23 16:32+0300\n"
+"POT-Creation-Date: 2010-02-24 15:01+0300\n"
+"PO-Revision-Date: 2010-02-24 14:58+0300\n"
 "Last-Translator: Ilya Murav'jov <muravev@yandex.ru>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/mgui/project/mconstructor.cpp:804
-#, fuzzy
-msgid "KiB"
-msgstr "KиБ"
+#: src/mgui/author/execute.cpp:73
+msgid "Status: "
+msgstr "Статус: "
 
-#: src/mgui/project/mconstructor.cpp:804
-msgid "MiB"
+#: src/mgui/author/output.cpp:64
+msgid "_Build DVD-Video"
+msgstr "Соз_дать DVD-Video"
+
+#: src/mgui/author/output.cpp:164
+msgid "Select Output _Folder:"
+msgstr "_Выберите папку назначения:"
+
+#: src/mgui/author/output.cpp:178
+msgid " Choose Author Mode: "
+msgstr "Выберите режим авторинга"
+
+#: src/mgui/author/output.cpp:184
+msgid "_Write DVD Folder"
+msgstr "_Записать в папку"
+
+#: src/mgui/author/output.cpp:185
+msgid "Write Disk _Image"
+msgstr "Записать _образ диска"
+
+#: src/mgui/author/output.cpp:194
+msgid "Disc Label: "
+msgstr "Имя диска:"
+
+#: src/mgui/author/output.cpp:199
+msgid "Burn to _DVD"
+msgstr "З_аписать на DVD"
+
+#: src/mgui/author/output.cpp:207
+msgid "DVD Drive: "
+msgstr "Привод DVD:"
+
+#: src/mgui/author/output.cpp:213
+msgid "Writing Speed: "
+msgstr "Скорость записи:"
+
+#: src/mgui/author/output.cpp:224
+msgid "_Rendering only"
+msgstr "_Только рендеринг"
+
+#: src/mgui/author/output.cpp:232
+msgid "Show/_Hide Details"
+msgstr "По_казать/скрыть детали"
+
+#: src/mgui/editor/toolbar.cpp:493
+msgid "Add Item"
+msgstr "Добавить элемент"
+
+#: src/mgui/editor/toolbar.cpp:515
+msgid "Font Name"
+msgstr "Название шрифта"
+
+#: src/mgui/editor/toolbar.cpp:531
+msgid "Font Size"
+msgstr "Размер шрифта"
+
+#: src/mgui/editor/toolbar.cpp:536
+msgid "Bold"
+msgstr "Жирный"
+
+#: src/mgui/editor/toolbar.cpp:537
+msgid "Italic"
+msgstr "Наклонный"
+
+#: src/mgui/editor/toolbar.cpp:538
+msgid "Underline"
+msgstr "Подчёркнутый"
+
+#: src/mgui/editor/toolbar.cpp:546
+msgid "Pick a Color for Text"
+msgstr "Выберите цвет текста"
+
+#: src/mgui/editor/toolbar.cpp:548
+msgid "Text Color"
+msgstr "Цвет текста"
+
+#: src/mgui/project/mconstructor.cpp:444
+msgid "Bombono DVD is a DVD authoring program with nice and clean GUI"
 msgstr ""
+"Bombono DVD - это программа авторинга с аккуратным графическим интерфейсом"
 
-#: src/mgui/project/mconstructor.cpp:804
-msgid "GiB"
-msgstr ""
+#: src/mgui/project/mconstructor.cpp:449
+msgid "translator-credits"
+msgstr "Илья Муравьев <muravev@yandex.ru>"
 
-#: src/mgui/tests/test_gettext.cpp:22
+#: src/mgui/project/mconstructor.cpp:807
+msgid "KB"
+msgstr "КБ"
+
+#: src/mgui/project/mconstructor.cpp:807
+msgid "MB"
+msgstr "МБ"
+
+#: src/mgui/project/mconstructor.cpp:807
+msgid "GB"
+msgstr "ГБ"
+
+#: src/mgui/project/mconstructor.cpp:912
+msgid "_Project"
+msgstr "_Проект"
+
+#: src/mgui/project/mconstructor.cpp:917
+msgid "_New Project"
+msgstr "_Создать проект"
+
+#: src/mgui/project/mconstructor.cpp:919
+msgid "_Open..."
+msgstr "_Открыть..."
+
+#: src/mgui/project/mconstructor.cpp:921
+msgid "_Save"
+msgstr "Со_хранить"
+
+#: src/mgui/project/mconstructor.cpp:923
+msgid "Save _As..."
+msgstr "Сохранить _как..."
+
+#: src/mgui/project/mconstructor.cpp:925
+msgid "_Quit"
+msgstr "_Выход"
+
+#: src/mgui/project/mconstructor.cpp:927
+msgid "Add Videos from _DVD"
+msgstr "_Добавить видео из DVD"
+
+#: src/mgui/project/mconstructor.cpp:927
+msgid "DVD-Import Assistant"
+msgstr "Помощник по импорту из DVD"
+
+#: src/mgui/project/mconstructor.cpp:963
+msgid "_Go"
+msgstr "П_ерейти"
+
+#: src/mgui/project/mconstructor.cpp:969
+msgid "_Help"
+msgstr "_Справка"
+
+#: src/mgui/project/mconstructor.cpp:1070
+msgctxt "MainTabs"
+msgid "_Source"
+msgstr "_Начало"
+
+#: src/mgui/project/mconstructor.cpp:1072
+msgctxt "MainTabs"
+msgid "_Menu"
+msgstr "_Меню"
+
+#: src/mgui/project/mconstructor.cpp:1074
+msgctxt "MainTabs"
+msgid "_Output"
+msgstr "_Результат"
+
+#: src/mgui/project/media-browser.cpp:105
+msgid "Video"
+msgstr "Видео"
+
+#: src/mgui/project/media-browser.cpp:106
+msgid "Chapter"
+msgstr "Глава"
+
+#: src/mgui/project/media-browser.cpp:107
+msgid "Still Picture"
+msgstr "Рисунок"
+
+#: src/mgui/project/media-browser.cpp:123
+msgid "Name"
+msgstr "Имя"
+
+#: src/mgui/project/media-browser.cpp:139
+msgid "Type"
+msgstr "Тип"
+
+#: src/mgui/project/media-browser.cpp:197
+#: src/mgui/project/menu-browser.cpp:340
+msgid "Media List"
+msgstr "Список медиа"
+
+#: src/mgui/project/media-browser.cpp:237
+msgid "Add Media from File Browser"
+msgstr "Добавить медиа из браузера"
+
+#: src/mgui/project/media-browser.cpp:246
+msgid "Remove Media"
+msgstr "Удалить медиа"
+
+#: src/mgui/project/media-browser.cpp:251
+msgctxt "MediaBrowser"
+msgid "Edit"
+msgstr " "
+
+#: src/mgui/project/media-browser.cpp:252
+msgid "Make Chapters for Video"
+msgstr "Разметить главы для видео"
+
+#: src/mgui/project/menu-browser.cpp:300
+msgid "Menu List"
+msgstr "Список меню"
+
+#: src/mgui/project/menu-browser.cpp:320
+msgid "Add Menu"
+msgstr "Добавить меню"
+
+#: src/mgui/project/menu-browser.cpp:325
+msgid "Remove Menu"
+msgstr "Удалить меню"
+
+#: src/mgui/project/menu-browser.cpp:329
+msgctxt "MenuBrowser"
+msgid "Edit"
+msgstr " "
+
+#: src/mgui/project/menu-browser.cpp:330
+msgid "Edit Menu"
+msgstr "Редактировать меню"
+
+#: src/mgui/timeline/mviewer.cpp:229
+msgid "File Browser"
+msgstr "Браузер файлов"
+
+#: src/mgui/timeline/mviewer.cpp:259
+msgid "All formats"
+msgstr "Поддерживаемые форматы"
+
+#: src/mgui/timeline/mviewer.cpp:260
+msgid "MPEG files"
+msgstr "Файлы MPEG"
+
+#: src/mgui/timeline/mviewer.cpp:261
+msgid "Still Images"
+msgstr "Рисунки"
+
+#: src/mgui/timeline/mviewer.cpp:262
+msgid "All Files (*.*)"
+msgstr "Все файлы (*.*)"
+
+#: src/mgui/tests/test_gettext.cpp:20
 msgid "not_trans_text"
 msgstr "непереводимый_текст"
 
-#: src/mgui/tests/test_gettext.cpp:25
+#: src/mgui/tests/test_gettext.cpp:23
 msgid "Hello, world!"
 msgstr "Привет, мир!"
-

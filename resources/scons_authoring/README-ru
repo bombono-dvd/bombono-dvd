@@ -1,0 +1,6 @@
+1. Заавторить в папку dvd      - "scons"
+2. Все удалить                 - "scons -c"
+3. Проиграть результат в totem - "scons totem"
+4. Сделать iso-образ           - "scons dvd.iso"
+5. Прожечь образ (/dev/dvd)    - "scons burn"
+

@@ -30,6 +30,7 @@
 #include <mgui/render/menu.h>
 #include <mgui/sdk/packing.h>
 #include <mgui/sdk/menu.h>
+#include <mgui/gettext.h>
 
 #include <mlib/sdk/logger.h>
 
@@ -296,7 +297,7 @@ void PackMenusWindow(Gtk::Container& contr, RefPtr<MenuStore> ms, RefPtr<MediaSt
         hp.add1(PackInScrolledWindow(vbox));
 
         // * subj
-        vbox.pack_start(MakeTitleLabel("Menu List"), Gtk::PACK_SHRINK);
+        vbox.pack_start(MakeTitleLabel(_("Menu List")), Gtk::PACK_SHRINK);
         PackHSeparator(vbox);
         vbox.pack_start(menu_brw);
         PackHSeparator(vbox);
@@ -316,17 +317,17 @@ void PackMenusWindow(Gtk::Container& contr, RefPtr<MenuStore> ms, RefPtr<MediaSt
         {
             using namespace boost;
             Gtk::Button* add_btn = CreateButtonWithIcon("", Gtk::Stock::ADD,
-                                                        "Add Menu");
+                                                        _("Add Menu"));
             hb.pack_start(*add_btn);
             add_btn->signal_clicked().connect(lambda::bind(&InsertMenuIntoBrowser, boost::ref(menu_brw)));
 
             Gtk::Button* rm_btn = CreateButtonWithIcon("", Gtk::Stock::REMOVE,
-                                                       "Remove Menu");
+                                                       _("Remove Menu"));
             hb.pack_start(*rm_btn);
             rm_btn->signal_clicked().connect(lambda::bind(&DeleteMenuFromBrowser, boost::ref(menu_brw)));
 
-            Gtk::Button* edit_btn = CreateButtonWithIcon("Edit", Gtk::Stock::YES,
-                                                         "Edit Menu");
+            Gtk::Button* edit_btn = CreateButtonWithIcon(C_("MenuBrowser", "Edit"), Gtk::Stock::YES,
+                                                         _("Edit Menu"));
             hb.pack_start(*edit_btn);
             ActionFunctor edit_fnr =
                 lambda::bind(&EditMenu, boost::ref(menu_brw), boost::ref(meditor), boost::ref(title_lbl));
@@ -336,7 +337,7 @@ void PackMenusWindow(Gtk::Container& contr, RefPtr<MenuStore> ms, RefPtr<MediaSt
 
         // *
         PackHSeparator(vbox);
-        vbox.pack_start(MakeTitleLabel("Media List"), Gtk::PACK_SHRINK);
+        vbox.pack_start(MakeTitleLabel(_("Media List")), Gtk::PACK_SHRINK);
         PackHSeparator(vbox);
 
         MediaBrowser& brw = NewManaged<MediaBrowser>(md_store);

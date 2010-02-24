@@ -81,5 +81,7 @@ void PackFullMBrowser(Gtk::Container& contr, MediaBrowser& brw);
 
 } // namespace Project
 
+void InitI18n();
+
 #endif // #ifndef __MGUI_PROJECT_MCONSTRUCTOR_H__
 

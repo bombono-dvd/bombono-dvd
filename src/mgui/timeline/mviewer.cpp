@@ -26,6 +26,7 @@
 #include <mgui/trackwindow.h>
 #include <mgui/sdk/window.h>
 #include <mgui/sdk/widget.h>
+#include <mgui/gettext.h>
 
 #include <mlib/filesystem.h>
 
@@ -225,7 +226,7 @@ ActionFunctor PackFileChooserWidget(Gtk::Container& contr, OpenFileFnr fnr, bool
     MakeBoxHIGed(vbox);
 
     // 0 надпись
-    vbox.pack_start(PackWidgetInFrame(MakeTitleLabel("File Browser"), Gtk::SHADOW_ETCHED_IN), Gtk::PACK_SHRINK);
+    vbox.pack_start(PackWidgetInFrame(MakeTitleLabel(_("File Browser")), Gtk::SHADOW_ETCHED_IN), Gtk::PACK_SHRINK);
 
     // 1 окно выбора файлов
     Gtk::FileChooserWidget& fcw = *Gtk::manage(new Gtk::FileChooserWidget(Gtk::FILE_CHOOSER_ACTION_OPEN));
@@ -255,10 +256,10 @@ ActionFunctor PackFileChooserWidget(Gtk::Container& contr, OpenFileFnr fnr, bool
     else
     {
         Gtk::ComboBoxText& combo = *Gtk::manage(new Gtk::ComboBoxText);
-        combo.append_text("All formats");
-        combo.append_text("MPEG files (*.mpeg, *.mpg, *.vob)");
-        combo.append_text("Still Images (*.png, *.jpg, *.jpeg, *.bmp)");
-        combo.append_text("All Files (*.*)");
+        combo.append_text(_("All formats"));
+        combo.append_text(_("MPEG files") + std::string(" (*.mpeg, *.mpg, *.vob)"));
+        combo.append_text(_("Still Images") + std::string(" (*.png, *.jpg, *.jpeg, *.bmp)"));
+        combo.append_text(_("All Files (*.*)"));
 
         // значение по умолчанию
         combo.set_active(fftALL_FORMATS);
