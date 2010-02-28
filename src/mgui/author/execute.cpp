@@ -33,7 +33,6 @@
 
 #include <mlib/sigc.h>
 #include <mlib/tech.h>
-#include <mlib/string.h>
 #include <mlib/sdk/logger.h>
 
 #include <glib/gstdio.h>
@@ -657,9 +656,9 @@ std::string ExitDescription(const ExitData& ed)
     if( ed.IsGood() )
         end_str = "normal completion";
     else if( ed.normExit )
-        end_str = (str::stream() << "exit code = " << ed.retCode).str();
+        end_str = BF_("exit code = %1%") % ed.retCode % bf::stop;
     else
-        end_str = "broken by signal " + SignalToString(ed.retCode);
+        end_str = BF_("broken by signal %1%") % SignalToString(ed.retCode) % bf::stop;
 
     return end_str;
 }

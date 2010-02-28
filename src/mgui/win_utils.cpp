@@ -22,9 +22,12 @@
 #include <mgui/_pc_.h>
 
 #include "win_utils.h"
+#include "dialog.h"
 
 #include <mgui/sdk/packing.h>
 #include <mgui/sdk/window.h>
+#include <mgui/sdk/widget.h> // ForAllWidgets()
+#include <mgui/gettext.h>
 
 #include <mbase/project/table.h> // Project::ConvertPathToUtf8()
 #include <mbase/resources.h>
@@ -192,17 +195,43 @@ std::string MakeMessageBoxTitle(const std::string& title)
     return "<span weight=\"bold\">" + title + "</span>";
 }
 
-Gtk::ResponseType MessageBox(const std::string& msg_str, Gtk::MessageType typ,
-                             Gtk::ButtonsType b_typ, const std::string& desc_str, bool def_ok)
+Gtk::ResponseType MessageBoxEx(const std::string& msg_str, Gtk::MessageType typ,
+                               Gtk::ButtonsType b_typ, const std::string& desc_str, const MDFunctor& fnr)
 {
     std::string markup_msg_str = MakeMessageBoxTitle(QuoteForGMarkupParser(msg_str));
 
     Gtk::MessageDialog mdlg(markup_msg_str, true, typ, b_typ);
     if( !desc_str.empty() )
         mdlg.set_secondary_text(desc_str, true);
-    if( def_ok )
-        mdlg.set_default_response(Gtk::RESPONSE_OK);
+
+    if( fnr )
+        fnr(mdlg);
+
     return (Gtk::ResponseType)mdlg.run();
+}
+
+static void SetOKDefault(Gtk::MessageDialog& mdlg)
+{
+    mdlg.set_default_response(Gtk::RESPONSE_OK);
+}
+
+Gtk::ResponseType MessageBox(const std::string& msg_str, Gtk::MessageType typ,
+                             Gtk::ButtonsType b_typ, const std::string& desc_str, bool def_ok)
+{
+    //std::string markup_msg_str = MakeMessageBoxTitle(QuoteForGMarkupParser(msg_str));
+    //
+    //Gtk::MessageDialog mdlg(markup_msg_str, true, typ, b_typ);
+    //if( !desc_str.empty() )
+    //    mdlg.set_secondary_text(desc_str, true);
+    //if( def_ok )
+    //    mdlg.set_default_response(Gtk::RESPONSE_OK);
+    //
+    //if( fnr )
+    //    fnr(mdlg);
+    //
+    //return (Gtk::ResponseType)mdlg.run();
+
+    return MessageBoxEx(msg_str, typ, b_typ, desc_str, def_ok ? SetOKDefault : MDFunctor());
 }
 
 void SetTip(Gtk::Widget& wdg, const char* tooltip)
@@ -253,7 +282,7 @@ void BuildChooserDialog(Gtk::FileChooserDialog& dialog, bool is_open, Gtk::Widge
 }
 
 bool ChooseFileSaveTo(std::string& fname, const std::string& title, Gtk::Widget& for_wdg,
-                      bool convert_to_utf8 = true)
+                      bool convert_to_utf8)
 {
     Gtk::FileChooserDialog dialog(title, Gtk::FILE_CHOOSER_ACTION_SAVE);
     BuildChooserDialog(dialog, false, for_wdg);
@@ -266,10 +295,10 @@ bool ChooseFileSaveTo(std::string& fname, const std::string& title, Gtk::Widget&
     {
         fname = dialog.get_filename();
         if( fs::exists(fname) && 
-            (Gtk::RESPONSE_OK != MessageBox("A file named \"" + fs::path(fname).leaf() + 
-                                            "\" already exists. Do you want to replace it?",
+            (Gtk::RESPONSE_OK != MessageBox(BF_("A file named \"%1%\" already exists. Do you want to replace it?")
+                                            % fs::path(fname).leaf() % bf::stop,
                                             Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL, 
-                                            "Replacing the file overwrite its contents.",
+                                            _("Replacing the file overwrite its contents."),
                                             true)) )
             continue;
 
@@ -292,4 +321,50 @@ void InitGtkmm(int argc, char** argv)
     }
 }
 
+static gboolean ActivateLink(GtkWidget* /*label*/, const gchar* uri, gpointer)
+{
+    gboolean ret = FALSE;
+    if( strncmp(uri, "http://", ARR_SIZE("http://")-1) == 0 )
+    {
+        void GoUrl(const gchar* url);
+        GoUrl(uri);
+
+        ret = TRUE;
+    }
+
+    return ret;
+}
+
+static void ActivateLinksFor2Label(GtkWidget* wdg, int& label_num)
+{
+    if( GTK_IS_LABEL(wdg) )
+    {
+        //io::cout << "Found Label!" << gtk_label_get_text(GTK_LABEL(wdg)) << io::endl;
+
+        label_num++;
+        if( label_num == 2 ) // 2-я по счету
+        {
+            // :KLUDGE: при открытии диалога, в вызове gtk_dialog_map() производится установка
+            // фокуса на первый виджет, за исключением меток. Все бы ничего, только "код избегания"
+            // меток фатален (бесконечный цикл), если метка содержит ссылки (с тегом <a>). Нашел 
+            // наиболее простое решение - убрать фокус со злополучной метки
+            //gtk_label_set_selectable(GTK_LABEL(wdg), FALSE);
+            gtk_widget_set_can_focus(wdg, FALSE);
+
+            g_signal_connect(wdg, "activate-link", G_CALLBACK (ActivateLink), NULL);
+        }
+    }
+}
+
+void SetWeblinkCallback(Gtk::MessageDialog& mdlg)
+{
+    // устанавливаем действие при нажатии на ссылку во второй метке
+    // для этого его сначала нужно найти
+    // 
+    // :KLUDGE: идейно правильный вариант заключается в реализации нового MessageDialog
+    // на основе Gtk::Dialog; при этом придется копировать стандартный функционал MessageDialog
+    //
+    int label_num = 0;
+    ForAllWidgets(static_cast<Gtk::Widget&>(mdlg).gobj(), bl::bind(&ActivateLinksFor2Label, bl::_1, boost::ref(label_num)));
+}
 

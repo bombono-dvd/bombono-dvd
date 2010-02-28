@@ -185,7 +185,7 @@ static void AddNoStaffItem(Gtk::Menu& lnk_list, const std::string& label)
 
 static std::string MakeMediaItemNameForMenu(MediaItem mi)
 {
-    return mi ? mi->mdName + " (" + mi->TypeString() + ")" : "No Link" ;
+    return mi ? mi->mdName + " (" + gettext(mi->TypeString().c_str()) + ")" : _("No Link") ;
 }
 
 static Gtk::RadioMenuItem& 

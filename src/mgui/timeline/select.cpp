@@ -29,6 +29,7 @@
 #include <mgui/sdk/entry.h>
 #include <mgui/sdk/menu.h>  // Popup()
 #include <mgui/dialog.h> // ChooseFileSaveTo()
+#include <mgui/gettext.h>
 
 #include <mbase/project/table.h>
 #include <mlib/sigc.h>
@@ -120,7 +121,7 @@ static void SaveFrame(DAMonitor& mon)
     strm << ".jpeg";
 
     std::string fnam = strm.str();
-    if( ChooseFileSaveTo(fnam, "Save Frame", mon, false) )
+    if( ChooseFileSaveTo(fnam, _("Save Frame..."), mon, false) )
     {
         // находим расширение и по нему сохраняем
         int i = fnam.rfind('.');
@@ -137,14 +138,14 @@ void ContextMenuHook::AtScale()
 
     using namespace boost;
     // Add
-    popupActions->add( Gtk::Action::create("Add Chapter", "Add Chapter Point"),
+    popupActions->add( Gtk::Action::create("Add Chapter", _("Add Chapter Point")),
                        lambda::bind(&InsertDVDMark, boost::ref(trkLay)) );
     // Delete
-    RefPtr<Gtk::Action> act = Gtk::Action::create("Delete Chapter", "Delete Chapter Point");
+    RefPtr<Gtk::Action> act = Gtk::Action::create("Delete Chapter", _("Delete Chapter Point"));
     act->set_sensitive(false);
     popupActions->add( act );
     // Delete All
-    act = Gtk::Action::create("Delete All", "Delete All Chapter Points");
+    act = Gtk::Action::create("Delete All", _("Delete All Chapter Points"));
     if( DVDMarks().size() == 0 )
         act->set_sensitive(false);
     popupActions->add( act, lambda::bind(&DeleteAllDVDMarks, boost::ref(trkLay)) );
@@ -153,7 +154,7 @@ void ContextMenuHook::AtScale()
     DAMonitor* mon = dynamic_cast<DAMonitor*>(&trkLay.GetMonitor());
     if( mon )
         save_fnr = lambda::bind(&SaveFrame, boost::ref(*mon));
-    popupActions->add( Gtk::Action::create("Save Frame", Gtk::Stock::SAVE, "Save Current Frame..."),
+    popupActions->add( Gtk::Action::create("Save Frame", Gtk::Stock::SAVE, _("Save Current Frame...")),
                        save_fnr );
 }
 

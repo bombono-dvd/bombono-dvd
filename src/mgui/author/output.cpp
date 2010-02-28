@@ -50,7 +50,7 @@ static Gtk::Alignment& MakeNullAlg()
 namespace Project 
 {
 
-const std::string DVDOperation = "DVD-Video Building";
+const std::string DVDOperation = N_("DVD-Video Building");
 
 Gtk::Button& FillBuildButton(Gtk::Button& btn, bool not_started, 
                              const std::string& op_name)
@@ -60,7 +60,7 @@ Gtk::Button& FillBuildButton(Gtk::Button& btn, bool not_started,
 
     const char* pix_fname = "button/still.ico";
     const char* tooltip   = not_started ? "Build DVD-Video of the project." : 0 ;
-    std::string cancel_name = "_Cancel " + op_name;
+    std::string cancel_name = BF_("_Cancel %1%") % op_name % bf::stop;
     std::string label     = not_started ? std::string(_("_Build DVD-Video")) : cancel_name.c_str() ;
 
     ASSERT( btn.has_screen() ); // ради image-spacing
@@ -275,7 +275,7 @@ static void SetExecState(ExecState& es, bool is_exec, const std::string& operati
 
 void SetExecState(ExecState& es, bool is_exec)
 {
-    std::string op = (es.mode == modRENDERING) ? std::string("Rendering") : Project::DVDOperation;
+    std::string op = (es.mode == modRENDERING) ? _("Rendering") : gettext(Project::DVDOperation.c_str());
     SetExecState(es, is_exec, op);
     if( is_exec )
         InitStageMap(es.mode);
@@ -352,11 +352,11 @@ class ExecStateSetter: public CommonStateSetter
         { SetExecState(es, false); }
 };
 
-const std::string BurnOperation = "DVD Burning";
+const char* BurnOperation = N_("DVD Burning");
 
 static void SetBurningState(ExecState& es, bool is_exec)
 {
-    SetExecState(es, is_exec, BurnOperation);
+    SetExecState(es, is_exec, gettext(BurnOperation));
 }
 
 class BurningStateSetter: public CommonStateSetter
@@ -396,10 +396,10 @@ static std::string MakeDescForOutput(Mode mode, const std::string& dir)
     str::stream dsc_strm;
     if( mode != modBURN )
     {
-        dsc_strm << "The result is here: <span style=\"italic\">" << TargetPath(mode, dir).string() << "</span>.";
+        dsc_strm << _("The result is here") << ": <span style=\"italic\">" << TargetPath(mode, dir).string() << "</span>.";
         if( mode == modRENDERING )
-            dsc_strm << "\n\nYou can run authoring manually by executing command \"scons\" at " 
-                        "the specified folder. Also, see README file for other options over there.";
+            dsc_strm << "\n\n" << _("You can run authoring manually by executing command \"scons\" at " 
+                        "the specified folder. Also, see README file for other options over there.");
     }
     return dsc_strm.str();
 }
@@ -421,20 +421,22 @@ static void FinalMessageBox(const std::string& status, bool is_ok, Gtk::MessageT
 static bool CanUseForAuthoring(const std::string& dir_str)
 {
     bool res = true;
-    std::string abort_str(". Authoring is cancelled.");
+    // Translators: impossible to go on!
+    std::string abort_str(_("Authoring is cancelled."));
+    abort_str = ". " + abort_str;
     if( !fs::exists(dir_str) )
     {
         try { fs::create_directories(dir_str); } 
         catch( const std::exception& )
         {
-            MessageBox("Cant create directory " + dir_str + " (check permissions)" + abort_str,
-                       Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK);
+            MessageBox(BF_("Cant create folder %1% (check permissions)") % dir_str
+                       % bf::stop + abort_str, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK);
             res = false;
         }
     }
     else if( !fs::is_directory(dir_str) )
     {
-        MessageBox(dir_str + " is not a directory" + abort_str,
+        MessageBox(BF_("%1% is not a folder") % dir_str % bf::stop + abort_str,
                    Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK);
         res = false;
     }
@@ -445,7 +447,7 @@ static bool CanUseForAuthoring(const std::string& dir_str)
     ASSERT( fs::is_directory(dir_path) );
     if( !Project::HaveFullAccess(dir_path) )
     {
-        MessageBox("Cant have full access to directory " + dir_str + " (read, write)" + abort_str,
+        MessageBox(BF_("Cant have full access to folder %1% (read, write)") % dir_str % bf::stop + abort_str,
                    Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK);
         res = false;
     }
@@ -453,13 +455,13 @@ static bool CanUseForAuthoring(const std::string& dir_str)
     {
         bool is_empty = false;
         if( Gtk::RESPONSE_YES == 
-            MessageBox(dir_str + " is not empty. We need to remove all files in it for authoring process.\n"
-                       "Continue?", Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO) )
+            MessageBox(BF_("Folder %1% is not empty. We need to remove all files in it before authoring.\n"
+                       "Continue?") % dir_str % bf::stop, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO) )
         {
             std::string err_str;
             is_empty = Project::ClearAllFiles(dir_path, err_str);
             if( !is_empty )
-                MessageBox("Error during removing files: " + err_str + abort_str,
+                MessageBox(BF_("Error during removing files: %1%") % err_str % bf::stop + abort_str,
                            Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK);
         }
         res = is_empty;
@@ -621,18 +623,24 @@ bool NotForPlay(guint response_id, const std::string& dir_str)
     return res;
 }
 
+static std::string MakeOperStatus(boost::format tmpl, ExecState& es)
+{
+    return (tmpl % es.operationName).str();
+}
+
 static void FailureMessageBox(ExecState& es, const std::string& reason)
 {
     if( es.userAbort )
-        FinalMessageBox(es.operationName + " cancelled.", false, Gtk::MESSAGE_INFO, "");
+        FinalMessageBox(MakeOperStatus(BF_("%1% cancelled."), es), false, Gtk::MESSAGE_INFO, "");
     else
-        FinalMessageBox(es.operationName + " broken.", false, Gtk::MESSAGE_ERROR,
-                        "The reason is \"" + reason + "\" (see Details)");
+        FinalMessageBox(MakeOperStatus(BF_("%1% broken."), es), false, Gtk::MESSAGE_ERROR,
+                        BF_("The reason is \"%1%\" (see Details)") % reason % bf::stop);
 }
 
 static std::string OperationCompleted(ExecState& es)
 {
-    return es.operationName + " successfully completed.";
+    // Translators: can be tranlated as "Operation "%1%" ..."
+    return MakeOperStatus(BF_("%1% successfully completed."), es);
 }
 
 bool CheckDVDBlank();
@@ -662,8 +670,8 @@ static void PostBuildOperation(bool res, const std::string& dir_str)
                                    Gtk::MESSAGE_INFO, Gtk::BUTTONS_NONE);
             dlg.set_secondary_text(desc_str, true);
 
-            dlg.add_button("_Play in Totem", RESPONSE_TOTEM);
-            dlg.add_button("_Burn to DVD",   RESPONSE_BURN);
+            dlg.add_button(_("_Play in Totem"), RESPONSE_TOTEM);
+            dlg.add_button(_("_Burn to DVD"),   RESPONSE_BURN);
             std::string dvd_drive;
             if( /*(es.mode == modBURN) ||*/ !Author::IsBurnerSetup(dvd_drive) )
                 dlg.set_response_sensitive(RESPONSE_BURN, false);
@@ -728,8 +736,8 @@ void OnDVDBuild(Gtk::FileChooserButton& ch_btn)
     {
         // COPY_N_PASTE - тупо сделал содержимое сообщений как у "TSNAMI-MPEG DVD Author"
         // А что делать - нафига свои придумывать, если смысл один и тот же
-        if( Gtk::RESPONSE_YES == MessageBox("You are about to cancel " + es.operationName + 
-                                            ". Are you sure?", Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO) )
+        if( Gtk::RESPONSE_YES == MessageBox(BF_("You are about to cancel %1%. Are you sure?") % es.operationName 
+                                                % bf::stop, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO) )
         {
             es.userAbort = true;
             if( es.pid != NO_HNDL ) // во время выполнения внешней команды

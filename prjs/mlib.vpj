@@ -202,6 +202,7 @@
 			<F N="../src/mlib/filesystem.h"/>
 			<F N="../src/mlib/function.h"/>
 			<F N="../src/mlib/geom2d.h"/>
+			<F N="../src/mlib/gettext.h"/>
 			<F N="../src/mlib/lambda.h"/>
 			<F N="../src/mlib/sdk/logger.h"/>
 			<F N="../src/mlib/sdk/memmem.h"/>

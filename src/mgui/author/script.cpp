@@ -30,6 +30,7 @@
 #include <mgui/editor/kit.h> // ClearLocalData()
 #include <mgui/sdk/widget.h>
 #include <mgui/project/thumbnail.h> // Project::CalcAspectSize()
+#include <mgui/gettext.h>
 
 #include <mbase/project/table.h>
 #include <mbase/resources.h>
@@ -306,7 +307,7 @@ void GenerateDVDAuthorScript(const std::string& out_dir)
             Author::Warning("There is no First-Play media. Assume it is " + fp_name + ".");
         }
         else
-            Author::Error("There is no media (video or menu).");
+            Author::Error(_("There is no media (video or menu)."));
     }
     else // fp != 0
     {
@@ -477,7 +478,7 @@ bool AuthorDVD(const std::string& out_dir)
                 ExitData ed = Author::ExecuteSconsCmd(out_dir, of, es.mode, scons_options);
     
                 if( !ed.IsGood() )
-                    throw std::runtime_error("external command failure: " + ExitDescription(ed));
+                    throw std::runtime_error(BF_("external command failure: %1%") % ExitDescription(ed) % bf::stop);
             }
         }
         else

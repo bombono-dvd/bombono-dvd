@@ -25,6 +25,7 @@
 
 #include <mlib/string.h>
 #include <mlib/filesystem.h> // MakeAbsolutePath()
+#include <mlib/gettext.h>
 
 namespace Project
 {
@@ -62,7 +63,7 @@ std::string MakeAutoName(const std::string& str, int old_sz)
 
 void VideoMD::AddChapter(ChapterItem chp)
 {
-    chp->mdName = MakeAutoName("Chapter", chpLst.size());
+    chp->mdName = MakeAutoName(_("Chapter"), chpLst.size());
     chpLst.push_back(chp);
 }
 

@@ -25,6 +25,7 @@
 
 #include <mgui/render/common.h> // FillEmpty()
 #include <mgui/project/mb-actions.h> // TryAddMedia()
+#include <mgui/gettext.h>
 
 #include "sdk/window.h"
 #include "sdk/packing.h"
@@ -60,19 +61,19 @@ static std::string PageTitle(int pg_num)
     switch( pg_num )
     {
     case ipCHOOSE_SOURCE: 
-        title = "Choose Source DVD-Video";
+        title = _("Choose Source DVD-Video");
         break;
     case ipSELECT_VOBS: 
-        title = "Select Videos to Import";
+        title = _("Select Videos to Import");
         break;
     case ipCHOOSE_DEST: 
-        title = "Select Folder to Save Videos";
+        title = _("Select Folder to Save Videos");
         break;
     case ipIMPORT_PROC: 
-        title = "Importing...";
+        title = _("Importing...");
         break;
     case ipEND: 
-        title = "Import is completed.";
+        title = _("Import is completed.");
         break;
     default: 
         ASSERT(0);
@@ -185,7 +186,7 @@ static void OnPreparePage(ImportData& id)
                 std::string desc = (str::stream(Mpeg::SecToHMS(vob.tmLen, true)) <<  ", "
                                     << vob.sz.x << "x" << vob.sz.y << ", "
                                     << (vob.aspect == af4_3 ? "4:3" : "16:9") << ", " 
-                                    << std::fixed << std::setprecision(2) << vob.Count()/512. << " Mb").str();
+                                    << std::fixed << std::setprecision(2) << vob.Count()/512. << " " << _("MB")).str();
                 row[VF().desc]      = desc;
             }
             CompleteSelection(id, false);
@@ -366,7 +367,7 @@ static void PackFCWPage(Gtk::VBox& vbox, Gtk::FileChooserWidget& fcw,
 static void PackSelectionButton(Gtk::HBox& hbox, RefPtr<Gtk::SizeGroup> sg, bool select_all,
                                 ImportData& id)
 {
-    const char* text = select_all ? "Select All" : "Unselect All" ;
+    const char* text = select_all ? _("Select All") : _("Unselect All") ;
     Gtk::Button& btn = PackStart(hbox, NewManaged<Gtk::Button>(text));
     sg->add_widget(btn);
 
@@ -388,7 +389,7 @@ static void OnImportStop(ImportData& id)
 {
     // мы не можем пустить исключение здесь, потому что оно пойдет
     // и через C-шный код (Gtk) - отложим
-    if( MessageBox("Are you sure to stop importing?", 
+    if( MessageBox(_("Are you sure to stop importing?"), 
                    Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO) == Gtk::RESPONSE_YES )
         id.isBreak = true;
 }
@@ -421,7 +422,7 @@ static void OnApply(ImportData& id)
 
     bool res = Project::HaveFullAccess(dir_path);
     if( !res )
-        MessageBox("Cant write to folder " + dir_path + " (check permissions).",
+        MessageBox(BF_("Cant write to folder %1% (check permissions).") % dir_path % bf::stop,
                    Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK);
     else
     {
@@ -449,7 +450,7 @@ static void OnApply(ImportData& id)
                     std::string name  = itr->get_value(VF().name);
                     std::string fname = AppendPath(dir_path, name);
                     if( fs::exists(fname) )
-                        if( MessageBox("The file already " + name + " already exists. Overwrite it?",
+                        if( MessageBox(BF_("A file named \"%1%\" already exists. Do you want to replace it?") % name % bf::stop,
                                        Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO) != Gtk::RESPONSE_YES )
                         {
                             res = false;    
@@ -489,12 +490,12 @@ static void OnApply(ImportData& id)
             res = false;
     	    const char* what = err.what();
     	    if( what && (strcmp(what, USERT_BREAK_STR) != 0) )
-                MessageBox("Import error!", Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, what);
+                MessageBox(_("Import error!"), Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, what);
         }
     }
 
-    const char* final = res ? "Videos successfully imported." 
-        : "Import has been interrupted." ;
+    const char* final = res ? _("Videos successfully imported.") 
+        : _("Import has been interrupted.") ;
     FillLabelForImport(id.finalMsg, final);
 
 // смотри коммит ae37d209 в git://git.gnome.org/gtk+
@@ -528,7 +529,7 @@ static void SetExpandFill(Gtk::Widget& child)
 void ConstructImporter(ImportData& id)
 {
     Gtk::Assistant& ast = id.ast;
-    ast.set_title("DVD-Video Import");
+    ast.set_title(_("DVD-Video Import"));
     ast.set_default_size(600, 500);
 
     ast.signal_cancel().connect(&Gtk::Main::quit);
@@ -551,7 +552,7 @@ void ConstructImporter(ImportData& id)
                 typ = Gtk::ASSISTANT_PAGE_INTRO;
 
                 Gtk::FileChooserWidget& fcw = id.srcChooser;
-                PackFCWPage(vbox, fcw, "Choose DVD disc, DVD folder or iso image file.");
+                PackFCWPage(vbox, fcw, _("Choose DVD disc, DVD folder or iso image file."));
                 fcw.signal_selection_changed().connect(bl::bind(&OnSelectSource, ref_id));
 
                 // 
@@ -568,8 +569,9 @@ void ConstructImporter(ImportData& id)
                 //fcw.set_filter(ff);
 
                 Gtk::Label& err_lbl = id.errLbl;
-                err_lbl.set_markup("<span foreground=\"red\">NTSC/PAL mismatch. Try another disc"
-                                   " or import to project of corresponding type.</span>");
+                err_lbl.set_markup(boost::format("<span foreground=\"red\">%1%</span>")
+                                   % _("NTSC/PAL mismatch. Try another disc or import to project of corresponding type.")
+                                   % bf::stop);
                 ast.add_action_widget(err_lbl); // по умолчанию не видна
                 SetExpandFill(err_lbl);
                 SetAlign(err_lbl);
@@ -592,7 +594,7 @@ void ConstructImporter(ImportData& id)
                 sel_rndr.signal_toggled().connect(bl::bind(&OnSelVob, ref_id));
 
                 // имя
-                Gtk::TreeView::Column& name_cln = NewManaged<Gtk::TreeView::Column>("Name");
+                Gtk::TreeView::Column& name_cln = NewManaged<Gtk::TreeView::Column>(_("Name"));
                 name_cln.set_resizable(true);
                 name_cln.set_expand(true);
 
@@ -605,7 +607,7 @@ void ConstructImporter(ImportData& id)
                 name_cln.pack_start(rndr);
                 name_cln.set_renderer(rndr, VF().name);
                 view.append_column(name_cln);
-                view.append_column("Details", VF().desc);
+                view.append_column(_("Details"), VF().desc);
 
                 Gtk::ScrolledWindow& scr_win = PackStart(hbox, NewManaged<Gtk::ScrolledWindow>(),
                                                          Gtk::PACK_EXPAND_WIDGET);
@@ -651,7 +653,7 @@ void ConstructImporter(ImportData& id)
                 typ = Gtk::ASSISTANT_PAGE_CONFIRM;
 
                 Gtk::FileChooserWidget& fcw = NewManaged<Gtk::FileChooserWidget>(Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
-                PackFCWPage(vbox, fcw, "It is desirable the destination folder to be empty.");
+                PackFCWPage(vbox, fcw, _("It is desirable the destination folder to be empty."));
 
                 fcw.signal_selection_changed().connect(
                     bl::bind(&OnSelectDest, boost::ref(fcw), ref_id));

@@ -19,6 +19,7 @@ lib_src_files = [
                  'project/srl-db.cpp',
                  'project/table.cpp',
                 ]
+user_options_dict['AddSourcesForXgettext'](lib_src_files)
 
 resource_defines = []
 if 'install' in BUILD_TARGETS:

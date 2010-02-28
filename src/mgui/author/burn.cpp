@@ -26,6 +26,7 @@
 
 #include <mgui/timer.h>
 #include <mgui/dialog.h>
+#include <mgui/gettext.h>
 
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
@@ -88,10 +89,16 @@ static void ConcatToStr(const char* buf, int sz, std::string& str)
 
 boost::regex WriteSpeed_RE("Write Speed #"RG_NUM":"RG_SPS RG_NUM"\\."RG_NUM "x1385"); 
 
+enum SpeedEntryType
+{
+    setNONE   = 0, // по умолчанию
+    setUPDATE = 1, // "Update speeds ..."
+};
+
 RefPtr<Gtk::ListStore> sp_store;
-Gtk::TreeModelColumn<double>      dbl_cln;
-Gtk::TreeModelColumn<std::string> str_cln;
-const char* UpdateSpeedsEntry = "Update speeds ...";
+Gtk::TreeModelColumn<double>         dbl_cln;
+Gtk::TreeModelColumn<std::string>    str_cln;
+Gtk::TreeModelColumn<SpeedEntryType> type_cln;
 
 bool SeparatorFunc(const RefPtr<Gtk::TreeModel>&, const Gtk::TreeIter& itr)
 {
@@ -107,8 +114,12 @@ static void SetupSpeeds(Gtk::ComboBox& speed_btn)
         dbl_cln = dbl_cln_;
         Gtk::TreeModelColumn<std::string> str_cln_;
         str_cln = str_cln_;
+        Gtk::TreeModelColumn<SpeedEntryType> type_cln_;
+        type_cln = type_cln_;
+
         columns.add(dbl_cln);
         columns.add(str_cln);
+        columns.add(type_cln);
 
         sp_store = Gtk::ListStore::create(columns);
     }
@@ -177,7 +188,7 @@ static void UpdateSpeeds()
         sp_store->clear();
         // * заполняем
         Gtk::TreeRow row = *sp_store->append();
-        row[str_cln] = "Auto";
+        row[str_cln] = _("Auto");
         speed_btn.set_active(row);
 
         for( SpeedsArray::iterator itr = speeds.begin(), end = speeds.end(); itr != end; ++itr )
@@ -187,9 +198,10 @@ static void UpdateSpeeds()
             row[str_cln] = boost::lexical_cast<std::string>(*itr) + "\303\227";
         }
         row = *sp_store->append();
-        row[str_cln] = "separator";
+        row[str_cln]  = "separator";
         row = *sp_store->append();
-        row[str_cln] = UpdateSpeedsEntry;
+        row[str_cln]  = _("Update speeds ..."); 
+        row[type_cln] = setUPDATE;
     }
 }
 
@@ -210,7 +222,7 @@ static void OnSpeedChange()
 {
     BurnData& bd = GetBD();
     Gtk::TreeIter itr = bd.SpeedBtn().get_active();
-    if( itr->get_value(str_cln) == UpdateSpeedsEntry )
+    if( itr && (itr->get_value(type_cln) == setUPDATE) )
     {
         UpdateSpeeds();
 
@@ -318,7 +330,7 @@ bool CheckDVDBlank()
         std::string str;
         bool is_good = false;
         {
-            WaitProgress wp("Checking Disc ..."); 
+            WaitProgress wp(_("Checking Disc ...")); 
             is_good = TestDvdDisc(dvd_drive, str);
         }
 
@@ -332,43 +344,43 @@ bool CheckDVDBlank()
             break;
         case dvdCD_DRIVE_ONLY:
             try_again = Gtk::RESPONSE_OK == 
-                MessageBox("Selected burn drive is for CD discs only. Change to another burn drive.", 
+                MessageBox(_("Selected burn drive is for CD discs only. Change to another burn drive."), 
                            Gtk::MESSAGE_WARNING, Gtk::BUTTONS_OK_CANCEL, "", true);
             break;
         case dvdCD_DISC:
             try_again = Gtk::RESPONSE_OK == 
-                MessageBox("CD disc is found in the drive, not DVD. Change to DVD disc.", 
+                MessageBox(_("CD disc is found in the drive, not DVD. Change to DVD disc."), 
                            Gtk::MESSAGE_WARNING, Gtk::BUTTONS_OK_CANCEL, "", true);
             break;
         case dvdEMPTY_DRIVE:
             try_again = Gtk::RESPONSE_OK == 
-                MessageBox("No DVD disc in the drive. Load a clear one and press OK.", 
+                MessageBox(_("No DVD disc in the drive. Load a clear one and press OK."), 
                            Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK_CANCEL, "", true);
             break;
         case dvdOTHER:
             try_again = Gtk::RESPONSE_OK == 
-                MessageBox("Disc with type \"" + inf.name + "\" is found in the drive but "
+                MessageBox(BF_("Disc with type \"%1%\" is found in the drive but "
                            "for DVD-Video disc type should be one from: DVD-R, DVD+R, DVD-RW, DVD+RW. "
-                           "Load a clear one with right type and press OK.", 
+                           "Load a clear one with right type and press OK.") % inf.name % bf::stop, 
                            Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK_CANCEL, "", true);
             break;
         default:
             ASSERT( (inf.typ == dvdR) || (inf.typ == dvdRW) );
             if( inf.typ == dvdR && !inf.isBlank )
                 try_again = Gtk::RESPONSE_OK == 
-                    MessageBox("Disc with type \"" + inf.name + "\" in the drive is not clear. Only clear recordable "
-                               "discs can be used for burning DVD-Video. Load a clear one and press OK.", 
+                    MessageBox(BF_("Disc with type \"%1%\" in the drive is not clear. Only clear recordable "
+                               "discs can be used for burning DVD-Video. Load a clear one and press OK.") % inf.name % bf::stop, 
                                Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK_CANCEL, "", true);
             else
             {
                 if( inf.typ == dvdRW && !inf.isBlank )
                 {
-                    std::string title = "Disc with type \"" + inf.name + "\" in the drive is not clear." 
-                                        " We need to remove its contents before writing new one. Continue?";
+                    std::string title = BF_("Disc with type \"%1%\" in the drive is not clear." 
+                                        " We need to remove its contents before writing new one. Continue?") % inf.name % bf::stop;
                     Gtk::MessageDialog dlg(MakeMessageBoxTitle(title), true, Gtk::MESSAGE_INFO, Gtk::BUTTONS_NONE);
 
-                    dlg.add_button("_Cancel",    Gtk::RESPONSE_CANCEL);
-                    dlg.add_button("_Try again", Gtk::RESPONSE_REJECT);
+                    dlg.add_button(_("_Cancel"),    Gtk::RESPONSE_CANCEL);
+                    dlg.add_button(_("_Try again"), Gtk::RESPONSE_REJECT);
                     dlg.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
                     dlg.set_default_response(Gtk::RESPONSE_OK);
 

@@ -32,6 +32,7 @@
 #include <mgui/img-factory.h>
 #include <mgui/dialog.h>
 #include <mgui/sdk/window.h>
+#include <mgui/gettext.h>
 
 #include <gtk/gtktreestore.h>
 #include <mlib/sdk/logger.h>
@@ -137,7 +138,7 @@ static std::string MarkError(const std::string& val, bool not_error)
 
 static std::string MarkBoolError(bool val, bool not_error)
 {
-    return MarkError(std::string(val ? "yes" : "no"), not_error);
+    return MarkError(std::string(val ? _("yes") : _("no")), not_error);
 }
 
 
@@ -186,9 +187,17 @@ void CheckVideoFormat(ErrorDesc& ed, const Mpeg::SequenceData& vid, bool is_ntsc
     int kbps = vid.bytRat/400;
     bool is_byte_rate_ok = kbps <= 9800; // Kbps
     SetImportError(ed, is_byte_rate_ok, 
-                   "Video bitrate:\t" + 
-                   MarkError(lexical_cast<std::string>(kbps), is_byte_rate_ok) + " Kbps", 
-                   "Maximum data rate for video (9800Kbps) is exceeded.");
+                   std::string(_("Video bitrate")) + ":\t" + 
+                   MarkError(lexical_cast<std::string>(kbps), is_byte_rate_ok) + " " + _("kbps"), 
+                   _("Maximum data rate for video (9800 kbps) is exceeded."));
+
+    const char* Descriptions[] = {
+        N_("The %1% DVD-Video can accept MPEG-2 with resolutions: %2% only."),
+        N_("The %1% DVD-Video can accept MPEG-2 with frame rate: %2% only."),
+        N_("The %1% DVD-Video can accept MPEG-2 with aspects 4:3, 16:9 only.")
+    };
+    std::string tv_type = TVTypeStr(is_ntsc);
+
 
     // * (352x480, 352x288 - не по стандарту, см. Trac#9)
     Point ntsc_resolutions[] = { Point(720, 480), Point(704, 480), Point(352, 480), Point(352, 240) };
@@ -204,11 +213,9 @@ void CheckVideoFormat(ErrorDesc& ed, const Mpeg::SequenceData& vid, bool is_ntsc
             resol_list += ", ";
         resol_list += PointToStr(resolutions[i]);
     }   
-    std::string desc_prefix = "The " + TVTypeStr(is_ntsc) + 
-        " DVD-Video can accept MPEG-2 with ";
     SetImportError(ed, sz_ok, 
-                   "Video size:   \t" + MarkError(PointToStr(sz), sz_ok),
-                   desc_prefix + " resolutions: " + resol_list + " only.");
+                   std::string(_("Video size")) + ":   \t" + MarkError(PointToStr(sz), sz_ok),
+                   BF_(Descriptions[0]) % tv_type % resol_list % bf::stop);
 
     // *
     Point frate(vid.framRat);
@@ -227,21 +234,22 @@ void CheckVideoFormat(ErrorDesc& ed, const Mpeg::SequenceData& vid, bool is_ntsc
         frate_list = FpsToStr(Point(25, 1));
     }
     SetImportError(ed, frate_ok, 
-                   "Frame rate:   \t" + 
-                   MarkError(FpsToStr(frate), frate_ok) + " fps",
-                   desc_prefix + " frame rate: " + frate_list + " fps only.");
+                   std::string(_("Frame rate")) + ":   \t" + 
+                   MarkError(FpsToStr(frate), frate_ok) + " " + _("fps"),
+                   BF_(Descriptions[1]) % tv_type % frate_list % bf::stop);
 
     // *
     bool is_aspect_ok = vid.sarCode == af4_3 || vid.sarCode == af16_9;
     Point aspect = vid.SizeAspect();
     std::string aspect_str = (str::stream() << aspect.x << ':' << aspect.y).str();
     SetImportError(ed, is_aspect_ok, 
-                   "Aspect ratio: \t" + MarkError(aspect_str, is_aspect_ok),
-                   desc_prefix + " aspects: 4:3, 16:9 only.");
+                   std::string(_("Aspect ratio")) + ": \t" + MarkError(aspect_str, is_aspect_ok),
+                   BF_(Descriptions[2]) % tv_type % bf::stop);
 
     // * 
     bool no_delay = !vid.lowDelay;
-    SetImportError(ed, no_delay, "Low delay:    \t" + MarkBoolError(!no_delay, no_delay));
+    // Translators: Low delay is very tech term and can be left as is.
+    SetImportError(ed, no_delay, "\"Low delay\":    \t" + MarkBoolError(!no_delay, no_delay));
     ed.outStr += "\n";
 }
 
@@ -310,22 +318,20 @@ bool CanOpenAsVideo(const char* fname, std::string& err_string, bool& must_be_vi
                     i++;
             }
         }
-        #define APROJECT_DNAME "<b>"APROJECT_NAME"</b>"
-        std::string dvd_mux_desc = APROJECT_DNAME " can import \"mux-ready\" video only now."
+        std::string dvd_mux_desc = _("<b>Bombono DVD</b> can use \"DVD-ready\" video only now."
             " Use muxing programs like \"mplex -f 8\" (from <b>mjpegtools</b>)," 
-            " mencoder (from <b>mplayer</b>) or <b>transcode</b> to make your video ready for " APROJECT_DNAME ".";
+            " mencoder (from <b>mplayer</b>) or <b>transcode</b> to make your video ready for <b>Bombono DVD</b>.");
         SetImportError(ed, is_dvd_mux,
-                       "DVD packs:    \t" + MarkBoolError(is_dvd_mux, is_dvd_mux), dvd_mux_desc);
+                       boost::format("%1%:    \t") % _("DVD packs") % bf::stop + MarkBoolError(is_dvd_mux, is_dvd_mux), dvd_mux_desc);
         SetImportError(ed, is_nav_found, 
-                       "NAV packets:  \t" + MarkBoolError(is_nav_found, is_nav_found), dvd_mux_desc);
+                       boost::format("%1%:  \t") % _("NAV packets") % bf::stop + MarkBoolError(is_nav_found, is_nav_found), dvd_mux_desc);
         bool dvd_check = is_dvd_mux && is_nav_found;
 
         res = ed.res;
         if( !res )
         {
-            err_string  = "This video may not be added due to (errors in " + MarkError("red color", false) + "):\n<tt>";
-            err_string += ed.outStr;
-            err_string += "</tt>";
+            err_string  = _("This video may not be added due to (errors in <span foreground=\"red\">red color</span>):");
+            err_string += "\n<tt>" + ed.outStr + "</tt>";
 
             std::string desc_str = ed.descStr;
             if( !video_check && dvd_check )
@@ -335,10 +341,10 @@ bool CanOpenAsVideo(const char* fname, std::string& err_string, bool& must_be_vi
                 if( ed2.res )
                 {
                     // подскажем пользователю, что он ошибся форматом проекта
-                    desc_str = "This video has " + TVTypeStr(!is_ntsc) + " type and can't be added to"
-                        " current project of " + TVTypeStr(is_ntsc) + " type. Create new project from"
-                        " menu \"File->New Project\" with right type."
-                        ;
+                    desc_str = BF_("This video has %1% type and can't be added to"
+                        " current project of %2% type. Create new project from"
+                        " menu \"Project->New Project\" with right type.") % 
+                        TVTypeStr(!is_ntsc) % TVTypeStr(is_ntsc) % bf::stop;
                 }
             }
 
@@ -363,12 +369,12 @@ StorageItem CreateMedia(const char* fname, std::string& err_string)
     fs::path pth(fname);
     if( !fs::exists(pth) )
     {
-    	err_string = "File is not available";
+    	err_string = _("File doesn't exist.");
     	return md;
     }
     if( fs::is_directory(pth) )
     {
-    	err_string = "Folders can't be added";
+    	err_string = _("Folders can't be added.");
     	return md;
     }
 
@@ -403,7 +409,7 @@ StorageItem CreateMedia(const char* fname, std::string& err_string)
     if( !md )
     {
         // по расширению выводим наиболее вероятную ошибку
-        err_string  = must_be_video ? video_err_str : "Unknown file type" ;
+        err_string  = must_be_video ? video_err_str : _("Unknown file type.") ;
     }
     return md;
 }
@@ -608,7 +614,7 @@ void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
                                           boost::regex::perl|boost::regex::icase);
 
         if( boost::regex_match(start, end, dvd_video_vob) && 
-            MessageBox("The file \"" + leaf + "\"looks like VOB from DVD.\nRun import?",
+            MessageBox(BF_("The file \"%1%\" looks like VOB from DVD.\nRun import?") % leaf % bf::stop,
                        Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL) == Gtk::RESPONSE_OK )
         {
             DVD::RunImport(*GetTopWindow(brw), pth.branch_path().string());
@@ -670,7 +676,7 @@ void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
             }
             else
             {
-                err_desc += (err_cnt == max_show_errors) ? "\n\nAlso: " : ", " ;
+                err_desc += (err_cnt == max_show_errors) ? std::string("\n\n") + _("Also:") + " " : std::string(", ") ;
                 err_desc += StandFNameOut(pth);
             }
         }
@@ -678,13 +684,19 @@ void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
 
     if( err_cnt )
     {
+        std::string online_tip("\n\n");
+        online_tip += BF_("See more about preparing video for authoring in <a href=\"%1%\">online help</a>.") % 
+            "http://www.bombono.org/Preparing_sources_for_DVD" % bf::stop;
+
+        // :KLUDGE: хотелось использовать ngettext() для того чтоб в PO строки были рядом,
+        // однако msgfmt для требует чтобы в обоих вариантах присутствовало одинаковое 
+        // кол-во заполнителей 
+        //boost::format frmt(ngettext("Can't add file \"%1%\".", "Can't add files:", err_cnt));
         if( err_cnt == 1 )
-        {
-            MessageBox("Can't add file \"" + err_pth.leaf() + "\".", 
-                       Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, err_str);
-        }
+            MessageBoxWeb(BF_("Can't add file \"%1%\".") % err_pth.leaf() % bf::stop, 
+                          Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, err_str + online_tip);
         else
-            MessageBox("Can't add files:", Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, err_desc);
+            MessageBoxWeb(_("Can't add files:"), Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, err_desc + online_tip);
     }
 
     if( !goto_path.empty() )

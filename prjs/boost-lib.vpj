@@ -183,6 +183,7 @@
 		<Folder
 			Name="Source Files"
 			Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
+			<F N="../libs/boost-lib/libs/format/benchmark/bench_format.cpp"/>
 			<F N="../libs/boost-lib/libs/regex/src/c_regex_traits.cpp"/>
 			<F N="../libs/boost-lib/libs/test/src/compiler_log_formatter.cpp"/>
 			<F N="../libs/boost-lib/libs/filesystem/src/convenience.cpp"/>
@@ -192,6 +193,10 @@
 			<F N="../libs/boost-lib/libs/filesystem/src/exception.cpp"/>
 			<F N="../libs/boost-lib/libs/test/src/execution_monitor.cpp"/>
 			<F N="../libs/boost-lib/libs/regex/src/fileiter.cpp"/>
+			<F N="../libs/boost-lib/libs/format/test/format_test1.cpp"/>
+			<F N="../libs/boost-lib/libs/format/test/format_test2.cpp"/>
+			<F N="../libs/boost-lib/libs/format/test/format_test3.cpp"/>
+			<F N="../libs/boost-lib/libs/format/test/format_test_wstring.cpp"/>
 			<F N="../libs/boost-lib/libs/test/src/framework.cpp"/>
 			<F N="../libs/boost-lib/libs/regex/src/icu.cpp"/>
 			<F N="../libs/boost-lib/libs/regex/src/instances.cpp"/>
@@ -206,6 +211,10 @@
 			<F N="../libs/boost-lib/libs/regex/src/regex_traits_defaults.cpp"/>
 			<F N="../libs/boost-lib/libs/test/src/results_collector.cpp"/>
 			<F N="../libs/boost-lib/libs/test/src/results_reporter.cpp"/>
+			<F N="../libs/boost-lib/libs/format/example/sample_advanced.cpp"/>
+			<F N="../libs/boost-lib/libs/format/example/sample_formats.cpp"/>
+			<F N="../libs/boost-lib/libs/format/example/sample_new_features.cpp"/>
+			<F N="../libs/boost-lib/libs/format/example/sample_userType.cpp"/>
 			<F N="../libs/boost-lib/libs/smart_ptr/src/sp_collector.cpp"/>
 			<F N="../libs/boost-lib/libs/smart_ptr/src/sp_debug_hooks.cpp"/>
 			<F N="../libs/boost-lib/libs/regex/src/static_mutex.cpp"/>
@@ -249,6 +258,8 @@
 			<F N="../libs/boost-lib/boost/aligned_storage.hpp"/>
 			<F N="../libs/boost-lib/boost/type_traits/aligned_storage.hpp"/>
 			<F N="../libs/boost-lib/boost/type_traits/alignment_of.hpp"/>
+			<F N="../libs/boost-lib/boost/format/alt_sstream.hpp"/>
+			<F N="../libs/boost-lib/boost/format/alt_sstream_impl.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/always.hpp"/>
 			<F N="../libs/boost-lib/boost/config/platform/amigaos.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/and.hpp"/>
@@ -338,6 +349,7 @@
 			<F N="../libs/boost-lib/boost/config/compiler/compaq_cxx.hpp"/>
 			<F N="../libs/boost-lib/boost/test/utils/basic_cstring/compare.hpp"/>
 			<F N="../libs/boost-lib/boost/utility/compare_pointees.hpp"/>
+			<F N="../libs/boost-lib/boost/format/detail/compat_workarounds.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/config/compiler.hpp"/>
 			<F N="../libs/boost-lib/boost/test/output/compiler_log_formatter.hpp"/>
 			<F N="../libs/boost-lib/boost/preprocessor/logical/compl.hpp"/>
@@ -352,6 +364,7 @@
 			<F N="../libs/boost-lib/boost/test/detail/config.hpp"/>
 			<F N="../libs/boost-lib/boost/type_traits/config.hpp"/>
 			<F N="../libs/boost-lib/boost/iterator/detail/config_def.hpp"/>
+			<F N="../libs/boost-lib/boost/format/detail/config_macros.hpp"/>
 			<F N="../libs/boost-lib/boost/iterator/detail/config_undef.hpp"/>
 			<F N="../libs/boost-lib/boost/lambda/construct.hpp"/>
 			<F N="../libs/boost-lib/boost/lambda/detail/control_constructs_common.hpp"/>
@@ -413,6 +426,7 @@
 			<F N="../libs/boost-lib/boost/mpl/aux_/config/eti.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/eval_if.hpp"/>
 			<F N="../libs/boost-lib/boost/filesystem/exception.hpp"/>
+			<F N="../libs/boost-lib/boost/format/exceptions.hpp"/>
 			<F N="../libs/boost-lib/boost/lambda/exceptions.hpp"/>
 			<F N="../libs/boost-lib/boost/test/execution_monitor.hpp"/>
 			<F N="../libs/boost-lib/boost/preprocessor/expr_if.hpp"/>
@@ -422,6 +436,7 @@
 			<F N="../libs/boost-lib/boost/type_traits/extent.hpp"/>
 			<F N="../libs/boost-lib/boost/iterator/detail/facade_iterator_category.hpp"/>
 			<F N="../libs/boost-lib/boost/type_traits/detail/false_result.hpp"/>
+			<F N="../libs/boost-lib/boost/format/feed_args.hpp"/>
 			<F N="../libs/boost-lib/boost/regex/v4/fileiter.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/preprocessor/filter_params.hpp"/>
 			<F N="../libs/boost-lib/boost/preprocessor/iteration/detail/finish.hpp"/>
@@ -439,8 +454,13 @@
 			<F N="../libs/boost-lib/boost/preprocessor/seq/for_each.hpp"/>
 			<F N="../libs/boost-lib/boost/preprocessor/list/for_each_i.hpp"/>
 			<F N="../libs/boost-lib/boost/test/utils/foreach.hpp"/>
+			<F N="../libs/boost-lib/boost/format.hpp"/>
+			<F N="../libs/boost-lib/boost/format/format_class.hpp"/>
+			<F N="../libs/boost-lib/boost/format/format_fwd.hpp"/>
+			<F N="../libs/boost-lib/boost/format/format_implementation.hpp"/>
 			<F N="../libs/boost-lib/boost/preprocessor/iteration/detail/iter/forward1.hpp"/>
 			<F N="../libs/boost-lib/boost/test/framework.hpp"/>
+			<F N="../libs/boost-lib/boost/format/free_funcs.hpp"/>
 			<F N="../libs/boost-lib/boost/filesystem/fstream.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/full_lambda.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/preprocessed/gcc/full_lambda.hpp"/>
@@ -470,6 +490,7 @@
 			<F N="../libs/boost-lib/boost/mpl/aux_/preprocessed/gcc/greater.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/preprocessed/gcc/greater_equal.hpp"/>
 			<F N="../libs/boost-lib/boost/config/compiler/greenhills.hpp"/>
+			<F N="../libs/boost-lib/boost/format/group.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/has_apply.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/config/has_apply.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/has_begin.hpp"/>
@@ -521,6 +542,8 @@
 			<F N="../libs/boost-lib/boost/config/compiler/intel.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/config/intel.hpp"/>
 			<F N="../libs/boost-lib/boost/detail/interlocked.hpp"/>
+			<F N="../libs/boost-lib/boost/format/internals.hpp"/>
+			<F N="../libs/boost-lib/boost/format/internals_fwd.hpp"/>
 			<F N="../libs/boost-lib/boost/iterator/interoperable.hpp"/>
 			<F N="../libs/boost-lib/boost/type_traits/intrinsics.hpp"/>
 			<F N="../libs/boost-lib/boost/intrusive_ptr.hpp"/>
@@ -636,6 +659,7 @@
 			<F N="../libs/boost-lib/boost/config/compiler/mpw.hpp"/>
 			<F N="../libs/boost-lib/boost/config/stdlib/msl.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/config/msvc.hpp"/>
+			<F N="../libs/boost-lib/boost/format/detail/msvc_disambiguater.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/msvc_dtw.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/msvc_is_class.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/msvc_never_true.hpp"/>
@@ -677,6 +701,7 @@
 			<F N="../libs/boost-lib/boost/mpl/aux_/config/overload_resolution.hpp"/>
 			<F N="../libs/boost-lib/boost/test/parameterized_test.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/preprocessor/params.hpp"/>
+			<F N="../libs/boost-lib/boost/format/parsing.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/preprocessor/partial_spec_params.hpp"/>
 			<F N="../libs/boost-lib/boost/filesystem/path.hpp"/>
 			<F N="../libs/boost-lib/boost/regex/pattern_except.hpp"/>
@@ -861,6 +886,7 @@
 			<F N="../libs/boost-lib/boost/test/detail/unit_test_parameters.hpp"/>
 			<F N="../libs/boost-lib/boost/test/unit_test_suite.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/preprocessed/gcc/unpack_args.hpp"/>
+			<F N="../libs/boost-lib/boost/format/detail/unset_macros.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/unwrap.hpp"/>
 			<F N="../libs/boost-lib/boost/preprocessor/iteration/detail/bounds/upper1.hpp"/>
 			<F N="../libs/boost-lib/boost/preprocessor/iteration/detail/bounds/upper2.hpp"/>
@@ -889,6 +915,8 @@
 			<F N="../libs/boost-lib/boost/detail/workaround.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/config/workaround.hpp"/>
 			<F N="../libs/boost-lib/boost/test/detail/workaround.hpp"/>
+			<F N="../libs/boost-lib/boost/format/detail/workarounds_gcc-2_95.hpp"/>
+			<F N="../libs/boost-lib/boost/format/detail/workarounds_stlport.hpp"/>
 			<F N="../libs/boost-lib/boost/type_traits/detail/wrap.hpp"/>
 			<F N="../libs/boost-lib/boost/test/detail/wrap_io_saver.hpp"/>
 			<F N="../libs/boost-lib/boost/test/utils/wrap_stringstream.hpp"/>

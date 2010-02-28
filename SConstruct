@@ -506,6 +506,9 @@ mgui_env.Alias('install', [bin_prefix, data_prefix])
 BV.InstallDir(mgui_env, data_prefix, "resources")
 
 user_options_dict['XGETTEXT_SOURCES'] = []
+def AddSourcesForXgettext(src_files):
+    user_options_dict['XGETTEXT_SOURCES'] += [ File(src) for src in src_files ]
+user_options_dict['AddSourcesForXgettext'] = AddSourcesForXgettext
 
 SConscript([
             BV.BuildDir+'/SConscript',

@@ -21,11 +21,12 @@
 
 #include <mgui/_pc_.h>
 
-#include <mgui/sdk/clearlooks.h>
-#include <mgui/render/text.h>
-
 #include "layout.h"
 #include "service.h"
+
+#include <mgui/sdk/clearlooks.h>
+#include <mgui/render/text.h>
+#include <mgui/gettext.h>
 
 namespace Timeline
 {
@@ -152,7 +153,7 @@ void RenderSvc::ProcessContent()
     FillRectangle(cont, head_rct, false, 1);
 
     RefPtr<Pango::Layout> lay = Pango::Layout::create(cont);
-    const char* mark_str = "<span font_desc=\"Sans 11\" color=\"black\">Video</span>";
+    std::string mark_str = boost::format("<span font_desc=\"Sans 11\" color=\"black\">%1%</span>") % _("Video") % bf::stop;
     lay->set_markup(mark_str);
 
     DPoint txt_pos = FindAForCenteredRect(CalcTextSize(lay), DRect(head_rct), true, true);

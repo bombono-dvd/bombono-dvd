@@ -25,6 +25,7 @@
 #include "script.h"  // CheckAuthorMode
 
 #include <mgui/img_utils.h> // Round()
+#include <mgui/gettext.h>
 #include <mlib/string.h>
 
 static std::string PercentString(double p)
@@ -63,10 +64,10 @@ struct StageMapT
 } 
 StageMap[stLAST] = 
 { 
-    { "Rendering Menus",      true, true, 1, 0.0 }, 
-    { "Generating DVD-Video", true, true, 3, 0.0 }, 
-    { "Creating ISO Image",   true, true, 2, 0.0 }, 
-    { "Burning DVD",          true, true, 4, 0.0 }, 
+    { N_("Rendering Menus"),      true, true, 1, 0.0 }, 
+    { N_("Generating DVD-Video"), true, true, 3, 0.0 }, 
+    { N_("Creating ISO Image"),   true, true, 2, 0.0 }, 
+    { N_("Burning DVD"),          true, true, 4, 0.0 }, 
 };
 // текущий этап
 Stage CurStage = stNO_STAGE;
@@ -126,10 +127,10 @@ static void SetPassed(Stage st)
     StageMap[st].isPassed = true;
 }
 
-const std::string& StageToStr(Stage st)
+std::string StageToStr(Stage st)
 {
     StageMapT& s = StageMap[st];
-    return s.stgName;
+    return gettext(s.stgName.c_str());
 }
 
 void SetStage(Stage st)

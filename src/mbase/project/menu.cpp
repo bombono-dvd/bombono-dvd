@@ -21,11 +21,12 @@
 
 #include <mbase/_pc_.h>
 
-#include <mlib/string.h>
-
 #include "menu.h"
 #include "table.h"
 #include "srl-common.h"
+
+#include <mlib/string.h>
+#include <mlib/gettext.h>
 
 namespace Project
 {
@@ -270,7 +271,7 @@ Menu MakeMenu(const std::string& name)
 
 Menu MakeMenu(int old_sz)
 {
-    return MakeMenu(MakeAutoName("Menu", old_sz));
+    return MakeMenu(MakeAutoName(_("Menu"), old_sz));
 }
 
 } // namespace Project

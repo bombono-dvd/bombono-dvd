@@ -129,7 +129,7 @@ static bool SaveProjectAs(Gtk::Widget& for_wdg)
 {
     bool res = false;
     std::string fname = MakeProjectTitle();
-    if( ChooseFileSaveTo(fname, "Save Project As...", for_wdg) )
+    if( ChooseFileSaveTo(fname, _("Save Project As..."), for_wdg) )
     {
         ASSERT( !fname.empty() );
         AData().SetProjectFName(fname);
@@ -164,7 +164,7 @@ static void LoadProjectInteractive(const std::string& prj_file_name)
         // мягкая очистка
         db.Clear(false);
         db.ClearSettings();
-        MessageBox("Cant open project file \"" + prj_file_name + "\"", Gtk::MESSAGE_ERROR, 
+        MessageBox(BF_("Cant open project file \"%1%\"") % prj_file_name % bf::stop, Gtk::MESSAGE_ERROR, 
                    Gtk::BUTTONS_OK, err_str);
     }
 }
@@ -586,10 +586,10 @@ static bool CheckBeforeClosing(ConstructorApp& app)
     if( app.isProjectChanged )
     {
     
-        Gtk::MessageDialog dlg("<span weight=\"bold\" size=\"large\">" 
-                               "Save changes to \"" + MakeProjectTitle() + "\"?" 
+        Gtk::MessageDialog dlg("<span weight=\"bold\" size=\"large\">" +
+                               BF_("Save changes to \"%1%\"?") % MakeProjectTitle() % bf::stop + 
                                "</span>", true,  Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_NONE, true);
-        dlg.add_button("Close _without Saving", Gtk::RESPONSE_CLOSE);
+        dlg.add_button(_("Close _without Saving"), Gtk::RESPONSE_CLOSE);
         AddCancelSaveButtons(dlg);
     
         bool to_save = false;
@@ -628,7 +628,7 @@ static void OnNewProject(ConstructorApp& app)
     if( CheckBeforeClosing(app) )
     {
         bool is_pal = true;
-        Gtk::Dialog new_prj_dlg("New Project", app.win, true, true);
+        Gtk::Dialog new_prj_dlg(_("New Project"), app.win, true, true);
         new_prj_dlg.set_name("NewProject");
         new_prj_dlg.set_resizable(false);
         {
@@ -640,7 +640,7 @@ static void OnNewProject(ConstructorApp& app)
             alg.set_padding(10, 40, 20, 20);
             Gtk::VBox& vbox = Add(alg, NewManaged<Gtk::VBox>());
             
-            PackStart(vbox, NewManaged<Gtk::Label>("Please select a Television standard for your project:",
+            PackStart(vbox, NewManaged<Gtk::Label>(_("Please select a Television standard for your project:"),
                                                    0.0, 0.5, true));
             {
                 Gtk::Alignment& alg = PackStart(vbox, NewManaged<Gtk::Alignment>());
@@ -667,16 +667,16 @@ static void OnOpenProject(ConstructorApp& app)
 {
     if( CheckBeforeClosing(app) )
     {
-        Gtk::FileChooserDialog dialog("Open Project", Gtk::FILE_CHOOSER_ACTION_OPEN);
+        Gtk::FileChooserDialog dialog(_("Open Project"), Gtk::FILE_CHOOSER_ACTION_OPEN);
         BuildChooserDialog(dialog, true, app.win);
     
         Gtk::FileFilter prj_filter;
-        prj_filter.set_name("Project files (*.xml)");
+        prj_filter.set_name(_("Project files (*.xml)"));
         prj_filter.add_pattern("*.xml");
         dialog.add_filter(prj_filter);
     
         Gtk::FileFilter all_filter;
-        all_filter.set_name("All files");
+        all_filter.set_name(_("All Files (*.*)"));
         all_filter.add_pattern("*");
         dialog.add_filter(all_filter);
     
@@ -1113,3 +1113,7 @@ void InitI18n()
     }
 }
 
+void GoUrl(const gchar* url)
+{
+    Project::go_url_show(0, url, 0);
+}

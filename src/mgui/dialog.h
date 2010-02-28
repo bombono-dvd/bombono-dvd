@@ -22,10 +22,28 @@
 #ifndef __MGUI_DIALOG_H__
 #define __MGUI_DIALOG_H__
 
+#include <boost/function.hpp>
+
+
 // классический диалог сообщения, "Message Box"
 Gtk::ResponseType MessageBox(const std::string& msg_str, Gtk::MessageType typ,
                              Gtk::ButtonsType b_typ, const std::string& desc_str = std::string(),
                              bool def_ok = false);
+
+typedef boost::function<void(Gtk::MessageDialog&)> MDFunctor;
+Gtk::ResponseType MessageBoxEx(const std::string& msg_str, Gtk::MessageType typ,
+                               Gtk::ButtonsType b_typ, const std::string& desc_str, const MDFunctor& fnr);
+
+
+void SetWeblinkCallback(Gtk::MessageDialog& mdlg);
+inline
+Gtk::ResponseType MessageBoxWeb(const std::string& msg_str, Gtk::MessageType typ,
+                                Gtk::ButtonsType b_typ, const std::string& desc_str)
+{
+    return MessageBoxEx(msg_str, typ, b_typ, desc_str, SetWeblinkCallback);
+}
+
+
 void AddCancelDoButtons(Gtk::Dialog& dialog, Gtk::BuiltinStockID do_id);
 inline void AddCancelSaveButtons(Gtk::Dialog& dialog)
 { AddCancelDoButtons(dialog, Gtk::Stock::SAVE); }

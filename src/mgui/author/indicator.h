@@ -54,7 +54,7 @@ void InitStageMap(Mode mod);
 void SetStage(Stage st);
 void SetStageProgress(double percent);
 
-const std::string& StageToStr(Stage st);
+std::string StageToStr(Stage st);
 
 } // namespace Author
 

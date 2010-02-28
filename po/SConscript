@@ -71,6 +71,8 @@ def pot_builder(target,source,env):
              '--keyword=C_:1c,2',
              '--keyword=F_',
              '--boost',
+             '--keyword=BF_', # = boost::format(gettext()), boost-format comment is auto added
+             '--add-comments',
              '--from-code=UTF-8',
              '-o', target[0].get_path(),
              "--default-domain=" + PackageName,
@@ -82,6 +84,6 @@ def pot_builder(target,source,env):
 pot_bld = Builder(action = pot_builder)
 env.Append(BUILDERS = {'PotBuild' : pot_bld})
 
-sources = user_options_dict['XGETTEXT_SOURCES'] + ['#src/mgui/tests/test_gettext.cpp']
+sources = user_options_dict['XGETTEXT_SOURCES'] # + ['#src/mgui/tests/test_gettext.cpp']
 env.Alias('potupdate', env.PotBuild('bombono-dvd.pot', sources))
 

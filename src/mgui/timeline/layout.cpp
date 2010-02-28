@@ -28,6 +28,7 @@
 #include <mgui/img-factory.h>
 #include <mgui/project/handler.h>
 #include <mgui/sdk/widget.h>
+#include <mgui/gettext.h>
 
 #include <mlib/sigc.h> 
 
@@ -524,7 +525,7 @@ void PackTrackLayout(Gtk::Container& contr, TrackLayout& layout)
     {
         Gtk::Button* dvd_btn = Gtk::manage(new Gtk::Button);
         SetNonActiveButton(*dvd_btn, "DVDLabelButton");
-        SetTip(*dvd_btn, "Add Chapter Point");
+        SetTip(*dvd_btn, _("Add Chapter Point"));
         dvd_btn->signal_clicked().connect( boost::lambda::bind(&InsertDVDMark, boost::ref(layout)) );
 
         Gtk::Image* dvd_img = Gtk::manage(new Gtk::Image(GetFactoryImage("dvdmark.png")));

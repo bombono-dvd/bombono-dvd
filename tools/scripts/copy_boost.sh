@@ -24,7 +24,7 @@ if [ "x$BCP" == "x" ]; then
     BCP=bcp
 fi
 
-$BCP --boost=$BOOST_SRC boost/smart_ptr.hpp boost/test boost/function.hpp boost/lambda boost/filesystem boost/regex $BOOST_DST
+$BCP --boost=$BOOST_SRC boost/smart_ptr.hpp boost/test boost/function.hpp boost/lambda boost/filesystem boost/regex format $BOOST_DST
 
 ###############################
 # Чистим все неиспользуемое

@@ -76,7 +76,7 @@ lib_src_files = [
                  'timeline/select.cpp',
                  'timeline/service.cpp',
                 ]
-user_options_dict['XGETTEXT_SOURCES'] += [ File(src) for src in lib_src_files ]
+user_options_dict['AddSourcesForXgettext'](lib_src_files)
 
 # Precompiled header install
 # :ATTENTION: if you use precompiled header in another project then point it out in

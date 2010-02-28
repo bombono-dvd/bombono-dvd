@@ -35,6 +35,7 @@
 #include <mgui/key.h>
 #include <mgui/project/handler.h>
 #include <mgui/sdk/menu.h>  // Popup()
+#include <mgui/gettext.h>
 
 #include <mlib/sigc.h>
 
@@ -333,7 +334,7 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
         Gtk::Menu& mn      = NewPopupMenu(); 
         boost::reference_wrapper<MEditorArea> edt_ref(edt_area);
 
-        mn.items().push_back(MenuElem("Delete", bl::bind(&DeleteSelObjects, edt_ref)));
+        mn.items().push_back(MenuElem(_("Delete"), bl::bind(&DeleteSelObjects, edt_ref)));
         if( is_background )
             mn.items().back().set_sensitive(false);
         mn.items().push_back(SeparatorElem());
@@ -347,14 +348,14 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
         InvokeOn(cur_mn, "SetLinkMenu");
         if( slm.linkMenu )
         {
-            mn.items().push_back(MenuElem("Link"));
+            mn.items().push_back(MenuElem(_("Link")));
             mn.items().back().set_submenu(*slm.linkMenu.release());
         }
 
         mn.items().push_back(
-            MenuElem("Remove Link", bl::bind(&SetSelObjectsLinks, edt_ref, 
+            MenuElem(_("Remove Link"), bl::bind(&SetSelObjectsLinks, edt_ref, 
                                              Project::MediaItem(), is_background)));
-        Gtk::MenuItem& bg_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>("Set Background Color"));
+        Gtk::MenuItem& bg_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("Set Background Color...")));
         bg_itm.set_sensitive(is_background);
         bg_itm.signal_activate().connect(bl::bind(&SetBgColor, edt_ref));
 
@@ -607,7 +608,7 @@ void SetSelObjectsLinks(MEditorArea& edt_area, Project::MediaItem mi, bool is_ba
 
 static void SetBgColor(MEditorArea& edt_area)
 {
-    Gtk::ColorSelectionDialog dlg("Pick a Color for Background");
+    Gtk::ColorSelectionDialog dlg(_("Set Background Color..."));
     Gtk::ColorSelection& sel = *dlg.get_colorsel();
     RGBA::Pixel& bg_clr      = edt_area.CurMenuRegion().BgColor();
 

@@ -31,6 +31,7 @@
 #include <mgui/sdk/packing.h>
 #include <mgui/dialog.h>
 #include <mgui/key.h>
+#include <mgui/gettext.h>
 
 #include <mlib/sdk/logger.h>
 
@@ -123,30 +124,34 @@ Gtk::TreePath GetSourcePath(const Gtk::SelectionData& data)
     return src_path;
 }
 
+const char* ConfirmQuestions[] = {
+    N_("Do you really want to delete \"%1%\" from Media List?"),
+    N_("Do you really want to delete chapter \"%1%\"?"),
+    N_("Do you really want to delete menu \"%1%\"?")
+};
+
 class DelConfirmationStrVis: public ObjVisitor
 {
     public:
-        std::string contentStr;
+        std::string templStr;
 
-        virtual  void  Visit(StillImageMD& obj)   { contentStr += ObjFromML(obj); }
-        virtual  void  Visit(VideoMD& obj)        { contentStr += ObjFromML(obj); }
-        virtual  void  Visit(VideoChapterMD& obj) { contentStr += obj.mdName + "\" chapter?"; }
-        virtual  void  Visit(MenuMD& obj)         { contentStr += obj.mdName + "\" menu?";    }
-
-        std::string ObjFromML(Media& md) { return md.mdName + "\" from Media List?"; }
+        virtual  void  Visit(StillImageMD&)   { templStr = ConfirmQuestions[0]; }
+        virtual  void  Visit(VideoMD&)        { templStr = ConfirmQuestions[0]; }
+        virtual  void  Visit(VideoChapterMD&) { templStr = ConfirmQuestions[1]; }
+        virtual  void  Visit(MenuMD&)         { templStr = ConfirmQuestions[2]; }
 };
 
 static std::string GetDelConfirmationStr(MediaItem md)
 {
     DelConfirmationStrVis vis;
     md->Accept(vis);
-    return "Do you really want to delete\n\"" + vis.contentStr;
+    return BF_(vis.templStr) % md->mdName % bf::stop;
 }
 
 bool ConfirmDeleteMedia(MediaItem mi)
 {
     return Gtk::RESPONSE_OK == MessageBox(GetDelConfirmationStr(mi), 
-                                            Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL);
+                                          Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL);
 }
 
 void DeleteMedia(RefPtr<ObjectStore> os, const Gtk::TreeIter& itr)
@@ -219,6 +224,7 @@ bool ObjectBrowser::on_key_press_event(GdkEventKey* event)
     case GDK_E: case GDK_e:
         if( IsControlKey(event->state) ) // :DOC: Ctrl+E = установка начального (Entrance) медиа
             if( MediaItem mi = GetCurMedia(*this) )
+            {
                 if( IsVideo(mi) || IsMenu(mi) )
                 {
                     MediaItem& fp = AData().FirstPlayItem();
@@ -233,8 +239,9 @@ bool ObjectBrowser::on_key_press_event(GdkEventKey* event)
                     RedrawThumbnail(old_fp);
                 }
                 else
-                    MessageBox("First-Play media can be Video or Menu only.", 
+                    MessageBox(_("First-Play media can be Video or Menu only."), 
                                Gtk::MESSAGE_WARNING, Gtk::BUTTONS_OK);
+            }
         break;
     default:
         break;

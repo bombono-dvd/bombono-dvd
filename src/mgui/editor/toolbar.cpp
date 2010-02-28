@@ -126,10 +126,10 @@ Toolbar::Toolbar(): selTool(MakeSelectionToolImage()), txtTool(MakeTextToolLabel
     // * инструменты
     Gtk::RadioToolButton::Group group;
     // Selection Tool
-    selTool.set_tooltip(TooltipFactory(), "Selection Tool (S)");
+    selTool.set_tooltip(TooltipFactory(), boost::format("%1% (S)") % _("Selection Tool") % bf::stop);
     Gtk::set_group(selTool, group);
     // Text Tool
-    txtTool.set_tooltip(TooltipFactory(), "Text Tool (T)");
+    txtTool.set_tooltip(TooltipFactory(), boost::format("%1% (T)") % _("Text Tool") % bf::stop);
     Gtk::set_group(txtTool, group);
 
     // * выбор рамки
