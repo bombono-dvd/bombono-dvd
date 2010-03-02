@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-02-28 15:35+0300\n"
-"PO-Revision-Date: 2010-02-28 15:37+0300\n"
+"PO-Revision-Date: 2010-03-02 21:11+0300\n"
 "Last-Translator: Ilya Murav'jov <muravev@yandex.ru>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -511,11 +511,11 @@ msgstr "_Выход"
 
 #: src/mgui/project/mconstructor.cpp:927
 msgid "Add Videos from _DVD"
-msgstr "_Добавить видео из DVD"
+msgstr "_Добавить видео с DVD"
 
 #: src/mgui/project/mconstructor.cpp:927
 msgid "DVD-Import Assistant"
-msgstr "Помощник по импорту из DVD"
+msgstr "Помощник по импорту с DVD"
 
 #. Go
 #: src/mgui/project/mconstructor.cpp:963
@@ -635,7 +635,7 @@ msgid ""
 "The file \"%1%\" looks like VOB from DVD.\n"
 "Run import?"
 msgstr ""
-"Файл \"%1%\" похож на VOB из DVD.\n"
+"Файл \"%1%\" похож на VOB с DVD.\n"
 "Запустить импорт?"
 
 #: src/mgui/project/mb-actions.cpp:679
