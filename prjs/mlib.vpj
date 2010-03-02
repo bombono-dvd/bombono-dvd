@@ -220,6 +220,7 @@
 			<F N="../src/mlib/string.h"/>
 			<F N="../src/mlib/sdk/system.h"/>
 			<F N="../src/mlib/tech.h"/>
+			<F N="../src/mgui/sdk/treemodel.h"/>
 		</Folder>
 		<Folder
 			Name="Other Files"

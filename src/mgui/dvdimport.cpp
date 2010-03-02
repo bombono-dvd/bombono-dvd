@@ -27,6 +27,7 @@
 #include <mgui/project/mb-actions.h> // TryAddMedia()
 #include <mgui/gettext.h>
 
+#include "sdk/treemodel.h"
 #include "sdk/window.h"
 #include "sdk/packing.h"
 #include "sdk/widget.h"
@@ -41,9 +42,25 @@
 
 namespace DVD {
 
+struct VobFields
+{
+    Gtk::TreeModelColumn<bool>          selState;
+    Gtk::TreeModelColumn<RefPtr<Gdk::Pixbuf> > thumbnail;
+    Gtk::TreeModelColumn<std::string>   name;
+    Gtk::TreeModelColumn<std::string>   desc;
+
+    VobFields(Gtk::TreeModelColumnRecord& rec)
+    {
+        rec.add(selState);
+        rec.add(thumbnail);
+        rec.add(name);
+        rec.add(desc);
+    }
+};
+
 static VobFields& VF()
 {
-    return VobFields::Instance();
+    return GetColumnFields<VobFields>();
 }
 
 ImportData::ImportData(): srcChooser(Gtk::FILE_CHOOSER_ACTION_OPEN), 
@@ -584,7 +601,7 @@ void ConstructImporter(ImportData& id)
                 page = &hbox;
 
                 RefPtr<Gtk::ListStore>& vob_list = id.vobList;
-                vob_list = Gtk::ListStore::create(VF());
+                vob_list = Gtk::ListStore::create(GetColumnRecord<VobFields>());
 
                 Gtk::TreeView& view = NewManaged<Gtk::TreeView>(vob_list);
                 view.signal_row_activated().connect(bl::bind(&OnVobActivate, bl::_1, ref_id));

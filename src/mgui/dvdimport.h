@@ -47,25 +47,6 @@ enum ImportPage
     ipPAGE_NUM,          // число страниц
 };
 
-struct VobFields: public Gtk::TreeModelColumnRecord, 
-                  public Singleton<VobFields>
-{
-    Gtk::TreeModelColumn<bool>          selState;
-    Gtk::TreeModelColumn<RefPtr<Gdk::Pixbuf> > thumbnail;
-    Gtk::TreeModelColumn<std::string>   name;
-    Gtk::TreeModelColumn<std::string>   desc;
-
-    protected:
-    VobFields() 
-    { 
-        add(selState);
-        add(thumbnail);
-        add(name);
-        add(desc);
-    }
-    friend class Singleton<VobFields>; // из-за не тривиального конструктора
-};
-
 void InitPreview(ImportData& id, AspectFormat af);
 inline void InitDefPreview(ImportData& id) { InitPreview(id, af4_3); }
 

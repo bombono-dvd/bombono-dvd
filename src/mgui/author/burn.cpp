@@ -24,6 +24,7 @@
 #include "burn.h"
 #include "execute.h"
 
+#include <mgui/sdk/treemodel.h>
 #include <mgui/timer.h>
 #include <mgui/dialog.h>
 #include <mgui/gettext.h>
@@ -89,45 +90,49 @@ static void ConcatToStr(const char* buf, int sz, std::string& str)
 
 boost::regex WriteSpeed_RE("Write Speed #"RG_NUM":"RG_SPS RG_NUM"\\."RG_NUM "x1385"); 
 
+RefPtr<Gtk::ListStore> sp_store;
+
 enum SpeedEntryType
 {
     setNONE   = 0, // по умолчанию
     setUPDATE = 1, // "Update speeds ..."
 };
 
-RefPtr<Gtk::ListStore> sp_store;
-Gtk::TreeModelColumn<double>         dbl_cln;
-Gtk::TreeModelColumn<std::string>    str_cln;
-Gtk::TreeModelColumn<SpeedEntryType> type_cln;
+struct SpeedFields
+{
+    Gtk::TreeModelColumn<double>         dbl_cln;
+    Gtk::TreeModelColumn<std::string>    str_cln;
+    Gtk::TreeModelColumn<SpeedEntryType> type_cln;
+
+
+    SpeedFields(Gtk::TreeModelColumnRecord& rec)
+    {
+        rec.add(dbl_cln);
+        rec.add(str_cln);
+        rec.add(type_cln);
+    }
+};
+
+static SpeedFields& SF()
+{
+    return GetColumnFields<SpeedFields>();
+}
 
 bool SeparatorFunc(const RefPtr<Gtk::TreeModel>&, const Gtk::TreeIter& itr)
 {
-    return itr->get_value(str_cln) == "separator";
+    return itr->get_value(SF().str_cln) == "separator";
 }
 
 static void SetupSpeeds(Gtk::ComboBox& speed_btn)
 {
     if( !sp_store )
-    {
-        Gtk::TreeModelColumnRecord columns;
-        Gtk::TreeModelColumn<double>      dbl_cln_;
-        dbl_cln = dbl_cln_;
-        Gtk::TreeModelColumn<std::string> str_cln_;
-        str_cln = str_cln_;
-        Gtk::TreeModelColumn<SpeedEntryType> type_cln_;
-        type_cln = type_cln_;
+        sp_store = Gtk::ListStore::create(GetColumnRecord<SpeedFields>());
 
-        columns.add(dbl_cln);
-        columns.add(str_cln);
-        columns.add(type_cln);
-
-        sp_store = Gtk::ListStore::create(columns);
-    }
     speed_btn.set_model(sp_store);
     speed_btn.set_row_separator_func(&SeparatorFunc);
 
     // * внешний вид
-    speed_btn.pack_start(str_cln);
+    speed_btn.pack_start(SF().str_cln);
 }
 
 bool IsBurnerSetup(std::string& dev_path)
@@ -145,7 +150,7 @@ double GetBurnerSpeed()
 {
     Gtk::TreeIter itr = GetBD().SpeedBtn().get_active();
     ASSERT( itr );
-    return itr->get_value(dbl_cln);
+    return itr->get_value(SF().dbl_cln);
 }
 
 bool TestDvdDisc(const std::string& dev_path, std::string& str)
@@ -186,22 +191,23 @@ static void UpdateSpeeds()
         ASSERT( sp_store );
 
         sp_store->clear();
+        SpeedFields& sf = SF();
         // * заполняем
         Gtk::TreeRow row = *sp_store->append();
-        row[str_cln] = _("Auto");
+        row[sf.str_cln] = _("Auto");
         speed_btn.set_active(row);
 
         for( SpeedsArray::iterator itr = speeds.begin(), end = speeds.end(); itr != end; ++itr )
         {
             Gtk::TreeRow row = *sp_store->append();
-            row[dbl_cln] = *itr;
-            row[str_cln] = boost::lexical_cast<std::string>(*itr) + "\303\227";
+            row[sf.dbl_cln] = *itr;
+            row[sf.str_cln] = boost::lexical_cast<std::string>(*itr) + "\303\227";
         }
         row = *sp_store->append();
-        row[str_cln]  = "separator";
+        row[sf.str_cln]  = "separator";
         row = *sp_store->append();
-        row[str_cln]  = _("Update speeds ..."); 
-        row[type_cln] = setUPDATE;
+        row[sf.str_cln]  = _("Update speeds ..."); 
+        row[sf.type_cln] = setUPDATE;
     }
 }
 
@@ -222,7 +228,7 @@ static void OnSpeedChange()
 {
     BurnData& bd = GetBD();
     Gtk::TreeIter itr = bd.SpeedBtn().get_active();
-    if( itr && (itr->get_value(type_cln) == setUPDATE) )
+    if( itr && (itr->get_value(SF().type_cln) == setUPDATE) )
     {
         UpdateSpeeds();
 
