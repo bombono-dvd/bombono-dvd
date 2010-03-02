@@ -1,0 +1,9 @@
+To build all .po files to .mo files use:
+    $ scons -u msgupdate                # see .mo in build/po/locale/...
+
+To install all .mo files use to $PREFIX:
+    $ scons -u install                  # see .mo in $PREFIX/share/locale/...
+
+If ./bombono.pot becomes obsolete then create new .pot file from sources:
+    $ scons -u potupdate                # see bombono.pot in build/po/bombono-dvd.pot
+

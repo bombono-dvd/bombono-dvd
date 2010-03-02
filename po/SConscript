@@ -52,12 +52,19 @@ for lang in languages:
     mo_file = 'locale/' + lang + '/LC_MESSAGES/bombono-dvd.mo'
     po_file = lang + ".po"
     po_src_file = env.File(po_file).srcnode()
-    env.Alias('msgupdate', env.MoBuild(mo_file, po_src_file))
+    tgt = env.MoBuild(mo_file, po_src_file)
+
+    env.Alias('msgupdate', tgt)
+    inst_tgt = env.InstallAs(os.path.join(user_options_dict['DEST_PREFIX'], 'share', mo_file), tgt)
+    env.Alias("install", inst_tgt)
+
     # :TRICKY: update po files from generated .pot, not from kept one
     env.PoBuild(po_file, [po_src_file, 'bombono-dvd.pot'])
 
-import BuildVars as BV
-env.Alias("install", BV.InstallDir(env, os.path.join(user_options_dict['DEST_PREFIX'], 'share'), 'locale'))
+# :BUG: updated *.mo (with scons msgudpate) in build/po/locale do not install to DEST_PREFIX/share/locale
+# if the folder exists already. So we install them explicitly (see above).
+#import BuildVars as BV
+#env.Alias("install", BV.InstallDir(env, os.path.join(user_options_dict['DEST_PREFIX'], 'share'), 'locale'))
 
 #
 # pot_builder: builder function for message templates (.pot)
