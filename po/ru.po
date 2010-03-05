@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-02-28 15:35+0300\n"
-"PO-Revision-Date: 2010-03-02 21:11+0300\n"
+"PO-Revision-Date: 2010-03-03 23:37+0300\n"
 "Last-Translator: Ilya Murav'jov <muravev@yandex.ru>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -434,7 +434,7 @@ msgstr "Не удалось открыть файл проекта \"%1%\""
 
 #: src/mgui/project/mconstructor.cpp:444
 msgid "Bombono DVD is a DVD authoring program with nice and clean GUI"
-msgstr "Bombono DVD - это программа авторинга с аккуратным графическим интерфейсом"
+msgstr "Bombono DVD - программа авторинга с аккуратным графическим интерфейсом"
 
 #. dlg.set_authors(authors);
 #. dlg.set_documenters(documenters);

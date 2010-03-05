@@ -38,6 +38,7 @@
 #include <mlib/filesystem.h>
 #include <mlib/sdk/logger.h>
 
+#include <gtk/gtkversion.h>
 #include <iomanip>
 
 namespace DVD {

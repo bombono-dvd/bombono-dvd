@@ -33,6 +33,9 @@
 #include <mbase/resources.h>
 #include <mlib/filesystem.h>     // fs::exists()
 
+#include <gtk/gtklabel.h> // GTK_IS_LABEL()
+
+
 #define GetStyleColor_Impl(ClrType, ClrName)    \
 RGBA::Pixel GetStyleColor ## ClrName(Gtk::StateType typ, Gtk::Widget& wdg)  \
 { \
@@ -246,7 +249,9 @@ Gtk::Button* CreateButtonWithIcon(const char* label, const Gtk::BuiltinStockID& 
     Gtk::Button& btn = NewManaged<Gtk::Button>(label);
     Gtk::Image& img  = NewManaged<Gtk::Image>(stock_id, icon_sz);
     btn.set_image(img);
-    img.set_visible(); // убираем влияние настройки gtk-button-images после включения в кнопку
+    // убираем влияние настройки gtk-button-images после включения в кнопку
+    //img.set_visible();
+    img.property_visible() = true;
 
     SetTip(btn, tooltip);
     return &btn;
@@ -349,7 +354,8 @@ static void ActivateLinksFor2Label(GtkWidget* wdg, int& label_num)
             // меток фатален (бесконечный цикл), если метка содержит ссылки (с тегом <a>). Нашел 
             // наиболее простое решение - убрать фокус со злополучной метки
             //gtk_label_set_selectable(GTK_LABEL(wdg), FALSE);
-            gtk_widget_set_can_focus(wdg, FALSE);
+            //gtk_widget_set_can_focus(wdg, FALSE);
+            g_object_set(wdg, "can-focus", FALSE, NULL);
 
             g_signal_connect(wdg, "activate-link", G_CALLBACK (ActivateLink), NULL);
         }
