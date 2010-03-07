@@ -81,6 +81,8 @@ void InsertMenuIntoBrowser(MenuBrowser& brw)
     RefPtr<MenuStore> ms = brw.GetMenuStore();
     // * subj
     Menu mn = MakeMenu(ms->children().size());
+    // отношение сторон
+    mn->Params().GetAF() = IsMenuToBe4_3() ? af4_3 : af16_9 ;
 
     // * куда
     Gtk::TreeRow row = *InsertByPos(ms, GetCursor(brw));

@@ -177,7 +177,7 @@ static std::string MakeAuthorTarget(MediaItem mi)
     return vis.res;
 }
 
-static bool GetFirstVideo(VideoItem& res, VideoItem vi, int)
+static bool _GetFirstVideo(VideoItem& res, VideoItem vi, int)
 {
     res = vi;
     return false;
@@ -280,6 +280,48 @@ static bool ScriptTitle(xmlpp::Element* ts_node, VideoItem vi,
     return true;
 }
 
+static Menu GetFirstMenu()
+{
+    RefPtr<MenuStore> mn_store = GetAStores().mnStore;
+    TSBegEnd menus_be          = BeginEnd(mn_store);
+    return (menus_be.first != menus_be.second) ? GetMenu(mn_store, menus_be.first) : Menu();
+}
+
+VideoItem GetFirstVideo()
+{
+    VideoItem first_vi;
+    ForeachVideo(bl::bind(&_GetFirstVideo, boost::ref(first_vi), bl::_1, bl::_2));
+    return first_vi;
+}
+
+bool Is4_3(VideoItem first_vi)
+{
+    bool is_4_3 = true;
+    if( first_vi )
+    {
+        Point asp = Project::CalcAspectSize(*first_vi);
+        if( asp == Point(16, 9) )
+            is_4_3 = false;
+    }
+    return is_4_3;
+}
+
+static bool Is4_3(MenuParams& prms)
+{
+    return prms.GetAF() != af16_9;
+}
+
+// ограничение: глобальная настройка для всех меню
+bool IsMenuToBe4_3()
+{
+    bool is_menu_4_3 = Is4_3(AData().GetDefMP()); // по умолчанию, если все пусто
+    if( Menu mn = GetFirstMenu() )
+        is_menu_4_3 = Is4_3(mn->Params());
+    else if( VideoItem f_vi = GetFirstVideo() )
+        is_menu_4_3 = Is4_3(f_vi);
+    return is_menu_4_3;
+}
+
 void GenerateDVDAuthorScript(const std::string& out_dir)
 {
     int titles_cnt = IndexVideosForAuthoring();
@@ -289,12 +331,9 @@ void GenerateDVDAuthorScript(const std::string& out_dir)
     RefPtr<MenuStore> mn_store = as.mnStore;
     TSBegEnd menus_be          = BeginEnd(mn_store);
 
-    using namespace boost;
     MediaItem fp   = db.FirstPlayItem();
-    Menu root_menu = (menus_be.first != menus_be.second) ? 
-        GetMenu(mn_store, menus_be.first) : Menu();
-    VideoItem first_vi;
-    ForeachVideo(lambda::bind(&GetFirstVideo, boost::ref(first_vi), lambda::_1, lambda::_2));
+    Menu root_menu = GetFirstMenu();
+    VideoItem first_vi = GetFirstVideo();
 
     if( !fp )
     {
@@ -350,19 +389,11 @@ void GenerateDVDAuthorScript(const std::string& out_dir)
         xmlpp::Element* tts_node   = root_node->add_child("titleset");
         // * меню
         xmlpp::Element* menus_node = tts_node->add_child("menus");
-        // :KLUDGE: у всех меню будут одинаковые параметры?
-        AddVideoTag(menus_node);
-        ForeachMenu(lambda::bind(&ScriptMenu, menus_node, root_menu, lambda::_1, lambda::_2));
+        AddVideoTag(menus_node, IsMenuToBe4_3());
+        ForeachMenu(bl::bind(&ScriptMenu, menus_node, root_menu, bl::_1, bl::_2));
         // * список разделов (titles)
         xmlpp::Element* ts_node = tts_node->add_child("titles");
-        bool is_4_3 = true;
-        if( first_vi )
-        {
-            Point asp = Project::CalcAspectSize(*first_vi);
-            if( asp == Point(16, 9) )
-                is_4_3 = false;
-        }
-        AddVideoTag(ts_node, is_4_3);
+        AddVideoTag(ts_node, Is4_3(first_vi));
 
         TitlePostCommand post_cmd = root_menu ? TitlePostCommand(bl::bind(&CallRootMenu)) 
             : TitlePostCommand(bl::bind(&JumpNextTitle, bl::_1, titles_cnt));

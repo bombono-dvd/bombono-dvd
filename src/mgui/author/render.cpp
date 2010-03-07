@@ -406,8 +406,10 @@ void AuthorMenus(const std::string& out_dir)
     DoneCnt = 0;
 
     Author::Info("Rendering menu subtitles ...");
-    // список меню
     std::iostream& menu_list = Author::GetES().settings;
+    bool IsMenuToBe4_3();
+    menu_list << "Is4_3 = " << (IsMenuToBe4_3() ? 1 : 0) << "\n";
+    // список меню
     menu_list << "List = [\n";
     using namespace boost;
     // за один проход можно сделать и подготовку, и рендеринг вспомог. данных

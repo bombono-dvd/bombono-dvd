@@ -2,11 +2,14 @@
 # coding: utf-8
 
 import SConsTwin
+import ASettings
 
 def MakeMenu(env):
     # 1 - m2v
     # '-a' - аспект: (1 - 1:1) 2 - 4:3, 3 - 16:9 (4 - 2.21:1)
     aspect = '2'
+    if not ASettings.Is4_3:
+        aspect = '3'
     # возможные опции оптимизации: -b <kbps>, -q <num>, -H
     # однако отображение в totem все равно гораздо хуже, чем снимок того же кадра, сделанного в totem! 
     options = "-f 8"
