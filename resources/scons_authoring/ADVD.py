@@ -10,7 +10,9 @@ def MakeMenu(env):
     # возможные опции оптимизации: -b <kbps>, -q <num>, -H
     # однако отображение в totem все равно гораздо хуже, чем снимок того же кадра, сделанного в totem! 
     options = "-f 8"
-    env.Command('Menu.m2v', 'Menu.png', "png2yuv -n 1 -I p -f 25 -j $SOURCE | mpeg2enc -a " + aspect + " " + options + " -o $TARGET")
+    # 'n -1' sucks: need to generate two frames (n -2) 
+    # for much better encoding quality with mpeg2enc (thanks to stagediverr)
+    env.Command('Menu.m2v', 'Menu.png', "png2yuv -n 2 -I p -f 25 -j $SOURCE | mpeg2enc -a " + aspect + " " + options + " -o $TARGET")
     
     # 2 - mpg
     env.Command('Menu.mpg', ['Menu.m2v', '#Silent.mp2'], "mplex -f 8 -o $TARGET $SOURCES")
