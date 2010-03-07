@@ -9,7 +9,7 @@
 #
 
 # Gnome
-GNOME_PREFIX=/opt/Gnome224gar
+GNOME_PREFIX=/opt/Gnome2282tar
 export PKG_CONFIG_PATH=$GNOME_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH
 
 export LANG=C
@@ -17,7 +17,7 @@ export LANG=C
 # Gtk runtime
 export GTK_PATH=$GNOME_PREFIX/lib/gtk-2.0 
 #export GTK2_RC_FILES=$ATOM_PATH/gtkrc
-export GTK2_RC_FILES=$ATOM_PATH/gtkrc-224gar
+export GTK2_RC_FILES=$ATOM_PATH/gtkrc
 
 # SCons
 SCONS_PATH=/home/ilya/opt/programming/atom-project/Temp/scons-0.97
