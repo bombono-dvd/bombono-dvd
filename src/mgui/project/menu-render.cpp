@@ -340,7 +340,7 @@ void AddMenuItem(MenuRegion& menu_rgn, Comp::Object* obj)
 void AddFTOItem(MenuRegion& menu_rgn, const std::string& theme, const Rect& lct, MediaItem mi)
 {
     FrameThemeObj* fto = new FrameThemeObj(Project::ThemeOrDef(theme).c_str(), lct);
-    fto->MediaItem() = mi;
+    fto->MediaItem().SetLink(mi);
 
     AddMenuItem(menu_rgn, fto);
 }

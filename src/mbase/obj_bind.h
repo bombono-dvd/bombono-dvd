@@ -24,60 +24,20 @@
 
 #include "composite/component.h"
 
-#include <mlib/patterns.h>
 #include <mlib/function.h>
-
-#include <set>
-
-
-struct MenuLink
-{
-    Project::MediaItem  ref;
-                        // -1 - ищем связи только по ref, нижняя граница
-                        // 0  - по ref и subj (полный индекс)
-                        // 1  - только по ref, верхняя граница
-                   int  subjDef;
-          Comp::Object* subj;
-
-          // для поиска по полному ключу 
-          // (без нулевых значений)
-          MenuLink(Project::MediaItem ref, Comp::Object* subj);
-          // для поиска по ref
-          MenuLink(Project::MediaItem ref, bool is_lower);
-
-    void  SetBound(bool is_lower) { subjDef = is_lower ? -1 : 1; }
-    private:
-          MenuLink(); // запрещен
-};
-
-struct MenuLinkLessOp
-{
-    bool operator()(const MenuLink& e1, const MenuLink& e2) const;
-};
-
-//
-// MenuLinkList - связи пунктов меню с медиа (их содержимым):
-//  MenuRegion    -> bgRef
-//  MediaObj      -> mdItem
-// 
-typedef std::set<MenuLink, MenuLinkLessOp> MenuLinkListType;
-
-class MenuLinkList: public MenuLinkListType, public Singleton<MenuLinkList>
-{
-    typedef MenuLinkListType MyParent;
-    public:
-
-    typedef MyParent::iterator Itr;
-};
-
-// установить/изменить/удалить связь
-void ResetLink(Comp::Object* obj, Project::MediaItem new_ref, Project::MediaItem old_ref);
-// список пунктов меню, связанных с ref
-typedef std::pair<MenuLinkList::Itr, MenuLinkList::Itr> MenuLinkRange;
-MenuLinkRange LinkedObjects(Project::MediaItem ref);
 
 typedef boost::function<void(Comp::Object*)> CompObjectFunctor;
 void ForeachLinked(Project::MediaItem mi, CompObjectFunctor fnr);
+
+namespace Composition {
+typedef boost::function<void(FramedObj&)> FOFunctor;
+}
+
+void ForeachWithPoster(Project::MediaItem mi, Composition::FOFunctor fnr);
+
+// Замечание: в принципе можно перебирать вручную все пункты меню (цикл по меню,
+// затем по пунктам меню), однако могут быть проблемы при удалении меню/пунктов в процессе
+// перебора
 
 #endif // #ifndef __MBASE_OBJ_BIND_H__
 

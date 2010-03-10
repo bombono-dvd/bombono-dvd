@@ -298,19 +298,39 @@ CalcMouseForData(MEditorArea& edt_area, GdkEventButton* event, int& sel_pos)
 
 static void SetBgColor(MEditorArea& edt_area);
 
-static bool HasSelectedFTO(bool& res)
+static void ForAllSelectedFTO(Editor::FTOFunctor fnr, MEditorArea& edt_area)
 {
-    res = true;
+    Editor::ForAllSelectedFTO(fnr, edt_area.CurMenuRegion(), edt_area.SelArr());
+}
+
+static bool GetCurPosterLink_(FrameThemeObj* obj, Project::MediaItem& mi, bool& can_set_poster)
+{
+    can_set_poster = true;
+    mi = obj->PosterItem();
     return false;
+}
+
+static Project::MediaItem GetCurPosterLink(MEditorArea& edt_area, bool& can_set_poster)
+{
+    can_set_poster = false;
+    Project::MediaItem mi;
+    ForAllSelectedFTO(
+        bl::bind(&GetCurPosterLink_, bl::_1, boost::ref(mi), boost::ref(can_set_poster)), 
+        edt_area);
+    return mi;
+}
+
+// :TEMP!!!:
+static bool SetPosterLink_(FrameThemeObj* obj, Project::MediaItem& mi)
+{
+    obj->PosterItem().SetLink(mi);
+    return true;
 }
 
 static void SetPoster(MEditorArea& edt_area, Project::MediaItem mi)
 {
-    // :TODO!!!:
-    if( mi )
-        io::cout << mi->mdName << io::endl;
-    else
-        io::cout << "Empty!!!" << io::endl;
+    // :TEMP!!!:
+    ForAllSelectedFTO(bl::bind(&SetPosterLink_, bl::_1, boost::ref(mi)), edt_area);
 }
 
 class PosterMenuBuilder: public Project::CommonMenuBuilder
@@ -386,14 +406,11 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
 
         // Poster Link
         Gtk::MenuItem& poster_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("Link Poster")));
-        bool can_set_poster       = false;
-        Editor::ForAllSelectedFTO(bl::bind(&HasSelectedFTO, boost::ref(can_set_poster)), edt_area.CurMenuRegion(), sel_arr);
+        bool can_set_poster;
+        Project::MediaItem cur_pstr = GetCurPosterLink(edt_area, can_set_poster);
         poster_itm.set_sensitive(can_set_poster);
         if( can_set_poster )
-        {
-            // :TODO!!!:
-            poster_itm.set_submenu(PosterMenuBuilder(Project::MediaItem(), edt_area).Create());
-        }
+            poster_itm.set_submenu(PosterMenuBuilder(cur_pstr, edt_area).Create());
 
         // Set Background Color
         Gtk::MenuItem& bg_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("Set Background Color...")));
@@ -612,7 +629,7 @@ void ClearLinkVis::Visit(FrameThemeObj& fto)
 {
     if( IsObjSelected() )
     {
-        fto.MediaItem() = newMI;
+        fto.MediaItem().SetLink(newMI);
         fto.GetData<FTOInterPixData>().ClearPix();
     }
     MyParent::Visit(fto);
@@ -621,14 +638,14 @@ void ClearLinkVis::Visit(FrameThemeObj& fto)
 void ClearLinkVis::Visit(TextObj& t_obj)
 {
     if( IsObjSelected() )
-        t_obj.MediaItem() = newMI;
+        t_obj.MediaItem().SetLink(newMI);
     //MyParent::Visit(t_obj);
 }
 
 void SetBackgroundLink(MEditorArea& edt_area, Project::MediaItem mi)
 {
     MenuRegion& mr = edt_area.CurMenuRegion();
-    mr.BgRef() = mi;
+    mr.BgRef().SetLink(mi);
     ResetBackgroundImage(mr);
     RenderForRegion(edt_area, Rect0Sz(edt_area.FramePlacement().Size()));
 }

@@ -20,27 +20,10 @@
 // 
 
 #include "component.h"
-#include <mbase/obj_bind.h>
-
-MediaLink::MediaLink(Comp::Object* own): owner(own)
-{
-    ASSERT( owner );
-}
-
-MediaLink::~MediaLink()
-{
-    ResetLink(owner, Project::MediaItem(), link);
-}
-
-void MediaLink::SetLink(Project::MediaItem mi)
-{
-    ResetLink(owner, mi, link);
-    link = mi;
-}
 
 namespace Composition {
 
-FramedObj::FramedObj(const char* thm_name, Rect plc)
+FramedObj::FramedObj(const char* thm_name, Rect plc): pstrLink(this)
 { 
     //Load(thm_path, plc);
     SetPlacement(plc);

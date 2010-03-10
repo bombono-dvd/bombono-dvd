@@ -23,13 +23,61 @@
 
 #include "obj_bind.h"
 
-MenuLink::MenuLink(Project::MediaItem ref_, Comp::Object* subj_)
+#include <mlib/patterns.h>
+
+#include <set>
+
+struct MILink
+{
+    Project::MediaItem  ref;
+                        // -1 - ищем связи только по ref, нижняя граница
+                        // 0  - по ref и subj (полный индекс)
+                        // 1  - только по ref, верхняя граница
+                   int  subjDef;
+          Comp::Object* subj;
+
+          // для поиска по полному ключу 
+          // (без нулевых значений)
+          MILink(Project::MediaItem ref, Comp::Object* subj);
+          // для поиска по ref
+          MILink(Project::MediaItem ref, bool is_lower);
+
+    void  SetBound(bool is_lower) { subjDef = is_lower ? -1 : 1; }
+    private:
+          MILink(); // запрещен
+};
+
+struct MILinkLessOp
+{
+    bool operator()(const MILink& e1, const MILink& e2) const;
+};
+
+//
+// MILinkList - связи пунктов меню с медиа (их содержимым):
+//  MenuRegion    -> bgRef
+//  MediaObj      -> mdItem
+// 
+typedef std::set<MILink, MILinkLessOp> MILinkListType;
+
+class MILinkList: public MILinkListType
+{
+    typedef MILinkListType MyParent;
+    public:
+
+    typedef MyParent::iterator Itr;
+};
+
+// список пунктов меню, связанных с ref
+typedef std::pair<MILinkList::Itr, MILinkList::Itr> MenuLinkRange;
+MenuLinkRange LinkedObjects(Project::MediaItem ref);
+
+MILink::MILink(Project::MediaItem ref_, Comp::Object* subj_)
     : ref(ref_), subjDef(0), subj(subj_)
 {
     ASSERT( ref && subj );
 }
 
-MenuLink::MenuLink(Project::MediaItem ref_, bool is_lower)
+MILink::MILink(Project::MediaItem ref_, bool is_lower)
     : ref(ref_), subjDef(0), subj(0)
 {
     SetBound(is_lower);
@@ -52,7 +100,7 @@ bool CompareComponent(const T& e1, const T& e2, bool& cmp_res)
     return res;
 }
 
-bool MenuLinkLessOp::operator()(const MenuLink& e1, const MenuLink& e2) const
+bool MILinkLessOp::operator()(const MILink& e1, const MILink& e2) const
 {
     bool cmp_res;
     if( CompareComponent(e1.ref, e2.ref, cmp_res)         ||
@@ -63,17 +111,17 @@ bool MenuLinkLessOp::operator()(const MenuLink& e1, const MenuLink& e2) const
     return false;
 }
 
-void ResetLink(Comp::Object* obj, Project::MediaItem new_ref, Project::MediaItem old_ref)
+// установить/изменить/удалить связь
+void ResetLink(MILinkList& Set, Comp::Object* obj, Project::MediaItem new_ref, Project::MediaItem old_ref)
 {
     ASSERT( obj );
-    MenuLinkList& Set = MenuLinkList::Instance();
-    MenuLinkList::Itr end = Set.end();
+    MILinkList::Itr end = Set.end();
 
     // * удаляем старую связь
     if( old_ref )
     {
-        MenuLink lnk(old_ref, obj);
-        MenuLinkList::Itr it = Set.find(lnk);
+        MILink lnk(old_ref, obj);
+        MILinkList::Itr it = Set.find(lnk);
         ASSERT( it != end );
         Set.erase(it);
     }
@@ -81,30 +129,29 @@ void ResetLink(Comp::Object* obj, Project::MediaItem new_ref, Project::MediaItem
     // * создаем новую
     if( new_ref )
     {
-        bool res = Set.insert(MenuLink(new_ref, obj)).second;
+        bool res = Set.insert(MILink(new_ref, obj)).second;
         ASSERT( res );
     }
 }
 
-MenuLinkRange LinkedObjects(Project::MediaItem ref)
+MenuLinkRange LinkedObjects(MILinkList& Set, Project::MediaItem ref)
 {
-    MenuLinkList& Set = MenuLinkList::Instance();
-    MenuLinkList::Itr end = Set.end();
+    MILinkList::Itr end = Set.end();
 
     if( !ref )
         return std::make_pair(end, end);
 
-    MenuLink lnk(ref, true);
-    MenuLinkList::Itr from = Set.lower_bound(lnk);
+    MILink lnk(ref, true);
+    MILinkList::Itr from = Set.lower_bound(lnk);
 
     lnk.SetBound(false);
-    MenuLinkList::Itr to   = Set.upper_bound(lnk);
+    MILinkList::Itr to   = Set.upper_bound(lnk);
     return std::make_pair(from, to);
 }
 
-void ForeachLinked(Project::MediaItem mi, CompObjectFunctor fnr)
+void ForeachLinked(MILinkList& links, Project::MediaItem mi, CompObjectFunctor fnr)
 {
-    for( MenuLinkRange rng = LinkedObjects(mi); rng.first != rng.second ; )
+    for( MenuLinkRange rng = LinkedObjects(links, mi); rng.first != rng.second ; )
     {
         ASSERT( rng.first->ref == mi );
         Comp::Object* obj = rng.first->subj;
@@ -113,6 +160,80 @@ void ForeachLinked(Project::MediaItem mi, CompObjectFunctor fnr)
 
         fnr(obj);
     }
+}
+
+MILinkList& MenuLinks()
+{
+    static MILinkList List;
+    return List;
+}
+
+MILinkList& PosterLinks()
+{
+    static MILinkList List;
+    return List;
+}
+
+//////////////////////////////////
+// MediaLink
+
+void CommonMediaLink::SetLink(Project::MediaItem mi)
+{
+    ResetLink(mi, link);
+    link = mi;
+}
+
+CommonMediaLink::CommonMediaLink(Comp::Object* own): owner(own)
+{
+    ASSERT( owner );
+}
+
+void CommonMediaLink::ResetLink(Project::MediaItem new_ref, Project::MediaItem old_ref)
+{
+    ::ResetLink(GetLinks(), owner, new_ref, old_ref);
+}
+
+MILinkList& MediaLink::GetLinks() 
+{
+    return MenuLinks();
+}
+
+PosterLink::PosterLink(Comp::FramedObj* own): MyParent(own) {}
+
+MILinkList& PosterLink::GetLinks() 
+{
+    return PosterLinks();
+}
+
+//////////////////////////////////
+// API
+
+void ForeachLinked(Project::MediaItem mi, CompObjectFunctor fnr)
+{
+    ForeachLinked(MenuLinks(), mi, fnr);
+}
+
+static void PosterFunctorImpl(Comp::Object* obj, const Composition::FOFunctor& fnr)
+{
+    // только ради страховки проверяем
+    Comp::FramedObj* f_obj = dynamic_cast<Comp::FramedObj*>(obj);
+    ASSERT( f_obj );
+
+    fnr(*f_obj);
+}
+
+void ForeachWithPoster(Project::MediaItem mi, Composition::FOFunctor fnr)
+{
+    ForeachLinked(PosterLinks(), mi, bl::bind(&PosterFunctorImpl, bl::_1, boost::ref(fnr)));
+}
+
+// удостовериться, что все связей нет
+void CheckObjectLinksEmpty()
+{
+    // видеопереходы
+    ASSERT( MenuLinks().empty() );
+    // постеры для кнопок
+    ASSERT( PosterLinks().empty() );
 }
 
 

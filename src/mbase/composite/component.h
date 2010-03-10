@@ -22,33 +22,66 @@
 #ifndef __MBASE_COMPOSITE_COMPONENT_H__
 #define __MBASE_COMPOSITE_COMPONENT_H__
 
-#include <vector>
-#include <mbase/project/media.h>
-
 #include "comp_vis.h"
 
-class MediaLink
+#include <mbase/project/media.h>
+
+#include <vector>
+
+class MILinkList;
+
+class CommonMediaLink
 {
     public:
-                        MediaLink(Comp::Object* own);
-                       ~MediaLink();
-    
+                        CommonMediaLink(Comp::Object* own);
+    virtual            ~CommonMediaLink() {}
+
     Project::MediaItem  Link() { return link; }
                   void  SetLink(Project::MediaItem mi);
                   void  ClearLink() { SetLink(Project::MediaItem()); }
 
                         // симуляция MediaItem
                         operator Project::MediaItem() { return link; }
-             MediaLink& operator =(Project::MediaItem mi) 
-                        { 
-                            SetLink(mi);
-                            return *this; 
-                        }
+       //CommonMediaLink& operator =(Project::MediaItem mi)
+       //                 {
+       //                     SetLink(mi);
+       //                     return *this;
+       //                 }
+
+    virtual MILinkList& GetLinks() = 0; 
 
     protected:
-
         Project::MediaItem  link;
               Comp::Object* owner;
+
+    private:
+                        CommonMediaLink(); // не требуется; не нужны
+                        CommonMediaLink(const CommonMediaLink&);
+       CommonMediaLink& operator =(const CommonMediaLink&);
+
+
+void  ResetLink(Project::MediaItem new_ref, Project::MediaItem old_ref);
+};
+
+class MediaLink: public CommonMediaLink
+{
+    typedef CommonMediaLink MyParent;
+    public:
+
+                        MediaLink(Comp::Object* own): MyParent(own) {}
+                       ~MediaLink() { ClearLink(); }
+
+    virtual MILinkList& GetLinks(); 
+};
+
+class PosterLink: public CommonMediaLink
+{
+    typedef CommonMediaLink MyParent;
+    public:
+                        PosterLink(Comp::FramedObj* own);
+                       ~PosterLink() { ClearLink(); }
+
+    virtual MILinkList& GetLinks(); 
 };
 
 namespace Composition {
@@ -92,11 +125,13 @@ class FramedObj: public SO<FramedObj, MediaObj>
                       FramedObj(const char* thm_name, Rect plc);
 
          std::string& Theme() { return thmName; }
+          PosterLink& PosterItem() { return pstrLink; }
 
                 //void  Load(const char* thm_name, Rect& plc);
 
-                protected:
-                          std::string  thmName;
+    protected:
+              std::string  thmName;
+               PosterLink  pstrLink;
 };
 
 

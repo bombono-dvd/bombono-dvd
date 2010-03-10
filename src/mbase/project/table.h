@@ -25,6 +25,8 @@
 #include "media.h"
 #include "menu.h"
 
+void CheckObjectLinksEmpty();
+
 namespace Project
 {
 
@@ -198,6 +200,7 @@ class DBCleanup
     public:
             DBCleanup(bool clear_before = true) 
             {
+                CheckObjectLinksEmpty();
                 if( clear_before ) 
                     AData().Clear(); 
             }
