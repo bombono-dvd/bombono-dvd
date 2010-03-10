@@ -250,8 +250,11 @@ void PackMediaBrowserAll(Gtk::Container& contr, MediaBrowser& brw, ActionFunctor
             // Translators: it is normal to translate "Edit" as " " (empty) and
             // to keep the button small; let the tooltip tell the purpose. The same thing 
             // with the button "Edit" in Menu List
-            Gtk::Button* edit_btn = CreateButtonWithIcon(C_("MediaBrowser", "Edit"), Gtk::Stock::YES,
-                                                         _("Make Chapters for Video"));
+            // Замечание: так как переводчики не обращают внимание (фин, например), то ставим пусто,
+            // чтобы качество GUI не зависело от локали
+            //const char* edit_text = C_("MediaBrowser", "Edit");
+            const char* edit_text = "";
+            Gtk::Button* edit_btn = CreateButtonWithIcon(edit_text, Gtk::Stock::YES, _("Make Chapters for Video"));
             hbox.pack_start(*edit_btn);
             //bbox.pack_start(*edit_btn);
             edit_btn->signal_clicked().connect(edit_media_fnr);

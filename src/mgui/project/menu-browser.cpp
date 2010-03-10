@@ -354,9 +354,9 @@ void PackMenusWindow(Gtk::Container& contr, RefPtr<MenuStore> ms, RefPtr<MediaSt
                                                        _("Remove Menu"));
             hb.pack_start(*rm_btn);
             rm_btn->signal_clicked().connect(lambda::bind(&DeleteMenuFromBrowser, boost::ref(menu_brw)));
-
-            Gtk::Button* edit_btn = CreateButtonWithIcon(C_("MenuBrowser", "Edit"), Gtk::Stock::YES,
-                                                         _("Edit Menu"));
+            //const char* edit_text = C_("MenuBrowser", "Edit");
+            const char* edit_text = "";
+            Gtk::Button* edit_btn = CreateButtonWithIcon(edit_text, Gtk::Stock::YES, _("Edit Menu"));
             hb.pack_start(*edit_btn);
             ActionFunctor edit_fnr =
                 lambda::bind(&EditMenu, boost::ref(menu_brw), boost::ref(meditor), boost::ref(title_lbl));
