@@ -22,10 +22,13 @@
 #ifndef __MBASE_OBJ_BIND_H__
 #define __MBASE_OBJ_BIND_H__
 
-#include <set>
+#include "composite/component.h"
 
 #include <mlib/patterns.h>
-#include "composite/component.h"
+#include <mlib/function.h>
+
+#include <set>
+
 
 struct MenuLink
 {
@@ -72,6 +75,9 @@ void ResetLink(Comp::Object* obj, Project::MediaItem new_ref, Project::MediaItem
 // список пунктов меню, связанных с ref
 typedef std::pair<MenuLinkList::Itr, MenuLinkList::Itr> MenuLinkRange;
 MenuLinkRange LinkedObjects(Project::MediaItem ref);
+
+typedef boost::function<void(Comp::Object*)> CompObjectFunctor;
+void ForeachLinked(Project::MediaItem mi, CompObjectFunctor fnr);
 
 #endif // #ifndef __MBASE_OBJ_BIND_H__
 

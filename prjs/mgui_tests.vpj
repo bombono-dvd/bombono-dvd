@@ -49,7 +49,7 @@
 				Deletable="0"
 				SaveOption="SaveWorkspaceFiles"
 				RunFromDir="%rw">
-				<Exec CmdLine="env LANG=ru_RU.UTF-8 %(SCONS) TEST=1 %bd"/>
+				<Exec CmdLine="%(SCONS) TEST=1 %bd"/>
 			</Target>
 			<Target
 				Name="Debug"
@@ -144,7 +144,7 @@
 				Deletable="0"
 				SaveOption="SaveWorkspaceFiles"
 				RunFromDir="%rw">
-				<Exec CmdLine="env LANG=ru_RU.UTF-8 %(SCONS) TEST=1 %bd"/>
+				<Exec CmdLine="%(SCONS) TEST=1 %bd"/>
 			</Target>
 			<Target
 				Name="Debug"

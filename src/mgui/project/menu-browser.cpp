@@ -31,6 +31,7 @@
 #include <mgui/sdk/packing.h>
 #include <mgui/sdk/menu.h>
 #include <mgui/gettext.h>
+#include <mgui/init.h>
 
 #include <mlib/sdk/logger.h>
 
@@ -188,52 +189,65 @@ static std::string MakeMediaItemNameForMenu(MediaItem mi)
     return mi ? mi->mdName + " (" + gettext(mi->TypeString().c_str()) + ")" : _("No Link") ;
 }
 
-static Gtk::RadioMenuItem& 
-AddMediaItemChoice(Gtk::Menu& lnk_list, MediaItem mi, Gtk::RadioButtonGroup& grp,
-                   const SetLinkMenu& slm, MEditorArea* editor, const std::string& name = std::string())
+class LinkMenuBuilder: public CommonMenuBuilder
+{
+    public:
+                    LinkMenuBuilder(SetLinkMenu& slm, MEditorArea& ed)
+                        :CommonMenuBuilder(slm.newLink, ed, slm.isForBack) {}
+
+    virtual ActionFunctor  CreateAction(MediaItem mi);
+};
+
+ActionFunctor LinkMenuBuilder::CreateAction(MediaItem mi)
+{
+    return bl::bind(SetSelObjectsLinks, boost::ref(editor), mi, forPoster);
+}
+
+static void OnMenuBuilderItem(Gtk::RadioMenuItem& itm, ActionFunctor fnr)
+{
+    if( itm.get_active() )
+        fnr();
+}
+
+Gtk::RadioMenuItem& 
+CommonMenuBuilder::AddMediaItemChoice(Gtk::Menu& lnk_list, MediaItem mi, Gtk::RadioButtonGroup& grp,
+                                      const std::string& name)
 {
     std::string itm_name = name.empty() ? MakeMediaItemNameForMenu(mi) : name ;
 
     Gtk::RadioMenuItem& itm = NewManaged<Gtk::RadioMenuItem>(grp, itm_name);
-    bool is_default = (mi == slm.newLink);
+    bool is_default = (mi == curItm);
     itm.set_active(is_default);
-    // строго после установки сигнала set_active()
-    itm.signal_activate().connect(boost::lambda::bind(SetSelObjectsLinks, boost::ref(*editor), mi, slm.isForBack));
+    // .connect() строго после установки set_active()
+    itm.signal_toggled().connect(bl::bind(&OnMenuBuilderItem, boost::ref(itm), CreateAction(mi)));
 
     lnk_list.append(itm);
     return itm;
 }
 
-void SetLinkMenuVis::Visit(MenuMD& obj)
+Gtk::Menu& CommonMenuBuilder::Create()
 {
-    SetLinkMenu& slm = obj.GetData<SetLinkMenu>();
-    Gtk::Menu& lnk_list = NewManaged<Gtk::Menu>();
-    slm.linkMenu = &lnk_list;
+    AStores& as = GetAStores();
+    RefPtr<MediaStore> mdStore = as.mdStore;
+    RefPtr<MenuStore>  mnStore = as.mnStore;
 
-    MenuPack& mp = obj.GetData<MenuPack>();
-    if( !mp.editor )
-    {
-        LOG_ERR << "SetLinkMenuVis::Visit: where is editor?" << io::endl;
-        return;
-    }
-    MediaItem def_mi = slm.newLink;
+    Gtk::Menu& lnk_list = NewManaged<Gtk::Menu>();
 
     Gtk::RadioButtonGroup grp;
     // создаем пустой по умолчанию; он будет нажат, иначе им будет No Link
-    // и при вызове set_active() он тоже отработает ("отжали кнопку"); а все потому,
-    // что используем signal_activate вместо signal_toggled
+    // и при вызове set_active() он тоже отработает ("отжали кнопку")
     Gtk::RadioMenuItem empty_itm(grp);
     // No Link
-    AddMediaItemChoice(lnk_list, MediaItem(), grp, slm, mp.editor);
+    AddMediaItemChoice(lnk_list, MediaItem(), grp);
     lnk_list.append(NewManaged<Gtk::SeparatorMenuItem>());
     // * Menus
-    if( !slm.isForBack )
+    if( !forPoster )
     {
         if( mnStore->children().size() )
         {
             for( MenuStore::iterator itr = mnStore->children().begin(), end = mnStore->children().end();
                  itr != end; ++itr )
-                AddMediaItemChoice(lnk_list, mnStore->GetMedia(itr), grp, slm, mp.editor);
+                AddMediaItemChoice(lnk_list, mnStore->GetMedia(itr), grp);
         }
         else
             AddNoStaffItem(lnk_list, "<No Menu>");
@@ -254,24 +268,39 @@ void SetLinkMenuVis::Visit(MenuMD& obj)
                     Gtk::MenuItem& mn_itm = AppendMI(lnk_list, NewManaged<Gtk::MenuItem>(MakeMediaItemNameForMenu(mi)));
                     Gtk::Menu& chp_menu = MakeSubmenu(mn_itm);
 
-                    AddMediaItemChoice(chp_menu, mi, grp, slm, mp.editor, mi->mdName);
+                    AddMediaItemChoice(chp_menu, mi, grp, mi->mdName);
                     chp_menu.append(NewManaged<Gtk::SeparatorMenuItem>());
 
                     for( VideoMD::Itr itr = vd->List().begin(), end = vd->List().end(); itr != end; ++itr )
                     {
                         ChapterItem chp = *itr;
-                        AddMediaItemChoice(chp_menu, chp, grp, slm, mp.editor, chp->mdName);
+                        AddMediaItemChoice(chp_menu, chp, grp, chp->mdName);
                     }
                 }
                 else
-                    AddMediaItemChoice(lnk_list, mi, grp, slm, mp.editor);
+                    AddMediaItemChoice(lnk_list, mi, grp);
             }
             else if( ptr::dynamic_pointer_cast<StillImageMD>(mi) )
-                AddMediaItemChoice(lnk_list, mi, grp, slm, mp.editor).set_sensitive(slm.isForBack);
+                AddMediaItemChoice(lnk_list, mi, grp).set_sensitive(forPoster);
         }
     }
     else
         AddNoStaffItem(lnk_list, "<No Media>");
+
+    return lnk_list;
+}
+
+void SetLinkMenuVis::Visit(MenuMD& obj)
+{
+    SetLinkMenu& slm = obj.GetData<SetLinkMenu>();
+
+    MenuPack& mp = obj.GetData<MenuPack>();
+    if( !mp.editor )
+    {
+        LOG_ERR << "SetLinkMenuVis::Visit: where is editor?" << io::endl;
+        return;
+    }
+    slm.linkMenu = &LinkMenuBuilder(slm, *mp.editor).Create();
 }
 
 void PackMenusWindow(Gtk::Container& contr, RefPtr<MenuStore> ms, RefPtr<MediaStore> md_store)

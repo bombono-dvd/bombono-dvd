@@ -102,3 +102,17 @@ MenuLinkRange LinkedObjects(Project::MediaItem ref)
     return std::make_pair(from, to);
 }
 
+void ForeachLinked(Project::MediaItem mi, CompObjectFunctor fnr)
+{
+    for( MenuLinkRange rng = LinkedObjects(mi); rng.first != rng.second ; )
+    {
+        ASSERT( rng.first->ref == mi );
+        Comp::Object* obj = rng.first->subj;
+        ASSERT( obj );
+        ++rng.first; // чтоб можно было удалять ссылки в цикле
+
+        fnr(obj);
+    }
+}
+
+

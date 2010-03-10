@@ -298,6 +298,34 @@ CalcMouseForData(MEditorArea& edt_area, GdkEventButton* event, int& sel_pos)
 
 static void SetBgColor(MEditorArea& edt_area);
 
+static bool HasSelectedFTO(bool& res)
+{
+    res = true;
+    return false;
+}
+
+static void SetPoster(MEditorArea& edt_area, Project::MediaItem mi)
+{
+    // :TODO!!!:
+    if( mi )
+        io::cout << mi->mdName << io::endl;
+    else
+        io::cout << "Empty!!!" << io::endl;
+}
+
+class PosterMenuBuilder: public Project::CommonMenuBuilder
+{
+    typedef Project::CommonMenuBuilder MyParent;
+    public:
+                    PosterMenuBuilder(Project::MediaItem cur_itm, MEditorArea& ed)
+                        :MyParent(cur_itm, ed, true) {}
+
+    virtual ActionFunctor  CreateAction(Project::MediaItem mi)
+    {
+        return bl::bind(&SetPoster, boost::ref(editor), mi);
+    }
+};
+
 void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
 {
     int sel_pos;
@@ -330,7 +358,8 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
         DoSelection(edt_area, dat, false);
 
         using namespace Gtk::Menu_Helpers;
-        bool is_background = edt_area.SelArr().empty();
+        const int_array& sel_arr = edt_area.SelArr();
+        bool is_background = sel_arr.empty();
         Gtk::Menu& mn      = NewPopupMenu(); 
         boost::reference_wrapper<MEditorArea> edt_ref(edt_area);
 
@@ -351,10 +380,22 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
             mn.items().push_back(MenuElem(_("Link")));
             mn.items().back().set_submenu(*slm.linkMenu.release());
         }
-
         mn.items().push_back(
             MenuElem(_("Remove Link"), bl::bind(&SetSelObjectsLinks, edt_ref, 
                                              Project::MediaItem(), is_background)));
+
+        // Poster Link
+        Gtk::MenuItem& poster_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("Link Poster")));
+        bool can_set_poster       = false;
+        Editor::ForAllSelectedFTO(bl::bind(&HasSelectedFTO, boost::ref(can_set_poster)), edt_area.CurMenuRegion(), sel_arr);
+        poster_itm.set_sensitive(can_set_poster);
+        if( can_set_poster )
+        {
+            // :TODO!!!:
+            poster_itm.set_submenu(PosterMenuBuilder(Project::MediaItem(), edt_area).Create());
+        }
+
+        // Set Background Color
         Gtk::MenuItem& bg_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("Set Background Color...")));
         bg_itm.set_sensitive(is_background);
         bg_itm.signal_activate().connect(bl::bind(&SetBgColor, edt_ref));

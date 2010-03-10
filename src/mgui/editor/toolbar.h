@@ -86,5 +86,30 @@ void SetSelObjectsTStyle(MEditorArea& edt_area, const Editor::TextStyle& ts, boo
 void SetBackgroundLink(MEditorArea& edt_area, Project::MediaItem mi);
 void SetObjectsLinks(MEditorArea& edt_area, Project::MediaItem mi, const int_array& items);
 
+namespace Project {
+
+class CommonMenuBuilder
+{
+    public:
+                           CommonMenuBuilder(MediaItem cur_itm, MEditorArea& ed, bool for_poster): 
+                               curItm(cur_itm), editor(ed), forPoster(for_poster) {}
+    virtual               ~CommonMenuBuilder() {}
+
+    virtual ActionFunctor  CreateAction(MediaItem mi) = 0;
+
+                Gtk::Menu& Create();
+
+    protected:
+              MediaItem  curItm; // текущая ссылка
+            MEditorArea& editor;
+                   bool  forPoster; // визуальная ссылка или для переходов (может быть меню, не может быть рисунком)
+
+Gtk::RadioMenuItem& 
+AddMediaItemChoice(Gtk::Menu& lnk_list, MediaItem mi, Gtk::RadioButtonGroup& grp,
+                   const std::string& name = std::string());
+};
+
+} // namespace Project
+
 #endif // __MGUI_EDITOR_TOOLBAR_H__
 

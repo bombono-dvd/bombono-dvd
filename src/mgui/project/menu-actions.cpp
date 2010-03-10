@@ -178,21 +178,6 @@ void RegionEraserVis::Visit(TextObj& txt)
         txt.MediaItem().ClearLink();
 }
 
-typedef boost::function<void(Comp::Object*)> CompObjectFunctor;
-
-void ForeachLinked(MediaItem mi, CompObjectFunctor fnr)
-{
-    for( MenuLinkRange rng = LinkedObjects(mi); rng.first != rng.second ; )
-    {
-        ASSERT( rng.first->ref == mi );
-        Comp::Object* obj = rng.first->subj;
-        ASSERT( obj );
-        ++rng.first; // чтоб можно было удалять ссылки в цикле
-
-        fnr(obj);
-    }
-}
-
 void UpdateMenuRegionObject(Comp::Object* obj, const Point& menu_sz, RectListRgn& lst)
 {
     MenuRegionEraserVis vis(obj, menu_sz, lst);
