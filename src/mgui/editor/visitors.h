@@ -95,10 +95,11 @@ class ClearLinkVis: public SelRectVis
 {
     typedef SelRectVis MyParent;
     public:
-        Project::MediaItem newMI;
+        Project::MediaItem  newMI;
+                      bool  forPoster; //false для ссылок пунктов меню, true - постер только для FTO
 
-                  ClearLinkVis(const int_array& sel_arr, Project::MediaItem mi)
-                    : MyParent(sel_arr), newMI(mi) {}
+                  ClearLinkVis(const int_array& sel_arr, Project::MediaItem mi, bool for_poster)
+                    : MyParent(sel_arr), newMI(mi), forPoster(for_poster) {}
 
    virtual  void  Visit(FrameThemeObj& fto);
    virtual  void  Visit(TextObj& t_obj);

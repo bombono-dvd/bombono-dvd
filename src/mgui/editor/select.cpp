@@ -320,17 +320,28 @@ static Project::MediaItem GetCurPosterLink(MEditorArea& edt_area, bool& can_set_
     return mi;
 }
 
-// :TEMP!!!:
-static bool SetPosterLink_(FrameThemeObj* obj, Project::MediaItem& mi)
+static void SetObjectsLinksEx(MEditorArea& edt_area, Project::MediaItem mi, const int_array& items,
+                              bool for_poster)
 {
-    obj->PosterItem().SetLink(mi);
-    return true;
+    ClearLinkVis sr_vis(items, mi, for_poster);
+    RenderByRLV(edt_area, sr_vis);
+}
+
+void SetLinkForObject(MEditorArea& edt_area, Project::MediaItem mi, int pos, bool for_poster)
+{
+    int_array single;
+    single.push_back(pos);
+    SetObjectsLinksEx(edt_area, mi, single, for_poster);
+}
+
+static void SetObjectsLinks(MEditorArea& edt_area, Project::MediaItem mi, bool for_poster)
+{
+    SetObjectsLinksEx(edt_area, mi, edt_area.SelArr(), for_poster);
 }
 
 static void SetPoster(MEditorArea& edt_area, Project::MediaItem mi)
 {
-    // :TEMP!!!:
-    ForAllSelectedFTO(bl::bind(&SetPosterLink_, bl::_1, boost::ref(mi)), edt_area);
+    SetObjectsLinks(edt_area, mi, true);
 }
 
 class PosterMenuBuilder: public Project::CommonMenuBuilder
@@ -405,7 +416,7 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
                                              Project::MediaItem(), is_background)));
 
         // Poster Link
-        Gtk::MenuItem& poster_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("Link Poster")));
+        Gtk::MenuItem& poster_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("Set Poster")));
         bool can_set_poster;
         Project::MediaItem cur_pstr = GetCurPosterLink(edt_area, can_set_poster);
         poster_itm.set_sensitive(can_set_poster);
@@ -625,19 +636,30 @@ static void DeleteSelObjects(MEditorArea& edt_area)
     RenderForRegion(edt_area, sr_vis.RectList());
 }
 
+static CommonMediaLink& GetFTOLink(FrameThemeObj& fto, bool forPoster)
+{
+    return forPoster ? (CommonMediaLink&)fto.PosterItem() : fto.MediaItem() ;
+}
+
 void ClearLinkVis::Visit(FrameThemeObj& fto)
 {
     if( IsObjSelected() )
     {
-        fto.MediaItem().SetLink(newMI);
-        fto.GetData<FTOInterPixData>().ClearPix();
+        Project::MediaItem old_mi = Editor::MIToDraw(fto);
+        GetFTOLink(fto, forPoster).SetLink(newMI);
+
+        if( old_mi != Editor::MIToDraw(fto) )
+        {
+            // нужна перерисовка
+            fto.GetData<FTOInterPixData>().ClearPix();
+            MyParent::Visit(fto);
+        }
     }
-    MyParent::Visit(fto);
 }
 
 void ClearLinkVis::Visit(TextObj& t_obj)
 {
-    if( IsObjSelected() )
+    if( !forPoster && IsObjSelected() )
         t_obj.MediaItem().SetLink(newMI);
     //MyParent::Visit(t_obj);
 }
@@ -650,18 +672,12 @@ void SetBackgroundLink(MEditorArea& edt_area, Project::MediaItem mi)
     RenderForRegion(edt_area, Rect0Sz(edt_area.FramePlacement().Size()));
 }
 
-void SetObjectsLinks(MEditorArea& edt_area, Project::MediaItem mi, const int_array& items)
-{
-    ClearLinkVis sr_vis(items, mi);
-    RenderByRLV(edt_area, sr_vis);
-}
-
 void SetSelObjectsLinks(MEditorArea& edt_area, Project::MediaItem mi, bool is_background)
 {
     if( is_background )
         SetBackgroundLink(edt_area, mi);
     else
-        SetObjectsLinks(edt_area, mi, edt_area.SelArr());
+        SetObjectsLinks(edt_area, mi, false);
 }
 
 static void SetBgColor(MEditorArea& edt_area)

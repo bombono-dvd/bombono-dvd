@@ -21,11 +21,11 @@
 
 #include <mgui/_pc_.h>
 
+#include "theme.h"
+
 #include <mbase/project/theme.h>
 #include <mbase/composite/component.h>
 #include <mgui/project/thumbnail.h>
-
-#include "theme.h"
 
 namespace Editor
 {
@@ -118,10 +118,20 @@ RefPtr<Gdk::Pixbuf> CompositeWithFrame(RefPtr<Gdk::Pixbuf> obj_pix, const Editor
     return canv_pix;
 }
 
+Project::MediaItem MIToDraw(FrameThemeObj& fto)
+{
+    Project::MediaItem mi = fto.PosterItem();
+    if( !mi )
+        mi = fto.MediaItem();
+
+    return mi;
+}
+
 void FTOData::CompositeFTO(RefPtr<Gdk::Pixbuf>& pix, FrameThemeObj& fto)
 {
     const Editor::ThemeData& td = GetTheme(fto.Theme());
-    RefPtr<Gdk::Pixbuf> obj_pix = CalcSource(fto.MediaItem(), PixbufSize(td.vFrameImg));
+
+    RefPtr<Gdk::Pixbuf> obj_pix = CalcSource(MIToDraw(fto), PixbufSize(td.vFrameImg));
     pix = CompositeWithFrame(obj_pix, td);
 }
 

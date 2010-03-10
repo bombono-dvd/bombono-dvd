@@ -85,6 +85,9 @@ class FTOData: public DWConstructorTag
 // размеры obj_pix должны быть равны td.vFrameImg
 RefPtr<Gdk::Pixbuf> CompositeWithFrame(RefPtr<Gdk::Pixbuf> obj_pix, const ThemeData& td);
 
+// выбор: что отрисовывать в рамке
+Project::MediaItem MIToDraw(FrameThemeObj& fto);
+
 } // namespace Editor
 
 #endif // __MGUI_THEME_H__

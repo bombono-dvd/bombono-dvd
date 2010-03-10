@@ -136,8 +136,7 @@ void Editor::Kit::on_drag_data_received(const RefPtr<Gdk::DragContext>& context,
                 else
                 {
                     // меняем ссылку
-                    int_array single;
-                    SetObjectsLinks(*this, mi, (single.push_back(pos), single));
+                    SetLinkForObject(*this, mi, pos, false);
                 }
             }
         }

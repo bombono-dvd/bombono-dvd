@@ -84,7 +84,7 @@ void SetSelObjectsLinks(MEditorArea& edt_area, Project::MediaItem mi, bool is_ba
 void SetSelObjectsTStyle(MEditorArea& edt_area, const Editor::TextStyle& ts, bool only_clr);
 
 void SetBackgroundLink(MEditorArea& edt_area, Project::MediaItem mi);
-void SetObjectsLinks(MEditorArea& edt_area, Project::MediaItem mi, const int_array& items);
+void SetLinkForObject(MEditorArea& edt_area, Project::MediaItem mi, int pos, bool for_poster);
 
 namespace Project {
 
