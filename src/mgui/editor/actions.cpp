@@ -106,6 +106,11 @@ inline bool IsControlPressed()
     return GetKeyboardState() & Gdk::CONTROL_MASK;
 }
 
+inline bool IsAltPressed()
+{
+    return GetKeyboardState() & Gdk::MOD1_MASK;
+}
+
 void Editor::Kit::on_drag_data_received(const RefPtr<Gdk::DragContext>& context, int x, int y, 
                                         const Gtk::SelectionData& selection_data, guint info, guint time)
 {
@@ -135,8 +140,8 @@ void Editor::Kit::on_drag_data_received(const RefPtr<Gdk::DragContext>& context,
                 }
                 else
                 {
-                    // меняем ссылку
-                    SetLinkForObject(*this, mi, pos, false);
+                    // меняем ссылку/постер
+                    SetLinkForObject(*this, mi, pos, IsAltPressed());
                 }
             }
         }
