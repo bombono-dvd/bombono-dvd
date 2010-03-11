@@ -337,12 +337,13 @@ void AddMenuItem(MenuRegion& menu_rgn, Comp::Object* obj)
     SetOwnerMenu(obj, GetOwnerMenu(&menu_rgn));
 }
 
-void AddFTOItem(MenuRegion& menu_rgn, const std::string& theme, const Rect& lct, MediaItem mi)
+FrameThemeObj* AddFTOItem(MenuRegion& menu_rgn, const std::string& theme, const Rect& lct, MediaItem mi)
 {
     FrameThemeObj* fto = new FrameThemeObj(Project::ThemeOrDef(theme).c_str(), lct);
     fto->MediaItem().SetLink(mi);
 
     AddMenuItem(menu_rgn, fto);
+    return fto;
 }
 
 void ClearMenuSavedData(Menu mn)
@@ -376,7 +377,8 @@ void LoadMenu(MenuRegion& menu_rgn, Menu mn)
             //FrameThemeObj* fto = new FrameThemeObj(frame_mi->Theme().c_str(), mi->Placement());
             //fto->MediaItem() = mi->Ref();
             //AddMenuItem(menu_rgn, fto);
-            AddFTOItem(menu_rgn, frame_mi->Theme(), mi->Placement(), mi->Ref());
+            FrameThemeObj* fto = AddFTOItem(menu_rgn, frame_mi->Theme(), mi->Placement(), mi->Ref());
+            fto->PosterItem().SetLink(frame_mi->Poster());
         }
         else
             ASSERT(0);
@@ -420,6 +422,7 @@ void SaveMenu(Menu mn)
         {
             FrameItemMD* f_itm = new FrameItemMD(mn.get());
             f_itm->Theme()    = frame_obj->Theme();
+            f_itm->Poster()   = frame_obj->PosterItem();
 
             SaveMenuItem(f_itm, frame_obj);
         }

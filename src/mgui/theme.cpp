@@ -118,22 +118,27 @@ RefPtr<Gdk::Pixbuf> CompositeWithFrame(RefPtr<Gdk::Pixbuf> obj_pix, const Editor
     return canv_pix;
 }
 
-Project::MediaItem MIToDraw(FrameThemeObj& fto)
+void FTOData::CompositeFTO(RefPtr<Gdk::Pixbuf>& pix, FrameThemeObj& fto)
 {
-    Project::MediaItem mi = fto.PosterItem();
+    const Editor::ThemeData& td = GetTheme(fto.Theme());
+
+    RefPtr<Gdk::Pixbuf> obj_pix = CalcSource(Project::MIToDraw(fto), PixbufSize(td.vFrameImg));
+    pix = CompositeWithFrame(obj_pix, td);
+}
+
+} // namespace Editor
+
+
+namespace Project {
+
+MediaItem MIToDraw(FrameThemeObj& fto)
+{
+    MediaItem mi = fto.PosterItem();
     if( !mi )
         mi = fto.MediaItem();
 
     return mi;
 }
 
-void FTOData::CompositeFTO(RefPtr<Gdk::Pixbuf>& pix, FrameThemeObj& fto)
-{
-    const Editor::ThemeData& td = GetTheme(fto.Theme());
-
-    RefPtr<Gdk::Pixbuf> obj_pix = CalcSource(MIToDraw(fto), PixbufSize(td.vFrameImg));
-    pix = CompositeWithFrame(obj_pix, td);
-}
-
-} // namespace Editor
+} // namespace Project
 

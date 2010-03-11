@@ -22,12 +22,16 @@
 #ifndef __MGUI_THEME_H__
 #define __MGUI_THEME_H__
 
-#include <list>
+#include "img_utils.h"
 
-#include <mlib/patterns.h>
 #include <mbase/project/media.h>
 #include <mbase/composite/comp_vis.h>
-#include "img_utils.h"
+#include <mbase/composite/component.h>
+
+#include <mlib/patterns.h>
+
+#include <list>
+
 
 namespace Editor
 {
@@ -85,10 +89,20 @@ class FTOData: public DWConstructorTag
 // размеры obj_pix должны быть равны td.vFrameImg
 RefPtr<Gdk::Pixbuf> CompositeWithFrame(RefPtr<Gdk::Pixbuf> obj_pix, const ThemeData& td);
 
+} // namespace Editor
+
+
+namespace Project {
+
 // выбор: что отрисовывать в рамке
 Project::MediaItem MIToDraw(FrameThemeObj& fto);
 
-} // namespace Editor
+inline CommonMediaLink& GetFTOLink(FrameThemeObj& fto, bool forPoster)
+{
+    return forPoster ? (CommonMediaLink&)fto.PosterItem() : fto.MediaItem() ;
+}
+
+} // namespace Project
 
 #endif // __MGUI_THEME_H__
 

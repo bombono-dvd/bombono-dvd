@@ -97,7 +97,7 @@ void InsertMenuIntoBrowser(MenuBrowser& brw)
 class RegionEraserVis: public GuiObjVisitor
 {
     public:
-                       RegionEraserVis(Comp::Object* l_obj, bool del_link);
+                       RegionEraserVis(Comp::Object* l_obj, bool del_link, bool for_poster);
 
                  void  Process();
 
@@ -108,6 +108,7 @@ class RegionEraserVis: public GuiObjVisitor
     protected:
         Comp::Object* lObj;
                 bool  delLink;
+                bool  forPoster;
 
                 Rect  plc;
               MenuMD* owner;
@@ -122,8 +123,8 @@ class PrimaryRegionEraserVis: public RegionEraserVis
 {
     typedef RegionEraserVis MyParent;
     public:
-                       PrimaryRegionEraserVis(Comp::Object* l_obj, bool del_link)
-                        : MyParent(l_obj, del_link) {}
+                       PrimaryRegionEraserVis(Comp::Object* l_obj, bool del_link, bool for_poster)
+                        : MyParent(l_obj, del_link, for_poster) {}
 
     protected:
         virtual  void  CalcSubRegions(RectListRgn& lst) { lst.push_back(plc); }
@@ -135,7 +136,7 @@ class MenuRegionEraserVis: public RegionEraserVis
     public:
                        MenuRegionEraserVis(Comp::Object* l_obj, const Point& mn_sz, 
                                            RectListRgn& r_lst)
-                        : MyParent(l_obj, false), menuSz(mn_sz), rLst(r_lst) {}
+                        : MyParent(l_obj, false, false), menuSz(mn_sz), rLst(r_lst) {}
 
     protected:
             const Point menuSz; // список измененных областей в меню
@@ -144,13 +145,14 @@ class MenuRegionEraserVis: public RegionEraserVis
         virtual  void  CalcSubRegions(RectListRgn& lst);
 };
 
-RegionEraserVis::RegionEraserVis(Comp::Object* l_obj, bool del_link)
+RegionEraserVis::RegionEraserVis(Comp::Object* l_obj, bool del_link, bool for_poster)
     :lObj(l_obj), owner(GetOwnerMenu(lObj)), mPack(owner->GetData<MenuPack>()),
-     delLink(del_link)
+     delLink(del_link), forPoster(for_poster)
 {}
 
 void RegionEraserVis::Visit(MenuRegion& mr)
 {
+    ASSERT( !forPoster );
     plc = mr.GetCanvasBuf().FrameRect();
     if( mPack.editor )
         ResetBackgroundImage(mr);
@@ -161,15 +163,19 @@ void RegionEraserVis::Visit(MenuRegion& mr)
 
 void RegionEraserVis::Visit(FrameThemeObj& fto)
 {
-    // * добавляем область
-    plc = Planed::AbsToRel(mPack.thRgn.Transition(), fto.Placement());
-    // * обнуляем
-    Editor::FTOData& dat = mPack.editor ? fto.GetData<FTOInterPixData>() : 
-        (Editor::FTOData&)fto.GetData<FTOThumbData>() ;
-    dat.ClearPix();
+    CommonMediaLink& lnk = GetFTOLink(fto, forPoster);
+    if( lnk.Link() == MIToDraw(fto) )
+    {
+        // * добавляем область
+        plc = Planed::AbsToRel(mPack.thRgn.Transition(), fto.Placement());
+        // * обнуляем
+        Editor::FTOData& dat = mPack.editor ? fto.GetData<FTOInterPixData>() : 
+            (Editor::FTOData&)fto.GetData<FTOThumbData>() ;
+        dat.ClearPix();
+    }
 
     if( delLink )
-        fto.MediaItem().ClearLink();
+        lnk.ClearLink();
 }
 
 void RegionEraserVis::Visit(TextObj& txt)
@@ -260,15 +266,21 @@ static void RedrawMenus(RefPtr<MenuStore> mn_store)
         FillThumbnail(itr, mn_store);
 }
 
-static void UpdateMenuObject(Comp::Object* obj, bool del_link)
+static void UpdateMenuObject(Comp::Object* obj, bool del_link, bool for_poster)
 {
-    PrimaryRegionEraserVis vis(obj, del_link);
+    PrimaryRegionEraserVis vis(obj, del_link, for_poster);
     vis.Process();
+}
+
+static void UpdateFTO(FrameThemeObj& fto, bool del_link)
+{
+    UpdateMenuObject(&fto, del_link, true);
 }
 
 static void UpdateMenusFor(MediaItem mi, bool del_link)
 {
-    ForeachLinked(mi, boost::lambda::bind(&UpdateMenuObject, boost::lambda::_1, del_link));
+    ForeachLinked(mi, bl::bind(&UpdateMenuObject, bl::_1, del_link, false));
+    ForeachWithPoster(mi, bl::bind(&UpdateFTO, bl::_1, del_link));
 }
 
 static void UpdateRedrawMenusFor(MediaItem mi, bool del_link, RefPtr<MenuStore> mn_store)

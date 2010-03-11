@@ -636,19 +636,14 @@ static void DeleteSelObjects(MEditorArea& edt_area)
     RenderForRegion(edt_area, sr_vis.RectList());
 }
 
-static CommonMediaLink& GetFTOLink(FrameThemeObj& fto, bool forPoster)
-{
-    return forPoster ? (CommonMediaLink&)fto.PosterItem() : fto.MediaItem() ;
-}
-
 void ClearLinkVis::Visit(FrameThemeObj& fto)
 {
     if( IsObjSelected() )
     {
-        Project::MediaItem old_mi = Editor::MIToDraw(fto);
-        GetFTOLink(fto, forPoster).SetLink(newMI);
+        Project::MediaItem old_mi = Project::MIToDraw(fto);
+        Project::GetFTOLink(fto, forPoster).SetLink(newMI);
 
-        if( old_mi != Editor::MIToDraw(fto) )
+        if( old_mi != Project::MIToDraw(fto) )
         {
             // нужна перерисовка
             fto.GetData<FTOInterPixData>().ClearPix();

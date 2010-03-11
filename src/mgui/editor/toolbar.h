@@ -44,7 +44,7 @@ void ChangeToTextTool(MEditorArea& edt_area);
 namespace Project
 {
 
-void AddFTOItem(MenuRegion& menu_rgn, const std::string& theme, const Rect& lct, MediaItem mi);
+FrameThemeObj* AddFTOItem(MenuRegion& menu_rgn, const std::string& theme, const Rect& lct, MediaItem mi);
 void AddMenuItem(MenuRegion& menu_rgn, Comp::Object* obj);
 
 // вспомогательная структура для передачи меню ссылок
