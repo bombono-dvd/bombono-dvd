@@ -540,6 +540,7 @@ Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box)
         // * кнопка цвета текста
         Gtk::ColorButton& clr_btn = edt_tbar.clrBtn;
         clr_btn.set_use_alpha();
+        clr_btn.set_relief(Gtk::RELIEF_NONE);
         clr_btn.set_color(RGBA::PixelToColor(GOLD_CLR));
         clr_btn.set_alpha(0xffff);
 
@@ -549,7 +550,18 @@ Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box)
 
         clr_btn.signal_color_set().connect(bl::bind(&FontNameChanged, boost::ref(editor), true));
         AppendToToolbar(tbar, clr_btn);
+
     }
+
+    // * кнопка рамки
+    Gtk::ToggleButton& frm_btn = edt_tbar.frmBtn;
+    AppendToToolbar(tbar, frm_btn);
+    frm_btn.set_relief(Gtk::RELIEF_NONE);
+    frm_btn.add(GetFactoryGtkImage("copy-n-paste/lpetool_show_bbox.png"));
+    SetTip(frm_btn, _("Show Safe Area"));
+    // обвязка otc здесь используется для проверки, что в редакторе есть меню (и не валится при его отстутствии)
+    frm_btn.signal_toggled().connect(bl::bind(otc, ActionFunctor(bl::bind(&ToggleSafeArea, boost::ref(editor)))));
+
     return tbar;
 }
 

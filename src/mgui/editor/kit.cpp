@@ -142,7 +142,7 @@ void FillAsEmptyMonitor(RefPtr<Gdk::Pixbuf> canv_pix, Gtk::Widget& wdg)
     //canv_pix->fill(BLACK_CLR);
 
     Point sz(PixbufSize(canv_pix));
-    canv_pix->fill(0xffffffff);
+    canv_pix->fill(WHITE_CLR);
 
     double rel = 0.5; //2./3.; // центр логотипа правее и ниже
     // :TODO: optimize?

@@ -67,7 +67,7 @@ class CommonRenderVis: public CommonGuiVis
    virtual  void  Visit(TextObj& t_obj);
 
    typedef ptr::one<RGBA::RgnPixelDrawer> Drawer;
-          Drawer& GetDrawer() { return drw; }
+   RGBA::RgnPixelDrawer& GetDrawer() { return *drw; }
             
     protected:
         ptr::one<RGBA::RgnPixelDrawer> drw; 

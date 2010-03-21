@@ -150,7 +150,7 @@ void Editor::Kit::on_drag_data_received(const RefPtr<Gdk::DragContext>& context,
     return MyParent::on_drag_data_received(context, x, y, selection_data, info, time);
 }
 
-static void DrawDndFrame(RGBA::Drawer& drw, const Rect& dnd_rct)
+static void DrawDndFrame(RGBA::Drawer* drw, const Rect& dnd_rct)
 {
     Rect rct(dnd_rct);
     // обводим внутри
@@ -159,9 +159,33 @@ static void DrawDndFrame(RGBA::Drawer& drw, const Rect& dnd_rct)
     if( !rct.IsValid() )
         return;
 
-    drw.SetForegroundColor(BLUE_CLR);
-    drw.MoveTo(rct.lft, rct.top);
-    drw.FrameRectTo(rct.rgt, rct.btm);
+    drw->SetForegroundColor(BLUE_CLR);
+    drw->MoveTo(rct.lft, rct.top);
+    drw->FrameRectTo(rct.rgt, rct.btm);
+}
+
+static void DrawRect(RGBA::Drawer* drw, const Rect& rct, const int clr)
+{
+    drw->SetForegroundColor(clr);
+    drw->MoveTo(rct.lft, rct.top);
+    drw->FrameRectTo(rct.rgt, rct.btm);
+}
+
+static void DrawSafeArea(RGBA::Drawer* drw, MEditorArea& edt_area)
+{
+    Rect frm_rct = edt_area.FrameRect();
+    // с каждой стороны убираем 4,7%
+    const double safe_size = 1 - 0.047*2;
+
+    Rect rct = frm_rct;
+    rct.SetWidth(Round(frm_rct.Width()*safe_size));
+    rct.SetHeight(Round(frm_rct.Height()*safe_size));
+
+    rct = CenterRect(rct, frm_rct, true, true);
+
+    const int SA_BLUE = 0x3465a4ff; // цвет как у иконки :)
+    DrawRect(drw, rct+Point(2, 2), SA_BLUE);
+    DrawRect(drw, rct, WHITE_CLR);
 }
 
 void RenderEditor(MEditorArea& edt_area, RectListRgn& rct_lst)
@@ -169,23 +193,38 @@ void RenderEditor(MEditorArea& edt_area, RectListRgn& rct_lst)
     RenderVis r_vis(edt_area.SelArr(), rct_lst);
     edt_area.CurMenuRegion().Accept(r_vis);
 
-    DrawDndFrame(*r_vis.GetDrawer(), edt_area.DndSelFrame());
+    RGBA::Drawer* drw = &r_vis.GetDrawer(); 
+    DrawDndFrame(drw, edt_area.DndSelFrame());
+
+    if( edt_area.Toolbar().frmBtn.get_active() )
+        DrawSafeArea(drw, edt_area);
+}
+
+typedef boost::function<void(RGBA::Drawer*)> DrawerFnr;
+
+static void CalcRgnForRedraw(MEditorArea& edt_area, const DrawerFnr& fnr)
+{
+    RectListRgn rct_lst;
+    RGBA::RectListDrawer lst_drawer(rct_lst);
+
+    fnr(&lst_drawer);
+
+    RenderForRegion(edt_area, rct_lst);
+}
+
+void Editor::Kit::RecalcForDndFrame(RGBA::Drawer* lst_drawer, const Rect& dnd_rct)
+{
+    DrawDndFrame(lst_drawer, dndSelFrame);
+    DrawDndFrame(lst_drawer, dnd_rct);
+
+    // *
+    dndSelFrame = dnd_rct;
 }
 
 void Editor::Kit::SetDndFrame(const Rect& dnd_rct)
 {
     if( dndSelFrame != dnd_rct ) // нужна перерисовка
-    {
-        RectListRgn rct_lst;
-        RGBA::RectListDrawer lst_drawer(rct_lst);
-        DrawDndFrame(lst_drawer, dndSelFrame);
-        DrawDndFrame(lst_drawer, dnd_rct);
-
-        // *
-        dndSelFrame = dnd_rct;
-
-        RenderForRegion(*this, rct_lst);
-    }
+        CalcRgnForRedraw(*this, bl::bind(&Editor::Kit::RecalcForDndFrame, this, bl::_1, dnd_rct));
 }
 
 void Editor::Kit::on_drag_leave(const RefPtr<Gdk::DragContext>& context, guint time)
@@ -222,5 +261,10 @@ bool Editor::Kit::on_drag_motion(const RefPtr<Gdk::DragContext>& context, int x,
     SetDndFrame(dnd_rct);
 
     return MyParent::on_drag_motion(context, x, y, time);
+}
+
+void ToggleSafeArea(MEditorArea& edt_area)
+{
+    CalcRgnForRedraw(edt_area, bl::bind(&DrawSafeArea, bl::_1, boost::ref(edt_area)));
 }
 

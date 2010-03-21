@@ -26,6 +26,7 @@
 #include "tool.h" 
 
 #include <mgui/text_style.h> 
+#include <mgui/render/rgba.h> 
 
 namespace Editor
 {
@@ -50,6 +51,7 @@ struct Toolbar
        Gtk::ToggleButton  itaBtn;
        Gtk::ToggleButton  undBtn;
         Gtk::ColorButton  clrBtn;
+       Gtk::ToggleButton  frmBtn; // безопасная рамка
 
                           Toolbar();
                           // по font* составить
@@ -99,6 +101,7 @@ class Kit: public /*Gtk::DrawingArea*/ DisplayArea, public EditorRegion,
        virtual void  DoOnConfigure(bool is_update);
 
 void SetDndFrame(const Rect& dnd_rct);
+void RecalcForDndFrame(RGBA::Drawer* lst_drawer, const Rect& dnd_rct);
 };
 
 class ClearInitTextVis: public GuiObjVisitor

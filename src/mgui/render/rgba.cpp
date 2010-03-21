@@ -77,7 +77,7 @@ void Drawer::SetForegroundColor(const Pixel& clr)
     intClr = *(guint32*)&fillClr;
 }
 
-void Drawer::MoveTo(const int to_x, const int to_y)
+void Drawer::MoveTo(int to_x, int to_y)
 {
     curX = to_x;
     curY = to_y;

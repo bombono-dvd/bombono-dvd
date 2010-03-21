@@ -43,7 +43,8 @@ inline void SetVideoBackground(Gtk::Widget& wdt)
 // Цвета
 
 // белый
-const uint TOP_LFT_CLR    = 0xffffffff;
+const uint WHITE_CLR      = 0xffffffff;
+const uint TOP_LFT_CLR    = WHITE_CLR;
 const uint BLACK_CLR      = 0x000000ff;
 const uint TRANS_CLR      = 0x00000000;
 
