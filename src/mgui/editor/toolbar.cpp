@@ -322,7 +322,7 @@ Rect FindNewObjectLocation(RectMatrix& matr, MenuRegion& mr)
     {
         Point sz(mr.GetParams().Size());
         Point obj_sz = CalcStandardObjectSize(sz);
-        Point a      = FindAForCenteredRect(obj_sz, Rect0Sz(sz), true, true);
+        Point a      = FindAForCenteredRect(obj_sz, Rect0Sz(sz));
 
         lct = RectASz(a, obj_sz);
     }

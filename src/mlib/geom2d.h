@@ -296,13 +296,11 @@ void SetSizes(RectT<T>& rct, const PointT<T>& sz)
 }
 
 template<typename T>
-PointT<T> FindAForCenteredRect(const PointT<T>& src_sz, const RectT<T>& center_rct, bool is_horiz, bool is_vert)
+PointT<T> FindAForCenteredRect(const PointT<T>& src_sz, const RectT<T>& center_rct)
 {
-    PointT<T> a(center_rct.A());
-    if( is_horiz )
-        a.x = center_rct.lft + (center_rct.Width()  - src_sz.x) / 2;
-    if( is_vert )
-        a.y = center_rct.top + (center_rct.Height() - src_sz.y) / 2;
+    PointT<T> a;
+    a.x = center_rct.lft + (center_rct.Width()  - src_sz.x) / 2;
+    a.y = center_rct.top + (center_rct.Height() - src_sz.y) / 2;
     return a;
 }
 
@@ -310,7 +308,13 @@ template<typename T>
 RectT<T> CenterRect(const RectT<T>& src_rct, const RectT<T>& center_rct, bool is_horiz, bool is_vert)
 {
     PointT<T> sz(src_rct.Size());
-    return RectASz(FindAForCenteredRect(sz, center_rct, is_horiz, is_vert), sz);
+    PointT<T> a = FindAForCenteredRect(sz, center_rct);
+    if( !is_horiz )
+        a.x = src_rct.lft;
+    if( !is_vert )
+        a.y = src_rct.top;
+
+    return RectASz(a, sz);
 }
 
 

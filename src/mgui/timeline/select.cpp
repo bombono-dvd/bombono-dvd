@@ -665,7 +665,7 @@ void EditBigLabelTL::BeginState(TrackLayout& trk)
         wrap_return<bool>(lambda::bind(&OnKeyPressBigLabel, boost::ref(trk), lambda::_1)) );
     LimitTextInput(ent, AllowedChars);
 
-    sz = FindAForCenteredRect(sz, lct, true, true);
+    sz = FindAForCenteredRect(sz, lct);
     trk.put(ent, sz.x, sz.y);
 
     // фокус устанавливаем после вставки, иначе не сработает

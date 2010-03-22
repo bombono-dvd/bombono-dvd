@@ -257,23 +257,33 @@ void MovePress::OnPressUp(MEditorArea& edt_area, NormalSelect::Data& dat)
 
 static void DeleteSelObjects(MEditorArea& edt_area);
 
+typedef boost::function<bool(Comp::MediaObj*)> CMFunctor;
+ 
+static void ForeachSelectedCM(MEditorArea& edt_area, const CMFunctor& fnr)
+{
+    MenuRegion& m_rgn = edt_area.CurMenuRegion();
+    Comp::ListObj::ArrType& lst = m_rgn.List();
+    const int_array sel_arr     = edt_area.SelArr();
+    for( int i=0; i<(int)sel_arr.size(); ++i )
+        if( Comp::MediaObj* obj = dynamic_cast<Comp::MediaObj*>(lst[sel_arr[i]]) )
+            if( fnr(obj) )
+               break;
+}
+
+static bool GetFirstMILink(Comp::MediaObj* obj, Project::MediaItem& res_mi)
+{
+    res_mi = obj->MediaItem();
+    return true;
+}
+
 static Project::MediaItem GetCurObjectLink(MEditorArea& edt_area, bool is_background)
 {
     Project::MediaItem res_mi;
-    MenuRegion& m_rgn = edt_area.CurMenuRegion();
     if( is_background )
-        res_mi = m_rgn.BgRef();
+        res_mi = edt_area.CurMenuRegion().BgRef();
     else
-    {
-        Comp::ListObj::ArrType& lst = m_rgn.List();
-        const int_array sel_arr     = edt_area.SelArr();
-        for( int i=0; i<(int)sel_arr.size(); ++i )
-            if( Comp::MediaObj* obj = dynamic_cast<Comp::MediaObj*>(lst[sel_arr[i]]) )
-            {
-                res_mi = obj->MediaItem();
-                break;
-            }
-    }
+        ForeachSelectedCM(edt_area, bl::bind(&GetFirstMILink, bl::_1, boost::ref(res_mi)));
+
     return res_mi;
 }
 
@@ -357,6 +367,98 @@ class PosterMenuBuilder: public Project::CommonMenuBuilder
     }
 };
 
+static bool CalcAlignSettings(Comp::MediaObj* obj, Rect& edge_rct, bool& is_first)
+{
+    Rect rct = obj->Placement();
+    edge_rct.lft = is_first ? rct.lft : std::min(rct.lft, edge_rct.lft);
+    edge_rct.rgt = is_first ? rct.rgt : std::max(rct.rgt, edge_rct.rgt);
+    edge_rct.top = is_first ? rct.top : std::min(rct.top, edge_rct.top);
+    edge_rct.btm = is_first ? rct.btm : std::max(rct.btm, edge_rct.btm);
+
+    is_first = false;
+    return false;
+}
+
+typedef boost::function<void(Comp::MediaObj*)> CMFunctor2;
+
+class AlignVis: public CommonDrawVis
+{
+    typedef CommonDrawVis MyParent;
+    public:
+        CMFunctor2  alignFnr;
+
+                  AlignVis(const CMFunctor2& fnr, const int_array& sel_arr)
+                    : MyParent(sel_arr), alignFnr(fnr) { }
+
+   virtual  void  Visit(FrameThemeObj& fto) { RepositionObj(fto, MakeFTOMoving(fto)); }
+   virtual  void  Visit(TextObj& t_obj)     { RepositionObj(t_obj, MakeTextMoving(t_obj)); }
+
+            void  RepositionObj(Comp::MediaObj& m_obj, Manager ming);
+};
+
+void AlignVis::RepositionObj(Comp::MediaObj& m_obj, Manager ming)
+{
+    if( IsObjSelected() )
+    {
+        Draw(ming);
+        alignFnr(&m_obj);
+        Draw(ming);
+    }
+}
+
+static void LeftAlignImpl(Comp::MediaObj* m_obj, const Rect& edge_rct)
+{
+    Rect rct = m_obj->Placement(); 
+    m_obj->SetPlacement(rct + Point(edge_rct.lft-rct.lft, 0));
+}
+
+static void RightAlignImpl(Comp::MediaObj* m_obj, const Rect& edge_rct)
+{
+    Rect rct = m_obj->Placement(); 
+    m_obj->SetPlacement(rct + Point(edge_rct.rgt-rct.rgt, 0));
+}
+
+static void TopAlignImpl(Comp::MediaObj* m_obj, const Rect& edge_rct)
+{
+    Rect rct = m_obj->Placement(); 
+    m_obj->SetPlacement(rct + Point(0, edge_rct.top-rct.top));
+}
+
+static void BottomAlignImpl(Comp::MediaObj* m_obj, const Rect& edge_rct)
+{
+    Rect rct = m_obj->Placement(); 
+    m_obj->SetPlacement(rct + Point(0, edge_rct.btm-rct.btm));
+}
+
+static void CenterHzImpl(Comp::MediaObj* m_obj, const Rect& edge_rct)
+{
+    m_obj->SetPlacement(CenterRect(m_obj->Placement(), edge_rct, true, false));
+}
+
+static void CenterVrImpl(Comp::MediaObj* m_obj, const Rect& edge_rct)
+{
+    m_obj->SetPlacement(CenterRect(m_obj->Placement(), edge_rct, false, true));
+}
+
+typedef boost::function<void(Comp::MediaObj*, const Rect&)> CMFunctor3;
+
+static void AlignByFunctor(MEditorArea& edt_area, const CMFunctor3& fnr)
+{
+    Rect edge_rct;
+    bool is_first = true;
+    ForeachSelectedCM(edt_area, bl::bind(&CalcAlignSettings, bl::_1, boost::ref(edge_rct), boost::ref(is_first)));
+    ASSERT( !is_first );
+
+    AlignVis vis(bl::bind(fnr, bl::_1, edge_rct), edt_area.SelArr());
+    RenderByRLV(edt_area, vis);
+}
+
+static void AddAlignItem(Gtk::Menu& menu, const CMFunctor3& fnr, const char* name, MEditorArea& edt_area)
+{
+    Gtk::MenuItem& itm = AppendMI(menu, NewManaged<Gtk::MenuItem>(name));
+    itm.signal_activate().connect(bl::bind(&AlignByFunctor, boost::ref(edt_area), fnr));
+}
+
 void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
 {
     int sel_pos;
@@ -413,7 +515,7 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
         }
         mn.items().push_back(
             MenuElem(_("Remove Link"), bl::bind(&SetSelObjectsLinks, edt_ref, 
-                                             Project::MediaItem(), is_background)));
+                                                Project::MediaItem(), is_background)));
 
         // Poster Link
         Gtk::MenuItem& poster_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("Set Poster")));
@@ -422,6 +524,27 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
         poster_itm.set_sensitive(can_set_poster);
         if( can_set_poster )
             poster_itm.set_submenu(PosterMenuBuilder(cur_pstr, edt_area).Create());
+
+        // Align
+        {
+            Gtk::MenuItem& align_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("Align")));
+            bool can_align = !is_background;
+            align_itm.set_sensitive(can_align);
+            if( can_align )
+            {
+                Gtk::Menu& menu = NewManaged<Gtk::Menu>();
+                align_itm.set_submenu(menu);
+
+                AddAlignItem(menu, LeftAlignImpl,   _("Align Left"),   edt_area);
+                AddAlignItem(menu, RightAlignImpl,  _("Align Right"),  edt_area);
+                AddAlignItem(menu, TopAlignImpl,    _("Align Top"),    edt_area);
+                AddAlignItem(menu, BottomAlignImpl, _("Align Bottom"), edt_area);
+                menu.append(NewManaged<Gtk::SeparatorMenuItem>());
+
+                AddAlignItem(menu, CenterHzImpl, _("Center Horizontally"), edt_area);
+                AddAlignItem(menu, CenterVrImpl, _("Center Vertically"),   edt_area);
+            }
+        }
 
         // Set Background Color
         Gtk::MenuItem& bg_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("Set Background Color...")));

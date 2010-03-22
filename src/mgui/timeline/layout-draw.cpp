@@ -156,7 +156,7 @@ void RenderSvc::ProcessContent()
     std::string mark_str = boost::format("<span font_desc=\"Sans 11\" color=\"black\">%1%</span>") % _("Video") % bf::stop;
     lay->set_markup(mark_str);
 
-    DPoint txt_pos = FindAForCenteredRect(CalcTextSize(lay), DRect(head_rct), true, true);
+    DPoint txt_pos = FindAForCenteredRect(CalcTextSize(lay), DRect(head_rct));
     //cont->move_to(10, 5);
     cont->move_to(Round(txt_pos.x), Round(txt_pos.y));
     show_in_cairo_context(lay, cont);
