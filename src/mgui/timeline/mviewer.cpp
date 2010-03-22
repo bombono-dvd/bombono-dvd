@@ -26,6 +26,7 @@
 #include <mgui/trackwindow.h>
 #include <mgui/sdk/window.h>
 #include <mgui/sdk/widget.h>
+#include <mgui/sdk/packing.h>
 #include <mgui/gettext.h>
 
 #include <mlib/filesystem.h>
@@ -124,11 +125,7 @@ static void HideBookMarks(GtkWidget* wdt)
 
 Gtk::Container& PackAlignedForBrowserTB(Gtk::Container& par_contr)
 {
-    Gtk::Alignment& algn = *Gtk::manage(new Gtk::Alignment);
-    par_contr.add(algn);
-    algn.set_padding(WDG_BORDER_WDH, WDG_BORDER_WDH, 0, 0);
-
-    return algn;
+    return Add(par_contr, NewPaddingAlg(WDG_BORDER_WDH, WDG_BORDER_WDH, 0, 0));
 }
 
 Gtk::HButtonBox& InsertButtonArea(Gtk::VBox& vbox, Gtk::ButtonBoxStyle style)

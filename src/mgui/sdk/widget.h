@@ -43,5 +43,7 @@ inline void SetAlign(Gtk::Label& lbl, bool is_left = true)
 typedef boost::function<void(GtkWidget*)> GtkWidgetFunctor;
 void ForAllWidgets(GtkWidget* wdg, const GtkWidgetFunctor& fnr);
 
+Gtk::Alignment& NewPaddingAlg(int top, int btm, int lft, int rgt);
+
 #endif // #ifndef __MGUI_SDK_WIDGET_H__
 

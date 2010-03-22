@@ -28,6 +28,7 @@
 #include <mgui/img-factory.h>
 #include <mgui/project/handler.h>
 #include <mgui/sdk/widget.h>
+#include <mgui/sdk/packing.h>
 #include <mgui/gettext.h>
 
 #include <mlib/sigc.h> 
@@ -466,11 +467,8 @@ void PackTrackLayout(Gtk::Container& contr, TrackLayout& layout)
         Gtk::HPaned& hp = layout.TrkHPaned();
         {
             // делаем отступ от бегунка
-            Gtk::Alignment* algn = Gtk::manage(new Gtk::Alignment);
-            algn->set_padding(0, 0, 0, 2);
-
-            Gtk::HBox* hbox = Gtk::manage(new Gtk::HBox(false, 0));
-            algn->add(*hbox);
+            Gtk::Alignment& algn = NewPaddingAlg(0, 0, 0, 2);
+            Gtk::HBox& hbox = Add(algn, NewManaged<Gtk::HBox>());
             {
                 Gtk::Button* m_btn = CreateScaleButton(layout, false);
                 {
@@ -479,11 +477,11 @@ void PackTrackLayout(Gtk::Container& contr, TrackLayout& layout)
 
                     m_btn->add(*m_lbl);
                 }
-                hbox->pack_start(*m_btn, false, true);
+                hbox.pack_start(*m_btn, false, true);
 
                 Gtk::HScale* scl = Gtk::manage(new Gtk::HScale(layout.TrkScale()));
                 SetScaleSecondary(*scl);
-                hbox->pack_start(*scl, true, true);
+                hbox.pack_start(*scl, true, true);
 
                 Gtk::Button* p_btn = CreateScaleButton(layout, true);
                 {
@@ -492,9 +490,9 @@ void PackTrackLayout(Gtk::Container& contr, TrackLayout& layout)
 
                     p_btn->add(*p_lbl);
                 }
-                hbox->pack_start(*p_btn, false, true);
+                hbox.pack_start(*p_btn, false, true);
             }
-            hp.add1(*algn);
+            hp.add1(algn);
 
             Gtk::HScrollbar* scr_bar = Gtk::manage(new Gtk::HScrollbar(layout.TrkHScroll()));
             hp.add2(*scr_bar);

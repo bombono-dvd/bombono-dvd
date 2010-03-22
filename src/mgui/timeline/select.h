@@ -142,7 +142,6 @@ bool ParsePointerPos(long& pos, const char* str, double fps);
 
 Rect GetBigLabelLocation(TrackLayout& trk);
 bool SetPointer(int new_pos, TrackLayout& trk);
-void InsertDVDMark(TrackLayout& trk_lay);
 void RedrawDVDMark(TrackLayout& trk, int idx);
 
 //

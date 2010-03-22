@@ -636,16 +636,12 @@ static void OnNewProject(ConstructorApp& app)
             Gtk::VBox& dlg_box = *new_prj_dlg.get_vbox();
             // :REFACTOR: fs::path(GetDataDir())...
             PackStart(dlg_box, NewManaged<Gtk::Image>((fs::path(GetDataDir())/"cap400.png").string()));
-            Gtk::Alignment& alg = PackStart(dlg_box, NewManaged<Gtk::Alignment>());
-            alg.set_padding(10, 40, 20, 20);
-            Gtk::VBox& vbox = Add(alg, NewManaged<Gtk::VBox>());
+            Gtk::VBox& vbox = Add(PackStart(dlg_box, NewPaddingAlg(10, 40, 20, 20)), NewManaged<Gtk::VBox>());
             
             PackStart(vbox, NewManaged<Gtk::Label>(_("Please select a Television standard for your project:"),
                                                    0.0, 0.5, true));
             {
-                Gtk::Alignment& alg = PackStart(vbox, NewManaged<Gtk::Alignment>());
-                alg.set_padding(10, 10, 0, 0);
-                Gtk::VBox& vbox2 = Add(alg, NewManaged<Gtk::VBox>());
+                Gtk::VBox& vbox2 = Add(PackStart(vbox, NewPaddingAlg(10, 10, 0, 0)), NewManaged<Gtk::VBox>());
 
                 Gtk::RadioButtonGroup grp;
                 PackStart(vbox2, TVSelectionButton(is_pal, true,  grp));

@@ -374,3 +374,9 @@ void SetWeblinkCallback(Gtk::MessageDialog& mdlg)
     ForAllWidgets(static_cast<Gtk::Widget&>(mdlg).gobj(), bl::bind(&ActivateLinksFor2Label, bl::_1, boost::ref(label_num)));
 }
 
+Gtk::Alignment& NewPaddingAlg(int top, int btm, int lft, int rgt)
+{
+    Gtk::Alignment& alg = NewManaged<Gtk::Alignment>();
+    alg.set_padding(top, btm, lft, rgt);
+    return alg;
+}

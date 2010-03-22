@@ -29,6 +29,7 @@
 #include <mgui/timeline/mviewer.h>
 #include <mgui/render/menu.h>
 #include <mgui/sdk/packing.h>
+#include <mgui/sdk/widget.h>
 #include <mgui/sdk/menu.h>
 #include <mgui/gettext.h>
 #include <mgui/init.h>
@@ -336,13 +337,9 @@ void PackMenusWindow(Gtk::Container& contr, RefPtr<MenuStore> ms, RefPtr<MediaSt
         eb.modify_bg(Gtk::STATE_NORMAL, Gdk::Color("white")); // устанавливается при "реализации" виджета
         vbox.pack_start(eb, Gtk::PACK_SHRINK);
 
-        Gtk::Alignment& alg = NewManaged<Gtk::Alignment>();
-        alg.set_padding(0, 0, 2, 2);
-        eb.add(alg);
-
+        Gtk::Alignment& alg = Add(eb, NewPaddingAlg(0, 0, 2, 2));
         //Gtk::HBox& hb = *Gtk::manage(new Gtk::HBox(true, 4));
-        Gtk::HButtonBox& hb = CreateMListButtonBox();
-        alg.add(hb);
+        Gtk::HButtonBox& hb = Add(alg, CreateMListButtonBox());
         {
             using namespace boost;
             Gtk::Button* add_btn = CreateButtonWithIcon("", Gtk::Stock::ADD,

@@ -28,6 +28,8 @@
 #include <mgui/key.h>
 #include <mgui/sdk/entry.h>
 #include <mgui/sdk/menu.h>  // Popup()
+#include <mgui/sdk/window.h>
+#include <mgui/sdk/widget.h>
 #include <mgui/dialog.h> // ChooseFileSaveTo()
 #include <mgui/gettext.h>
 
@@ -132,6 +134,52 @@ static void SaveFrame(DAMonitor& mon)
     }
 }
 
+static int LastPos(TrackLayout& trk_lay)
+{
+    return (int)std::ceil(trk_lay.GetFramesLength());
+}
+
+static void InsertDVDMarkAtPos(TrackLayout& trk_lay, int pos);
+
+static void InsertChapters(TrackLayout& trk_lay)
+{
+    Gtk::Dialog add_dlg(_("Add Chapters at Intervals"), *GetTopWindow(trk_lay), true);
+    Gtk::SpinButton*  btn  = 0;
+    Gtk::CheckButton* cbtn = 0;
+    {
+        AddCancelDoButtons(add_dlg, Gtk::Stock::OK);
+        Gtk::VBox& box = *add_dlg.get_vbox();
+        Gtk::VBox& vbox = Add(PackStart(box, NewPaddingAlg(10, 10, 10, 10)), NewManaged<Gtk::VBox>(false, 10));
+        {
+            Gtk::HBox& hbox = PackStart(vbox, NewManaged<Gtk::HBox>());
+            Add(PackStart(hbox, NewPaddingAlg(0, 0, 0, 40)), NewManaged<Gtk::Label>(_("Interval between Chapters:")));
+            btn = &PackStart(hbox, NewManaged<Gtk::SpinButton>());
+            // по мотивам gtk_spin_button_new_with_range()
+            int step = 1;
+            btn->configure(*Gtk::manage(new Gtk::Adjustment(5, 1, 1000, step, 10*step, 0)), step, 0);
+            btn->set_numeric(true);
+    
+            Gtk::Label& lbl = PackStart(hbox, NewManaged<Gtk::Label>(_("min.")));
+            lbl.set_padding(2, 0);
+        }
+
+        cbtn = &PackStart(vbox, NewManaged<Gtk::CheckButton>(_("Remove Existing Chapters")));
+
+        box.show_all();
+    }
+
+    if( Gtk::RESPONSE_OK == add_dlg.run() )
+    {
+        int intr = btn->get_value_as_int() * 60; // секунды
+        if( cbtn->get_active() )
+            DeleteAllDVDMarks(trk_lay);
+
+        int last_pos = LastPos(trk_lay);
+        for( int i = 1, pos; pos = TimeToFrames(i*intr, trk_lay.FrameFPS()), pos < last_pos; i++ )
+            InsertDVDMarkAtPos(trk_lay, pos);
+    }
+}
+
 void ContextMenuHook::AtScale()
 {
     popupActions = Gtk::ActionGroup::create("Actions");
@@ -149,6 +197,10 @@ void ContextMenuHook::AtScale()
     if( DVDMarks().size() == 0 )
         act->set_sensitive(false);
     popupActions->add( act, lambda::bind(&DeleteAllDVDMarks, boost::ref(trkLay)) );
+    // Add at Intervals
+    popupActions->add( Gtk::Action::create("Add at Intervals", _("Add Chapter Points at Intervals...")),
+                       bl::bind(&InsertChapters, boost::ref(trkLay)) );
+
     // Save
     ActionFunctor save_fnr = lambda::constant(0); // если не mon, то пустой
     DAMonitor* mon = dynamic_cast<DAMonitor*>(&trkLay.GetMonitor());
@@ -183,6 +235,7 @@ void ContextMenuHook::Process()
         "    <menuitem action='Add Chapter'/>"
         "    <menuitem action='Delete Chapter'/>"
         "    <menuitem action='Delete All'/>"
+        "    <menuitem action='Add at Intervals'/>"
         "    <separator/>"
         "    <menuitem action='Save Frame'/>"
         "  </popup>"
@@ -330,7 +383,7 @@ void NormalTL::OnKeyPressEvent(TrackLayout& trk, GdkEventKey* event)
             break;
         case GDK_End:  case GDK_KP_End:
             {
-                int last_pos = (int)std::ceil(trk.GetFramesLength());
+                int last_pos = LastPos(trk);
                 SetPointer( std::max(0, last_pos), trk );
             }
             break;
@@ -705,11 +758,11 @@ void EditBigLabelTL::OnMouseDown(TrackLayout& trk, GdkEventButton* event)
     NormalTL::Instance().OnMouseDown(trk, event);
 }
 
-void InsertDVDMark(TrackLayout& trk_lay)
+static void InsertDVDMarkAtPos(TrackLayout& trk_lay, int pos)
 {
-    if( trk_lay.CurPos() >= 0 )
+    if( pos >= 0 )
     {
-        Project::ChapterItem ci = PushBackDVDMark(trk_lay.CurPos());
+        Project::ChapterItem ci = PushBackDVDMark(pos);
         RedrawDVDMark(trk_lay, OrderDVDMark(DVDMarks().size()-1));
 
         // обновляем
@@ -718,6 +771,10 @@ void InsertDVDMark(TrackLayout& trk_lay)
     }
 }
 
+void InsertDVDMark(TrackLayout& trk_lay)
+{
+    InsertDVDMarkAtPos(trk_lay, trk_lay.CurPos());
+}
 
 } // namespace Timeline
 
