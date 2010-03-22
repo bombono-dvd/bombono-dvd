@@ -143,7 +143,7 @@ static void InsertDVDMarkAtPos(TrackLayout& trk_lay, int pos);
 
 static void InsertChapters(TrackLayout& trk_lay)
 {
-    Gtk::Dialog add_dlg(_("Add Chapters at Intervals"), *GetTopWindow(trk_lay), true);
+    Gtk::Dialog add_dlg(_("Add Chapter Points at Intervals"), *GetTopWindow(trk_lay), true);
     Gtk::SpinButton*  btn  = 0;
     Gtk::CheckButton* cbtn = 0;
     {
@@ -198,7 +198,7 @@ void ContextMenuHook::AtScale()
         act->set_sensitive(false);
     popupActions->add( act, lambda::bind(&DeleteAllDVDMarks, boost::ref(trkLay)) );
     // Add at Intervals
-    popupActions->add( Gtk::Action::create("Add at Intervals", _("Add Chapter Points at Intervals...")),
+    popupActions->add( Gtk::Action::create("Add at Intervals", DOTS_("Add Chapter Points at Intervals")),
                        bl::bind(&InsertChapters, boost::ref(trkLay)) );
 
     // Save
@@ -206,7 +206,7 @@ void ContextMenuHook::AtScale()
     DAMonitor* mon = dynamic_cast<DAMonitor*>(&trkLay.GetMonitor());
     if( mon )
         save_fnr = lambda::bind(&SaveFrame, boost::ref(*mon));
-    popupActions->add( Gtk::Action::create("Save Frame", Gtk::Stock::SAVE, _("Save Current Frame...")),
+    popupActions->add( Gtk::Action::create("Save Frame", Gtk::Stock::SAVE, DOTS_("Save Current Frame")),
                        save_fnr );
 }
 

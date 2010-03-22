@@ -30,6 +30,13 @@ inline std::string operator % (boost::format& f, bf::stop_enum /*stop*/)
     return f.str();
 }
 
+inline std::string _dots_(const char* str)
+{
+    return gettext(str) + std::string("...");
+}
+// вариант _() с добавлением точек в конце для пунктов меню
+#define DOTS_(str) _dots_(str).c_str()
+
 
 #endif // #ifndef __MLIB_GETTEXT_H__
 
