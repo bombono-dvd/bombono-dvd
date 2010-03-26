@@ -45,5 +45,13 @@ void ForAllWidgets(GtkWidget* wdg, const GtkWidgetFunctor& fnr);
 
 Gtk::Alignment& NewPaddingAlg(int top, int btm, int lft, int rgt);
 
+Gtk::ScrolledWindow& PackInScrolledWindow(Gtk::Widget& wdg, bool need_hz = false);
+
+// удобная функция упаковки виджета в рамку
+Gtk::Frame& NewManagedFrame(Gtk::ShadowType st = Gtk::SHADOW_ETCHED_IN, 
+                            const std::string& label = std::string());
+Gtk::Frame& PackWidgetInFrame(Gtk::Widget& wdg, Gtk::ShadowType st,
+                              const std::string& label = std::string());
+
 #endif // #ifndef __MGUI_SDK_WIDGET_H__
 

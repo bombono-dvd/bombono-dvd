@@ -31,6 +31,7 @@
 #include <mgui/sdk/window.h>
 #include <mgui/sdk/packing.h>
 #include <mgui/sdk/widget.h>
+#include <mgui/sdk/textview.h>
 #include <mgui/timer.h>
 #include <mgui/gettext.h>
 
@@ -232,7 +233,7 @@ ActionFunctor PackOutput(ConstructorApp& app, const std::string& prj_fname)
             Gtk::Expander& expdr = PackStart(box, NewManaged<Gtk::Expander>(_("Show/_Hide Details"), true));
             Gtk::TextView& txt_view = es.detailsView;
             txt_view.set_size_request(0, 200);
-            expdr.add(Author::PackDetails(txt_view));
+            expdr.add(PackDetails(txt_view));
         }
 
         Gtk::Button& build_btn = Add(PackStart(vbox, MakeNullAlg()), es.ExecButton());
@@ -630,7 +631,7 @@ static std::string MakeOperStatus(boost::format tmpl, ExecState& es)
 
 static void FailureMessageBox(ExecState& es, const std::string& reason)
 {
-    if( es.userAbort )
+    if( es.eDat.userAbort )
         FinalMessageBox(MakeOperStatus(BF_("%1% cancelled."), es), false, Gtk::MESSAGE_INFO, "");
     else
         FinalMessageBox(MakeOperStatus(BF_("%1% broken."), es), false, Gtk::MESSAGE_ERROR,
@@ -733,17 +734,7 @@ void OnDVDBuild(Gtk::FileChooserButton& ch_btn)
         }
     }
     else
-    {
-        // COPY_N_PASTE - тупо сделал содержимое сообщений как у "TSNAMI-MPEG DVD Author"
-        // А что делать - нафига свои придумывать, если смысл один и тот же
-        if( Gtk::RESPONSE_YES == MessageBox(BF_("You are about to cancel %1%. Are you sure?") % es.operationName 
-                                                % bf::stop, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO) )
-        {
-            es.userAbort = true;
-            if( es.pid != NO_HNDL ) // во время выполнения внешней команды
-                StopExecution(es.pid);
-        }
-    }
+        es.eDat.StopExecution(es.operationName);
 }
 
 } // namespace Author

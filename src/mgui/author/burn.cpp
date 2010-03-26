@@ -28,6 +28,7 @@
 #include <mgui/timer.h>
 #include <mgui/dialog.h>
 #include <mgui/gettext.h>
+#include <mgui/execution.h>
 
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
@@ -294,35 +295,26 @@ DVDInfo ParseDVDInfo(bool is_good, const std::string& out_info)
     return inf;
 }
 
-static bool PulseProgress()
+class WaitProgress
 {
-    GetES().prgBar.pulse();
-    return true;
-}
-
-struct WaitProgress
-{
-    WaitProgress(const std::string& msg) 
+    public:
+    WaitProgress(const std::string& msg): pls(GetES().prgBar)
     { 
         ExecState& es = GetES();
         es.SetStatus(msg);
         // перевод в режим pulse
         es.prgBar.set_text(" ");
         es.prgBar.set_fraction(0.);
-
-        tm.Connect(&PulseProgress, 500); 
     }
    ~WaitProgress() 
     {
         ExecState& es = GetES();
         es.SetIndicator(0);
         es.SetStatus();
-         
-        tm.Disconnect(); 
     }
 
     protected:
-    Timer tm;
+    Execution::Pulse  pls;
 };
 
 bool CheckDVDBlank()

@@ -29,6 +29,7 @@
 #include <mgui/render/menu.h>
 #include <mgui/editor/kit.h> // ClearLocalData()
 #include <mgui/sdk/widget.h>
+#include <mgui/sdk/textview.h>
 #include <mgui/project/thumbnail.h> // Project::CalcAspectSize()
 #include <mgui/gettext.h>
 
@@ -624,7 +625,7 @@ ExitData ExecuteSconsCmd(const std::string& out_dir, OutputFilter& of,
                          Mode mod, const str::stream& scons_options)
 {
     std::string cmd = "scons" + scons_options.str() + " " + SconsTarget(mod);
-    return ExecuteAsync(out_dir.c_str(), cmd.c_str(), of, &GetES().pid);
+    return ExecuteAsync(out_dir.c_str(), cmd.c_str(), of, &GetES().eDat.pid);
 }
 
 } // namespace Author

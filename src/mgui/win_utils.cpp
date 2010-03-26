@@ -175,12 +175,18 @@ Gtk::Tooltips& TooltipFactory()
     return *tips;
 }
 
-Gtk::Frame& PackWidgetInFrame(Gtk::Widget& wdg, Gtk::ShadowType st, const std::string& label)
+Gtk::Frame& NewManagedFrame(Gtk::ShadowType st, const std::string& label)
 {
-    Gtk::Frame& fram = *Gtk::manage(new Gtk::Frame);
+    Gtk::Frame& fram = NewManaged<Gtk::Frame>();
     fram.set_shadow_type(st);
     if( label.size() )
         fram.set_label(label);
+    return fram;
+}
+
+Gtk::Frame& PackWidgetInFrame(Gtk::Widget& wdg, Gtk::ShadowType st, const std::string& label)
+{
+    Gtk::Frame& fram = NewManagedFrame(st, label);
 
     fram.add(wdg);
     return fram;
@@ -286,31 +292,36 @@ void BuildChooserDialog(Gtk::FileChooserDialog& dialog, bool is_open, Gtk::Widge
     AddCancelDoButtons(dialog, is_open ? Gtk::Stock::OPEN : Gtk::Stock::SAVE );
 }
 
-bool ChooseFileSaveTo(std::string& fname, const std::string& title, Gtk::Widget& for_wdg,
-                      bool convert_to_utf8)
+bool ChooseFileSaveTo(std::string& fname, const std::string& title, Gtk::Widget& for_wdg)
 {
     Gtk::FileChooserDialog dialog(title, Gtk::FILE_CHOOSER_ACTION_SAVE);
     BuildChooserDialog(dialog, false, for_wdg);
 
     dialog.set_current_name(fname);
-//     bool res = Gtk::RESPONSE_OK == dialog.run();
-//     if( res )
+
     bool res;
     for( ; res = Gtk::RESPONSE_OK == dialog.run(), res; )
     {
         fname = dialog.get_filename();
-        if( fs::exists(fname) && 
-            (Gtk::RESPONSE_OK != MessageBox(BF_("A file named \"%1%\" already exists. Do you want to replace it?")
-                                            % fs::path(fname).leaf() % bf::stop,
-                                            Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL, 
-                                            _("Replacing the file overwrite its contents."),
-                                            true)) )
+        if( CheckKeepOrigin(fname) )
             continue;
 
-        if( convert_to_utf8 )
-            fname = Project::ConvertPathToUtf8(fname);
         break;
     }
+
+    return res;
+}
+
+bool CheckKeepOrigin(const std::string& fname)
+{
+    bool res = false;
+    if( fs::exists(fname) && 
+        (Gtk::RESPONSE_OK != MessageBox(BF_("A file named \"%1%\" already exists. Do you want to replace it?")
+                                        % fs::path(fname).leaf() % bf::stop,
+                                        Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL, 
+                                        _("Replacing the file overwrite its contents."),
+                                        true)) )
+        res = true;
     return res;
 }
 
@@ -380,3 +391,22 @@ Gtk::Alignment& NewPaddingAlg(int top, int btm, int lft, int rgt)
     alg.set_padding(top, btm, lft, rgt);
     return alg;
 }
+
+Gtk::VBox& AddHIGedVBox(Gtk::Dialog& dlg)
+{
+    // :KLUDGE: почему-то set_border_width() на dlg.get_vbox() не действует, поэтому использовать
+    // MakeBoxHIGed() нельзя
+    Gtk::VBox& box = *dlg.get_vbox();
+
+    //return Add(PackStart(box, NewPaddingAlg(10, 10, 10, 10), Gtk::PACK_EXPAND_WIDGET), NewManaged<Gtk::VBox>(false, 10));
+    Gtk::VBox& vbox = PackStart(box, NewManaged<Gtk::VBox>(false, 10), Gtk::PACK_EXPAND_WIDGET);
+    vbox.set_border_width(10);
+    return vbox;
+}
+
+void CompleteDialog(Gtk::Dialog& dlg)
+{
+    AddCancelDoButtons(dlg, Gtk::Stock::OK);
+    dlg.get_vbox()->show_all();
+}
+

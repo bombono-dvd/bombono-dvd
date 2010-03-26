@@ -123,7 +123,7 @@ static void SaveFrame(DAMonitor& mon)
     strm << ".jpeg";
 
     std::string fnam = strm.str();
-    if( ChooseFileSaveTo(fnam, _("Save Frame..."), mon, false) )
+    if( ChooseFileSaveTo(fnam, _("Save Frame..."), mon) )
     {
         // находим расширение и по нему сохраняем
         int i = fnam.rfind('.');
@@ -147,26 +147,21 @@ static void InsertChapters(TrackLayout& trk_lay)
     Gtk::SpinButton*  btn  = 0;
     Gtk::CheckButton* cbtn = 0;
     {
-        AddCancelDoButtons(add_dlg, Gtk::Stock::OK);
-        Gtk::VBox& box = *add_dlg.get_vbox();
-        Gtk::VBox& vbox = Add(PackStart(box, NewPaddingAlg(10, 10, 10, 10)), NewManaged<Gtk::VBox>(false, 10));
-        {
-            Gtk::HBox& hbox = PackStart(vbox, NewManaged<Gtk::HBox>());
-            Add(PackStart(hbox, NewPaddingAlg(0, 0, 0, 40)), NewManaged<Gtk::Label>(_("Interval between Chapters:")));
-            btn = &PackStart(hbox, NewManaged<Gtk::SpinButton>());
-            // по мотивам gtk_spin_button_new_with_range()
-            int step = 1;
-            btn->configure(*Gtk::manage(new Gtk::Adjustment(5, 1, 1000, step, 10*step, 0)), step, 0);
-            btn->set_numeric(true);
-    
-            Gtk::Label& lbl = PackStart(hbox, NewManaged<Gtk::Label>(_("min.")));
-            lbl.set_padding(2, 0);
-        }
+        Gtk::VBox& vbox = AddHIGedVBox(add_dlg);
+        Gtk::HBox& hbox = PackStart(vbox, NewManaged<Gtk::HBox>());
+        Add(PackStart(hbox, NewPaddingAlg(0, 0, 0, 40)), NewManaged<Gtk::Label>(_("Interval between Chapters:")));
+        btn = &PackStart(hbox, NewManaged<Gtk::SpinButton>());
+        // по мотивам gtk_spin_button_new_with_range()
+        int step = 1;
+        btn->configure(*Gtk::manage(new Gtk::Adjustment(5, 1, 1000, step, 10*step, 0)), step, 0);
+        btn->set_numeric(true);
+
+        Gtk::Label& lbl = PackStart(hbox, NewManaged<Gtk::Label>(_("min.")));
+        lbl.set_padding(2, 0);
 
         cbtn = &PackStart(vbox, NewManaged<Gtk::CheckButton>(_("Remove Existing Chapters")));
-
-        box.show_all();
     }
+    CompleteDialog(add_dlg);
 
     if( Gtk::RESPONSE_OK == add_dlg.run() )
     {

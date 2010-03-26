@@ -27,6 +27,7 @@
 
 #include <mgui/timeline/mviewer.h>
 #include <mgui/sdk/packing.h>
+#include <mgui/sdk/widget.h>
 #include <mgui/dialog.h> // MessageBox
 #include <mgui/gettext.h>
 

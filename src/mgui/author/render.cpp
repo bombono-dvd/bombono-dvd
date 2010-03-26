@@ -252,7 +252,7 @@ static void PulseRenderProgress()
     Author::SetStageProgress( DoneCnt/(double)WorkCnt * 100.);
 
     IteratePendingEvents();
-    if( Author::GetES().userAbort )
+    if( Author::GetES().eDat.userAbort )
         throw std::runtime_error("User Abortion"); // строка реально не нужна - сработает userAbort
 }
 

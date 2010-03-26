@@ -595,6 +595,17 @@ bool TryAddMedia(const char* fname, Gtk::TreePath& pth, std::string& err_str,
     return res;
 }
 
+// desc - метка происхождения, добавления
+void TryAddMediaQuiet(const std::string& fname, const std::string& desc)
+{
+    std::string err_str;
+    Gtk::TreePath pth;
+    if( !TryAddMedia(fname.c_str(), pth, err_str) )
+    {    
+        LOG_ERR << "TryAddMediaQuiet error (" << desc << "): " << err_str << io::endl;
+    }
+}
+
 static std::string StandFNameOut(const fs::path& pth)
 {
     return "<span style=\"italic\" underline=\"low\">" + 
@@ -607,17 +618,36 @@ void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
     // * подсказка с импортом
     if( paths.size() )
     {
-        fs::path pth(paths[0]); 
+        const std::string fname = paths[0];
+        fs::path pth(fname); 
         std::string leaf = pth.leaf();
-        std::string::const_iterator start = leaf.begin(), end = leaf.end();
-        static boost::regex dvd_video_vob("(VIDEO_TS|VTS_[0-9][0-9]_[0-9]).VOB", 
-                                          boost::regex::perl|boost::regex::icase);
-
-        if( boost::regex_match(start, end, dvd_video_vob) && 
-            MessageBox(BF_("The file \"%1%\" looks like VOB from DVD.\nRun import?") % leaf % bf::stop,
-                       Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL) == Gtk::RESPONSE_OK )
         {
-            DVD::RunImport(*GetTopWindow(brw), pth.branch_path().string());
+            std::string::const_iterator start = leaf.begin(), end = leaf.end();
+            static boost::regex dvd_video_vob("(VIDEO_TS|VTS_[0-9][0-9]_[0-9]).VOB", 
+                                              boost::regex::perl|boost::regex::icase);
+    
+            if( boost::regex_match(start, end, dvd_video_vob) && 
+                MessageBox(BF_("The file \"%1%\" looks like VOB from DVD.\nRun import?") % leaf % bf::stop,
+                           Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL) == Gtk::RESPONSE_OK )
+            {
+                DVD::RunImport(*GetTopWindow(brw), pth.branch_path().string());
+                return;
+            }
+        }
+
+        std::string ext = get_extension(pth);
+        const char* el_array[] = {"m2v", "mp2", "mpa", "ac3", "dts", "lpcm", 0 };
+        bool res = false;
+        for( const char** el = el_array; *el ; el++ )
+            if( *el == ext )
+            {
+                res = true;
+                break;
+            }
+        if( res && MessageBox(BF_("The file \"%1%\" looks like elementary stream and need to be muxed before using. Run muxing?") % leaf % bf::stop,
+                              Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL) == Gtk::RESPONSE_OK )
+        {
+            MuxAddStreams(fname);
             return;
         }
     }

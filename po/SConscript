@@ -80,6 +80,7 @@ def pot_builder(target,source,env):
              '--boost',
              '--keyword=BF_', # = boost::format(gettext()), boost-format comment is auto added
              '--keyword=DOTS_',
+             '--keyword=SMCLN_',
              '--add-comments',
              '--from-code=UTF-8',
              '-o', target[0].get_path(),

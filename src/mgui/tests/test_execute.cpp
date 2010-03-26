@@ -26,6 +26,7 @@
 #include <mgui/author/output.h>
 #include <mgui/sdk/window.h>
 #include <mgui/sdk/packing.h>
+#include <mgui/sdk/textview.h>
 
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/regex.hpp>
@@ -126,21 +127,11 @@ class ConsoleSetter
     ExecState& es;
 };
 
-static void InitTitleTag(RefPtr<Gtk::TextTag> tag)
-{
-    tag->property_foreground() = "darkred";
-}
-
-static void AppendTitleText(Gtk::TextView& txt_view, const std::string& title)
-{
-    ApplyTag(txt_view, AppendText(txt_view, "\t### " + title + " ###\n"), 
-             "Title", InitTitleTag);
-}
-
 static void OnExecuteCommand(Gtk::ComboBoxEntryText& cmd_ent, 
                              Gtk::FileChooserButton& ch_btn)
 {
     ExecState& es = GetES();
+    Execution::Data& edat = es.eDat;
     if( !es.isExec )
     {
         ConsoleSetter ess(es);
@@ -154,19 +145,19 @@ static void OnExecuteCommand(Gtk::ComboBoxEntryText& cmd_ent,
             cmd_ent.remove_text(cmd);
             cmd_ent.prepend_text(cmd);
             ent.set_text(""); // очищаем
-            AppendTitleText(txt_view, "Execute Command: '" + cmd + "'");
+            AppendCommandText(txt_view, "Execute Command: '" + cmd + "'");
 
             ConsoleOF cof;
-            ExitData ed = ExecuteAsync(ch_btn.get_filename().c_str(), cmd.c_str(), cof, &es.pid);
+            ExitData ed = ExecuteAsync(ch_btn.get_filename().c_str(), cmd.c_str(), cof, &edat.pid);
 
 
             std::string exit_str = ExitDescription(ed);
-            AppendTitleText(txt_view, "Exit Status: " + exit_str + ".");
+            AppendCommandText(txt_view, "Exit Status: " + exit_str + ".");
             es.SetStatus(ed.IsGood() ? std::string() : exit_str);
         }
     }
     else
-        StopExecution(es.pid);
+        edat.StopExecution("\"command\"");
 }
 
 BOOST_AUTO_TEST_CASE( TestInteractiveExecute )

@@ -292,17 +292,6 @@ void GoToPos(ObjectBrowser& brw, const Gtk::TreePath& pth)
     brw.grab_focus();
 }
 
-Gtk::ScrolledWindow& PackInScrolledWindow(Gtk::Widget& wdg, bool need_hz)
-{
-    Gtk::ScrolledWindow& scr_win = *Gtk::manage(new Gtk::ScrolledWindow);
-    scr_win.set_shadow_type(Gtk::SHADOW_NONE); //SHADOW_OUT); //IN);
-    scr_win.set_policy( need_hz ? Gtk::POLICY_AUTOMATIC : Gtk::POLICY_NEVER, 
-                        Gtk::POLICY_AUTOMATIC );
-
-    scr_win.add(wdg);
-    return scr_win;
-}
-
 Gtk::HButtonBox& CreateMListButtonBox()
 {
     Gtk::HButtonBox& hb = *Gtk::manage(new Gtk::HButtonBox(Gtk::BUTTONBOX_START, 2));
@@ -370,6 +359,18 @@ void PackHSeparator(Gtk::VBox& vbox)
 {
     vbox.pack_start(NewManaged<Gtk::HSeparator>(), Gtk::PACK_SHRINK);
 }
+
+Gtk::ScrolledWindow& PackInScrolledWindow(Gtk::Widget& wdg, bool need_hz)
+{
+    Gtk::ScrolledWindow& scr_win = *Gtk::manage(new Gtk::ScrolledWindow);
+    scr_win.set_shadow_type(Gtk::SHADOW_NONE); //SHADOW_OUT); //IN);
+    scr_win.set_policy( need_hz ? Gtk::POLICY_AUTOMATIC : Gtk::POLICY_NEVER, 
+                        Gtk::POLICY_AUTOMATIC );
+
+    scr_win.add(wdg);
+    return scr_win;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // DnD для URI

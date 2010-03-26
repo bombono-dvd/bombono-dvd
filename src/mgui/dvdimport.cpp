@@ -493,14 +493,7 @@ static void OnApply(ImportData& id)
                     }
                     
                     if( id.addToProject )
-                    {
-                        std::string err_str;
-                        Gtk::TreePath pth;
-                        if( !Project::TryAddMedia(fname.c_str(), pth, err_str) )
-                        {    
-                            LOG_ERR << "Import error: " << err_str << io::endl;
-                        }
-                    }
+                        Project::TryAddMediaQuiet(fname, "DVD Import");
                 }
         }
         catch(const std::exception& err)

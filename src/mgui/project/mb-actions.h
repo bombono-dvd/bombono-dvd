@@ -69,6 +69,9 @@ bool TryAddMedia(const char* fname, Gtk::TreePath& pth, std::string& err_str,
 // интерактивный вариант TryAddMedia()
 void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
                   Gtk::TreePath& brw_pth, bool insert_after);
+// desc - метка происхождения, добавления
+void TryAddMediaQuiet(const std::string& fname, const std::string& desc);
+void MuxAddStreams(const std::string& src_fname);
 
 // ограничиваем возможность вставки верхним уровнем
 // want_ia - где хотим вставить (dnd)

@@ -156,6 +156,7 @@ enum FCWFilterType
 {
     fftALL_FORMATS,
     fftMPEG,
+    fftDVD_SOUND,
     fftIMAGES,
     fftALL
 };
@@ -172,6 +173,15 @@ static void AddMPEGFilter(Gtk::FileFilter& ff)
     //ff.add_pattern("*.dva");
 }
 
+void FillSoundFilter(Gtk::FileFilter& ff)
+{
+    ff.add_pattern("*.mp2");
+    ff.add_pattern("*.mpa");
+    ff.add_pattern("*.ac3");
+    ff.add_pattern("*.dts");
+    ff.add_pattern("*.lpcm");
+}
+
 static void AddImagesFilter(Gtk::FileFilter& ff)
 {
     ff.add_pattern("*.png");
@@ -183,6 +193,7 @@ static void AddImagesFilter(Gtk::FileFilter& ff)
 static void AddAllFormatsFilter(Gtk::FileFilter& ff)
 {
     AddMPEGFilter(ff);
+    FillSoundFilter(ff);
     AddImagesFilter(ff);
 }
 
@@ -197,6 +208,9 @@ static void SetFilter(Gtk::FileChooserWidget& fcw, FCWFilterType typ)
         break;
     case fftMPEG:
         AddMPEGFilter(ff);
+        break;
+    case fftDVD_SOUND:
+        FillSoundFilter(ff);
         break;
     case fftIMAGES:
         AddImagesFilter(ff);
@@ -255,6 +269,7 @@ ActionFunctor PackFileChooserWidget(Gtk::Container& contr, OpenFileFnr fnr, bool
         Gtk::ComboBoxText& combo = *Gtk::manage(new Gtk::ComboBoxText);
         combo.append_text(_("All formats"));
         combo.append_text(_("MPEG files") + std::string(" (*.mpeg, *.mpg, *.vob)"));
+        combo.append_text(_("Audio for DVD") + std::string(" (*.mp2/mpa, *.ac3, *.dts, *.lpcm)"));
         combo.append_text(_("Still Images") + std::string(" (*.png, *.jpg, *.jpeg, *.bmp)"));
         combo.append_text(_("All Files (*.*)"));
 

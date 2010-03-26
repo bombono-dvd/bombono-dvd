@@ -208,6 +208,7 @@
 			<F N="../src/mgui/tests/test_mbrowser.cpp"/>
 			<F N="../src/mgui/tests/test_meditor.cpp"/>
 			<F N="../src/mgui/tests/test_menu.cpp"/>
+			<F N="../src/mgui/tests/test_mux.cpp"/>
 			<F N="../src/mgui/tests/test_redivide.cpp"/>
 			<F N="../src/mgui/tests/test_stream_utils.cpp"/>
 			<F N="../src/mgui/tests/test_text.cpp"/>

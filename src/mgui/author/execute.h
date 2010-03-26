@@ -24,12 +24,13 @@
 
 #include "indicator.h"
 
+#include <mgui/mguiconst.h>
+#include <mgui/execution.h>
+
 #include <mlib/patterns.h> // Singleton<>
 #include <mlib/const.h>    // NO_HNDL
 #include <mlib/ptr.h>
 #include <mlib/string.h>
-
-#include <mgui/mguiconst.h>
 
 namespace Author
 {
@@ -42,29 +43,25 @@ RefPtr<Gtk::Button> execBtn;
   Gtk::ProgressBar  prgBar;
         Gtk::Label  prgLabel;
      Gtk::TextView  detailsView;
-              GPid  pid;
+   Execution::Data  eDat;
 
               Mode  mode;
 
        std::string  operationName;
        std::string  exitDesc;  // описание причины неудачного авторинга
-              bool  userAbort; // пользователь сам отменил
 
        str::stream  settings; // = ASettings.py
 
               ExecState() { Init(); }
 	
-        void  Init();
+        void  Init(); // конструктор, повторное использование
  Gtk::Button& ExecButton() { return *UnRefPtr(execBtn); }
 
-        void  Clean();
+        void  Clean(); // (повторный) запуск на выполнение
         void  Set(bool is_exec)
         {
             isExec = is_exec;
-            if( !is_exec )
-                pid = NO_HNDL; 
         }
-
 
         void  SetIndicator(double percent);
   Gtk::Label& SetStatus(const std::string& name = std::string());
@@ -121,14 +118,7 @@ class BuildDvdOF: public OutputFilter
     virtual void  SetProgress(double percent);
 };
 
-Gtk::Widget& PackDetails(Gtk::TextView& txt_view);
 
-typedef std::pair<Gtk::TextIter, Gtk::TextIter> TextIterRange;
-typedef boost::function<void(RefPtr<Gtk::TextTag>)> InitTagFunctor;
-
-TextIterRange AppendText(Gtk::TextView& txt_view, const std::string& text);
-void ApplyTag(Gtk::TextView& txt_view, const TextIterRange& tir, 
-              const std::string& tag_name, InitTagFunctor fnr);
 
 template<typename T, template<typename R> class RefPtrT>
 void ReRefPtr(RefPtrT<T>& p)
@@ -165,7 +155,6 @@ ExitData ExecuteAsync(const char* dir, const char* cmd, ReadReadyFnr& fnr,
                       GPid* pid = 0, bool line_up = true);
 ExitData ExecuteAsync(const char* dir, const char* cmd, Author::OutputFilter& of, GPid* pid);
 
-void StopExecution(GPid& pid);
 std::string ExitDescription(const ExitData& ed);
 
 // COPY_N_PASTE_ETALON - симбиоз из:

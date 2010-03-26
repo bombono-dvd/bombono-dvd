@@ -244,9 +244,6 @@ void SetDefaultButton(Gtk::Button& btn);
 // создание подсказок - из 
 Gtk::Tooltips& TooltipFactory();
 void SetTip(Gtk::Widget& wdg, const char* tooltip);
-// удобная функция упаковки виджета в рамку
-Gtk::Frame& PackWidgetInFrame(Gtk::Widget& wdg, Gtk::ShadowType st,
-                              const std::string& label = std::string());
 
 Gtk::Button* CreateButtonWithIcon(const char* label, const Gtk::BuiltinStockID& stock_id,
                                   const char* tooltip = "", Gtk::BuiltinIconSize icon_sz = Gtk::ICON_SIZE_BUTTON);

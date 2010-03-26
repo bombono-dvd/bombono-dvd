@@ -43,6 +43,10 @@ Gtk::ResponseType MessageBoxWeb(const std::string& msg_str, Gtk::MessageType typ
     return MessageBoxEx(msg_str, typ, b_typ, desc_str, SetWeblinkCallback);
 }
 
+inline void ErrorBox(const std::string& err_msg)
+{
+    MessageBox(err_msg, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK);
+}
 
 void AddCancelDoButtons(Gtk::Dialog& dialog, Gtk::BuiltinStockID do_id);
 inline void AddCancelSaveButtons(Gtk::Dialog& dialog)
@@ -52,8 +56,12 @@ void BuildChooserDialog(Gtk::FileChooserDialog& dialog, bool is_open, Gtk::Widge
 std::string MakeMessageBoxTitle(const std::string& title);
 
 // запросить у пользователя файл для сохранения
-bool ChooseFileSaveTo(std::string& fname, const std::string& title, Gtk::Widget& for_wdg,
-                      bool convert_to_utf8 = true);
+bool ChooseFileSaveTo(std::string& fname, const std::string& title, Gtk::Widget& for_wdg);
+bool CheckKeepOrigin(const std::string& fname);
+
+Gtk::VBox& AddHIGedVBox(Gtk::Dialog& dlg);
+void CompleteDialog(Gtk::Dialog& dlg);
+
 
 #endif // #ifndef __MGUI_DIALOG_H__
 

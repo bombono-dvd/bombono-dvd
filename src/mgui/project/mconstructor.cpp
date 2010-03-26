@@ -38,6 +38,7 @@
 #include <mgui/author/script.h> // VideoSizeSum()
 #include <mgui/author/output.h> // PackOutput()
 
+#include <mgui/mux.h>
 #include <mgui/gettext.h>
 #include <mgui/project/handler.h> // RegisterHook()
 #include <mlib/sigc.h>
@@ -131,6 +132,8 @@ static bool SaveProjectAs(Gtk::Widget& for_wdg)
     std::string fname = MakeProjectTitle();
     if( ChooseFileSaveTo(fname, _("Save Project As..."), for_wdg) )
     {
+        fname = Project::ConvertPathToUtf8(fname);
+
         ASSERT( !fname.empty() );
         AData().SetProjectFName(fname);
         res = true;
@@ -634,7 +637,6 @@ static void OnNewProject(ConstructorApp& app)
         {
             AddCancelDoButtons(new_prj_dlg, Gtk::Stock::OK);
             Gtk::VBox& dlg_box = *new_prj_dlg.get_vbox();
-            // :REFACTOR: fs::path(GetDataDir())...
             PackStart(dlg_box, NewManaged<Gtk::Image>((fs::path(GetDataDir())/"cap400.png").string()));
             Gtk::VBox& vbox = Add(PackStart(dlg_box, NewPaddingAlg(10, 40, 20, 20)), NewManaged<Gtk::VBox>());
             
@@ -890,6 +892,12 @@ class UpdateDVDSizeVis: public ObjVisitor
     virtual      void  Visit(VideoMD& ) { UpdateDVDSize(szBar); }
 };
 
+void MuxAddStreams(const std::string& src_fname)
+{
+    std::string dest_fname;
+    if( MuxStreams(dest_fname, src_fname) )
+        TryAddMediaQuiet(dest_fname, "MuxAddStreams");
+}
 
 //////////////////////////////////////////////////
 
@@ -920,8 +928,10 @@ ConstructorApp::ConstructorApp(): askSaveOnExit(true), isProjectChanged(false)
                               lambda::bind(&OnSaveAsProject, app_ref) );
             prj_actions->add( Gtk::Action::create("Quit",   Gtk::Stock::QUIT, _("_Quit")), 
                               Gtk::AccelKey("<control>Q"), lambda::bind(&QuitApplication, app_ref) );
-            prj_actions->add( Gtk::Action::create("Import DVD", _("Add Videos from _DVD"), _("DVD-Import Assistant")), 
+            prj_actions->add( Gtk::Action::create("Import DVD", DOTS_("Add Videos from _DVD"), _("DVD-Import Assistant")), 
                               lambda::bind(&ImportFromDVD, app_ref) );
+            prj_actions->add( Gtk::Action::create("Mux Streams", DOTS_("_Mux Streams"), _("Mux Elementary Streams into MPEG2")), 
+                              bl::bind(&MuxAddStreams, std::string()) );
 
 
             RefPtr<Gtk::UIManager> mngr = Gtk::UIManager::create();
@@ -941,6 +951,7 @@ ConstructorApp::ConstructorApp(): askSaveOnExit(true), isProjectChanged(false)
             "    <menuitem action='Open'/>"
             "    <separator/>"
             "    <menuitem action='Import DVD'/>"
+            "    <menuitem action='Mux Streams'/>"
             "    <separator/>"
             "    <menuitem action='Save'/>"
             "    <menuitem action='SaveAs'/>"

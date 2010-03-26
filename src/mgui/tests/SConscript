@@ -20,6 +20,7 @@ source_files = [
                 'test_menu.cpp',
                 'test_main.cpp',
                 'test_mbrowser.cpp',
+                'test_mux.cpp',
                 'test_redivide.cpp',
                 'test_stream_utils.cpp',
                 #'test_scaled_text.cpp',

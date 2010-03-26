@@ -100,7 +100,6 @@ inline Gtk::TreeIter GetSelectPos(Gtk::TreeView& tv)
     return tv.get_selection()->get_selected();
 }
 
-Gtk::ScrolledWindow& PackInScrolledWindow(Gtk::Widget& wdg, bool need_hz = false);
 Gtk::HButtonBox& CreateMListButtonBox();
 // dnd_column - где MediaItem лежит, который нужно dnd-ить
 void SetupBrowser(ObjectBrowser& brw, int dnd_column, bool need_headers = false);
