@@ -1,0 +1,764 @@
+# Norwegian Nynorsk translation for bombono-dvd.
+# Copyright (C) 2010 "Ilya Murav'jov"
+# This file is distributed under the same license as the bombono-dvd package.
+# Eivind Ødegård <meinmycell-lists@yahoo.no>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: bombono-dvd 0.5.5\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-02-28 15:35+0300\n"
+"PO-Revision-Date: 2010-03-25 19:30+0100\n"
+"Last-Translator: Eivind Ødegård <meinmycell-lists@yahoo.no>\n"
+"Language-Team: Norwegian Nynorsk <i18n-nn@lister.ping.uio.no>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Norwegian Nynorsk\n"
+"X-Poedit-Country: NORWAY\n"
+
+#: src/mbase/project/media.cpp:66 src/mgui/project/media-browser.cpp:106
+msgid "Chapter"
+msgstr "Kapittel"
+
+#: src/mbase/project/menu.cpp:274
+msgid "Menu"
+msgstr "Meny"
+
+#: src/mgui/dvdimport.cpp:64
+msgid "Choose Source DVD-Video"
+msgstr "Vel kjelde for DVD-video"
+
+#: src/mgui/dvdimport.cpp:67
+msgid "Select Videos to Import"
+msgstr "Vel videoane du vil importera"
+
+#: src/mgui/dvdimport.cpp:70
+msgid "Select Folder to Save Videos"
+msgstr "Vel mappe å lagra videoane i"
+
+#: src/mgui/dvdimport.cpp:73
+msgid "Importing..."
+msgstr "Importerer …"
+
+#: src/mgui/dvdimport.cpp:76
+msgid "Import is completed."
+msgstr "Ferdig med importen."
+
+#: src/mgui/dvdimport.cpp:189 src/mgui/project/mconstructor.cpp:807
+msgid "MB"
+msgstr "MiB"
+
+#: src/mgui/dvdimport.cpp:370
+msgid "Select All"
+msgstr "Vel alt"
+
+#: src/mgui/dvdimport.cpp:370
+msgid "Unselect All"
+msgstr "Merk ingen"
+
+#. мы не можем пустить исключение здесь, потому что оно пойдет
+#. и через C-шный код (Gtk) - отложим
+#: src/mgui/dvdimport.cpp:392
+msgid "Are you sure to stop importing?"
+msgstr "Er du sikker på at du vil avslutta importen?"
+
+#: src/mgui/dvdimport.cpp:425
+#, boost-format
+msgid "Cant write to folder %1% (check permissions)."
+msgstr "Greier ikkje skriva til mappa %1% (sjekk tilgangsløyve)."
+
+#: src/mgui/dvdimport.cpp:453 src/mgui/win_utils.cpp:298
+#, boost-format
+msgid "A file named \"%1%\" already exists. Do you want to replace it?"
+msgstr "Ein fil med namnet  \"%1%\" eksisterer allereie. Vil du byta henne ut?"
+
+#: src/mgui/dvdimport.cpp:493
+msgid "Import error!"
+msgstr "Importeringsfeil!"
+
+#: src/mgui/dvdimport.cpp:497
+msgid "Videos successfully imported."
+msgstr "Videoane vart importerte utan feil."
+
+#: src/mgui/dvdimport.cpp:498
+msgid "Import has been interrupted."
+msgstr "Importen er avbroten."
+
+#: src/mgui/dvdimport.cpp:532
+msgid "DVD-Video Import"
+msgstr "DVD-video-import"
+
+#: src/mgui/dvdimport.cpp:555
+msgid "Choose DVD disc, DVD folder or iso image file."
+msgstr "Vel ei DVD-plate, ei DVD-mappe eller ei iso-biletfil."
+
+#: src/mgui/dvdimport.cpp:573
+msgid "NTSC/PAL mismatch. Try another disc or import to project of corresponding type."
+msgstr "Manglar NTSC/PAL-samsvar. Prøv ei anna plate, eller importer til eit prosjekt av same type."
+
+#. имя
+#: src/mgui/dvdimport.cpp:597 src/mgui/project/media-browser.cpp:123
+msgid "Name"
+msgstr "Namn"
+
+#: src/mgui/dvdimport.cpp:610
+msgid "Details"
+msgstr "Detaljar"
+
+#: src/mgui/dvdimport.cpp:656
+msgid "It is desirable the destination folder to be empty."
+msgstr "Målmappa bør vera tom."
+
+#: src/mgui/win_utils.cpp:301
+msgid "Replacing the file overwrite its contents."
+msgstr "Byter du ut ei fil, byter du òg over filinnhaldet."
+
+#: src/mgui/author/burn.cpp:191
+msgid "Auto"
+msgstr "Auto"
+
+#: src/mgui/author/burn.cpp:203
+msgid "Update speeds ..."
+msgstr "Oppdater fart..."
+
+#: src/mgui/author/burn.cpp:333
+msgid "Checking Disc ..."
+msgstr "Sjekkar plate..."
+
+#: src/mgui/author/burn.cpp:347
+msgid "Selected burn drive is for CD discs only. Change to another burn drive."
+msgstr "Denne brennaren kan berre brenna CD-plater. Vel ein annan brennar."
+
+#: src/mgui/author/burn.cpp:352
+msgid "CD disc is found in the drive, not DVD. Change to DVD disc."
+msgstr "Det står ei CD-plate i brennaren, ikkje ein DVD. Byt til ei DVD-plate."
+
+#: src/mgui/author/burn.cpp:357
+msgid "No DVD disc in the drive. Load a clear one and press OK."
+msgstr "Det er inga DVD-plate i brennaren. Set inn ei tom plate og klikk OK."
+
+#: src/mgui/author/burn.cpp:362
+#, boost-format
+msgid "Disc with type \"%1%\" is found in the drive but for DVD-Video disc type should be one from: DVD-R, DVD+R, DVD-RW, DVD+RW. Load a clear one with right type and press OK."
+msgstr "Det er ei plate av typen \"%1%\" i brennaren, men for å laga ei DVD-Video-plate treng du ein av desse typane: DVD-R, DVD+R, DVD-RW, DVD+RW. Set inn ei tom plate av rett type og klikk OK."
+
+#: src/mgui/author/burn.cpp:371
+#, boost-format
+msgid "Disc with type \"%1%\" in the drive is not clear. Only clear recordable discs can be used for burning DVD-Video. Load a clear one and press OK."
+msgstr "Plata av typen \"%1%\" er ikkje tom. Du kan berre bruka tomme, opptakbare plater for å brenna ei DVD-videoplate. Set inn ei tom plate og klikk OK."
+
+#: src/mgui/author/burn.cpp:378
+#, boost-format
+msgid "Disc with type \"%1%\" in the drive is not clear. We need to remove its contents before writing new one. Continue?"
+msgstr "Plata i brennaren, av typen \"%1%\", er ikkje tom. Me må fjerna innhaldet på plata før me kan brenna på nytt. Halda fram?"
+
+#: src/mgui/author/burn.cpp:382
+msgid "_Cancel"
+msgstr "A_vbryt"
+
+#: src/mgui/author/burn.cpp:383
+msgid "_Try again"
+msgstr "Prøv igjen"
+
+#: src/mgui/author/execute.cpp:72
+msgid "Status: "
+msgstr "Status:"
+
+#: src/mgui/author/execute.cpp:659
+#, boost-format
+msgid "exit code = %1%"
+msgstr "sluttkode = %1%"
+
+#: src/mgui/author/execute.cpp:661
+#, boost-format
+msgid "broken by signal %1%"
+msgstr "avbrote av signalet %1%"
+
+#: src/mgui/author/indicator.cpp:67
+msgid "Rendering Menus"
+msgstr "Teiknar opp menyar"
+
+#: src/mgui/author/indicator.cpp:68
+msgid "Generating DVD-Video"
+msgstr "Lagar DVD-video"
+
+#: src/mgui/author/indicator.cpp:69
+msgid "Creating ISO Image"
+msgstr "Lagar ISO-biletfil"
+
+#: src/mgui/author/indicator.cpp:70
+msgid "Burning DVD"
+msgstr "Skriv DVD"
+
+#: src/mgui/author/output.cpp:53
+msgid "DVD-Video Building"
+msgstr "Bygg DVD-video"
+
+#: src/mgui/author/output.cpp:63
+#, boost-format
+msgid "_Cancel %1%"
+msgstr "_Avbryt %1%"
+
+#: src/mgui/author/output.cpp:64
+msgid "_Build DVD-Video"
+msgstr "_Bygg DVD-video"
+
+#: src/mgui/author/output.cpp:164
+msgid "Select Output _Folder:"
+msgstr "Vel _utmappe..."
+
+#: src/mgui/author/output.cpp:178
+msgid " Choose Author Mode: "
+msgstr "Vel samansetjingsmåte:"
+
+#. цель по умолчанию
+#: src/mgui/author/output.cpp:184
+msgid "_Write DVD Folder"
+msgstr "Skri_v DVD-mappe"
+
+#: src/mgui/author/output.cpp:185
+msgid "Write Disk _Image"
+msgstr "Skriv disk_bilete"
+
+#: src/mgui/author/output.cpp:194
+msgid "Disc Label: "
+msgstr "Etikett for plate:"
+
+#: src/mgui/author/output.cpp:199
+msgid "Burn to _DVD"
+msgstr "Brenn til _DVD"
+
+#: src/mgui/author/output.cpp:207
+msgid "DVD Drive: "
+msgstr "DVD-stasjon:"
+
+#: src/mgui/author/output.cpp:213
+msgid "Writing Speed: "
+msgstr "Brennefart:"
+
+#: src/mgui/author/output.cpp:224
+msgid "_Rendering only"
+msgstr "Be_rre teikne opp"
+
+#: src/mgui/author/output.cpp:232
+msgid "Show/_Hide Details"
+msgstr "Vis/gøy_m detaljar"
+
+#: src/mgui/author/output.cpp:278
+msgid "Rendering"
+msgstr "Teiknar"
+
+#: src/mgui/author/output.cpp:355
+msgid "DVD Burning"
+msgstr "Brenner DVD"
+
+#: src/mgui/author/output.cpp:399
+msgid "The result is here"
+msgstr "Her er resultatet"
+
+#: src/mgui/author/output.cpp:401
+msgid "You can run authoring manually by executing command \"scons\" at the specified folder. Also, see README file for other options over there."
+msgstr "Du kan køyra samansetjing manuelt ved å køyra kommandoen \"scons\" i rette mappa. Sjå på README-fila for fleire val."
+
+#. Translators: impossible to go on!
+#: src/mgui/author/output.cpp:425
+msgid "Authoring is cancelled."
+msgstr "Samansetjinga er avbroten."
+
+#: src/mgui/author/output.cpp:432
+#, boost-format
+msgid "Cant create folder %1% (check permissions)"
+msgstr "Greier ikkje laga mappa %1% (sjekk tilgangsløyve)."
+
+#: src/mgui/author/output.cpp:439
+#, boost-format
+msgid "%1% is not a folder"
+msgstr "%1% er ikkje ei mappe."
+
+#: src/mgui/author/output.cpp:450
+#, boost-format
+msgid "Cant have full access to folder %1% (read, write)"
+msgstr "Greier ikkje få full lese- og skrivetilgang til %1%"
+
+#: src/mgui/author/output.cpp:458
+#, boost-format
+msgid ""
+"Folder %1% is not empty. We need to remove all files in it before authoring.\n"
+"Continue?"
+msgstr ""
+"Mappa %1% er ikkje tom. Me må sletta alle filer der før me held fram å setja saman plata.\n"
+"Vil du halda fram?"
+
+#: src/mgui/author/output.cpp:464
+#, boost-format
+msgid "Error during removing files: %1%"
+msgstr "Greidde ikkje fjerna filer: %1%"
+
+#: src/mgui/author/output.cpp:634
+#, boost-format
+msgid "%1% cancelled."
+msgstr "%1% avbrote."
+
+#: src/mgui/author/output.cpp:636
+#, boost-format
+msgid "%1% broken."
+msgstr "%1% øydelagt."
+
+#: src/mgui/author/output.cpp:637
+#, boost-format
+msgid "The reason is \"%1%\" (see Details)"
+msgstr "Dette er på grunn av \"%1%\" (sjå detaljane)"
+
+#. Translators: can be tranlated as "Operation "%1%" ..."
+#: src/mgui/author/output.cpp:643
+#, boost-format
+msgid "%1% successfully completed."
+msgstr "%1% ferdig utan problem."
+
+#: src/mgui/author/output.cpp:673
+msgid "_Play in Totem"
+msgstr "S_pel i Totem"
+
+#: src/mgui/author/output.cpp:674
+msgid "_Burn to DVD"
+msgstr "_Brenn til DVD"
+
+#. COPY_N_PASTE - тупо сделал содержимое сообщений как у "TSNAMI-MPEG DVD Author"
+#. А что делать - нафига свои придумывать, если смысл один и тот же
+#: src/mgui/author/output.cpp:739
+#, boost-format
+msgid "You are about to cancel %1%. Are you sure?"
+msgstr "Du skal til å avbryta %1%. Er du sikker?"
+
+#: src/mgui/author/script.cpp:310
+msgid "There is no media (video or menu)."
+msgstr "Ingen media (video eller meny)."
+
+#: src/mgui/author/script.cpp:481
+#, boost-format
+msgid "external command failure: %1%"
+msgstr "feil med ekstern kommando: %1%"
+
+#: src/mgui/editor/select.cpp:337
+msgid "Delete"
+msgstr "Slett"
+
+#: src/mgui/editor/select.cpp:351
+msgid "Link"
+msgstr "Lenkje"
+
+#: src/mgui/editor/select.cpp:356
+msgid "Remove Link"
+msgstr "Fjern lenkje"
+
+#: src/mgui/editor/select.cpp:358 src/mgui/editor/select.cpp:611
+msgid "Set Background Color..."
+msgstr "Vel bakgrunnsfarge..."
+
+#. Selection Tool
+#: src/mgui/editor/toolbar.cpp:129
+msgid "Selection Tool"
+msgstr "Merkeverktøy"
+
+#. Text Tool
+#: src/mgui/editor/toolbar.cpp:132
+msgid "Text Tool"
+msgstr "Tekstverktøy"
+
+#: src/mgui/editor/toolbar.cpp:493
+msgid "Add Item"
+msgstr "Legg til element"
+
+#: src/mgui/editor/toolbar.cpp:515
+msgid "Font Name"
+msgstr "Skriftnamn"
+
+#: src/mgui/editor/toolbar.cpp:531
+msgid "Font Size"
+msgstr "Skriftstorleik"
+
+#. * кнопки стилей шрифта
+#: src/mgui/editor/toolbar.cpp:536
+msgid "Bold"
+msgstr "Feit"
+
+#: src/mgui/editor/toolbar.cpp:537
+msgid "Italic"
+msgstr "Kursiv"
+
+#: src/mgui/editor/toolbar.cpp:538
+msgid "Underline"
+msgstr "Understreka"
+
+#: src/mgui/editor/toolbar.cpp:546
+msgid "Pick a Color for Text"
+msgstr "Plukk ei skriftfarge"
+
+#: src/mgui/editor/toolbar.cpp:548
+msgid "Text Color"
+msgstr "Skriftfarge"
+
+#: src/mgui/project/browser.cpp:128
+#, boost-format
+msgid "Do you really want to delete \"%1%\" from Media List?"
+msgstr "Vil du verkeleg sletta \"%1%\" frå medialista?"
+
+#: src/mgui/project/browser.cpp:129
+#, boost-format
+msgid "Do you really want to delete chapter \"%1%\"?"
+msgstr "Vil du verkeleg sletta kapitlet \"%1%\"?"
+
+#: src/mgui/project/browser.cpp:130
+#, boost-format
+msgid "Do you really want to delete menu \"%1%\"?"
+msgstr "Vil du verkeleg sletta menyen \"%1%\"?"
+
+#: src/mgui/project/browser.cpp:242
+msgid "First-Play media can be Video or Menu only."
+msgstr "Spel fyrst-media kan vera berre video- eller meny-media."
+
+#: src/mgui/project/mconstructor.cpp:132
+msgid "Save Project As..."
+msgstr "Lagra prosjektet som …"
+
+#: src/mgui/project/mconstructor.cpp:167
+#, boost-format
+msgid "Cant open project file \"%1%\""
+msgstr "Greier ikkje opna prosjektfila \"%1%\""
+
+#: src/mgui/project/mconstructor.cpp:444
+msgid "Bombono DVD is a DVD authoring program with nice and clean GUI"
+msgstr "Bombono DVD er eit enkelt og oversikteleg program for å setja saman DVD-ar."
+
+#. dlg.set_authors(authors);
+#. dlg.set_documenters(documenters);
+#. dlg.set_decorated(false);
+#: src/mgui/project/mconstructor.cpp:449
+msgid "translator-credits"
+msgstr ""
+"Eivind Ødegård\n"
+"Send feilmeldingar og kommentarar til <i18n-nn@lister.ping.uio.no>"
+
+#: src/mgui/project/mconstructor.cpp:590
+#, boost-format
+msgid "Save changes to \"%1%\"?"
+msgstr "Lagra endringar i \"%1%\"?"
+
+#: src/mgui/project/mconstructor.cpp:592
+msgid "Close _without Saving"
+msgstr "Lukk _utan å lagra"
+
+#: src/mgui/project/mconstructor.cpp:631
+msgid "New Project"
+msgstr "Nytt prosjekt"
+
+#: src/mgui/project/mconstructor.cpp:643
+msgid "Please select a Television standard for your project:"
+msgstr "Vel kva TV-standard prosjektet ditt skal ha:"
+
+#: src/mgui/project/mconstructor.cpp:670
+msgid "Open Project"
+msgstr "Opna prosjekt"
+
+#: src/mgui/project/mconstructor.cpp:674
+msgid "Project files (*.xml)"
+msgstr "Prosjektfiler (*xml)"
+
+#: src/mgui/project/mconstructor.cpp:679 src/mgui/timeline/mviewer.cpp:262
+msgid "All Files (*.*)"
+msgstr "Alle filer (*.*)"
+
+#. раньше Brasero использовал KiB, MiB и GiB, как более точные технически
+#. (вроде как размеры HDD принято измерять по 1GB=1000MB); теперь Brasero
+#. перешел на стандарт KB/MB/GB, ну и BmD тоже (а че, мы не гордые :)
+#: src/mgui/project/mconstructor.cpp:807
+msgid "KB"
+msgstr "KiB"
+
+#: src/mgui/project/mconstructor.cpp:807
+msgid "GB"
+msgstr "GiB"
+
+#. Project
+#: src/mgui/project/mconstructor.cpp:912
+msgid "_Project"
+msgstr "_Prosjekt"
+
+#: src/mgui/project/mconstructor.cpp:917
+msgid "_New Project"
+msgstr "_Nytt prosjekt"
+
+#: src/mgui/project/mconstructor.cpp:919
+msgid "_Open..."
+msgstr "_Opna..."
+
+#: src/mgui/project/mconstructor.cpp:921
+msgid "_Save"
+msgstr "_Lagra"
+
+#: src/mgui/project/mconstructor.cpp:923
+msgid "Save _As..."
+msgstr "L_agra som..."
+
+#: src/mgui/project/mconstructor.cpp:925
+msgid "_Quit"
+msgstr "_Avslutt"
+
+#: src/mgui/project/mconstructor.cpp:927
+msgid "Add Videos from _DVD"
+msgstr "Legg til videoar frå _DVD"
+
+#: src/mgui/project/mconstructor.cpp:927
+msgid "DVD-Import Assistant"
+msgstr "DVD-importhjelpar"
+
+#. Go
+#: src/mgui/project/mconstructor.cpp:963
+msgid "_Go"
+msgstr "_Køyr"
+
+#. первый вставляем сразу
+#. Help
+#: src/mgui/project/mconstructor.cpp:969
+msgid "_Help"
+msgstr "_Hjelp"
+
+#: src/mgui/project/mconstructor.cpp:1070
+msgctxt "MainTabs"
+msgid "_Source"
+msgstr "K_jelde:"
+
+#: src/mgui/project/mconstructor.cpp:1072
+msgctxt "MainTabs"
+msgid "_Menu"
+msgstr "_Meny"
+
+#: src/mgui/project/mconstructor.cpp:1074
+msgctxt "MainTabs"
+msgid "_Output"
+msgstr "_Utdata"
+
+#: src/mgui/project/mb-actions.cpp:141
+msgid "yes"
+msgstr "ja"
+
+#: src/mgui/project/mb-actions.cpp:141
+msgid "no"
+msgstr "nei"
+
+#: src/mgui/project/mb-actions.cpp:190
+msgid "Video bitrate"
+msgstr "Videobitrate"
+
+#: src/mgui/project/mb-actions.cpp:191
+msgid "kbps"
+msgstr "kbps"
+
+#: src/mgui/project/mb-actions.cpp:192
+msgid "Maximum data rate for video (9800 kbps) is exceeded."
+msgstr "Du bruker høgare videorate enn maksverdien (9800 kbps)."
+
+#: src/mgui/project/mb-actions.cpp:195
+#, boost-format
+msgid "The %1% DVD-Video can accept MPEG-2 with resolutions: %2% only."
+msgstr "%1%-DVD-videoen godtek berre MPEG-2 med desse oppløysingane: %2%"
+
+#: src/mgui/project/mb-actions.cpp:196
+#, boost-format
+msgid "The %1% DVD-Video can accept MPEG-2 with frame rate: %2% only."
+msgstr "%1%-DVD-videoen godtek berre MPEG-2 med så mange rammer per sekund: %2%"
+
+#: src/mgui/project/mb-actions.cpp:197
+#, boost-format
+msgid "The %1% DVD-Video can accept MPEG-2 with aspects 4:3, 16:9 only."
+msgstr "%1%-DVD-videoen godtek berre MPEG-2 med biletforhold på 4:3 eller 16:9."
+
+#: src/mgui/project/mb-actions.cpp:217
+msgid "Video size"
+msgstr "Videostorleik:"
+
+#: src/mgui/project/mb-actions.cpp:237
+msgid "Frame rate"
+msgstr "Rammer per sekund"
+
+#: src/mgui/project/mb-actions.cpp:238
+msgid "fps"
+msgstr "rammer/s"
+
+#: src/mgui/project/mb-actions.cpp:246
+msgid "Aspect ratio"
+msgstr "Biletforhold"
+
+#: src/mgui/project/mb-actions.cpp:321
+msgid "<b>Bombono DVD</b> can use \"DVD-ready\" video only now. Use muxing programs like \"mplex -f 8\" (from <b>mjpegtools</b>), mencoder (from <b>mplayer</b>) or <b>transcode</b> to make your video ready for <b>Bombono DVD</b>."
+msgstr "<b>Bombono DVD</b> kan berre bruka \"DVD-klare\" videofiler no. Bruk gjerne muxprogram som \"mplex -f 8\" (frå <b>mjpegtools</b>), mencoder (frå <b>mplayer</b>) eller <b>transcode</b> for å gjera videoen klar for <b>Bombono DVD</b>."
+
+#: src/mgui/project/mb-actions.cpp:325
+msgid "DVD packs"
+msgstr "DVD-pakker"
+
+#: src/mgui/project/mb-actions.cpp:327
+msgid "NAV packets"
+msgstr "NAV-pakker"
+
+#: src/mgui/project/mb-actions.cpp:333
+msgid "This video may not be added due to (errors in <span foreground=\"red\">red color</span>):"
+msgstr "Det kan henda du ikkje kan leggja til denne videoen på grunn av (feil i <span foreground=\"red\">raudt</span>):"
+
+#. подскажем пользователю, что он ошибся форматом проекта
+#: src/mgui/project/mb-actions.cpp:344
+#, boost-format
+msgid "This video has %1% type and can't be added to current project of %2% type. Create new project from menu \"Project->New Project\" with right type."
+msgstr "Denne videoen er av %1%-typen, og då kan du ikkje leggja han til i prosjekt av %2%-typen. Lag eit nytt prosjekt med rett type frå menyen \"Prosjekt->Nytt prosjekt\"."
+
+#: src/mgui/project/mb-actions.cpp:372
+msgid "File doesn't exist."
+msgstr "Fila finst ikkje."
+
+#: src/mgui/project/mb-actions.cpp:377
+msgid "Folders can't be added."
+msgstr "Du kan ikkje leggja til mapper."
+
+#. по расширению выводим наиболее вероятную ошибку
+#: src/mgui/project/mb-actions.cpp:412
+msgid "Unknown file type."
+msgstr "Ukjend filtype."
+
+#: src/mgui/project/mb-actions.cpp:617
+#, boost-format
+msgid ""
+"The file \"%1%\" looks like VOB from DVD.\n"
+"Run import?"
+msgstr ""
+"Fila \"%1%\" ser ut som ei VOB-looks like VOB frå ein DVD.\n"
+"Vil du importera ho?"
+
+#: src/mgui/project/mb-actions.cpp:679
+msgid "Also:"
+msgstr "Òg"
+
+#: src/mgui/project/mb-actions.cpp:688
+#, boost-format
+msgid "See more about preparing video for authoring in <a href=\"%1%\">online help</a>."
+msgstr "Sjå meir om korleis du klargjer ein video for samansetjing på <a href=\"%1%\">hjelpesidene</a>."
+
+#: src/mgui/project/mb-actions.cpp:696
+#, boost-format
+msgid "Can't add file \"%1%\"."
+msgstr "Greier ikkje leggja til fila \"%1%\"."
+
+#: src/mgui/project/mb-actions.cpp:699
+msgid "Can't add files:"
+msgstr "Greier ikkje leggja til filene:"
+
+#. Названия типов для i18n
+#: src/mgui/project/media-browser.cpp:105
+#: src/mgui/timeline/layout-draw.cpp:156
+msgid "Video"
+msgstr "Film"
+
+#: src/mgui/project/media-browser.cpp:107
+msgid "Still Picture"
+msgstr "Stillbilete"
+
+#: src/mgui/project/media-browser.cpp:139
+msgid "Type"
+msgstr "Type"
+
+#. // не меньше чем размер шрифта элемента в списке
+#. Gtk::Label& label = *Gtk::manage(new Gtk::Label("<span font_desc=\"Sans Bold 12\">Media List</span>"));
+#. label.set_use_markup(true);
+#. vbox.pack_start(label, Gtk::PACK_SHRINK);
+#. Gtk::Requisition req = label.size_request();
+#. label.set_size_request(0, req.height+10);
+#: src/mgui/project/media-browser.cpp:197
+#: src/mgui/project/menu-browser.cpp:340
+msgid "Media List"
+msgstr "Filliste"
+
+#: src/mgui/project/media-browser.cpp:237
+msgid "Add Media from File Browser"
+msgstr "Legg til media frå filhandsamar"
+
+#: src/mgui/project/media-browser.cpp:246
+msgid "Remove Media"
+msgstr "Fjern mediet"
+
+#. Translators: it is normal to translate "Edit" as " " (empty) and
+#. to keep the button small; let the tooltip tell the purpose. The same thing
+#. with the button "Edit" in Menu List
+#: src/mgui/project/media-browser.cpp:253
+msgctxt "MediaBrowser"
+msgid "Edit"
+msgstr "Endre"
+
+#: src/mgui/project/media-browser.cpp:254
+msgid "Make Chapters for Video"
+msgstr "Lag kapittel frå video"
+
+#: src/mgui/project/menu-browser.cpp:188
+msgid "No Link"
+msgstr "Ikkje noko lenkje"
+
+#. * subj
+#: src/mgui/project/menu-browser.cpp:300
+msgid "Menu List"
+msgstr "Menyliste"
+
+#: src/mgui/project/menu-browser.cpp:320
+msgid "Add Menu"
+msgstr "Legg til meny"
+
+#: src/mgui/project/menu-browser.cpp:325
+msgid "Remove Menu"
+msgstr "Fjern meny"
+
+#: src/mgui/project/menu-browser.cpp:329
+msgctxt "MenuBrowser"
+msgid "Edit"
+msgstr "Endra"
+
+#: src/mgui/project/menu-browser.cpp:330
+msgid "Edit Menu"
+msgstr "Endra meny"
+
+#. Add
+#: src/mgui/timeline/layout.cpp:528 src/mgui/timeline/select.cpp:141
+msgid "Add Chapter Point"
+msgstr "Legg til kapittelpunkt"
+
+#. 0 надпись
+#: src/mgui/timeline/mviewer.cpp:229
+msgid "File Browser"
+msgstr "Filhandsamar"
+
+#: src/mgui/timeline/mviewer.cpp:259
+msgid "All formats"
+msgstr "Alle format"
+
+#: src/mgui/timeline/mviewer.cpp:260
+msgid "MPEG files"
+msgstr "MPEG-videofiler"
+
+#: src/mgui/timeline/mviewer.cpp:261
+msgid "Still Images"
+msgstr "Stillbilete"
+
+#: src/mgui/timeline/select.cpp:124
+msgid "Save Frame..."
+msgstr "Lagra ramma..."
+
+#. Delete
+#: src/mgui/timeline/select.cpp:144
+msgid "Delete Chapter Point"
+msgstr "Slett kapittelmerke"
+
+#. Delete All
+#: src/mgui/timeline/select.cpp:148
+msgid "Delete All Chapter Points"
+msgstr "Slett alle kapittelmerke"
+
+#: src/mgui/timeline/select.cpp:157
+msgid "Save Current Frame..."
+msgstr "Lagra denne ramma..."
