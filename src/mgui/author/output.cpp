@@ -619,7 +619,7 @@ bool NotForPlay(guint response_id, const std::string& dir_str)
     if( response_id == RESPONSE_TOTEM )
     {
         res = false;
-        Spawn(dir_str.c_str(), "scons totem");
+        Execution::SimpleSpawn("scons totem", dir_str.c_str());
     }
     return res;
 }

@@ -31,6 +31,8 @@ class Pulse
     Timer tm;
 };
 
+void SimpleSpawn(const char *commandline, const char* dir = 0);
+
 } // namespace Exection
 
 #endif // #ifndef __MGUI_EXECUTION_H__

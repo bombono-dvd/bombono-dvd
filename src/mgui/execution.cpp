@@ -5,6 +5,8 @@
 #include "dialog.h"
 #include "gettext.h"
 
+#include <mgui/author/execute.h> // ::Spawn()
+
 #include <mlib/tech.h>
 #include <signal.h> // SIGTERM
 
@@ -45,6 +47,13 @@ Pulse::Pulse(Gtk::ProgressBar& prg_bar)
 Pulse::~Pulse() 
 {
     tm.Disconnect(); 
+}
+
+void SimpleSpawn(const char *commandline, const char* dir)
+{
+    GPid p = Spawn(dir, commandline);
+    ASSERT_RTL( p > 0 );
+    g_spawn_close_pid(p);
 }
 
 } // namespace Execution

@@ -30,6 +30,7 @@
 #include <mgui/sdk/menu.h>  // Popup()
 #include <mgui/sdk/window.h>
 #include <mgui/sdk/widget.h>
+#include <mgui/execution.h>
 #include <mgui/dialog.h> // ChooseFileSaveTo()
 #include <mgui/gettext.h>
 
@@ -175,6 +176,14 @@ static void InsertChapters(TrackLayout& trk_lay)
     }
 }
 
+static void PlayInTotem(TrackLayout& trk_lay)
+{
+    uint64_t msec = uint64_t(trk_lay.CurPos()/trk_lay.FrameFPS()*1000);
+    // уже запущенный Totem не воспринимает --seek, поэтому сначала закрываем его
+    std::string cmd = boost::format("totem --quit; totem --seek %1% %2%") % msec % GetFilename(*CurrVideo) % bf::stop;
+    Execution::SimpleSpawn(cmd.c_str());
+}
+
 void ContextMenuHook::AtScale()
 {
     popupActions = Gtk::ActionGroup::create("Actions");
@@ -203,6 +212,8 @@ void ContextMenuHook::AtScale()
         save_fnr = lambda::bind(&SaveFrame, boost::ref(*mon));
     popupActions->add( Gtk::Action::create("Save Frame", Gtk::Stock::SAVE, DOTS_("Save Current Frame")),
                        save_fnr );
+    popupActions->add( Gtk::Action::create("Play in Totem", Gtk::Stock::MEDIA_PLAY, _("_Play in Totem")),
+                       bl::bind(&PlayInTotem, boost::ref(trkLay)) );
 }
 
 void ContextMenuHook::AtDVDMark(int idx)
@@ -233,6 +244,7 @@ void ContextMenuHook::Process()
         "    <menuitem action='Add at Intervals'/>"
         "    <separator/>"
         "    <menuitem action='Save Frame'/>"
+        "    <menuitem action='Play in Totem'/>"
         "  </popup>"
         "</ui>";
         mngr->add_ui_from_string(ui_info);
