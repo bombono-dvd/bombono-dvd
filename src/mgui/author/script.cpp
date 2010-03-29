@@ -145,21 +145,30 @@ static std::string MakeFPTarget(MediaItem mi)
 class TargetCommandVis: public ObjVisitor
 {
     public:
+    std::string  res;
+           bool  vtsDomain;
+                
+                    TargetCommandVis(bool is_vts): vtsDomain(is_vts) {}
+            
     virtual   void  Visit(MenuMD& obj);
     virtual   void  Visit(VideoMD& obj);
     virtual   void  Visit(VideoChapterMD&);
 
-    std::string res;
 };
 
+static int GetMenuANum(Menu mn)
+{
+    return LocalPath(mn.get())[0]+1;
+}
+
 void TargetCommandVis::Visit(MenuMD& obj)
-{ 
-    res = (str::stream() << "menu " << LocalPath(&obj)[0]+1).str(); 
+{
+    res = boost::format("g1 = %1%; %2% menu entry root;") % GetMenuANum(&obj) % (vtsDomain ? "call" : "jump") % bf::stop; 
 }
 
 void TargetCommandVis::Visit(VideoMD& obj)
 {
-    res = (str::stream() << "title " << GetAuthorNumber(obj)).str(); 
+    res = (str::stream() << "jump title " << GetAuthorNumber(obj) << ";").str(); 
 }
 
 void TargetCommandVis::Visit(VideoChapterMD& obj) 
@@ -168,12 +177,12 @@ void TargetCommandVis::Visit(VideoChapterMD& obj)
     // :TODO: title 1 всегда равно title 1 chapter 1; при этом dvdauthor не воспринимает 
     // главы "вблизи нуля" (<0.27секунд; задание - посмотреть точно), поэтому нужна предварительная
     // перенумерация, как с видео
-    res = (str::stream() << "title " << v_num << " chapter " << ChapterPosInt(&obj) + 2).str();
+    res = (str::stream() << "jump title " << v_num << " chapter " << ChapterPosInt(&obj) + 2 << ";").str();
 }
 
-static std::string MakeAuthorTarget(MediaItem mi)
+static std::string MakeButtonJump(MediaItem mi)
 {
-    TargetCommandVis vis;
+    TargetCommandVis vis(false);
     mi->Accept(vis);
     return vis.res;
 }
@@ -208,7 +217,7 @@ bool HasButtonLink(Comp::MediaObj& m_obj, std::string& targ_str)
     bool res = false;
     if( MediaItem btn_target = m_obj.MediaItem() )
     {
-        targ_str = MakeAuthorTarget(btn_target);
+        targ_str = MakeButtonJump(btn_target);
         res = !targ_str.empty();
     }
     return res;
@@ -219,6 +228,15 @@ static bool ScriptMenu(xmlpp::Element* menus_node, Menu root_menu, Menu mn, int 
     xmlpp::Element* pgc_node = menus_node->add_child("pgc");
     if( root_menu == mn )
         pgc_node->set_attribute("entry", "root");
+
+    // <pre>
+    {
+        int num = GetMenuANum(mn);
+        int next_num = (i+1 < Size(GetAStores().mnStore)) ? num+1 : 1 ;
+        std::string loop_menus = boost::format("if(g1 != %1%) {jump menu %2%;}") % num % next_num % bf::stop;
+        pgc_node->add_child("pre")->add_child_text(loop_menus);
+    }
+
     xmlpp::Element* vob_node = pgc_node->add_child("vob");
     // название меню
     std::string m_dir = MenuAuthorDir(mn, i);
@@ -232,7 +250,7 @@ static bool ScriptMenu(xmlpp::Element* menus_node, Menu root_menu, Menu mn, int 
             if( HasButtonLink(*m_obj, targ_str) )
             {
                 xmlpp::Element* node = pgc_node->add_child("button");
-                node->add_child_text("jump " + targ_str + ";");
+                node->add_child_text(targ_str);
             }
         }
     return true;
@@ -383,7 +401,11 @@ void GenerateDVDAuthorScript(const std::string& out_dir)
         // кнопка "Title" = кнопка "Menu"
         xmlpp::Element* title_entry = node->add_child("pgc");
         title_entry->set_attribute("entry", "title");
-        title_entry->add_child("pre")->add_child_text("jump " + MakeFPTarget(fp) + ";");
+        std::string init_cmd = "jump " + MakeFPTarget(fp) + ";";
+        if( root_menu )
+            // если есть меню (вообще есть), то инициализируем первое
+            init_cmd = boost::format("g1 = %1%; %2%") % GetMenuANum(root_menu) % init_cmd % bf::stop;
+        title_entry->add_child("pre")->add_child_text(init_cmd);
     }
     // основная часть
     {

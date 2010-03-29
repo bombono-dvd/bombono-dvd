@@ -80,7 +80,7 @@ void InsertMenuIntoBrowser(MenuBrowser& brw)
 {
     RefPtr<MenuStore> ms = brw.GetMenuStore();
     // * subj
-    Menu mn = MakeMenu(ms->children().size());
+    Menu mn = MakeMenu(Size(ms));
     // отношение сторон
     mn->Params().GetAF() = IsMenuToBe4_3() ? af4_3 : af16_9 ;
 

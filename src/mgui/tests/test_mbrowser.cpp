@@ -39,7 +39,7 @@ namespace Project
 
 static int GetMediasSize(RefPtr<MediaStore> ms)
 {
-    return ms->children().size();
+    return Size(ms);
 }
 
 static void CheckMediaPaths(RefPtr<MediaStore> ms, int have_cnt = -1)

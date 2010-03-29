@@ -62,6 +62,9 @@ Gtk::TreePath GetSourcePath(const Gtk::SelectionData& data);
 bool ConfirmDeleteMedia(MediaItem mi);
 void DeleteMedia(RefPtr<ObjectStore> os, const Gtk::TreeIter& itr);
 
+inline int Size(RefPtr<ObjectStore> os)
+{ return (int)os->children().size(); }
+
 //
 // ObjectBrowser
 // 

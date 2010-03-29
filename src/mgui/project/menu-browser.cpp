@@ -244,7 +244,7 @@ Gtk::Menu& CommonMenuBuilder::Create()
     // * Menus
     if( !forPoster )
     {
-        if( mnStore->children().size() )
+        if( Size(mnStore) )
         {
             for( MenuStore::iterator itr = mnStore->children().begin(), end = mnStore->children().end();
                  itr != end; ++itr )
@@ -256,7 +256,7 @@ Gtk::Menu& CommonMenuBuilder::Create()
     }
 
     // * Medias
-    if( mdStore->children().size() )
+    if( Size(mdStore) )
     {
         for( MediaStore::iterator itr = mdStore->children().begin(), end = mdStore->children().end();
              itr != end; ++itr )
