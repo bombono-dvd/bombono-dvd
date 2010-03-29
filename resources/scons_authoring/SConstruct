@@ -87,10 +87,17 @@ def MakeAbstractCommandForDVDDir(target_name, command_action):
 # * воспроизвести результат в Totem
 #
 # всю директорию указывать нельзя - scons будет пытаться со всех файлов брать md5="тупить на 4Gb"
-def GenTotemAction(source, target, env, for_signature):
-    return "totem dvd://%s" % (GetDVDDir(source[0], 1)) # 'totem dvd://${SOURCES[0].abspath}')
+def GenPlayerAction(player_name):
+    def GenAction(source, target, env, for_signature):
+        return player_name + " dvd://%s" % (GetDVDDir(source[0], 1)) # 'totem dvd://${SOURCES[0].abspath}')
+    return GenAction
 
-MakeAbstractCommandForDVDDir("totem", GenTotemAction)
+def MakePlayerCommand(player_name):
+    MakeAbstractCommandForDVDDir(player_name, GenPlayerAction(player_name))
+
+MakePlayerCommand("totem")
+MakePlayerCommand("xine")
+
 
 DVDLabelOption = ''
 if DVDLabel:

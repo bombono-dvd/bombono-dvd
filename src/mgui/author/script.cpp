@@ -364,7 +364,7 @@ void GenerateDVDAuthorScript(const std::string& out_dir)
         xmlpp::Element* vmgm_node = root_node->add_child("vmgm");
         vmgm_node->add_child_comment("First Play");
         xmlpp::Element* node = vmgm_node->add_child("fpc");
-        node->add_child_text("jump " + MakeFPTarget(fp) + ";");
+        node->add_child_text("jump menu entry title;");
         node = vmgm_node->add_child("menus");
         // из-за того, что в VMG мы не устанавливаем ни одно видео, то
         // надо явно инициализировать атрибуты (см. функцию BuildAVInfo()
@@ -383,7 +383,7 @@ void GenerateDVDAuthorScript(const std::string& out_dir)
         // кнопка "Title" = кнопка "Menu"
         xmlpp::Element* title_entry = node->add_child("pgc");
         title_entry->set_attribute("entry", "title");
-        title_entry->add_child("pre")->add_child_text("jump fpc;");
+        title_entry->add_child("pre")->add_child_text("jump " + MakeFPTarget(fp) + ";");
     }
     // основная часть
     {

@@ -41,7 +41,7 @@ bool CanOpenAsVideo(const char* fname, std::string& err_string, bool& must_be_vi
 
 BOOST_AUTO_TEST_CASE( TestConstructor )
 {
-    //return;
+    return;
     GtkmmDBInit gd_init;
 
     //bool must_be_video = false;
@@ -232,6 +232,9 @@ BOOST_AUTO_TEST_CASE( TestMenuRender2 )
 
     // * производительность
     //TestChangeProductivity(mp1, a, 4000);
+
+    // явно очищаем циклические ссылки, достаточно у одного меню
+    mp1.thRgn.Clear();
 }
 
 } // namespace Project
