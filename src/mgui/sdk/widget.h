@@ -53,5 +53,7 @@ Gtk::Frame& NewManagedFrame(Gtk::ShadowType st = Gtk::SHADOW_ETCHED_IN,
 Gtk::Frame& PackWidgetInFrame(Gtk::Widget& wdg, Gtk::ShadowType st,
                               const std::string& label = std::string());
 
+Gtk::Label& NewMarkupLabel(const std::string& label, bool use_underline = false);
+
 #endif // #ifndef __MGUI_SDK_WIDGET_H__
 

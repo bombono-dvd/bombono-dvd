@@ -354,9 +354,9 @@ static void SetPoster(MEditorArea& edt_area, Project::MediaItem mi)
     SetObjectsLinks(edt_area, mi, true);
 }
 
-class PosterMenuBuilder: public Project::CommonMenuBuilder
+class PosterMenuBuilder: public Project::EditorMenuBuilder
 {
-    typedef Project::CommonMenuBuilder MyParent;
+    typedef Project::EditorMenuBuilder MyParent;
     public:
                     PosterMenuBuilder(Project::MediaItem cur_itm, MEditorArea& ed)
                         :MyParent(cur_itm, ed, true) {}
@@ -552,8 +552,7 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
         bg_itm.signal_activate().connect(bl::bind(&SetBgColor, edt_ref));
 
         //mn.accelerate(edt_area);
-        mn.show_all();
-        Popup(mn, event);
+        Popup(mn, event, true);
     }
 }
 

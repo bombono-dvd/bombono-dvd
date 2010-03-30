@@ -180,9 +180,9 @@ void TargetCommandVis::Visit(VideoChapterMD& obj)
     res = (str::stream() << "jump title " << v_num << " chapter " << ChapterPosInt(&obj) + 2 << ";").str();
 }
 
-static std::string MakeButtonJump(MediaItem mi)
+static std::string MakeButtonJump(MediaItem mi, bool vts_domain)
 {
-    TargetCommandVis vis(false);
+    TargetCommandVis vis(vts_domain);
     mi->Accept(vis);
     return vis.res;
 }
@@ -217,10 +217,15 @@ bool HasButtonLink(Comp::MediaObj& m_obj, std::string& targ_str)
     bool res = false;
     if( MediaItem btn_target = m_obj.MediaItem() )
     {
-        targ_str = MakeButtonJump(btn_target);
+        targ_str = MakeButtonJump(btn_target, false);
         res = !targ_str.empty();
     }
     return res;
+}
+
+int MenusCnt()
+{
+    return Size(GetAStores().mnStore);
 }
 
 static bool ScriptMenu(xmlpp::Element* menus_node, Menu root_menu, Menu mn, int i)
@@ -232,7 +237,7 @@ static bool ScriptMenu(xmlpp::Element* menus_node, Menu root_menu, Menu mn, int 
     // <pre>
     {
         int num = GetMenuANum(mn);
-        int next_num = (i+1 < Size(GetAStores().mnStore)) ? num+1 : 1 ;
+        int next_num = (i+1 < MenusCnt()) ? num+1 : 1 ;
         std::string loop_menus = boost::format("if(g1 != %1%) {jump menu %2%;}") % num % next_num % bf::stop;
         pgc_node->add_child("pre")->add_child_text(loop_menus);
     }
@@ -258,11 +263,6 @@ static bool ScriptMenu(xmlpp::Element* menus_node, Menu root_menu, Menu mn, int 
 
 typedef boost::function<std::string(VideoItem)> TitlePostCommand;
 
-static std::string CallRootMenu()
-{
-    return "call menu entry root;";
-}
-
 static std::string JumpNextTitle(VideoItem vi, int titles_cnt)
 {
     int cur_num = GetAuthorNumber(*vi);
@@ -272,9 +272,12 @@ static std::string JumpNextTitle(VideoItem vi, int titles_cnt)
     return "jump title " + boost::lexical_cast<std::string>(next_num) + ";";
 }
 
+static std::string AutoPostCmd(const std::string& jnt_cmd)
+{
+    return MenusCnt() ? std::string("call menu entry root;") : jnt_cmd ;
+}
 
-static bool ScriptTitle(xmlpp::Element* ts_node, VideoItem vi,
-                        TitlePostCommand post_cmd)
+static bool ScriptTitle(xmlpp::Element* ts_node, VideoItem vi, int titles_cnt)
 {
     xmlpp::Element* pgc_node = ts_node->add_child("pgc");
     xmlpp::Element* vob_node = pgc_node->add_child("vob");
@@ -295,7 +298,29 @@ static bool ScriptTitle(xmlpp::Element* ts_node, VideoItem vi,
         vob_node->set_attribute("chapters", chapters);
 
     xmlpp::Element* post_node = pgc_node->add_child("post");
-    post_node->add_child_text(post_cmd(vi));
+    std::string post_cmd;
+
+    std::string jnt_cmd = JumpNextTitle(vi, titles_cnt);
+    PostAction& pa = vi->PAction();
+    switch( pa.paTyp )
+    {
+    case patAUTO:
+        post_cmd = AutoPostCmd(jnt_cmd);
+        break;
+    case patNEXT_TITLE:
+        post_cmd = jnt_cmd;
+        break;
+    case patEXP_LINK:
+        if( pa.paLink )
+            post_cmd = MakeButtonJump(pa.paLink, true);
+        else
+            post_cmd = AutoPostCmd(jnt_cmd);
+        break;
+    default:
+        ASSERT_RTL(0);
+    }
+    post_node->add_child_text(post_cmd);
+
     return true;
 }
 
@@ -418,9 +443,7 @@ void GenerateDVDAuthorScript(const std::string& out_dir)
         xmlpp::Element* ts_node = tts_node->add_child("titles");
         AddVideoTag(ts_node, Is4_3(first_vi));
 
-        TitlePostCommand post_cmd = root_menu ? TitlePostCommand(bl::bind(&CallRootMenu)) 
-            : TitlePostCommand(bl::bind(&JumpNextTitle, bl::_1, titles_cnt));
-        ForeachVideo(bl::bind(&ScriptTitle, ts_node, bl::_1, post_cmd));
+        ForeachVideo(bl::bind(&ScriptTitle, ts_node, bl::_1, titles_cnt));
     }
     doc.write_to_file_formatted(AppendPath(out_dir, "DVDAuthor.xml"));
 }

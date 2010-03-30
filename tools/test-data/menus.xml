@@ -8,12 +8,18 @@
   </Globals>
   <Medias>
     <Media Name="Autumn" Path="../../../Autumn.mpg" Type="Video">
-      <Part Name="Chapter 1">9.7999999999999989</Part>
-      <Part Name="Chapter 2">20</Part>
-      <Part Name="Chapter 3">30</Part>
+      <Parts>
+        <Part Name="Chapter 1">9.7999999999999989</Part>
+        <Part Name="Chapter 2">20</Part>
+        <Part Name="Chapter 3">30</Part>
+      </Parts>
+      <PostAction Type="0" Ref=""/>
     </Media>
     <Media Name="transition" Path="../../../transition.mpg" Type="Video">
-      <Part Name="Chapter">6</Part>
+      <Parts>
+        <Part Name="Chapter">6</Part>
+      </Parts>
+      <PostAction Type="0" Ref=""/>
     </Media>
     <Media Name="Title" Path="../../../samples/backgrounds/space-01.jpg" Type="StillPicture"/>
   </Medias>

@@ -173,6 +173,8 @@ void StorageMD::SerializeImpl(Archieve& ar)
 void StillImageMD::SerializeImpl(Archieve& ar)
 {
     MyParent::SerializeImpl(ar);
+    // :TODO: выделить для всех "файлов", в StorageMD::SerializeImpl: 
+    //  ar << NameValue("Type", TypeString());
     if( ar.IsSave() )
         ar << NameValue("Type", "StillPicture");
 }
@@ -183,23 +185,36 @@ NameValueT<VideoChapterMD> LoadChapter(VideoMD* vd)
     return NameValue("Part", *ci);
 }
 
+void Serialize(Archieve& ar, PostAction& pa)
+{
+    ar("Type", pa.paTyp);
+    SerializeReference(ar, "Ref", pa.paLink);
+}
+
 void VideoMD::SerializeImpl(Archieve& ar)
 {
     MyParent::SerializeImpl(ar);
-    if( ar.IsLoad() )
-    {
-        using namespace boost;
-        ArchieveFunctor<VideoChapterMD> fnr =
-            MakeArchieveFunctor<VideoChapterMD>( lambda::bind(&LoadChapter, this) );
-        LoadArray(ar, fnr);
-    }
-    else // IsSave
-    {
+    if( ar.IsSave() )
         ar << NameValue("Type", "Video");
 
-        for( Itr itr = chpLst.begin(), end = chpLst.end(); itr != end; ++itr )
-            ar << NameValue("Part", **itr);
+    // * главы
+    {
+        ArchieveStackFrame asf(ar, "Parts");
+        if( ar.IsLoad() )
+        {
+            using namespace boost;
+            ArchieveFunctor<VideoChapterMD> fnr =
+                MakeArchieveFunctor<VideoChapterMD>( lambda::bind(&LoadChapter, this) );
+            LoadArray(ar, fnr);
+        }
+        else // IsSave
+        {
+            for( Itr itr = chpLst.begin(), end = chpLst.end(); itr != end; ++itr )
+                ar << NameValue("Part", **itr);
+        }
     }
+
+    ar("PostAction", pAct);
 }
 
 void VideoChapterMD::SerializeImpl(Archieve& ar)

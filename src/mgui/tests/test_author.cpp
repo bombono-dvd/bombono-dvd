@@ -54,7 +54,7 @@ static void TestAuthoringEx(const std::string& prj_fname, const std::string& out
 // неинтерактивный вариант авторинга
 BOOST_AUTO_TEST_CASE( TestAuthoring )
 {
-    //return;
+    return;
     TestAuthoringEx(TestProjectPath(), "../dvd_out");
 }
 

@@ -71,6 +71,7 @@ class MenuBrowser : public ObjectBrowser
 };
 
 void InsertMenuIntoBrowser(MenuBrowser& brw);
+int MenusCnt();
 
 } // namespace Project
 

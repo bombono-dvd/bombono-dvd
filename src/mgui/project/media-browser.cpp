@@ -27,10 +27,15 @@
 
 #include <mgui/timeline/mviewer.h>
 #include <mgui/sdk/packing.h>
+#include <mgui/sdk/menu.h>
 #include <mgui/sdk/widget.h>
 #include <mgui/dialog.h> // MessageBox
 #include <mgui/gettext.h>
+#include <mgui/key.h>
 
+#include <mgui/editor/toolbar.h>
+
+#include <mlib/sigc.h> 
 #include <mlib/sdk/logger.h>
 #include <mlib/filesystem.h>
 
@@ -94,12 +99,100 @@ static void OnURIsDrop(MediaBrowser& brw, const StringList& paths, const Point& 
     TryAddMedias(paths, brw, brw_pth, insert_after);
 }
 
+static void SetConstEALink(PostAction& pa, PostActionType typ)
+{
+    ASSERT_RTL( typ != patEXP_LINK );
+    pa.paTyp  = typ;
+    pa.paLink = 0;
+}
+
+static void SetEALink(PostAction& pa, MediaItem mi)
+{
+    ASSERT_RTL(mi); // пустая явная ссылка? - нет пути!
+    pa.paTyp  = patEXP_LINK;
+    pa.paLink = mi;
+}
+
+class EndActionMenuBld: public CommonMenuBuilder
+{
+    typedef CommonMenuBuilder MyParent;
+    public:
+                    EndActionMenuBld(PostAction& pa): pAct(pa), MyParent(pa.paLink, false) {}
+
+    virtual ActionFunctor  CreateAction(Project::MediaItem mi)
+    {
+        return bl::bind(&SetEALink, boost::ref(pAct), mi);
+    }
+
+    virtual          void  AddConstantChoice(Gtk::Menu& lnk_list);
+
+    protected:
+        PostAction& pAct;
+
+void AddConstantItem(Gtk::Menu& lnk_list, const std::string& label, PostActionType typ);
+};
+
+void EndActionMenuBld::AddConstantItem(Gtk::Menu& lnk_list, const std::string& label, PostActionType typ)
+{
+    Gtk::RadioMenuItem& itm = NewManaged<Gtk::RadioMenuItem>(radioGrp);
+    SetAlign(Add(itm, NewMarkupLabel("<span weight=\"bold\" style=\"italic\">" + label + "</span>")));
+    AppendRadioItem(itm, typ == pAct.paTyp, bl::bind(&SetConstEALink, boost::ref(pAct), typ), lnk_list);
+}
+
+int MenusCnt();
+
+void EndActionMenuBld::AddConstantChoice(Gtk::Menu& lnk_list)
+{
+    const char* real_cmd = MenusCnt() ? _("Previous Menu") : _("Next Video") ;
+    AddConstantItem(lnk_list, BF_("Auto (%1%)") % real_cmd % bf::stop, patAUTO);
+    AddConstantItem(lnk_list, _("Next Video"), patNEXT_TITLE);
+}
+
+static bool OnMBButtonPress(MediaBrowser& brw, GdkEventButton* event)
+{
+    // :TRICKY: переопределением on_button_press_event() было бы все проще;
+    // но пусть будет - как пример Gtk::Widget::event()
+
+    // сделано по аналогии с list_button_press_event_cb, GtkFileChooserDefault
+    // Суть в том, что:
+    // - GtkTreeView не пускает сигнал нажатия после себя -> регистрир. до
+    // - хочется выполнить обработку GtkTreeView по новому выделению -> вложенный
+    //   gtk_widget_event(), c защитой от рекурсии
+    // - в конце точно надо не пускать сигнал дальше
+    static bool in_press = false;
+    if( in_press )
+        return false;
+
+    //if (event->button != 3)
+    //  return FALSE;
+
+    in_press = true;
+    brw.event((GdkEvent*)event);
+    in_press = false;
+
+    if( IsRightButton(event) )
+        if( MediaItem mi = GetCurMedia(brw) )
+        {
+            Gtk::Menu& mn  = NewPopupMenu(); 
+            Gtk::MenuItem& ea_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("End Action")));
+            // пока только видео (позже - постдействие для интерактивных меню)
+            VideoItem vi = IsVideo(mi);
+            ea_itm.set_sensitive(vi);
+            if( vi )
+                ea_itm.set_submenu(EndActionMenuBld(vi->PAction()).Create());
+            Popup(mn, event, true);
+        }
+
+    return true;
+}
+
 MediaBrowser::MediaBrowser(RefPtr<MediaStore> a_lst)
 {
     set_model(a_lst);
     BuildStructure();
 
     SetupURIDrop(*this, bl::bind(&OnURIsDrop, boost::ref(*this), bl::_1, bl::_2));
+    signal_button_press_event().connect(wrap_return<bool>(bl::bind(&OnMBButtonPress, boost::ref(*this), bl::_1)), false);
 }
 
 // Названия типов для i18n

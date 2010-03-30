@@ -69,10 +69,8 @@ void PackMediasWindow(Gtk::Container& contr, RefPtr<MediaStore> ms)
 
 void SetTabName(Gtk::Notebook& nbook, const std::string& name, int pos)
 {
-    Gtk::Label& lbl = NewManaged<Gtk::Label>("<span weight = \"bold\" style  = \"italic\">"
-                                             + name + "</span>");
-    lbl.set_use_markup(true);
-    lbl.set_use_underline(true);
+    Gtk::Label& lbl = NewMarkupLabel("<span weight = \"bold\" style  = \"italic\">"
+                                     + name + "</span>", true);
 
     // попытка сделать вертикальные закладки читабельными
     //switch( nbook.get_tab_pos() )
@@ -172,6 +170,23 @@ static void LoadProjectInteractive(const std::string& prj_file_name)
     }
 }
 
+static bool ClearEndAction(VideoItem vi, MediaItem mi)
+{
+    PostAction& pa = vi->PAction();
+    if( pa.paLink == mi )
+    {
+        pa.paLink = 0;
+        pa.paTyp  = patAUTO;
+    }
+    return true;
+}
+
+static void OnDeleteEndAction(MediaItem mi, const char* action)
+{
+    if( mi && (strcmp("OnDelete", action) == 0) )
+        ForeachVideo(bl::bind(ClearEndAction, bl::_1, mi));
+}
+
 // создать списки медиа и меню
 static AStores& InitAStores()
 {
@@ -182,6 +197,8 @@ static AStores& InitAStores()
     as.mdStore  = md_store;
     as.mnStore  = mn_store;
 
+    // для ForeachVideo требуется готовый as.mdStore
+    RegisterHook(&OnDeleteEndAction);
     return as;
 }
 

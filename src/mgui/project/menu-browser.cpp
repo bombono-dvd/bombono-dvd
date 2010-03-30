@@ -190,11 +190,12 @@ static std::string MakeMediaItemNameForMenu(MediaItem mi)
     return mi ? mi->mdName + " (" + gettext(mi->TypeString().c_str()) + ")" : _("No Link") ;
 }
 
-class LinkMenuBuilder: public CommonMenuBuilder
+class LinkMenuBuilder: public EditorMenuBuilder
 {
+    typedef EditorMenuBuilder MyParent;
     public:
                     LinkMenuBuilder(SetLinkMenu& slm, MEditorArea& ed)
-                        :CommonMenuBuilder(slm.newLink, ed, slm.isForBack) {}
+                        :MyParent(slm.newLink, ed, slm.isForBack) {}
 
     virtual ActionFunctor  CreateAction(MediaItem mi);
 };
@@ -210,20 +211,32 @@ static void OnMenuBuilderItem(Gtk::RadioMenuItem& itm, ActionFunctor fnr)
         fnr();
 }
 
+void AppendRadioItem(Gtk::RadioMenuItem& itm, bool is_active, const ActionFunctor& fnr, Gtk::Menu& lnk_list)
+{
+    itm.set_active(is_active);
+    // .connect() строго после установки set_active()
+    itm.signal_toggled().connect(bl::bind(&OnMenuBuilderItem, boost::ref(itm), fnr));
+    lnk_list.append(itm);
+}
+
+CommonMenuBuilder::CommonMenuBuilder(MediaItem cur_itm, bool for_poster): 
+   curItm(cur_itm), forPoster(for_poster), resMenu(NewManaged<Gtk::Menu>()) {}
+
+
 Gtk::RadioMenuItem& 
-CommonMenuBuilder::AddMediaItemChoice(Gtk::Menu& lnk_list, MediaItem mi, Gtk::RadioButtonGroup& grp,
-                                      const std::string& name)
+CommonMenuBuilder::AddMediaItemChoice(Gtk::Menu& lnk_list, MediaItem mi, const std::string& name)
 {
     std::string itm_name = name.empty() ? MakeMediaItemNameForMenu(mi) : name ;
 
-    Gtk::RadioMenuItem& itm = NewManaged<Gtk::RadioMenuItem>(grp, itm_name);
-    bool is_default = (mi == curItm);
-    itm.set_active(is_default);
-    // .connect() строго после установки set_active()
-    itm.signal_toggled().connect(bl::bind(&OnMenuBuilderItem, boost::ref(itm), CreateAction(mi)));
-
-    lnk_list.append(itm);
+    Gtk::RadioMenuItem& itm = NewManaged<Gtk::RadioMenuItem>(radioGrp, itm_name);
+    AppendRadioItem(itm, mi == curItm, CreateAction(mi), lnk_list);
     return itm;
+}
+
+void CommonMenuBuilder::AddConstantChoice(Gtk::Menu& lnk_list)
+{
+    // No Link
+    AddMediaItemChoice(lnk_list, MediaItem());
 }
 
 Gtk::Menu& CommonMenuBuilder::Create()
@@ -232,14 +245,14 @@ Gtk::Menu& CommonMenuBuilder::Create()
     RefPtr<MediaStore> mdStore = as.mdStore;
     RefPtr<MenuStore>  mnStore = as.mnStore;
 
-    Gtk::Menu& lnk_list = NewManaged<Gtk::Menu>();
+    Gtk::Menu& lnk_list        = resMenu;
+    Gtk::RadioButtonGroup& grp = radioGrp;
 
-    Gtk::RadioButtonGroup grp;
     // создаем пустой по умолчанию; он будет нажат, иначе им будет No Link
     // и при вызове set_active() он тоже отработает ("отжали кнопку")
     Gtk::RadioMenuItem empty_itm(grp);
-    // No Link
-    AddMediaItemChoice(lnk_list, MediaItem(), grp);
+
+    AddConstantChoice(lnk_list);
     lnk_list.append(NewManaged<Gtk::SeparatorMenuItem>());
     // * Menus
     if( !forPoster )
@@ -248,7 +261,7 @@ Gtk::Menu& CommonMenuBuilder::Create()
         {
             for( MenuStore::iterator itr = mnStore->children().begin(), end = mnStore->children().end();
                  itr != end; ++itr )
-                AddMediaItemChoice(lnk_list, mnStore->GetMedia(itr), grp);
+                AddMediaItemChoice(lnk_list, mnStore->GetMedia(itr));
         }
         else
             AddNoStaffItem(lnk_list, "<No Menu>");
@@ -269,20 +282,20 @@ Gtk::Menu& CommonMenuBuilder::Create()
                     Gtk::MenuItem& mn_itm = AppendMI(lnk_list, NewManaged<Gtk::MenuItem>(MakeMediaItemNameForMenu(mi)));
                     Gtk::Menu& chp_menu = MakeSubmenu(mn_itm);
 
-                    AddMediaItemChoice(chp_menu, mi, grp, mi->mdName);
+                    AddMediaItemChoice(chp_menu, mi, mi->mdName);
                     chp_menu.append(NewManaged<Gtk::SeparatorMenuItem>());
 
                     for( VideoMD::Itr itr = vd->List().begin(), end = vd->List().end(); itr != end; ++itr )
                     {
                         ChapterItem chp = *itr;
-                        AddMediaItemChoice(chp_menu, chp, grp, chp->mdName);
+                        AddMediaItemChoice(chp_menu, chp, chp->mdName);
                     }
                 }
                 else
-                    AddMediaItemChoice(lnk_list, mi, grp);
+                    AddMediaItemChoice(lnk_list, mi);
             }
             else if( ptr::dynamic_pointer_cast<StillImageMD>(mi) )
-                AddMediaItemChoice(lnk_list, mi, grp).set_sensitive(forPoster);
+                AddMediaItemChoice(lnk_list, mi).set_sensitive(forPoster);
         }
     }
     else

@@ -93,22 +93,36 @@ namespace Project {
 class CommonMenuBuilder
 {
     public:
-                           CommonMenuBuilder(MediaItem cur_itm, MEditorArea& ed, bool for_poster): 
-                               curItm(cur_itm), editor(ed), forPoster(for_poster) {}
+                           CommonMenuBuilder(MediaItem cur_itm, bool for_poster);
     virtual               ~CommonMenuBuilder() {}
 
     virtual ActionFunctor  CreateAction(MediaItem mi) = 0;
 
                 Gtk::Menu& Create();
+    virtual          void  AddConstantChoice(Gtk::Menu& lnk_list);
 
     protected:
               MediaItem  curItm; // текущая ссылка
-            MEditorArea& editor;
                    bool  forPoster; // визуальная ссылка или для переходов (может быть меню, не может быть рисунком)
 
+              Gtk::Menu& resMenu;  // результирующее меню; обязательно должно быть присоединено после Creat(),
+                                   // иначе утечка
+  Gtk::RadioButtonGroup  radioGrp;
+
 Gtk::RadioMenuItem& 
-AddMediaItemChoice(Gtk::Menu& lnk_list, MediaItem mi, Gtk::RadioButtonGroup& grp,
-                   const std::string& name = std::string());
+AddMediaItemChoice(Gtk::Menu& lnk_list, MediaItem mi, const std::string& name = std::string());
+};
+
+void AppendRadioItem(Gtk::RadioMenuItem& itm, bool is_active, const ActionFunctor& fnr, Gtk::Menu& lnk_list);
+
+class EditorMenuBuilder: public CommonMenuBuilder
+{
+    typedef CommonMenuBuilder MyParent;
+    public:
+                           EditorMenuBuilder(MediaItem cur_itm, MEditorArea& ed, bool for_poster): 
+                               MyParent(cur_itm, for_poster), editor(ed) {}
+    protected:
+            MEditorArea& editor;
 };
 
 } // namespace Project

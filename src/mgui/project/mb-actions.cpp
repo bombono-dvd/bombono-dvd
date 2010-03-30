@@ -25,6 +25,7 @@
 #include "handler.h"
 #include "thumbnail.h"
 #include "mconstructor.h" // APROJECT_NAME
+#include "mconstructor.h" // APROJECT_NAME
 
 #include <mbase/project/table.h>
 #include <mgui/timeline/service.h>

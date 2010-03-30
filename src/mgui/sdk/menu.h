@@ -43,8 +43,10 @@ inline Gtk::Menu& MakeSubmenu(Gtk::MenuItem& mi)
 // Замечание: для таких меню обычно перед Popup() следует вызвать show_all()
 // 
 Gtk::Menu& NewPopupMenu();
-inline void Popup(Gtk::Menu& mn, GdkEventButton* event)
+inline void Popup(Gtk::Menu& mn, GdkEventButton* event, bool show_all = false)
 {
+    if( show_all )
+        mn.show_all();
     mn.popup(event->button, event->time);
 }
 

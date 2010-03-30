@@ -95,6 +95,22 @@ class VideoChapterMD;
 typedef boost::intrusive_ptr<VideoChapterMD> ChapterItem;
 typedef boost::intrusive_ptr<VideoMD> VideoItem;
 
+enum PostActionType
+{
+    patAUTO = 0,      // (по умолчанию) наиболее ожидаемое действие
+                      // при "существующей топологии проекта"
+    patNEXT_TITLE,    // (для видео) следующий по списку
+    patEXP_LINK,      // явная ссылка
+};
+
+struct PostAction
+{
+    PostActionType  paTyp;
+         MediaItem  paLink; // цель для patEXP_LINK
+
+         PostAction(): paTyp(patAUTO) {}
+};
+
 // видео
 class VideoMD: public PSO<VideoMD, StorageMD> // от StorageMD
 {
@@ -108,11 +124,14 @@ class VideoMD: public PSO<VideoMD, StorageMD> // от StorageMD
 
  virtual std::string  TypeString() { return "Video"; }
             ListType& List() { return chpLst; }
+          PostAction& PAction() { return pAct; }
+
     virtual     void  SerializeImpl(Archieve& ar);
                 
     protected:
 
         ListType  chpLst; // список глав
+      PostAction  pAct;
 };
 
 

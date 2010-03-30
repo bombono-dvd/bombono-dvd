@@ -3,9 +3,12 @@
 <!--This document is for "The Atom Project" program-->
   <Medias>
     <Media Name="Autumn" Path="./flower.mpg" Type="Video">
-      <Part Name="Chapter 1">10</Part>
-      <Part Name="Chapter 2">20</Part>
-      <Part Name="Chapter 3">30</Part>
+      <Parts>
+        <Part Name="Chapter 1">10</Part>
+        <Part Name="Chapter 2">20</Part>
+        <Part Name="Chapter 3">30</Part>
+      </Parts>
+      <PostAction Type="0" Ref=""/>
     </Media>
     <Media Name="AcerTX" Path="./colors.png" Type="StillPicture"/>
     <Media Name="Flower" Path="./flower.jpg" Type="StillPicture"/> 

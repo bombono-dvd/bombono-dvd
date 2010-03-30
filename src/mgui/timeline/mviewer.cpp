@@ -143,9 +143,8 @@ Gtk::HButtonBox& InsertButtonArea(Gtk::VBox& vbox, Gtk::ButtonBoxStyle style)
 Gtk::Label& MakeTitleLabel(const char* name)
 {
     // не меньше чем размер шрифта элемента в списке
-    Gtk::Label& label = *Gtk::manage(new Gtk::Label("<span font_desc=\"Sans Bold 12\">" + 
-                                                    std::string(name) + "</span>"));
-    label.set_use_markup(true);
+    Gtk::Label& label = NewMarkupLabel("<span font_desc=\"Sans Bold 12\">" + 
+                                       std::string(name) + "</span>");
     label.set_padding(0, 5);
 
     return label;

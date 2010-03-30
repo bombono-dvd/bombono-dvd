@@ -72,9 +72,7 @@ Gtk::Button& FillBuildButton(Gtk::Button& btn, bool not_started,
 
     PackStart(box, NewManaged<Gtk::Image>(GetFactoryImage(pix_fname))).set_name("BurnImage");
 
-    Gtk::Label& lbl = NewManaged<Gtk::Label>("<span weight=\"bold\" size=\"large\">" + label + "</span>");
-    lbl.set_use_markup(true);
-    lbl.set_use_underline(true);
+    Gtk::Label& lbl = NewMarkupLabel("<span weight=\"bold\" size=\"large\">" + label + "</span>", true);
     box.pack_start(lbl, false, false);
     lbl.set_mnemonic_widget(btn);
 

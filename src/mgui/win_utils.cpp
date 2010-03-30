@@ -410,3 +410,11 @@ void CompleteDialog(Gtk::Dialog& dlg)
     dlg.get_vbox()->show_all();
 }
 
+Gtk::Label& NewMarkupLabel(const std::string& label, bool use_underline)
+{
+    Gtk::Label& lbl = NewManaged<Gtk::Label>(label);
+    lbl.set_use_markup(true);
+    lbl.set_use_underline(use_underline);
+    return lbl;
+}
+
