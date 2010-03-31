@@ -58,5 +58,9 @@ bool ClearAllFiles(const fs::path& dir_path, std::string& err_str);
 
 std::string AppendPath(const std::string& dir, const std::string& path);
 
+// создать директорию (с родителями), если еще не сущ.
+bool CreateDirs(const fs::path& dir, std::string& err_str);
+bool CreateDirsQuiet(const fs::path& dir);
+
 #endif // __MBASE_FILESYSTEM_H__
 

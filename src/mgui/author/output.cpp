@@ -41,8 +41,6 @@
 #include <gtk/gtkdialog.h>
 #include <gtk/gtkmessagedialog.h>
 
-#include <boost/filesystem/convenience.hpp> // fs::create_directories()
-
 static Gtk::Alignment& MakeNullAlg()
 {
     return NewManaged<Gtk::Alignment>(0.0, 0.0, 0.0, 0.0);
@@ -423,15 +421,12 @@ static bool CanUseForAuthoring(const std::string& dir_str)
     // Translators: impossible to go on!
     std::string abort_str(_("Authoring is cancelled."));
     abort_str = ". " + abort_str;
-    if( !fs::exists(dir_str) )
+
+    std::string err_str;
+    if( !CreateDirs(dir_str, err_str) )
     {
-        try { fs::create_directories(dir_str); } 
-        catch( const std::exception& )
-        {
-            MessageBox(BF_("Cant create folder %1% (check permissions)") % dir_str
-                       % bf::stop + abort_str, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK);
-            res = false;
-        }
+        MessageBox(err_str, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK);
+        res = false;
     }
     else if( !fs::is_directory(dir_str) )
     {

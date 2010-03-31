@@ -3,6 +3,10 @@
 #include "resources.h"
 
 #include <mlib/filesystem.h>
+#include <mlib/gettext.h>
+#include <mlib/sdk/logger.h>
+
+#include <glibmm/miscutils.h> // get_user_config_dir()
 
 const char* GetInstallPrefix()
 {
@@ -28,3 +32,27 @@ const std::string& GetDataDir()
     return res_dir;
 }
 
+bool CreateDirsQuiet(const fs::path& dir)
+{
+    bool res = true;
+    std::string err_str;
+    if( !CreateDirs(dir, err_str) )
+    {
+        res = false;
+        LOG_ERR << "CreateDirsQuiet(): " << err_str << io::endl;
+    }
+    return res;
+}
+
+const std::string& GetConfigDir()
+{
+    static std::string cfg_dir;
+    if( cfg_dir.empty() )
+    {
+        fs::path dir = fs::path(Glib::get_user_config_dir()) / "bombono-dvd";
+        CreateDirsQuiet(dir);
+
+        cfg_dir = dir.string();
+    }
+    return cfg_dir;
+}

@@ -329,6 +329,10 @@ void ADatabase::LoadWithFnr(const std::string& fname, ArchieveFnr afnr,
 ThemeDirList::ThemeDirList()
 {
     // директории по умолчанию
+    std::string user_frames = GetConfigDir() + "/frames";
+    if( CreateDirsQuiet(user_frames) )
+        AddDir(user_frames);
+
     AddDir(GetDataDir() + "/frames");
 }
 

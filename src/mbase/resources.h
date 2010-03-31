@@ -28,6 +28,8 @@
 const char* GetInstallPrefix();
 // папка resources
 const std::string& GetDataDir();
+// ~/.config/bombono-dvd
+const std::string& GetConfigDir();
 
 #endif // #ifndef __MBASE_RESOURCES_H__
 
