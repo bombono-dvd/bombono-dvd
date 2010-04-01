@@ -112,8 +112,6 @@ typedef Table<Menu>      MenuList;
 class ADatabase: public Singleton<ADatabase>, public DataWare
 {
     public:
-    typedef boost::function<void(Archieve&)> ArchieveFnr;
-
                        ADatabase();
 
                  void  SetPalTvSystem(bool is_pal);

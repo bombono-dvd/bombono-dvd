@@ -23,6 +23,7 @@
 
 #include "table.h"
 #include "archieve.h"
+#include "archieve-sdk.h"
 #include "srl-common.h"
 #include "handler.h"
 #include "theme.h"
@@ -288,9 +289,7 @@ bool ADatabase::SaveWithFnr(ArchieveFnr afnr)
     root_node->set_attribute("Version", APROJECT_VERSION);
     root_node->add_child_comment("This document is for " APROGRAM_PRINTABLE_NAME " program");
 
-    Archieve ar(root_node, false);
-    afnr(ar);
-
+    DoSaveArchieve(root_node, afnr);
     doc.write_to_file_formatted(ConvertPathFromUtf8(prjFName));
     return true;
 }
@@ -303,23 +302,7 @@ void ADatabase::LoadWithFnr(const std::string& fname, ArchieveFnr afnr,
     if( !IsProjectSet() ) // пустой проект
         return;
 
-    xmlpp::DomParser parser;
-    try
-    {
-        parser.parse_file(ConvertPathFromUtf8(prjFName));
-    }
-    catch(const std::exception& err)
-    {
-        // заменяем, потому что из сообщения непонятно, что произошло
-        throw std::runtime_error(std::string(fname) + " is not existed or corrupted");
-    }
-
-    xmlpp::Element* root_node = parser.get_document()->get_root_node();
-    if( root_node->get_name() != "AProject" ) 
-        throw std::runtime_error("The file is not " APROGRAM_PRINTABLE_NAME " document.");
-
-    Archieve ar(root_node, true);
-    afnr(ar);
+    DoLoadArchieve(ConvertPathFromUtf8(prjFName), afnr, "AProject");
 }
 
 //

@@ -212,7 +212,8 @@ void ContextMenuHook::AtScale()
         save_fnr = lambda::bind(&SaveFrame, boost::ref(*mon));
     popupActions->add( Gtk::Action::create("Save Frame", Gtk::Stock::SAVE, DOTS_("Save Current Frame")),
                        save_fnr );
-    popupActions->add( Gtk::Action::create("Play in Totem", Gtk::Stock::MEDIA_PLAY, _("_Play in Totem")),
+    popupActions->add( Gtk::Action::create("Play in Totem", Gtk::Stock::MEDIA_PLAY, 
+                                           BF_("_Play in %1%") % "Totem" % bf::stop),
                        bl::bind(&PlayInTotem, boost::ref(trkLay)) );
 }
 

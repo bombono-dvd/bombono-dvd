@@ -22,15 +22,14 @@
 #ifndef __MBASE_PROJECT_MEDIA_H__
 #define __MBASE_PROJECT_MEDIA_H__
 
-#include <mlib/ptr.h>
-
 #include "const.h"
 #include "object.h"
+#include "archieve-fwd.h"
+
+#include <mlib/ptr.h>
 
 namespace Project
 {
-
-class Archieve;
 
 template<class SimpleObj, class ParentObj = Object>
 class PSO: public SimpleVisitorObject<SimpleObj, ParentObj, ObjVisitor>

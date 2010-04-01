@@ -248,6 +248,7 @@
 			<F N="../src/mgui/author/output.h"/>
 			<F N="../src/mgui/sdk/packing.h"/>
 			<F N="../src/mgui/sdk/player_utils.h"/>
+			<F N="../src/mgui/prefs.h"/>
 			<F N="../src/mgui/rectlist.h"/>
 			<F N="../src/mgui/redivide.h"/>
 			<F N="../src/mgui/editor/region.h"/>
@@ -321,6 +322,7 @@
 			<F N="../src/mgui/timeline/mviewer.cpp"/>
 			<F N="../src/mgui/author/output.cpp"/>
 			<F N="../src/mgui/sdk/player_utils.cpp"/>
+			<F N="../src/mgui/prefs.cpp"/>
 			<F N="../src/mgui/redivide.cpp"/>
 			<F N="../src/mgui/editor/region.cpp"/>
 			<F N="../src/mgui/author/render.cpp"/>

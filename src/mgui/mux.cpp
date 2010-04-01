@@ -30,7 +30,7 @@ static void OnResponse(Execution::Data& edat, int resp)
     }
 }
 
-static void SetDialogStrict(Gtk::Dialog& dlg, int min_wdh, int min_hgt)
+void SetDialogStrict(Gtk::Dialog& dlg, int min_wdh, int min_hgt)
 {
     dlg.set_resizable(false); // чтоб при закрытии экспандера диалог уменьшался
     // размер окна пошире
@@ -82,17 +82,6 @@ static bool RunMuxing(const std::string& dest_path, const std::string& args)
         dlg.run();
     }
     return ed.IsGood();
-}
-
-static Gtk::FileChooserButton& AppendSourceChooser(Gtk::VBox& vbox, const char* what, const char* desc)
-{
-    Gtk::HBox& hbox = PackStart(vbox, NewManaged<Gtk::HBox>());
-    Add(PackStart(hbox, NewPaddingAlg(0, 0, 0, 5)), NewManaged<Gtk::Label>(what));
-
-    Gtk::FileChooserButton& v_btn = NewManaged<Gtk::FileChooserButton>(desc, 
-        Gtk::FILE_CHOOSER_ACTION_OPEN);
-
-    return PackStart(hbox, v_btn, Gtk::PACK_EXPAND_WIDGET);
 }
 
 struct SaveChooser: public Gtk::Table
@@ -154,23 +143,25 @@ bool MuxStreams(std::string& dest_fname, const std::string& src_fname)
     Gtk::Dialog dlg(_("Mux streams"));
     SetDialogStrict(dlg, 400, -1);
     SaveChooser& sc = NewManaged<SaveChooser>(SMCLN_("Output"));
-    Gtk::FileChooserButton* v_btn = 0, *a_btn = 0;
+    Gtk::FileChooserButton& v_btn = NewManaged<Gtk::FileChooserButton>(_("Select elementary video"), Gtk::FILE_CHOOSER_ACTION_OPEN);
+    Gtk::FileChooserButton& a_btn = NewManaged<Gtk::FileChooserButton>(_("Select audio"),            Gtk::FILE_CHOOSER_ACTION_OPEN);
     {
-        Gtk::VBox& vbox = AddHIGedVBox(dlg);
-        v_btn = &AppendSourceChooser(vbox, SMCLN_("Video"), _("Select elementary video"));
+        DialogVBox& vbox = AddHIGedVBox(dlg);
+
+        AppendWithLabel(vbox, v_btn, SMCLN_("Video"));
         {
             Gtk::FileFilter f;
             f.set_name(_("MPEG2 elementary video (m2v)"));
             f.add_pattern("*.m2v");
-            v_btn->add_filter(f);
+            v_btn.add_filter(f);
         }
 
-        a_btn = &AppendSourceChooser(vbox, SMCLN_("Audio"), _("Select audio"));
+        AppendWithLabel(vbox, a_btn, SMCLN_("Audio"));
         {
             Gtk::FileFilter f;
             f.set_name(_("Audio for DVD") + std::string(" (mp2/mpa, ac3, dts or 16bit lpcm)"));
             FillSoundFilter(f);
-            a_btn->add_filter(f);
+            a_btn.add_filter(f);
         }
 
         PackStart(vbox, sc);
@@ -178,13 +169,13 @@ bool MuxStreams(std::string& dest_fname, const std::string& src_fname)
         CompleteDialog(dlg);
     }
 
-    v_btn->signal_selection_changed().connect(bl::bind(&OnVideoSelected, boost::ref(*v_btn), boost::ref(*a_btn), boost::ref(sc)));
+    v_btn.signal_selection_changed().connect(bl::bind(&OnVideoSelected, boost::ref(v_btn), boost::ref(a_btn), boost::ref(sc)));
     if( !src_fname.empty() )
     {
         if( get_extension(src_fname) == "m2v" )
-            v_btn->set_filename(src_fname);
+            v_btn.set_filename(src_fname);
         else
-            a_btn->set_filename(src_fname);
+            a_btn.set_filename(src_fname);
     }
 
     bool res = false;
@@ -192,9 +183,9 @@ bool MuxStreams(std::string& dest_fname, const std::string& src_fname)
     {
         dest_fname = GetFilename(sc);
 
-        if( v_btn->get_filename().empty() )
+        if( v_btn.get_filename().empty() )
             ErrorBox(_("Elementary video file is not selected."));
-        else if( a_btn->get_filename().empty() )
+        else if( a_btn.get_filename().empty() )
             ErrorBox(_("Audio file is not selected."));
         else if( dest_fname.empty() )
             ErrorBox(_("Output file name is empty."));
@@ -207,7 +198,7 @@ bool MuxStreams(std::string& dest_fname, const std::string& src_fname)
     if( res )
     {
         dlg.hide();
-        res = RunMuxing(dest_fname, boost::format("%1% %2%") % v_btn->get_filename() % a_btn->get_filename() % bf::stop );
+        res = RunMuxing(dest_fname, boost::format("%1% %2%") % v_btn.get_filename() % a_btn.get_filename() % bf::stop );
     }
 
     return res;

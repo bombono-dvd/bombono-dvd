@@ -184,6 +184,7 @@
 		<Folder
 			Name="Source Files"
 			Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
+			<F N="../src/mbase/project/archieve-sdk.cpp"/>
 			<F N="../src/mbase/project/archieve.cpp"/>
 			<F N="../src/mbase/composite/component.cpp"/>
 			<F N="../src/mbase/project/handler.cpp"/>
@@ -201,6 +202,8 @@
 			<F N="../src/mbase/project/_extlibs_.h"/>
 			<F N="../src/mbase/project/_non_pc_.h"/>
 			<F N="../src/mbase/_pc_.h"/>
+			<F N="../src/mbase/project/archieve-fwd.h"/>
+			<F N="../src/mbase/project/archieve-sdk.h"/>
 			<F N="../src/mbase/project/archieve.h"/>
 			<F N="../src/mbase/project/archieve_base.h"/>
 			<F N="../src/mbase/project/colormd.h"/>

@@ -205,17 +205,11 @@ ActionFunctor LinkMenuBuilder::CreateAction(MediaItem mi)
     return bl::bind(SetSelObjectsLinks, boost::ref(editor), mi, forPoster);
 }
 
-static void OnMenuBuilderItem(Gtk::RadioMenuItem& itm, ActionFunctor fnr)
-{
-    if( itm.get_active() )
-        fnr();
-}
-
 void AppendRadioItem(Gtk::RadioMenuItem& itm, bool is_active, const ActionFunctor& fnr, Gtk::Menu& lnk_list)
 {
     itm.set_active(is_active);
     // .connect() строго после установки set_active()
-    itm.signal_toggled().connect(bl::bind(&OnMenuBuilderItem, boost::ref(itm), fnr));
+    SetForRadioToggle(itm, fnr);
     lnk_list.append(itm);
 }
 

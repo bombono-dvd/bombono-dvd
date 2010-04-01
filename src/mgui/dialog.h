@@ -22,6 +22,8 @@
 #ifndef __MGUI_DIALOG_H__
 #define __MGUI_DIALOG_H__
 
+#include <mgui/mguiconst.h>
+
 #include <boost/function.hpp>
 
 
@@ -59,8 +61,20 @@ std::string MakeMessageBoxTitle(const std::string& title);
 bool ChooseFileSaveTo(std::string& fname, const std::string& title, Gtk::Widget& for_wdg);
 bool CheckKeepOrigin(const std::string& fname);
 
-Gtk::VBox& AddHIGedVBox(Gtk::Dialog& dlg);
-void CompleteDialog(Gtk::Dialog& dlg);
+//Gtk::VBox& AddHIGedVBox(Gtk::Dialog& dlg);
+struct DialogVBox: public Gtk::VBox
+{
+    RefPtr<Gtk::SizeGroup> labelSg;
+
+    DialogVBox(bool homogeneous = false, int spacing = 0): 
+        Gtk::VBox(homogeneous, spacing), labelSg(Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL)) {}
+};
+
+DialogVBox& AddHIGedVBox(Gtk::Dialog& dlg);
+
+void AppendWithLabel(DialogVBox& vbox, Gtk::Widget& wdg, const char* label);
+// close_style - вариант для настроек (без OK)
+void CompleteDialog(Gtk::Dialog& dlg, bool close_style = false);
 
 
 #endif // #ifndef __MGUI_DIALOG_H__

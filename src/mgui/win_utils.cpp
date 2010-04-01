@@ -392,21 +392,12 @@ Gtk::Alignment& NewPaddingAlg(int top, int btm, int lft, int rgt)
     return alg;
 }
 
-Gtk::VBox& AddHIGedVBox(Gtk::Dialog& dlg)
+void CompleteDialog(Gtk::Dialog& dlg, bool close_style)
 {
-    // :KLUDGE: почему-то set_border_width() на dlg.get_vbox() не действует, поэтому использовать
-    // MakeBoxHIGed() нельзя
-    Gtk::VBox& box = *dlg.get_vbox();
-
-    //return Add(PackStart(box, NewPaddingAlg(10, 10, 10, 10), Gtk::PACK_EXPAND_WIDGET), NewManaged<Gtk::VBox>(false, 10));
-    Gtk::VBox& vbox = PackStart(box, NewManaged<Gtk::VBox>(false, 10), Gtk::PACK_EXPAND_WIDGET);
-    vbox.set_border_width(10);
-    return vbox;
-}
-
-void CompleteDialog(Gtk::Dialog& dlg)
-{
-    AddCancelDoButtons(dlg, Gtk::Stock::OK);
+    if( close_style )
+        dlg.add_button(Gtk::Stock::CLOSE, Gtk::RESPONSE_CLOSE);
+    else
+        AddCancelDoButtons(dlg, Gtk::Stock::OK);
     dlg.get_vbox()->show_all();
 }
 

@@ -55,5 +55,34 @@ Gtk::Frame& PackWidgetInFrame(Gtk::Widget& wdg, Gtk::ShadowType st,
 
 Gtk::Label& NewMarkupLabel(const std::string& label, bool use_underline = false);
 
+//
+// GtkRadioButton, GtkRadioMenuItem и др. "radio"-виджеты отрабатывают toggled на оба состояния;
+// реально же действие хочется выполнить только на выбор.
+//
+template<typename RadioItem>
+class RadioToggleCaller
+{
+    public:
+                RadioToggleCaller(RadioItem& itm, const ActionFunctor& fnr): itm_(itm), fnr_(fnr) {}
+
+          void  operator()()
+          {
+              if( itm_.get_active() )
+                  fnr_();
+          }
+
+    private:
+              RadioItem& itm_;
+           ActionFunctor fnr_;
+};
+
+template<class RadioItem>
+void SetForRadioToggle(RadioItem& itm, const ActionFunctor& fnr)
+{
+    // в заголовках не используем Boost.Lambda
+    //itm.signal_toggled().connect(bl::bind(&OnRadioToggled<RadioItem>, boost::ref(itm), fnr));
+    itm.signal_toggled().connect(RadioToggleCaller<RadioItem>(itm, fnr));
+}
+
 #endif // #ifndef __MGUI_SDK_WIDGET_H__
 

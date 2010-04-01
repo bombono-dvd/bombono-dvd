@@ -39,6 +39,7 @@
 #include <mgui/author/output.h> // PackOutput()
 
 #include <mgui/mux.h>
+#include <mgui/prefs.h>
 #include <mgui/gettext.h>
 #include <mgui/project/handler.h> // RegisterHook()
 #include <mlib/sigc.h>
@@ -638,8 +639,9 @@ static Gtk::RadioButton& TVSelectionButton(bool &is_pal, bool val, Gtk::RadioBut
 {
     const char* name = val ? "_PAL/SECAM" : "_NTSC" ;
     Gtk::RadioButton& btn = *Gtk::manage(new Gtk::RadioButton(grp, name, true));
-    using namespace boost; // boost::function<> - для приведения результата к void
-    btn.signal_toggled().connect( function<void()>(lambda::var(is_pal) = val) );
+    if( is_pal == val )
+        btn.set_active();
+    SetForRadioToggle(btn, bl::var(is_pal) = val);
     return btn;
 }
 
@@ -647,7 +649,7 @@ static void OnNewProject(ConstructorApp& app)
 {
     if( CheckBeforeClosing(app) )
     {
-        bool is_pal = true;
+        bool is_pal = Prefs().isPAL;
         Gtk::Dialog new_prj_dlg(_("New Project"), app.win, true, true);
         new_prj_dlg.set_name("NewProject");
         new_prj_dlg.set_resizable(false);
@@ -947,8 +949,10 @@ ConstructorApp::ConstructorApp(): askSaveOnExit(true), isProjectChanged(false)
                               Gtk::AccelKey("<control>Q"), lambda::bind(&QuitApplication, app_ref) );
             prj_actions->add( Gtk::Action::create("Import DVD", DOTS_("Add Videos from _DVD"), _("DVD-Import Assistant")), 
                               lambda::bind(&ImportFromDVD, app_ref) );
-            prj_actions->add( Gtk::Action::create("Mux Streams", DOTS_("_Mux Streams"), _("Mux Elementary Streams into MPEG2")), 
+            prj_actions->add( Gtk::Action::create("Mux Streams", DOTS_("_Mux Streams"), _("Mux Elementary Streams into MPEG2")),
                               bl::bind(&MuxAddStreams, std::string()) );
+            prj_actions->add( Gtk::Action::create("Preferences", Gtk::Stock::PREFERENCES, DOTS_("Pr_eferences")), 
+                              bl::bind(&ShowPrefs, &win) );
 
 
             RefPtr<Gtk::UIManager> mngr = Gtk::UIManager::create();
@@ -972,6 +976,8 @@ ConstructorApp::ConstructorApp(): askSaveOnExit(true), isProjectChanged(false)
             "    <separator/>"
             "    <menuitem action='Save'/>"
             "    <menuitem action='SaveAs'/>"
+            "    <separator/>"
+            "    <menuitem action='Preferences'/>"
             "    <separator/>"
             "    <menuitem action='Quit'/>"
             "  </menu>"
@@ -1102,9 +1108,14 @@ ActionFunctor BuildConstructor(ConstructorApp& app, const std::string& prj_file_
 
 void RunConstructor(const std::string& prj_file_name, bool ask_save_on_exit)
 {
-    InitI18n();
-
     DBCleanup db_cleanup(false);
+    // *
+    InitI18n();
+    // *
+    LoadPrefs();
+    AData().SetPalTvSystem(Prefs().isPAL);
+
+    // *
     ConstructorApp app;
     app.askSaveOnExit = ask_save_on_exit;
 

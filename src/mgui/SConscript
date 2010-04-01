@@ -17,6 +17,7 @@ lib_src_files = [
                  'mcommon_vis.cpp',
                  'menu-rgn.cpp',
                  'mux.cpp',
+                 'prefs.cpp',
                  'redivide.cpp',
                  'stream_utils.cpp',
                  'theme.cpp',

@@ -298,14 +298,14 @@ static bool ScriptTitle(xmlpp::Element* ts_node, VideoItem vi, int titles_cnt)
         vob_node->set_attribute("chapters", chapters);
 
     xmlpp::Element* post_node = pgc_node->add_child("post");
-    std::string post_cmd;
 
     std::string jnt_cmd = JumpNextTitle(vi, titles_cnt);
+    // чаще всего будет эта команда
+    std::string post_cmd = AutoPostCmd(jnt_cmd);
     PostAction& pa = vi->PAction();
     switch( pa.paTyp )
     {
     case patAUTO:
-        post_cmd = AutoPostCmd(jnt_cmd);
         break;
     case patNEXT_TITLE:
         post_cmd = jnt_cmd;
@@ -313,11 +313,10 @@ static bool ScriptTitle(xmlpp::Element* ts_node, VideoItem vi, int titles_cnt)
     case patEXP_LINK:
         if( pa.paLink )
             post_cmd = MakeButtonJump(pa.paLink, true);
-        else
-            post_cmd = AutoPostCmd(jnt_cmd);
         break;
     default:
-        ASSERT_RTL(0);
+        //ASSERT_RTL(0);
+        break; // не вылетаем на плохих проектах
     }
     post_node->add_child_text(post_cmd);
 

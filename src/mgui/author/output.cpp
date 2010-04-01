@@ -34,6 +34,7 @@
 #include <mgui/sdk/textview.h>
 #include <mgui/timer.h>
 #include <mgui/gettext.h>
+#include <mgui/prefs.h>
 
 #include <mbase/resources.h>
 #include <mlib/filesystem.h>
@@ -81,10 +82,9 @@ Gtk::Button& FillBuildButton(Gtk::Button& btn, bool not_started,
     return btn;
 }
 
-static void SetAuthorMode(Author::Mode mode, Gtk::RadioButton& btn)
+static void SetAuthorMode(Author::Mode mode)
 {
-    if( btn.get_active() )
-        Author::GetES().mode = mode;
+    Author::GetES().mode = mode;
 }
 
 static Gtk::RadioButton& AddAuthoringMode(Gtk::Box& box, Gtk::RadioButtonGroup& grp, 
@@ -92,14 +92,14 @@ static Gtk::RadioButton& AddAuthoringMode(Gtk::Box& box, Gtk::RadioButtonGroup& 
 {
     Gtk::RadioButton& btn = NewManaged<Gtk::RadioButton>(grp, name);
     btn.set_use_underline(true);
-    btn.signal_toggled().connect(boost::lambda::bind(&SetAuthorMode, mode, boost::ref(btn)));
+    SetForRadioToggle(btn, bl::bind(&SetAuthorMode, mode));
     PackStart(box, btn);
 
     // ручками устанавливаем режим вначале
     if( init_this )
     {
         ASSERT( btn.get_active() );
-        SetAuthorMode(mode, btn);
+        SetAuthorMode(mode);
     }
     return btn;
 }
@@ -612,7 +612,8 @@ bool NotForPlay(guint response_id, const std::string& dir_str)
     if( response_id == RESPONSE_TOTEM )
     {
         res = false;
-        Execution::SimpleSpawn("scons totem", dir_str.c_str());
+        std::string cmd = boost::format("scons %1%") % (Prefs().player == paTOTEM ? "totem" : "xine") % bf::stop;
+        Execution::SimpleSpawn(cmd.c_str(), dir_str.c_str());
     }
     return res;
 }
@@ -664,7 +665,7 @@ static void PostBuildOperation(bool res, const std::string& dir_str)
                                    Gtk::MESSAGE_INFO, Gtk::BUTTONS_NONE);
             dlg.set_secondary_text(desc_str, true);
 
-            dlg.add_button(_("_Play in Totem"), RESPONSE_TOTEM);
+            dlg.add_button(BF_("_Play in %1%") % (Prefs().player == paTOTEM ? "Totem" : "Xine") % bf::stop, RESPONSE_TOTEM);
             dlg.add_button(_("_Burn to DVD"),   RESPONSE_BURN);
             std::string dvd_drive;
             if( /*(es.mode == modBURN) ||*/ !Author::IsBurnerSetup(dvd_drive) )
