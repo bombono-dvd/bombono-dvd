@@ -949,7 +949,7 @@ ConstructorApp::ConstructorApp(): askSaveOnExit(true), isProjectChanged(false)
                               Gtk::AccelKey("<control>Q"), lambda::bind(&QuitApplication, app_ref) );
             prj_actions->add( Gtk::Action::create("Import DVD", DOTS_("Add Videos from _DVD"), _("DVD-Import Assistant")), 
                               lambda::bind(&ImportFromDVD, app_ref) );
-            prj_actions->add( Gtk::Action::create("Mux Streams", DOTS_("_Mux Streams"), _("Mux Elementary Streams into MPEG2")),
+            prj_actions->add( Gtk::Action::create("Mux Streams", DOTS_("_Mux"), _("Mux Elementary Streams into MPEG2")),
                               bl::bind(&MuxAddStreams, std::string()) );
             prj_actions->add( Gtk::Action::create("Preferences", Gtk::Stock::PREFERENCES, DOTS_("Pr_eferences")), 
                               bl::bind(&ShowPrefs, &win) );
