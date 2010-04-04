@@ -348,6 +348,8 @@ namespace boost
       struct stat path_stat;
       if(::stat( ph.string().c_str(), &path_stat ) != 0)
       {
+         // Murav'jov - want strict policy as in 1.38
+         return false;
          if((errno == ENOENT) || (errno == ENOTDIR))
             return false;  // stat failed because the path does not exist
          // for any other error we assume the file does exist and fall through,

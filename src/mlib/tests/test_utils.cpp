@@ -151,6 +151,9 @@ BOOST_AUTO_TEST_CASE( TestFilesystem )
         pth = "/ttt";
         BOOST_CHECK( Project::MakeRelativeToDir(pth, dir) && (pth == fs::path("../../ttt")) );
     }
+
+    // 
+    BOOST_CHECK( !fs::exists("/root/.config") );
 }
 
 BOOST_AUTO_TEST_CASE( TestStringstream )
