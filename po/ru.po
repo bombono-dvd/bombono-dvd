@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-04-02 21:22+0400\n"
-"PO-Revision-Date: 2010-04-02 21:44+0300\n"
+"POT-Creation-Date: 2010-04-06 17:32+0400\n"
+"PO-Revision-Date: 2010-04-06 17:36+0300\n"
 "Last-Translator: Ilya Murav'jov <muravev@yandex.ru>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -76,7 +76,7 @@ msgid "Cant write to folder %1% (check permissions)."
 msgstr "Не могу записывать в папку %1% (проверьте права)."
 
 #: src/mgui/dvdimport.cpp:471
-#: src/mgui/win_utils.cpp:319
+#: src/mgui/win_utils.cpp:322
 #, boost-format
 msgid "A file named \"%1%\" already exists. Do you want to replace it?"
 msgstr "Файл с именем \"%1%\" уже существует. Заменить его?"
@@ -136,7 +136,7 @@ msgid "Muxing \"%1%\""
 msgstr "Микширование \"%1%\""
 
 #: src/mgui/mux.cpp:56
-#: src/mgui/author/output.cpp:229
+#: src/mgui/author/output.cpp:231
 msgid "Show/_Hide Details"
 msgstr "По_казать/скрыть подробности"
 
@@ -145,7 +145,7 @@ msgid "Muxing error"
 msgstr "Ошибка микширования"
 
 #: src/mgui/mux.cpp:81
-#: src/mgui/author/output.cpp:632
+#: src/mgui/author/output.cpp:634
 #, boost-format
 msgid "The reason is \"%1%\" (see Details)"
 msgstr "Причина \"%1%\" (см. Подробности)"
@@ -206,19 +206,23 @@ msgstr "Файл аудиодорожки не выбран."
 msgid "Output file name is empty."
 msgstr "Имя нового файла пустое."
 
-#: src/mgui/prefs.cpp:98
+#: src/mgui/prefs.cpp:123
 msgid "Bombono DVD Preferences"
 msgstr "Настройки Bombono DVD"
 
-#: src/mgui/prefs.cpp:111
-msgid "_Default Project Type"
+#: src/mgui/prefs.cpp:137
+msgid "_Default project type"
 msgstr "_Тип проекта по умолчанию"
 
-#: src/mgui/prefs.cpp:116
-msgid "_Play Authoring Result in"
+#: src/mgui/prefs.cpp:140
+msgid "Default _folder for authoring"
+msgstr "_Папка для авторинга по умолчанию"
+
+#: src/mgui/prefs.cpp:145
+msgid "_Play authoring result in"
 msgstr "_Воспроизводить результат авторинга в"
 
-#: src/mgui/win_utils.cpp:322
+#: src/mgui/win_utils.cpp:325
 msgid "Replacing the file overwrite its contents."
 msgstr "Его замена приведёт к перезаписи содержимого."
 
@@ -316,71 +320,71 @@ msgstr "Соз_дать DVD-Video"
 msgid "Select Output _Folder:"
 msgstr "_Выберите папку назначения:"
 
-#: src/mgui/author/output.cpp:175
+#: src/mgui/author/output.cpp:177
 msgid " Choose Author Mode: "
 msgstr "Выберите режим авторинга"
 
 #. цель по умолчанию
-#: src/mgui/author/output.cpp:181
+#: src/mgui/author/output.cpp:183
 msgid "_Write DVD Folder"
 msgstr "_Записать в папку"
 
-#: src/mgui/author/output.cpp:182
+#: src/mgui/author/output.cpp:184
 msgid "Write Disk _Image"
 msgstr "Записать _образ диска"
 
-#: src/mgui/author/output.cpp:191
+#: src/mgui/author/output.cpp:193
 msgid "Disc Label: "
 msgstr "Имя диска:"
 
-#: src/mgui/author/output.cpp:196
+#: src/mgui/author/output.cpp:198
 msgid "Burn to _DVD"
 msgstr "З_аписать на DVD"
 
-#: src/mgui/author/output.cpp:204
+#: src/mgui/author/output.cpp:206
 msgid "DVD Drive: "
 msgstr "Привод DVD:"
 
-#: src/mgui/author/output.cpp:210
+#: src/mgui/author/output.cpp:212
 msgid "Writing Speed: "
 msgstr "Скорость записи:"
 
-#: src/mgui/author/output.cpp:221
+#: src/mgui/author/output.cpp:223
 msgid "_Rendering only"
 msgstr "_Только рендеринг"
 
-#: src/mgui/author/output.cpp:275
+#: src/mgui/author/output.cpp:277
 msgid "Rendering"
 msgstr "Рендеринг"
 
-#: src/mgui/author/output.cpp:352
+#: src/mgui/author/output.cpp:354
 msgid "DVD Burning"
 msgstr "Запись DVD"
 
-#: src/mgui/author/output.cpp:396
+#: src/mgui/author/output.cpp:398
 msgid "The result is here"
 msgstr "Результат находится здесь"
 
-#: src/mgui/author/output.cpp:398
+#: src/mgui/author/output.cpp:400
 msgid "You can run authoring manually by executing command \"scons\" at the specified folder. Also, see README file for other options over there."
 msgstr "Вы можете довести авторинг вручную, выполнив команду \"scons\" в указанной папке. Дополнительные опции смотрите в файле README там же."
 
 #. Translators: impossible to go on!
-#: src/mgui/author/output.cpp:422
+#: src/mgui/author/output.cpp:424
 msgid "Authoring is cancelled."
 msgstr "Авторинг прекращен."
 
-#: src/mgui/author/output.cpp:433
+#: src/mgui/author/output.cpp:435
 #, boost-format
 msgid "%1% is not a folder"
 msgstr "%1% не является папкой"
 
-#: src/mgui/author/output.cpp:444
+#: src/mgui/author/output.cpp:446
 #, boost-format
 msgid "Cant have full access to folder %1% (read, write)"
 msgstr "Не удалось получить полный доступ к папке  %1% (read, write)"
 
-#: src/mgui/author/output.cpp:452
+#: src/mgui/author/output.cpp:454
 #, boost-format
 msgid ""
 "Folder %1% is not empty. We need to remove all files in it before authoring.\n"
@@ -389,34 +393,34 @@ msgstr ""
 "Папка %1% не пуста. Требуется удалить все файлы в ней перед авторингом.\n"
 "Продолжать?"
 
-#: src/mgui/author/output.cpp:458
+#: src/mgui/author/output.cpp:460
 #, boost-format
 msgid "Error during removing files: %1%"
 msgstr "Ошибка во время удаления файлов: %1%"
 
-#: src/mgui/author/output.cpp:629
+#: src/mgui/author/output.cpp:631
 #, boost-format
 msgid "%1% cancelled."
 msgstr "Операция \"%1%\" отменена."
 
-#: src/mgui/author/output.cpp:631
+#: src/mgui/author/output.cpp:633
 #, boost-format
 msgid "%1% broken."
 msgstr "Операция \"%1%\" завершена неудачно."
 
 #. Translators: can be tranlated as "Operation "%1%" ..."
-#: src/mgui/author/output.cpp:638
+#: src/mgui/author/output.cpp:640
 #, boost-format
 msgid "%1% successfully completed."
 msgstr "Операция \"%1%\" успешно завершена."
 
-#: src/mgui/author/output.cpp:668
-#: src/mgui/timeline/select.cpp:216
+#: src/mgui/author/output.cpp:670
+#: src/mgui/timeline/select.cpp:239
 #, boost-format
 msgid "_Play in %1%"
 msgstr "_Воспроизвести в %1%"
 
-#: src/mgui/author/output.cpp:669
+#: src/mgui/author/output.cpp:671
 msgid "_Burn to DVD"
 msgstr "_Записать на DVD"
 
@@ -868,7 +872,7 @@ msgstr "Редактировать меню"
 
 #. Add
 #: src/mgui/timeline/layout.cpp:526
-#: src/mgui/timeline/select.cpp:193
+#: src/mgui/timeline/select.cpp:216
 msgid "Add Chapter Point"
 msgstr "Добавить главу"
 
@@ -889,39 +893,43 @@ msgstr "Файлы MPEG"
 msgid "Still Images"
 msgstr "Рисунки"
 
-#: src/mgui/timeline/select.cpp:127
+#: src/mgui/timeline/select.cpp:143
+msgid "A_dd to project"
+msgstr "Д_обавить в проект"
+
+#: src/mgui/timeline/select.cpp:146
 msgid "Save Frame..."
 msgstr "Сохранить кадр..."
 
 #. Add at Intervals
-#: src/mgui/timeline/select.cpp:147
-#: src/mgui/timeline/select.cpp:205
+#: src/mgui/timeline/select.cpp:170
+#: src/mgui/timeline/select.cpp:228
 msgid "Add Chapter Points at Intervals"
 msgstr "Добавить главы через интервал"
 
-#: src/mgui/timeline/select.cpp:153
+#: src/mgui/timeline/select.cpp:176
 msgid "Interval between Chapters:"
 msgstr "Интервал между главами"
 
-#: src/mgui/timeline/select.cpp:160
+#: src/mgui/timeline/select.cpp:183
 msgid "min."
 msgstr "мин."
 
-#: src/mgui/timeline/select.cpp:163
+#: src/mgui/timeline/select.cpp:186
 msgid "Remove Existing Chapters"
 msgstr "Удалить существующие главы"
 
 #. Delete
-#: src/mgui/timeline/select.cpp:196
+#: src/mgui/timeline/select.cpp:219
 msgid "Delete Chapter Point"
 msgstr "Удалить главу"
 
 #. Delete All
-#: src/mgui/timeline/select.cpp:200
+#: src/mgui/timeline/select.cpp:223
 msgid "Delete All Chapter Points"
 msgstr "Удалить все главы"
 
-#: src/mgui/timeline/select.cpp:213
+#: src/mgui/timeline/select.cpp:236
 msgid "Save Current Frame"
 msgstr "Сохранить текущий кадр"
 

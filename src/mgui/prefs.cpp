@@ -134,15 +134,15 @@ void ShowPrefs(Gtk::Window* win)
         tv_cmb.append_text("PAL/SECAM");
         tv_cmb.append_text("NTSC");
         tv_cmb.set_active(Prefs().isPAL ? 0 : 1);
-        AppendWithLabel(vbox, tv_cmb, _("_Default Project Type"));
+        AppendWithLabel(vbox, tv_cmb, _("_Default project type"));
 
         TryDefaultAuthorPath(a_btn);
-        AppendWithLabel(vbox, a_btn, _("Default _Folder for Authoring Results"));
+        AppendWithLabel(vbox, a_btn, _("Default _folder for authoring"));
 
         pl_cmb.append_text("Totem");
         pl_cmb.append_text("Xine");
         pl_cmb.set_active(Prefs().player);
-        AppendWithLabel(vbox, pl_cmb, _("_Play Authoring Result in"));
+        AppendWithLabel(vbox, pl_cmb, _("_Play authoring result in"));
 
         CompleteDialog(dlg, true);
     }
