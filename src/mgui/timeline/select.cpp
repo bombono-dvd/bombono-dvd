@@ -23,6 +23,8 @@
 
 #include "service.h"
 
+#include <mgui/project/mb-actions.h>
+
 #include <mgui/project/handler.h>
 #include <mgui/project/thumbnail.h>
 #include <mgui/key.h>
@@ -35,6 +37,7 @@
 #include <mgui/gettext.h>
 
 #include <mbase/project/table.h>
+#include <mlib/filesystem.h>
 #include <mlib/sigc.h>
 #include <cmath> // std::ceil()
 
@@ -111,6 +114,19 @@ static std::string GetFormatByExt(const char* ext, bool jpeg_on_break = false)
     return std::string( jpeg_on_break ? "jpeg" : "" );
 }
 
+static std::string& SaveFrameDir()
+{
+    static std::string dir;
+    return dir;
+}
+
+static void OnSaveFrameDialog(Gtk::FileChooserDialog& dlg, Gtk::CheckButton& btn)
+{
+    if( !SaveFrameDir().empty() )
+        dlg.set_current_folder(SaveFrameDir());
+    dlg.set_extra_widget(btn);
+}
+
 static void SaveFrame(DAMonitor& mon)
 {
     time4_t t4 = FramesToTime(mon.CurPos()>=0 ? mon.CurPos() : 0, Mpeg::GetFrameFPS(mon.GetPlayer()));
@@ -124,7 +140,10 @@ static void SaveFrame(DAMonitor& mon)
     strm << ".jpeg";
 
     std::string fnam = strm.str();
-    if( ChooseFileSaveTo(fnam, _("Save Frame..."), mon) )
+    Gtk::CheckButton& add_btn = NewManaged<Gtk::CheckButton>(_("A_dd to project"), true);
+    RefPtr<Gtk::CheckButton> add_ref(MakeRefPtr(&add_btn)); 
+
+    if( ChooseFileSaveTo(fnam, _("Save Frame..."), mon, bl::bind(&OnSaveFrameDialog, bl::_1, boost::ref(add_btn))) )
     {
         // находим расширение и по нему сохраняем
         int i = fnam.rfind('.');
@@ -132,6 +151,10 @@ static void SaveFrame(DAMonitor& mon)
         ext = GetFormatByExt(ext.c_str(), true);
 
         mon.FramePixbuf()->save(fnam, ext);
+
+        SaveFrameDir() = fs::path(fnam).branch_path().string();
+        if( add_btn.get_active() )
+            Project::TryAddMediaQuiet(fnam, "SaveFrame");
     }
 }
 

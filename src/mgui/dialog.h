@@ -57,8 +57,10 @@ void BuildChooserDialog(Gtk::FileChooserDialog& dialog, bool is_open, Gtk::Widge
 
 std::string MakeMessageBoxTitle(const std::string& title);
 
+typedef boost::function<void(Gtk::FileChooserDialog&)> FCDFunctor;
 // запросить у пользователя файл для сохранения
-bool ChooseFileSaveTo(std::string& fname, const std::string& title, Gtk::Widget& for_wdg);
+bool ChooseFileSaveTo(std::string& fname, const std::string& title, Gtk::Widget& for_wdg,
+                      const FCDFunctor& fnr = FCDFunctor());
 bool CheckKeepOrigin(const std::string& fname);
 
 //Gtk::VBox& AddHIGedVBox(Gtk::Dialog& dlg);

@@ -292,12 +292,15 @@ void BuildChooserDialog(Gtk::FileChooserDialog& dialog, bool is_open, Gtk::Widge
     AddCancelDoButtons(dialog, is_open ? Gtk::Stock::OPEN : Gtk::Stock::SAVE );
 }
 
-bool ChooseFileSaveTo(std::string& fname, const std::string& title, Gtk::Widget& for_wdg)
+bool ChooseFileSaveTo(std::string& fname, const std::string& title, Gtk::Widget& for_wdg,
+                      const FCDFunctor& fnr)
 {
     Gtk::FileChooserDialog dialog(title, Gtk::FILE_CHOOSER_ACTION_SAVE);
     BuildChooserDialog(dialog, false, for_wdg);
 
     dialog.set_current_name(fname);
+    if( fnr )
+        fnr(dialog);
 
     bool res;
     for( ; res = Gtk::RESPONSE_OK == dialog.run(), res; )
