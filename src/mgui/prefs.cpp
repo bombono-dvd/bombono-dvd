@@ -13,9 +13,11 @@
 #include <mbase/resources.h>
 
 #include <mlib/gettext.h>
+#include <mlib/filesystem.h>
 #include <mlib/sdk/logger.h>
 
 #include <boost/lexical_cast.hpp>
+#include <boost/filesystem/convenience.hpp> // fs::create_directories()
 
 template<class GtkObj>
 GtkObj& AddWidget(RefPtr<Gtk::SizeGroup> wdg_sg, GtkObj& wdg)
@@ -53,9 +55,10 @@ void Preferences::Init()
 {
     isPAL  = true;
     player = paTOTEM;
+    authorPath = (fs::path(Glib::get_user_cache_dir()) / "bombono-dvd-video").string();
 }
 
-const int PREFS_VERSION = 1;
+const int PREFS_VERSION = 2;
 
 void SavePrefs(Project::ArchieveFnr afnr, const std::string& fname)
 {
@@ -70,8 +73,16 @@ void SavePrefs(Project::ArchieveFnr afnr, const std::string& fname)
 
 void SerializePrefs(Project::Archieve& ar)
 {
+    int load_ver = PREFS_VERSION;
+    if( ar.IsLoad() )
+        ar("Version", load_ver);
+
+
     ar("PAL",    Prefs().isPAL  )
       ("Player", Prefs().player );
+
+    if( ar.IsSave() || load_ver >= 2 )
+        ar("DefAuthorPath", Prefs().authorPath);
 }
 
 std::string PrefsPath()
@@ -88,9 +99,23 @@ void LoadPrefs()
     }
     catch (const std::exception& err)
     {
-        LOG_ERR << "Couldn't load preferences from " << cfg_path << ": " << err.what() << io::endl;
+        LOG_WRN << "Couldn't load preferences from " << cfg_path << ": " << err.what() << io::endl;
         Prefs().Init();
     }
+}
+
+void TrySetDirectory(Gtk::FileChooser& fc, const std::string& dir_path)
+{
+    try
+    {
+        if( !fs::exists(dir_path) )
+            fs::create_directories(dir_path);
+    }
+    catch (const std::exception& err)
+    {
+        LOG_WRN << "TrySetDirectory(" << dir_path << "): " << err.what() << io::endl;
+    }
+    fc.set_filename(dir_path);
 }
 
 void ShowPrefs(Gtk::Window* win)
@@ -98,10 +123,11 @@ void ShowPrefs(Gtk::Window* win)
     Gtk::Dialog dlg(_("Bombono DVD Preferences"), false, true);
     if( win )
         dlg.set_transient_for(*win);
-    SetDialogStrict(dlg, 400, 200);
+    SetDialogStrict(dlg, 450, 200);
 
     Gtk::ComboBoxText& tv_cmb = NewManaged<Gtk::ComboBoxText>();
     Gtk::ComboBoxText& pl_cmb = NewManaged<Gtk::ComboBoxText>();
+    Gtk::FileChooserButton& a_btn = NewManaged<Gtk::FileChooserButton>("Select output folder", Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
     {
         DialogVBox& vbox = AddHIGedVBox(dlg);
 
@@ -109,6 +135,9 @@ void ShowPrefs(Gtk::Window* win)
         tv_cmb.append_text("NTSC");
         tv_cmb.set_active(Prefs().isPAL ? 0 : 1);
         AppendWithLabel(vbox, tv_cmb, _("_Default Project Type"));
+
+        TryDefaultAuthorPath(a_btn);
+        AppendWithLabel(vbox, a_btn, _("Default _Folder for Authoring Results"));
 
         pl_cmb.append_text("Totem");
         pl_cmb.append_text("Xine");
@@ -123,6 +152,7 @@ void ShowPrefs(Gtk::Window* win)
     {
         Prefs().isPAL  = tv_cmb.get_active_row_number() == 0;
         Prefs().player = (PlayAuthoring)pl_cmb.get_active_row_number();
+        Prefs().authorPath = a_btn.get_filename();
 
         SavePrefs(&SerializePrefs, PrefsPath());
     }

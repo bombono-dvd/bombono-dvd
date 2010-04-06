@@ -132,7 +132,7 @@ static Gtk::Label& MakeAuthorLabel(const std::string& name, bool is_left)
     return FillAuthorLabel(NewManaged<Gtk::Label>(), name, is_left);
 }
 
-ActionFunctor PackOutput(ConstructorApp& app, const std::string& prj_fname)
+ActionFunctor PackOutput(ConstructorApp& app, const std::string& /*prj_fname*/)
 {
     Gtk::Notebook& nbook = app.BookContent();
     Gtk::Alignment& alg = Add(nbook, NewManaged<Gtk::Alignment>(0.05, 0.05, 0.5, 0.5));
@@ -160,9 +160,11 @@ ActionFunctor PackOutput(ConstructorApp& app, const std::string& prj_fname)
 
             Gtk::Label& lbl = PackStart(box, MakeAuthorLabel(_("Select Output _Folder:"), true));
             lbl.set_mnemonic_widget(ch_btn);
-            // по умолчанию будет директория проекта
-            if( !prj_fname.empty() )
-                ch_btn.set_filename(prj_fname);
+            // берем путь из настроек
+            //if( !prj_fname.empty() )
+            //    ch_btn.set_filename(prj_fname);
+            TryDefaultAuthorPath(ch_btn);
+
             PackStart(box, ch_btn);
         }
 
