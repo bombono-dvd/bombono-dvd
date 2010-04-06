@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-04-03 00:13+0400\n"
+"POT-Creation-Date: 2010-04-06 17:32+0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -72,7 +72,7 @@ msgstr ""
 msgid "Cant write to folder %1% (check permissions)."
 msgstr ""
 
-#: src/mgui/dvdimport.cpp:471 src/mgui/win_utils.cpp:319
+#: src/mgui/dvdimport.cpp:471 src/mgui/win_utils.cpp:322
 #, boost-format
 msgid "A file named \"%1%\" already exists. Do you want to replace it?"
 msgstr ""
@@ -132,7 +132,7 @@ msgstr ""
 msgid "Muxing \"%1%\""
 msgstr ""
 
-#: src/mgui/mux.cpp:56 src/mgui/author/output.cpp:229
+#: src/mgui/mux.cpp:56 src/mgui/author/output.cpp:231
 msgid "Show/_Hide Details"
 msgstr ""
 
@@ -140,7 +140,7 @@ msgstr ""
 msgid "Muxing error"
 msgstr ""
 
-#: src/mgui/mux.cpp:81 src/mgui/author/output.cpp:632
+#: src/mgui/mux.cpp:81 src/mgui/author/output.cpp:634
 #, boost-format
 msgid "The reason is \"%1%\" (see Details)"
 msgstr ""
@@ -199,19 +199,23 @@ msgstr ""
 msgid "Output file name is empty."
 msgstr ""
 
-#: src/mgui/prefs.cpp:98
+#: src/mgui/prefs.cpp:123
 msgid "Bombono DVD Preferences"
 msgstr ""
 
-#: src/mgui/prefs.cpp:111
-msgid "_Default Project Type"
+#: src/mgui/prefs.cpp:137
+msgid "_Default project type"
 msgstr ""
 
-#: src/mgui/prefs.cpp:116
-msgid "_Play Authoring Result in"
+#: src/mgui/prefs.cpp:140
+msgid "Default _folder for authoring"
 msgstr ""
 
-#: src/mgui/win_utils.cpp:322
+#: src/mgui/prefs.cpp:145
+msgid "_Play authoring result in"
+msgstr ""
+
+#: src/mgui/win_utils.cpp:325
 msgid "Replacing the file overwrite its contents."
 msgstr ""
 
@@ -316,73 +320,73 @@ msgstr ""
 msgid "Select Output _Folder:"
 msgstr ""
 
-#: src/mgui/author/output.cpp:175
+#: src/mgui/author/output.cpp:177
 msgid " Choose Author Mode: "
 msgstr ""
 
 #. цель по умолчанию
-#: src/mgui/author/output.cpp:181
+#: src/mgui/author/output.cpp:183
 msgid "_Write DVD Folder"
 msgstr ""
 
-#: src/mgui/author/output.cpp:182
+#: src/mgui/author/output.cpp:184
 msgid "Write Disk _Image"
 msgstr ""
 
-#: src/mgui/author/output.cpp:191
+#: src/mgui/author/output.cpp:193
 msgid "Disc Label: "
 msgstr ""
 
-#: src/mgui/author/output.cpp:196
+#: src/mgui/author/output.cpp:198
 msgid "Burn to _DVD"
 msgstr ""
 
-#: src/mgui/author/output.cpp:204
+#: src/mgui/author/output.cpp:206
 msgid "DVD Drive: "
 msgstr ""
 
-#: src/mgui/author/output.cpp:210
+#: src/mgui/author/output.cpp:212
 msgid "Writing Speed: "
 msgstr ""
 
-#: src/mgui/author/output.cpp:221
+#: src/mgui/author/output.cpp:223
 msgid "_Rendering only"
 msgstr ""
 
-#: src/mgui/author/output.cpp:275
+#: src/mgui/author/output.cpp:277
 msgid "Rendering"
 msgstr ""
 
-#: src/mgui/author/output.cpp:352
+#: src/mgui/author/output.cpp:354
 msgid "DVD Burning"
 msgstr ""
 
-#: src/mgui/author/output.cpp:396
+#: src/mgui/author/output.cpp:398
 msgid "The result is here"
 msgstr ""
 
-#: src/mgui/author/output.cpp:398
+#: src/mgui/author/output.cpp:400
 msgid ""
 "You can run authoring manually by executing command \"scons\" at the "
 "specified folder. Also, see README file for other options over there."
 msgstr ""
 
 #. Translators: impossible to go on!
-#: src/mgui/author/output.cpp:422
+#: src/mgui/author/output.cpp:424
 msgid "Authoring is cancelled."
 msgstr ""
 
-#: src/mgui/author/output.cpp:433
+#: src/mgui/author/output.cpp:435
 #, boost-format
 msgid "%1% is not a folder"
 msgstr ""
 
-#: src/mgui/author/output.cpp:444
+#: src/mgui/author/output.cpp:446
 #, boost-format
 msgid "Cant have full access to folder %1% (read, write)"
 msgstr ""
 
-#: src/mgui/author/output.cpp:452
+#: src/mgui/author/output.cpp:454
 #, boost-format
 msgid ""
 "Folder %1% is not empty. We need to remove all files in it before "
@@ -390,33 +394,33 @@ msgid ""
 "Continue?"
 msgstr ""
 
-#: src/mgui/author/output.cpp:458
+#: src/mgui/author/output.cpp:460
 #, boost-format
 msgid "Error during removing files: %1%"
 msgstr ""
 
-#: src/mgui/author/output.cpp:629
+#: src/mgui/author/output.cpp:631
 #, boost-format
 msgid "%1% cancelled."
 msgstr ""
 
-#: src/mgui/author/output.cpp:631
+#: src/mgui/author/output.cpp:633
 #, boost-format
 msgid "%1% broken."
 msgstr ""
 
 #. Translators: can be tranlated as "Operation "%1%" ..."
-#: src/mgui/author/output.cpp:638
+#: src/mgui/author/output.cpp:640
 #, boost-format
 msgid "%1% successfully completed."
 msgstr ""
 
-#: src/mgui/author/output.cpp:668 src/mgui/timeline/select.cpp:216
+#: src/mgui/author/output.cpp:670 src/mgui/timeline/select.cpp:239
 #, boost-format
 msgid "_Play in %1%"
 msgstr ""
 
-#: src/mgui/author/output.cpp:669
+#: src/mgui/author/output.cpp:671
 msgid "_Burn to DVD"
 msgstr ""
 
@@ -874,7 +878,7 @@ msgid "Edit Menu"
 msgstr ""
 
 #. Add
-#: src/mgui/timeline/layout.cpp:526 src/mgui/timeline/select.cpp:193
+#: src/mgui/timeline/layout.cpp:526 src/mgui/timeline/select.cpp:216
 msgid "Add Chapter Point"
 msgstr ""
 
@@ -895,37 +899,41 @@ msgstr ""
 msgid "Still Images"
 msgstr ""
 
-#: src/mgui/timeline/select.cpp:127
+#: src/mgui/timeline/select.cpp:143
+msgid "A_dd to project"
+msgstr ""
+
+#: src/mgui/timeline/select.cpp:146
 msgid "Save Frame..."
 msgstr ""
 
 #. Add at Intervals
-#: src/mgui/timeline/select.cpp:147 src/mgui/timeline/select.cpp:205
+#: src/mgui/timeline/select.cpp:170 src/mgui/timeline/select.cpp:228
 msgid "Add Chapter Points at Intervals"
 msgstr ""
 
-#: src/mgui/timeline/select.cpp:153
+#: src/mgui/timeline/select.cpp:176
 msgid "Interval between Chapters:"
 msgstr ""
 
-#: src/mgui/timeline/select.cpp:160
+#: src/mgui/timeline/select.cpp:183
 msgid "min."
 msgstr ""
 
-#: src/mgui/timeline/select.cpp:163
+#: src/mgui/timeline/select.cpp:186
 msgid "Remove Existing Chapters"
 msgstr ""
 
 #. Delete
-#: src/mgui/timeline/select.cpp:196
+#: src/mgui/timeline/select.cpp:219
 msgid "Delete Chapter Point"
 msgstr ""
 
 #. Delete All
-#: src/mgui/timeline/select.cpp:200
+#: src/mgui/timeline/select.cpp:223
 msgid "Delete All Chapter Points"
 msgstr ""
 
-#: src/mgui/timeline/select.cpp:213
+#: src/mgui/timeline/select.cpp:236
 msgid "Save Current Frame"
 msgstr ""
