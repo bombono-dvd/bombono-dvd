@@ -26,7 +26,7 @@ build/bombono-dvd::
 	scons -k $(BUILD_FLAGS) CFLAGS='-Wno-extra' PREFIX=/usr DESTDIR=$(CURDIR)/debian/bombono-dvd
 
 cleanbuilddir/bombono-dvd::
-	rm -rf build config.opts
+	rm -rf build config.opts tools/scripts/*.pyc
 
 install/bombono-dvd::
 	scons install
