@@ -9,7 +9,7 @@
 #
 
 # Gnome
-GNOME_PREFIX=/opt/Gnome2282tar
+GNOME_PREFIX=/opt/Gnome230tar
 export PKG_CONFIG_PATH=$GNOME_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH
 
 export LANG=C
