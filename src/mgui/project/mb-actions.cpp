@@ -43,6 +43,8 @@
 #include <boost/regex.hpp>
 #include <strings.h> // strcasecmp()
 
+#include <gtk/gtkversion.h>
+
 namespace Project
 {
 
@@ -613,6 +615,19 @@ static std::string StandFNameOut(const fs::path& pth)
                     pth.leaf() + "</span>";
 }
 
+#if GTK_CHECK_VERSION(2,18,0)
+#define LABEL_HAS_A_TAG
+#endif
+
+static void AddMediaError(const std::string& msg_str, const std::string& desc_str)
+{
+#ifdef LABEL_HAS_A_TAG
+    MessageBoxWeb(msg_str, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, desc_str);
+#else
+    MessageBox(msg_str, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, desc_str);
+#endif
+}
+
 void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
                   Gtk::TreePath& brw_pth, bool insert_after)
 {
@@ -715,19 +730,25 @@ void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
 
     if( err_cnt )
     {
+        bool one_error = (err_cnt == 1);
+        std::string desc = one_error ? err_str : err_desc ;
+
+#ifdef LABEL_HAS_A_TAG
         std::string online_tip("\n\n");
         online_tip += BF_("See more about preparing video for authoring in <a href=\"%1%\">online help</a>.") % 
             "http://www.bombono.org/Preparing_sources_for_DVD" % bf::stop;
+
+        desc += online_tip;
+#endif
 
         // :KLUDGE: хотелось использовать ngettext() для того чтоб в PO строки были рядом,
         // однако msgfmt для требует чтобы в обоих вариантах присутствовало одинаковое 
         // кол-во заполнителей 
         //boost::format frmt(ngettext("Can't add file \"%1%\".", "Can't add files:", err_cnt));
-        if( err_cnt == 1 )
-            MessageBoxWeb(BF_("Can't add file \"%1%\".") % err_pth.leaf() % bf::stop, 
-                          Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, err_str + online_tip);
+        if( one_error )
+            AddMediaError(BF_("Can't add file \"%1%\".") % err_pth.leaf() % bf::stop, desc);
         else
-            MessageBoxWeb(_("Can't add files:"), Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, err_desc + online_tip);
+            AddMediaError(_("Can't add files:"), desc);
     }
 
     if( !goto_path.empty() )

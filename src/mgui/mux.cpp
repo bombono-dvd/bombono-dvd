@@ -15,6 +15,8 @@
 
 #include <mlib/filesystem.h>
 
+#include <gtk/gtkwindow.h> // gtk_window_set_geometry_hints()
+
 static void OnNewText(Gtk::TextView& txt_view, const char* dat, int sz, bool is_out)
 {
     AppendNewText(txt_view, std::string(dat, sz), is_out);
