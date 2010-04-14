@@ -1,0 +1,23 @@
+diff -Naur /mnt/hgfs/usbdisk/Temp/boost_logging/logging/boost/logging/detail/ts/ts.hpp Atom/boost-logging/boost/logging/detail/ts/ts.hpp
+--- /mnt/hgfs/usbdisk/Temp/boost_logging/logging/boost/logging/detail/ts/ts.hpp	2007-11-02 14:41:22.000000000 +0300
++++ Atom/boost-logging/boost/logging/detail/ts/ts.hpp	2007-11-21 17:24:43.000000000 +0300
+@@ -23,7 +23,8 @@
+ 
+ #include <boost/config.hpp>
+ 
+-#ifdef BOOST_HAS_THREADS
++//#ifdef BOOST_HAS_THREADS  // Murav'jov - dont need thread-safe
++#if 0
+     
+     #ifdef BOOST_LOG_USE_BOOST_THREADS
+         #include <boost/logging/detail/ts/ts_boost.hpp>
+@@ -44,7 +45,8 @@
+ 
+ namespace boost { namespace logging { namespace threading {
+ 
+-#ifdef BOOST_HAS_THREADS
++//#ifdef BOOST_HAS_THREADS  // Murav'jov - dont need thread-safe
++#if 0
+     
+     #ifdef BOOST_LOG_USE_BOOST_THREADS
+         typedef mutex_boost mutex;
