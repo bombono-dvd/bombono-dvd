@@ -33,15 +33,15 @@ if BuildVars.IsDebugCfg():
 else:
     cflags += release_flags
 
-# Arch flags should be set via command options like "scons CFLAGS='-mtune=i686' CXXFLAGS='-mtune=i686'"
-# # arch-specific flags
-# if BuildVars.IsGccCompiler():
-#     if BuildVars.IsX86Arch():
-#         str = BuildVars.GetArch() # f.e., i586
-#         if str[1] in ['3', '4', '5', '6']:
-#             cflags += ['-mtune=i' + str[1] + '86']
-#     elif BuildVars.IsSparcArch():
-#         cflags += ['-mcpu=ultrasparc', '-mvis']
+if BuildVars.IsGccCompiler():
+    # Tune flags should be set via command options like "scons CFLAGS='-mtune=i686' CXXFLAGS='-mtune=i686'"
+    #if BuildVars.IsX86Arch():
+    #    str = BuildVars.GetArch() # f.e., i586
+    #    if str[1] in ['3', '4', '5', '6']:
+    #        cflags += ['-mtune=i' + str[1] + '86']
+
+    if BuildVars.IsSparcArch():
+        cflags += ['-mcpu=ultrasparc', '-mvis']
 
 #
 libmpeg2_env.Append(CCFLAGS = cflags, CPPDEFINES = defines)
