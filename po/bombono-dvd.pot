@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-04-06 17:32+0400\n"
+"POT-Creation-Date: 2010-04-16 01:29+0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -118,100 +118,100 @@ msgstr ""
 
 #. COPY_N_PASTE - тупо сделал содержимое сообщений как у "TSNAMI-MPEG DVD Author"
 #. А что делать - нафига свои придумывать, если смысл один и тот же
-#: src/mgui/execution.cpp:27
+#: src/mgui/execution.cpp:47
 #, boost-format
 msgid "You are about to cancel %1%. Are you sure?"
 msgstr ""
 
-#: src/mgui/mux.cpp:29
+#: src/mgui/mux.cpp:51
 msgid "muxing"
 msgstr ""
 
-#: src/mgui/mux.cpp:45
+#: src/mgui/mux.cpp:67
 #, boost-format
 msgid "Muxing \"%1%\""
 msgstr ""
 
-#: src/mgui/mux.cpp:56 src/mgui/author/output.cpp:231
+#: src/mgui/mux.cpp:78 src/mgui/author/output.cpp:231
 msgid "Show/_Hide Details"
 msgstr ""
 
-#: src/mgui/mux.cpp:80
+#: src/mgui/mux.cpp:102
 msgid "Muxing error"
 msgstr ""
 
-#: src/mgui/mux.cpp:81 src/mgui/author/output.cpp:634
+#: src/mgui/mux.cpp:103 src/mgui/author/output.cpp:654
 #, boost-format
 msgid "The reason is \"%1%\" (see Details)"
 msgstr ""
 
-#: src/mgui/mux.cpp:97
+#: src/mgui/mux.cpp:119
 msgid "Select a folder"
 msgstr ""
 
-#: src/mgui/mux.cpp:109
+#: src/mgui/mux.cpp:131
 msgid "in"
 msgstr ""
 
-#: src/mgui/mux.cpp:143
+#: src/mgui/mux.cpp:165
 msgid "Mux streams"
 msgstr ""
 
-#: src/mgui/mux.cpp:145
+#: src/mgui/mux.cpp:167
 msgid "Output"
 msgstr ""
 
-#: src/mgui/mux.cpp:146
+#: src/mgui/mux.cpp:168
 msgid "Select elementary video"
 msgstr ""
 
-#: src/mgui/mux.cpp:147
+#: src/mgui/mux.cpp:169
 msgid "Select audio"
 msgstr ""
 
 #. Названия типов для i18n
-#: src/mgui/mux.cpp:151 src/mgui/project/media-browser.cpp:199
+#: src/mgui/mux.cpp:173 src/mgui/project/media-browser.cpp:199
 #: src/mgui/timeline/layout-draw.cpp:156
 msgid "Video"
 msgstr ""
 
-#: src/mgui/mux.cpp:154
+#: src/mgui/mux.cpp:176
 msgid "MPEG2 elementary video (m2v)"
 msgstr ""
 
-#: src/mgui/mux.cpp:159
+#: src/mgui/mux.cpp:181
 msgid "Audio"
 msgstr ""
 
-#: src/mgui/mux.cpp:162 src/mgui/timeline/mviewer.cpp:271
+#: src/mgui/mux.cpp:184 src/mgui/timeline/mviewer.cpp:271
 msgid "Audio for DVD"
 msgstr ""
 
-#: src/mgui/mux.cpp:187
+#: src/mgui/mux.cpp:209
 msgid "Elementary video file is not selected."
 msgstr ""
 
-#: src/mgui/mux.cpp:189
+#: src/mgui/mux.cpp:211
 msgid "Audio file is not selected."
 msgstr ""
 
-#: src/mgui/mux.cpp:191
+#: src/mgui/mux.cpp:213
 msgid "Output file name is empty."
 msgstr ""
 
-#: src/mgui/prefs.cpp:123
+#: src/mgui/prefs.cpp:143
 msgid "Bombono DVD Preferences"
 msgstr ""
 
-#: src/mgui/prefs.cpp:137
+#: src/mgui/prefs.cpp:157
 msgid "_Default project type"
 msgstr ""
 
-#: src/mgui/prefs.cpp:140
+#: src/mgui/prefs.cpp:160
 msgid "Default _folder for authoring"
 msgstr ""
 
-#: src/mgui/prefs.cpp:145
+#: src/mgui/prefs.cpp:165
 msgid "_Play authoring result in"
 msgstr ""
 
@@ -399,28 +399,28 @@ msgstr ""
 msgid "Error during removing files: %1%"
 msgstr ""
 
-#: src/mgui/author/output.cpp:631
+#: src/mgui/author/output.cpp:651
 #, boost-format
 msgid "%1% cancelled."
 msgstr ""
 
-#: src/mgui/author/output.cpp:633
+#: src/mgui/author/output.cpp:653
 #, boost-format
 msgid "%1% broken."
 msgstr ""
 
 #. Translators: can be tranlated as "Operation "%1%" ..."
-#: src/mgui/author/output.cpp:640
+#: src/mgui/author/output.cpp:660
 #, boost-format
 msgid "%1% successfully completed."
 msgstr ""
 
-#: src/mgui/author/output.cpp:670 src/mgui/timeline/select.cpp:239
+#: src/mgui/author/output.cpp:690 src/mgui/timeline/select.cpp:239
 #, boost-format
 msgid "_Play in %1%"
 msgstr ""
 
-#: src/mgui/author/output.cpp:671
+#: src/mgui/author/output.cpp:691
 msgid "_Burn to DVD"
 msgstr ""
 
@@ -680,130 +680,130 @@ msgctxt "MainTabs"
 msgid "_Output"
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:142
+#: src/mgui/project/mb-actions.cpp:144
 msgid "yes"
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:142
+#: src/mgui/project/mb-actions.cpp:144
 msgid "no"
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:191
+#: src/mgui/project/mb-actions.cpp:193
 msgid "Video bitrate"
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:192
+#: src/mgui/project/mb-actions.cpp:194
 msgid "kbps"
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:193
+#: src/mgui/project/mb-actions.cpp:195
 msgid "Maximum data rate for video (9800 kbps) is exceeded."
-msgstr ""
-
-#: src/mgui/project/mb-actions.cpp:196
-#, boost-format
-msgid "The %1% DVD-Video can accept MPEG-2 with resolutions: %2% only."
-msgstr ""
-
-#: src/mgui/project/mb-actions.cpp:197
-#, boost-format
-msgid "The %1% DVD-Video can accept MPEG-2 with frame rate: %2% only."
 msgstr ""
 
 #: src/mgui/project/mb-actions.cpp:198
 #, boost-format
+msgid "The %1% DVD-Video can accept MPEG-2 with resolutions: %2% only."
+msgstr ""
+
+#: src/mgui/project/mb-actions.cpp:199
+#, boost-format
+msgid "The %1% DVD-Video can accept MPEG-2 with frame rate: %2% only."
+msgstr ""
+
+#: src/mgui/project/mb-actions.cpp:200
+#, boost-format
 msgid "The %1% DVD-Video can accept MPEG-2 with aspects 4:3, 16:9 only."
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:218
+#: src/mgui/project/mb-actions.cpp:220
 msgid "Video size"
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:238
+#: src/mgui/project/mb-actions.cpp:240
 msgid "Frame rate"
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:239
+#: src/mgui/project/mb-actions.cpp:241
 msgid "fps"
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:247
+#: src/mgui/project/mb-actions.cpp:249
 msgid "Aspect ratio"
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:322
+#: src/mgui/project/mb-actions.cpp:324
 msgid ""
 "<b>Bombono DVD</b> can use \"DVD-ready\" video only now. Use muxing programs "
 "like \"mplex -f 8\" (from <b>mjpegtools</b>), mencoder (from <b>mplayer</b>) "
 "or <b>transcode</b> to make your video ready for <b>Bombono DVD</b>."
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:326
+#: src/mgui/project/mb-actions.cpp:328
 msgid "DVD packs"
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:328
+#: src/mgui/project/mb-actions.cpp:330
 msgid "NAV packets"
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:334
+#: src/mgui/project/mb-actions.cpp:336
 msgid ""
 "This video may not be added due to (errors in <span foreground=\"red\">red "
 "color</span>):"
 msgstr ""
 
 #. подскажем пользователю, что он ошибся форматом проекта
-#: src/mgui/project/mb-actions.cpp:345
+#: src/mgui/project/mb-actions.cpp:347
 #, boost-format
 msgid ""
 "This video has %1% type and can't be added to current project of %2% type. "
 "Create new project from menu \"Project->New Project\" with right type."
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:373
+#: src/mgui/project/mb-actions.cpp:375
 msgid "File doesn't exist."
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:378
+#: src/mgui/project/mb-actions.cpp:380
 msgid "Folders can't be added."
 msgstr ""
 
 #. по расширению выводим наиболее вероятную ошибку
-#: src/mgui/project/mb-actions.cpp:413
+#: src/mgui/project/mb-actions.cpp:415
 msgid "Unknown file type."
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:631
+#: src/mgui/project/mb-actions.cpp:646
 #, boost-format
 msgid ""
 "The file \"%1%\" looks like VOB from DVD.\n"
 "Run import?"
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:648
+#: src/mgui/project/mb-actions.cpp:663
 #, boost-format
 msgid ""
 "The file \"%1%\" looks like elementary stream and need to be muxed before "
 "using. Run muxing?"
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:710
+#: src/mgui/project/mb-actions.cpp:725
 msgid "Also:"
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:719
+#: src/mgui/project/mb-actions.cpp:738
 #, boost-format
 msgid ""
 "See more about preparing video for authoring in <a href=\"%1%\">online help</"
 "a>."
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:727
+#: src/mgui/project/mb-actions.cpp:749
 #, boost-format
 msgid "Can't add file \"%1%\"."
 msgstr ""
 
-#: src/mgui/project/mb-actions.cpp:730
+#: src/mgui/project/mb-actions.cpp:751
 msgid "Can't add files:"
 msgstr ""
 
