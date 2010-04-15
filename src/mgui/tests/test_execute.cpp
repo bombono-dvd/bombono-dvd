@@ -2,7 +2,7 @@
 // mgui/tests/test_execute.cpp
 // This file is part of Bombono DVD project.
 //
-// Copyright (c) 2009 Ilya Murav'jov
+// Copyright (c) 2009-2010 Ilya Murav'jov
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
