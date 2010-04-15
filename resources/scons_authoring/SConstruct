@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from SConsTwin import MakeGenAction
+from SConsTwin import MakeGenAction, IsSConsVersionGE
 import os
 
 # поменьше служебных файлов на виду
@@ -9,6 +9,16 @@ tmp_dir = 'temp'
 if os.path.isdir(tmp_dir) == 0:
     os.makedirs(tmp_dir)
 SConsignFile(tmp_dir + os.sep + '.sconsign')
+
+if not IsSConsVersionGE((1, 1, 0)):
+    # до 1.1.0 md5 считалось чтением в строку (память) содержимого всего файла,
+    # что для гигабайтных файлов фатально
+    # Замечание: реально не вылетает если отключить вычисление csig, а не установкой
+    # SourceSignatures('timestamp'); потому что csig вычисляется всегда, "на всякий случай" для <= 1.1.0
+    from SCons.Node.FS import FileNodeInfo
+    FileNodeInfo.field_list.remove('csig')
+
+    SourceSignatures('timestamp')
 
 # нужен правильный $PATH и т.д.
 # просто Replace() не дают сделать
