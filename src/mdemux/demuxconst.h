@@ -36,7 +36,7 @@ inline bool IsTSValid(double ts)
 
 // численные ограничения декодирования
 const int DecodeBlockSize = 100000;  // 100kb, парсим столько за раз
-const int BoundDecodeSize = 700000;  // размер данных, читаемых в начале и в конце
+const int BoundDecodeSize = 800000;  // размер данных, читаемых в начале и в конце
                                      // при открытии файла
 const double MaxContinueTime = 10.0; // сек, макс. отступ от тек. времени к нужному
 const int MaxFrameListLength = 400;  // держим не больше столько кадров, чтоб в памяти занимать
