@@ -21,18 +21,17 @@
 
 #include <mdemux/tests/_pc_.h>
 
-//#include <iomanip>
-
-#include <boost/function.hpp>
+#include "log.h"
+#include <mdemux/util.h>
 
 #include <mlib/string.h>
 #include <mlib/lambda.h>
 #include <mlib/sdk/logger.h>
 #include <mlib/sdk/system.h>
 #include <mlib/sdk/stream_util.h>
+#include <mlib/tests/test_common.h>
 
-#include <mdemux/util.h>
-#include "log.h"
+#include <boost/function.hpp>
 
 struct TestMpgData
 {
@@ -536,11 +535,55 @@ BOOST_AUTO_TEST_CASE( MakeForPeriodTest )
 /////////////////////////////////////////////////////////////////////////////
 // Тест PlayerViewTest
 
+static void save_pgm(const char* filename, int width, int height,
+                      int chroma_width, int chroma_height,
+                      uint8_t * const * buf)
+{
+    FILE * pgmfile;
+    int i;
+    static uint8_t black[16384] = { 0};
+
+    pgmfile = fopen (filename, "wb");
+    if(!pgmfile)
+    {
+        fprintf (stderr, "Could not open file \"%s\".\n", filename);
+        exit (1);
+    }
+    fprintf (pgmfile, "P5\n%d %d\n255\n",
+             2 * chroma_width, height + chroma_height);
+    for(i = 0; i < height; i++)
+    {
+        fwrite (buf[0] + i * width, width, 1, pgmfile);
+        fwrite (black, 2 * chroma_width - width, 1, pgmfile);
+    }
+    for(i = 0; i < chroma_height; i++)
+    {
+        fwrite (buf[1] + i * chroma_width, chroma_width, 1, pgmfile);
+        fwrite (buf[2] + i * chroma_width, chroma_width, 1, pgmfile);
+    }
+    fclose (pgmfile);
+}
+
+// показать YCbCr-изображение отдельно по плоскостям, в оттенках серого
+void ShowImage(Mpeg::Player& plyr)
+{
+    Mpeg::SequenceData& seq = plyr.MInfo().vidSeq;
+    BOOST_ASSERT( plyr.IsPlaying() );
+    BOOST_ASSERT( seq.chromaFrmt == Mpeg::ct420 );
+
+    int wdh = seq.wdh;
+    int hgt = seq.hgt;
+    TmpFileNames tfn;
+    std::string fname = tfn.CreateName();
+    save_pgm(fname.c_str(), wdh, hgt, wdh/2, hgt/2, plyr.Data());
+    
+    std::string cmd = "eog " + fname;
+    system(cmd.c_str());
+}
+
 void PlayerViewTestImpl(const char* fname)
 {
     Mpeg::FwdPlayer plyr;
-    Magick::Image img;
-
     bool is_open = plyr.Open(fname);
 
     BOOST_REQUIRE( is_open );
@@ -552,8 +595,7 @@ void PlayerViewTestImpl(const char* fname)
     {
         BOOST_ASSERT( plyr.SetTime( inf.FrameTime(idx_arr[i]) ) );
 
-        //Mpeg::Log::FillImage(img, plyr);
-        //img.display();
+        //ShowImage(plyr);
     }
 }
 
@@ -590,8 +632,7 @@ BOOST_AUTO_TEST_CASE( PlayerVLMaxTest )
     {
         BOOST_REQUIRE( f_lst.End() - f_lst.Beg() <= Mpeg::MaxFrameListLength );
 
-        //Mpeg::Log::FillImage(img, plyr);
-        //img.display();
+        //ShowImage(plyr);
     }
     BOOST_CHECK_EQUAL( cnt , autumn_frame_cnt );
 

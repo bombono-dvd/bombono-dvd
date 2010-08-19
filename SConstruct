@@ -22,7 +22,7 @@ BV.Targets = COMMAND_LINE_TARGETS
 # Dependency libraries
 
 # via pkg-config
-RequiredLibs = ['glibmm-2.4', 'libxml++-2.6', 'mjpegtools', 'GraphicsMagick++', 'gtkmm-2.4']
+RequiredLibs = ['glibmm-2.4', 'libxml++-2.6', 'gtkmm-2.4']
 
 # define path to libs
 def SetLibraries(config, user_options_dict):
@@ -34,7 +34,16 @@ def AddLibOptions(user_options):
     # we make arg's tuple from list
     args = tuple([ (BV.MakeDictName(lib),) for lib in RequiredLibs ])
     user_options.AddVariables(*args)
-        
+
+
+# legacy stuff (support for GM is hard => trash)
+# to turn on:
+# 1. False -> True
+# 2. uncomment in src/SConscript
+BuildMcomposite = False
+if BuildMcomposite:
+    RequiredLibs.extend(['mjpegtools', 'GraphicsMagick++'])
+            
 ############################################
 # Compilers
 
@@ -348,10 +357,7 @@ Export('env', 'menv')
 
 # 4 get lib dicts
 GetDict = BV.GetDict
-Export('GetDict')
 
-mjpeg_dict    = GetDict('mjpegtools')
-gm_dict       = GetDict('GraphicsMagick++')
 gtk2mm_dict   = GetDict('gtkmm-2.4')
 libxmlpp_dict = GetDict('libxml++-2.6')
 
@@ -404,7 +410,17 @@ AddMovieDicts(mdemux_env)
 Export('mdemux_env')
 
 # 
-# mproject
+# mdemux/tests
+#
+# Depends on: mdemux
+# Depends on ext: Boost.Test
+#
+mdemux_tests_env = mdemux_env.Clone()
+mdemux_tests_env.AppendUnique(**boost_test_dict)
+Export('mdemux_tests_env')
+
+# 
+# mbase
 #
 # Depends on: mlib
 # Depends on ext: glibmm-2.4, libxml++-2.6
@@ -415,45 +431,13 @@ mbase_env.AppendUnique(**libxmlpp_dict)
 Export('mbase_env')
 
 # 
-# mproject/tests
+# mbase/tests
 #
 # Depends on: mlib/tests
 #
 mbase_tests_env = mbase_env.Clone()
 mbase_tests_env.AppendUnique(**boost_test_dict)
 Export('mbase_tests_env')
-
-#
-# mcomposite
-#
-# Depends on: mlib, mproject
-# Depends on ext: boost, mjpegtools, GraphicsMagick++
-#
-mcomposite_env = mbase_env.Clone()
-mcomposite_env.AppendUnique(**user_options_dict['LIBMPEG2_DICT'])
-mcomposite_env.AppendUnique(**mjpeg_dict)
-mcomposite_env.AppendUnique(**gm_dict)
-Export('mcomposite_env')
-
-# 
-# mcomposite/tests
-#
-# Depends on: mcomposite, mlib/tests
-#
-mcomposite_tests_env = mcomposite_env.Clone()
-mcomposite_tests_env.AppendUnique(**boost_test_dict)
-Export('mcomposite_tests_env')
-
-# 
-# mdemux/tests
-#
-# Depends on: mcomposite
-# Depends on ext: Boost.Test
-#
-mdemux_tests_env = mcomposite_env.Clone()
-mdemux_tests_env.AppendUnique(**boost_test_dict)
-mdemux_tests_env.AppendUnique(**user_options_dict['DVDREAD_DICT'])
-Export('mdemux_tests_env')
 
 # 
 # mgui
@@ -481,6 +465,27 @@ mgui_tests_env = mgui_env.Clone()
 mgui_tests_env.AppendUnique(**boost_test_dict)
 Export('mgui_tests_env')
 
+if BuildMcomposite:
+    #
+    # mcomposite
+    #
+    # Depends on: mlib, mbase
+    # Depends on ext: boost, mjpegtools, GraphicsMagick++
+    #
+    mcomposite_env = mbase_env.Clone()
+    mcomposite_env.AppendUnique(**user_options_dict['LIBMPEG2_DICT'])
+    mcomposite_env.AppendUnique(**GetDict('mjpegtools'))
+    mcomposite_env.AppendUnique(**GetDict('GraphicsMagick++'))
+    Export('mcomposite_env')
+    
+    # 
+    # mcomposite/tests
+    #
+    # Depends on: mcomposite, mlib/tests
+    #
+    mcomposite_tests_env = mcomposite_env.Clone()
+    mcomposite_tests_env.AppendUnique(**boost_test_dict)
+    Export('mcomposite_tests_env')
 
 #
 # Installation 
