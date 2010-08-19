@@ -348,7 +348,6 @@ Export('env', 'menv')
 
 # 4 get lib dicts
 GetDict = BV.GetDict
-Export('GetDict')
 
 mjpeg_dict    = GetDict('mjpegtools')
 gm_dict       = GetDict('GraphicsMagick++')
@@ -447,12 +446,13 @@ Export('mcomposite_tests_env')
 # 
 # mdemux/tests
 #
-# Depends on: mcomposite
+# Depends on: mdemux
 # Depends on ext: Boost.Test
 #
-mdemux_tests_env = mcomposite_env.Clone()
+#mdemux_tests_env = mcomposite_env.Clone()
+mdemux_tests_env = mdemux_env.Clone()
 mdemux_tests_env.AppendUnique(**boost_test_dict)
-mdemux_tests_env.AppendUnique(**user_options_dict['DVDREAD_DICT'])
+#mdemux_tests_env.AppendUnique(**user_options_dict['DVDREAD_DICT'])
 Export('mdemux_tests_env')
 
 # 
