@@ -22,7 +22,6 @@
 #ifndef __MDEMUX_TESTS_LOG_H__
 #define __MDEMUX_TESTS_LOG_H__
 
-//#include <mcomposite/mmedia.h>
 #include <mdemux/player.h>
 
 namespace Mpeg { namespace Log {
@@ -83,9 +82,6 @@ struct TimestampStats
 };
 
 extern TimestampStats TsStats;
-
-void FillImage(Magick::Image& img, Mpeg::Player& plyr);
-
 
 } } // namespace Log Mpeg
 

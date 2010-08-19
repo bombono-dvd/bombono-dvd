@@ -3,7 +3,7 @@
 SConscript([
             'mbase/SConscript',
             'mlib/SConscript',
-            'mcomposite/SConscript',
+            #'mcomposite/SConscript',
             'mgui/SConscript',
             'mdemux/SConscript',
            ])

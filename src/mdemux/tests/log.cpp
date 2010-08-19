@@ -158,6 +158,7 @@ void PrintStats()
     }
 }
 
+#if 0
 void FillImage(Magick::Image& img, Mpeg::Player& plyr)
 {
     Mpeg::SequenceData& seq = plyr.MInfo().vidSeq;
@@ -178,6 +179,7 @@ void FillImage(Magick::Image& img, Mpeg::Player& plyr)
 
     TransferToImg(img, sz.x, sz.y, iter);
 }
+#endif
 
 } } // namespace Temp Mpeg
 

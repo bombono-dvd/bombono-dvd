@@ -33,7 +33,6 @@ I. Requirements:
  o gtk+           >= 2.8,- http://www.gtk.org/
  o gtkmm          >= 2.4,- http://www.gtkmm.org/
  o SCons          >= 0.96.1,- http://www.scons.org/
- o GraphicsMagick >= 1.1.7,- http://www.graphicsmagick.org/
  o mjpegtools     >= 1.8.0,- http://mjpeg.sourceforge.net/
  o libdvdread     - http://www.dtek.chalmers.se/groups/dvd/
  o dvdauthor      - http://dvdauthor.sourceforge.net/
