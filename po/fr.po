@@ -1,15 +1,15 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR "Ilya Murav'jov"
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Olivier Girard <eolinwen@gmail.com>, 2010.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-04-03 00:13+0400\n"
-"PO-Revision-Date: 2010-07-21 22:46+0100\n"
-"Last-Translator: Olivier Girard <eolinwen@gmail.com>\n"
+"PO-Revision-Date: 2010-08-19 23:57+0300\n"
+"Last-Translator: Ilya Murav'jov <muravev@yandex.ru>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -763,12 +763,13 @@ msgid "Unknown file type."
 msgstr "Type de fichier inconnu"
 
 #: src/mgui/project/mb-actions.cpp:631
-# msgstr "démarrer l'importation?"
 #, boost-format
 msgid ""
 "The file \"%1%\" looks like VOB from DVD.\n"
 "Run import?"
 msgstr ""
+"Le fichier \"%1%\" semble être un VOB d'un DVD.\n"
+"Démarrage de l'importation?"
 
 #: src/mgui/project/mb-actions.cpp:648
 #, boost-format
