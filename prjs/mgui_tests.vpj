@@ -228,6 +228,7 @@
 			Name="Other Files"
 			Filters="">
 			<F N="../src/mgui/tests/SConscript"/>
+			<F N="../test_menu"/>
 		</Folder>
 	</Files>
 </Project>

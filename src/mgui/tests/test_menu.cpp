@@ -41,7 +41,21 @@ bool CanOpenAsVideo(const char* fname, std::string& err_string, bool& must_be_vi
 
 BOOST_AUTO_TEST_CASE( TestConstructor )
 {
-    return;
+    bool run_test = false;
+    const char* fname = "./test_menu";
+    if( fs::exists(fname) )
+    {
+        io::stream strm(fname);
+        std::string val;
+        strm >> val;
+
+        if( val == "1" )
+            run_test = true;
+    }
+    if( !run_test )
+        return;
+
+    //return;
     GtkmmDBInit gd_init;
 
     //bool must_be_video = false;
