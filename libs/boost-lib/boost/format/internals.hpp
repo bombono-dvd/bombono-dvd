@@ -119,6 +119,8 @@ namespace detail {
             os.imbue(loc_.get());
         else if(loc_default)
             os.imbue(*loc_default);
+#else
+        (void) loc_default; // keep compiler quiet if we don't support locales
 #endif        
     }
 
@@ -146,7 +148,7 @@ namespace detail {
 
     template<class Ch, class Tr> inline
     void stream_format_state<Ch,Tr>:: reset(Ch fill) {
-        // set our params to standard's default state.   cf § 27.4.4.1 of the C++ norm
+        // set our params to standard's default state.   cf 27.4.4.1 of the C++ norm
         width_=0; precision_=6; 
         fill_=fill; // default is widen(' '), but we cant compute it without the locale
         flags_ = std::ios_base::dec | std::ios_base::skipws; 

@@ -24,7 +24,9 @@
 #include <boost/regex/pending/static_mutex.hpp>
 
 #if defined(BOOST_HAS_WINTHREADS)
-#define NOMINMAX
+#ifndef NOMINMAX
+#  define NOMINMAX
+#endif
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <boost/static_assert.hpp>
@@ -122,7 +124,7 @@ void scoped_static_mutex_lock::unlock()
 boost::recursive_mutex* static_mutex::m_pmutex = 0;
 boost::once_flag static_mutex::m_once = BOOST_ONCE_INIT;
 
-extern "C" BOOST_REGEX_DECL void free_static_mutex()
+extern "C" BOOST_REGEX_DECL void boost_regex_free_static_mutex()
 {
    delete static_mutex::m_pmutex;
    static_mutex::m_pmutex = 0;
@@ -131,7 +133,7 @@ extern "C" BOOST_REGEX_DECL void free_static_mutex()
 void static_mutex::init()
 {
    m_pmutex = new boost::recursive_mutex();
-   int r = atexit(free_static_mutex);
+   int r = atexit(boost_regex_free_static_mutex);
    BOOST_ASSERT(0 == r);
 }
 
@@ -153,9 +155,9 @@ void scoped_static_mutex_lock::lock()
 {
    if(0 == m_have_lock)
    {
-      boost::call_once(&static_mutex::init, static_mutex::m_once);
+       boost::call_once(static_mutex::m_once,&static_mutex::init);
       if(0 == m_plock)
-         m_plock = new boost::recursive_mutex::scoped_lock(*static_mutex::m_pmutex, false);
+         m_plock = new boost::recursive_mutex::scoped_lock(*static_mutex::m_pmutex, boost::defer_lock);
       m_plock->lock();
       m_have_lock = true;
    }

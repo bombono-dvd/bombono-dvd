@@ -1,5 +1,5 @@
 // -- control_structures.hpp -- Boost Lambda Library --------------------------
-// Copyright (C) 1999, 2000 Jaakko Järvi (jaakko.jarvi@cs.utu.fi)
+// Copyright (C) 1999, 2000 Jaakko Jarvi (jaakko.jarvi@cs.utu.fi)
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -17,6 +17,7 @@
 #include "boost/lambda/detail/operator_actions.hpp"
 #include "boost/lambda/detail/operator_return_type_traits.hpp"
 
-#include "boost/lambda/detail/control_structures_impl.hpp"
+#include "boost/lambda/if.hpp"
+#include "boost/lambda/loops.hpp"
 
 #endif

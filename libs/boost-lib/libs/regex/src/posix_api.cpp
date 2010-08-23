@@ -19,8 +19,8 @@
 #define BOOST_REGEX_SOURCE
 
 #include <cstdio>
-#include <boost/cregex.hpp>
 #include <boost/regex.hpp>
+#include <boost/cregex.hpp>
 
 #if defined(BOOST_NO_STDC_NAMESPACE)
 namespace std{
@@ -37,11 +37,33 @@ namespace{
 
 unsigned int magic_value = 25631;
 
-const char* names[] = {"REG_NOERROR", "REG_NOMATCH", "REG_BADPAT", "REG_ECOLLATE",
-                        "REG_ECTYPE", "REG_EESCAPE", "REG_ESUBREG", "REG_EBRACK",
-                        "REG_EPAREN", "REG_EBRACE", "REG_BADBR", "REG_ERANGE",
-                        "REG_ESPACE", "REG_BADRPT", "REG_EMPTY", "REG_E_UNKNOWN"};
+const char* names[] = {
+      "REG_NOERROR",
+      "REG_NOMATCH",
+      "REG_BADPAT",
+      "REG_ECOLLATE",
+      "REG_ECTYPE",
+      "REG_EESCAPE",
+      "REG_ESUBREG",
+      "REG_EBRACK",
+      "REG_EPAREN",
+      "REG_EBRACE",
+      "REG_BADBR",
+      "REG_ERANGE",
+      "REG_ESPACE",
+      "REG_BADRPT",
+      "REG_EEND",
+      "REG_ESIZE",
+      "REG_ERPAREN",
+      "REG_EMPTY",
+      "REG_ECOMPLEXITY",
+      "REG_ESTACK",
+      "REG_E_PERL",
+      "REG_E_UNKNOWN",
+};
 } // namespace
+
+typedef boost::basic_regex<char, c_regex_traits<char> > c_regex_type;
 
 BOOST_REGEX_DECL int BOOST_REGEX_CCALL regcompA(regex_tA* expression, const char* ptr, int f)
 {
@@ -51,7 +73,7 @@ BOOST_REGEX_DECL int BOOST_REGEX_CCALL regcompA(regex_tA* expression, const char
 #ifndef BOOST_NO_EXCEPTIONS
       try{
 #endif
-      expression->guts = new regex();
+      expression->guts = new c_regex_type();
 #ifndef BOOST_NO_EXCEPTIONS
       } catch(...)
       {
@@ -101,9 +123,9 @@ BOOST_REGEX_DECL int BOOST_REGEX_CCALL regcompA(regex_tA* expression, const char
    try{
 #endif
       expression->re_magic = magic_value;
-      static_cast<regex*>(expression->guts)->set_expression(ptr, p2, flags);
-      expression->re_nsub = static_cast<regex*>(expression->guts)->mark_count() - 1;
-      result = static_cast<regex*>(expression->guts)->error_code();
+      static_cast<c_regex_type*>(expression->guts)->set_expression(ptr, p2, flags);
+      expression->re_nsub = static_cast<c_regex_type*>(expression->guts)->mark_count() - 1;
+      result = static_cast<c_regex_type*>(expression->guts)->error_code();
 #ifndef BOOST_NO_EXCEPTIONS
    } 
    catch(const boost::regex_error& be)
@@ -145,7 +167,7 @@ BOOST_REGEX_DECL regsize_t BOOST_REGEX_CCALL regerrorA(int code, const regex_tA*
       {
          if(std::strcmp(e->re_endp, names[i]) == 0)
          {
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400) && !defined(_WIN32_WCE) && !defined(UNDER_CE)
             (::sprintf_s)(localbuf, 5, "%d", i);
 #else
             (std::sprintf)(localbuf, "%d", i);
@@ -155,7 +177,7 @@ BOOST_REGEX_DECL regsize_t BOOST_REGEX_CCALL regerrorA(int code, const regex_tA*
             return std::strlen(localbuf) + 1;
          }
       }
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400) && !defined(_WIN32_WCE) && !defined(UNDER_CE)
       (::sprintf_s)(localbuf, 5, "%d", 0);
 #else
       (std::sprintf)(localbuf, "%d", 0);
@@ -168,7 +190,7 @@ BOOST_REGEX_DECL regsize_t BOOST_REGEX_CCALL regerrorA(int code, const regex_tA*
    {
       std::string p;
       if((e) && (e->re_magic == magic_value))
-         p = static_cast<regex*>(e->guts)->get_traits().error_string(static_cast< ::boost::regex_constants::error_type>(code));
+         p = static_cast<c_regex_type*>(e->guts)->get_traits().error_string(static_cast< ::boost::regex_constants::error_type>(code));
       else
       {
          p = re_detail::get_default_error_string(static_cast< ::boost::regex_constants::error_type>(code));
@@ -217,7 +239,7 @@ BOOST_REGEX_DECL int BOOST_REGEX_CCALL regexecA(const regex_tA* expression, cons
 #endif
    if(expression->re_magic == magic_value)
    {
-      result = regex_search(start, end, m, *static_cast<regex*>(expression->guts), flags);
+      result = regex_search(start, end, m, *static_cast<c_regex_type*>(expression->guts), flags);
    }
    else
       return result;
@@ -255,7 +277,7 @@ BOOST_REGEX_DECL void BOOST_REGEX_CCALL regfreeA(regex_tA* expression)
 {
    if(expression->re_magic == magic_value)
    {
-      delete static_cast<regex*>(expression->guts);
+      delete static_cast<c_regex_type*>(expression->guts);
    }
    expression->re_magic = 0;
 }

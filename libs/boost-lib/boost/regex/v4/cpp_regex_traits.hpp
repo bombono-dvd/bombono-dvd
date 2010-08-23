@@ -41,14 +41,22 @@
 
 #include <istream>
 #include <ios>
+#include <climits>
 
+#ifdef BOOST_MSVC
+#pragma warning(push)
+#pragma warning(disable: 4103)
+#endif
 #ifdef BOOST_HAS_ABI_HEADERS
 #  include BOOST_ABI_PREFIX
+#endif
+#ifdef BOOST_MSVC
+#pragma warning(pop)
 #endif
 
 #ifdef BOOST_MSVC
 #pragma warning(push)
-#pragma warning(disable:4786)
+#pragma warning(disable:4786 4251)
 #endif
 
 namespace boost{ 
@@ -120,7 +128,7 @@ parser_buf<charT, traits>::seekoff(off_type off, ::std::ios_base::seekdir way, :
       break;
    case ::std::ios_base::cur:
    {
-      std::ptrdiff_t newpos = pos + off;
+      std::ptrdiff_t newpos = static_cast<std::ptrdiff_t>(pos + off);
       if((newpos < 0) || (newpos > size))
          return pos_type(off_type(-1));
       else
@@ -179,6 +187,7 @@ struct cpp_regex_traits_base
 #ifndef BOOST_NO_STD_MESSAGES
          if(m_pmessages == b.m_pmessages)
          {
+            return m_pcollate < b.m_pcollate;
          }
          return m_pmessages < b.m_pmessages;
 #else
@@ -204,7 +213,7 @@ std::locale cpp_regex_traits_base<charT>::imbue(const std::locale& l)
    m_locale = l;
    m_pctype = &BOOST_USE_FACET(std::ctype<charT>, l);
 #ifndef BOOST_NO_STD_MESSAGES
-   m_pmessages = &BOOST_USE_FACET(std::messages<charT>, l);
+   m_pmessages = BOOST_HAS_FACET(std::messages<charT>, l) ? &BOOST_USE_FACET(std::messages<charT>, l) : 0;
 #endif
    m_pcollate = &BOOST_USE_FACET(std::collate<charT>, l);
    return result;
@@ -268,7 +277,7 @@ void cpp_regex_traits_char_layer<charT>::init()
    typename std::messages<charT>::catalog cat = reinterpret_cast<std::messages<char>::catalog>(-1);
 #endif
    std::string cat_name(cpp_regex_traits<charT>::get_catalog_name());
-   if(cat_name.size())
+   if(cat_name.size() && (this->m_pmessages != 0))
    {
       cat = this->m_pmessages->open(
          cat_name, 
@@ -285,7 +294,9 @@ void cpp_regex_traits_char_layer<charT>::init()
    //
    if((int)cat >= 0)
    {
+#ifndef BOOST_NO_EXCEPTIONS
       try{
+#endif
          for(regex_constants::syntax_type i = 1; i < regex_constants::syntax_max; ++i)
          {
             string_type mss = this->m_pmessages->get(cat, 0, i, get_default_message(i));
@@ -295,12 +306,15 @@ void cpp_regex_traits_char_layer<charT>::init()
             }
          }
          this->m_pmessages->close(cat);
+#ifndef BOOST_NO_EXCEPTIONS
       }
       catch(...)
       {
-         this->m_pmessages->close(cat);
+         if(this->m_pmessages)
+            this->m_pmessages->close(cat);
          throw;
       }
+#endif
    }
    else
    {
@@ -382,7 +396,9 @@ enum
    char_class_graph=char_class_alnum|char_class_punct,
    char_class_blank=1<<9,
    char_class_word=1<<10,
-   char_class_unicode=1<<11
+   char_class_unicode=1<<11,
+   char_class_horizontal_space=1<<12,
+   char_class_vertical_space=1<<13
 };
 
 #endif
@@ -401,18 +417,20 @@ public:
    BOOST_STATIC_CONSTANT(char_class_type, mask_blank = 1u << 24);
    BOOST_STATIC_CONSTANT(char_class_type, mask_word = 1u << 25);
    BOOST_STATIC_CONSTANT(char_class_type, mask_unicode = 1u << 26);
+   BOOST_STATIC_CONSTANT(char_class_type, mask_horizontal = 1u << 27);
+   BOOST_STATIC_CONSTANT(char_class_type, mask_vertical = 1u << 28);
 #endif
 
    typedef std::basic_string<charT> string_type;
    typedef charT char_type;
    //cpp_regex_traits_implementation();
    cpp_regex_traits_implementation(const std::locale& l)
-      : cpp_regex_traits_char_layer<charT>(l), m_is(&m_sbuf)
+      : cpp_regex_traits_char_layer<charT>(l)
    {
       init();
    }
    cpp_regex_traits_implementation(const cpp_regex_traits_base<charT>& l)
-      : cpp_regex_traits_char_layer<charT>(l), m_is(&m_sbuf)
+      : cpp_regex_traits_char_layer<charT>(l)
    {
       init();
    }
@@ -439,8 +457,6 @@ public:
    string_type lookup_collatename(const charT* p1, const charT* p2) const;
    string_type transform_primary(const charT* p1, const charT* p2) const;
    string_type transform(const charT* p1, const charT* p2) const;
-   re_detail::parser_buf<charT>   m_sbuf;            // buffer for parsing numbers.
-   std::basic_istream<charT>      m_is;              // stream for parsing numbers.
 private:
    std::map<int, std::string>     m_error_strings;   // error messages indexed by numberic ID
    std::map<string_type, char_class_type>  m_custom_class_names; // character class names
@@ -467,6 +483,10 @@ template <class charT>
 typename cpp_regex_traits_implementation<charT>::char_class_type const cpp_regex_traits_implementation<charT>::mask_word;
 template <class charT>
 typename cpp_regex_traits_implementation<charT>::char_class_type const cpp_regex_traits_implementation<charT>::mask_unicode;
+template <class charT>
+typename cpp_regex_traits_implementation<charT>::char_class_type const cpp_regex_traits_implementation<charT>::mask_vertical;
+template <class charT>
+typename cpp_regex_traits_implementation<charT>::char_class_type const cpp_regex_traits_implementation<charT>::mask_horizontal;
 
 #endif
 #endif
@@ -564,7 +584,7 @@ typename cpp_regex_traits_implementation<charT>::string_type
       // std::collate<wchar_t>::transform returns a different string!
       // So as a workaround, we'll truncate the string at the first NULL
       // which _seems_ to work....
-#if BOOST_WORKAROUND(__BORLANDC__, < 0x600)
+#if BOOST_WORKAROUND(__BORLANDC__, < 0x580)
       result.erase(result.find(charT(0)));
 #else
       //
@@ -635,7 +655,7 @@ void cpp_regex_traits_implementation<charT>::init()
    typename std::messages<charT>::catalog cat = reinterpret_cast<std::messages<char>::catalog>(-1);
 #endif
    std::string cat_name(cpp_regex_traits<charT>::get_catalog_name());
-   if(cat_name.size())
+   if(cat_name.size() && (this->m_pmessages != 0))
    {
       cat = this->m_pmessages->open(
          cat_name, 
@@ -678,36 +698,40 @@ void cpp_regex_traits_implementation<charT>::init()
       // Custom class names:
       //
 #ifndef BOOST_REGEX_BUGGY_CTYPE_FACET
-      static const char_class_type masks[14] = 
+      static const char_class_type masks[16] = 
       {
          std::ctype<charT>::alnum,
          std::ctype<charT>::alpha,
          std::ctype<charT>::cntrl,
          std::ctype<charT>::digit,
          std::ctype<charT>::graph,
+         cpp_regex_traits_implementation<charT>::mask_horizontal,
          std::ctype<charT>::lower,
          std::ctype<charT>::print,
          std::ctype<charT>::punct,
          std::ctype<charT>::space,
          std::ctype<charT>::upper,
+         cpp_regex_traits_implementation<charT>::mask_vertical,
          std::ctype<charT>::xdigit,
          cpp_regex_traits_implementation<charT>::mask_blank,
          cpp_regex_traits_implementation<charT>::mask_word,
          cpp_regex_traits_implementation<charT>::mask_unicode,
       };
 #else
-      static const char_class_type masks[14] = 
+      static const char_class_type masks[16] = 
       {
          ::boost::re_detail::char_class_alnum,
          ::boost::re_detail::char_class_alpha,
          ::boost::re_detail::char_class_cntrl,
          ::boost::re_detail::char_class_digit,
          ::boost::re_detail::char_class_graph,
+         ::boost::re_detail::char_class_horizontal_space,
          ::boost::re_detail::char_class_lower,
          ::boost::re_detail::char_class_print,
          ::boost::re_detail::char_class_punct,
          ::boost::re_detail::char_class_space,
          ::boost::re_detail::char_class_upper,
+         ::boost::re_detail::char_class_vertical_space,
          ::boost::re_detail::char_class_xdigit,
          ::boost::re_detail::char_class_blank,
          ::boost::re_detail::char_class_word,
@@ -734,7 +758,7 @@ typename cpp_regex_traits_implementation<charT>::char_class_type
    cpp_regex_traits_implementation<charT>::lookup_classname_imp(const charT* p1, const charT* p2) const
 {
 #ifndef BOOST_REGEX_BUGGY_CTYPE_FACET
-   static const char_class_type masks[20] = 
+   static const char_class_type masks[22] = 
    {
       0,
       std::ctype<char>::alnum, 
@@ -744,6 +768,7 @@ typename cpp_regex_traits_implementation<charT>::char_class_type
       std::ctype<char>::digit,
       std::ctype<char>::digit,
       std::ctype<char>::graph,
+      cpp_regex_traits_implementation<charT>::mask_horizontal,
       std::ctype<char>::lower,
       std::ctype<char>::lower,
       std::ctype<char>::print,
@@ -753,12 +778,13 @@ typename cpp_regex_traits_implementation<charT>::char_class_type
       std::ctype<char>::upper,
       cpp_regex_traits_implementation<charT>::mask_unicode,
       std::ctype<char>::upper,
+      cpp_regex_traits_implementation<charT>::mask_vertical,
       std::ctype<char>::alnum | cpp_regex_traits_implementation<charT>::mask_word, 
       std::ctype<char>::alnum | cpp_regex_traits_implementation<charT>::mask_word, 
       std::ctype<char>::xdigit,
    };
 #else
-   static const char_class_type masks[20] = 
+   static const char_class_type masks[22] = 
    {
       0,
       ::boost::re_detail::char_class_alnum, 
@@ -768,6 +794,7 @@ typename cpp_regex_traits_implementation<charT>::char_class_type
       ::boost::re_detail::char_class_digit,
       ::boost::re_detail::char_class_digit,
       ::boost::re_detail::char_class_graph,
+      ::boost::re_detail::char_class_horizontal_space,
       ::boost::re_detail::char_class_lower,
       ::boost::re_detail::char_class_lower,
       ::boost::re_detail::char_class_print,
@@ -777,6 +804,7 @@ typename cpp_regex_traits_implementation<charT>::char_class_type
       ::boost::re_detail::char_class_upper,
       ::boost::re_detail::char_class_unicode,
       ::boost::re_detail::char_class_upper,
+      ::boost::re_detail::char_class_vertical_space,
       ::boost::re_detail::char_class_alnum | ::boost::re_detail::char_class_word, 
       ::boost::re_detail::char_class_alnum | ::boost::re_detail::char_class_word, 
       ::boost::re_detail::char_class_xdigit,
@@ -789,9 +817,9 @@ typename cpp_regex_traits_implementation<charT>::char_class_type
       if(pos != m_custom_class_names.end())
          return pos->second;
    }
-   std::size_t id = 1 + re_detail::get_default_class_id(p1, p2);
-   BOOST_ASSERT(id < sizeof(masks) / sizeof(masks[0]));
-   return masks[id];
+   std::size_t state_id = 1 + re_detail::get_default_class_id(p1, p2);
+   BOOST_ASSERT(state_id < sizeof(masks) / sizeof(masks[0]));
+   return masks[state_id];
 }
 
 #ifdef BOOST_REGEX_BUGGY_CTYPE_FACET
@@ -810,13 +838,15 @@ bool cpp_regex_traits_implementation<charT>::isctype(const charT c, char_class_t
       || ((mask & ::boost::re_detail::char_class_xdigit) && (m_pctype->is(std::ctype<charT>::xdigit, c)))
       || ((mask & ::boost::re_detail::char_class_blank) && (m_pctype->is(std::ctype<charT>::space, c)) && !::boost::re_detail::is_separator(c))
       || ((mask & ::boost::re_detail::char_class_word) && (c == '_'))
-      || ((mask & ::boost::re_detail::char_class_unicode) && ::boost::re_detail::is_extended(c));
+      || ((mask & ::boost::re_detail::char_class_unicode) && ::boost::re_detail::is_extended(c))
+      || ((mask & ::boost::re_detail::char_class_vertical_space) && (is_separator(c) || (c == '\v')))
+      || ((mask & ::boost::re_detail::char_class_horizontal_space) && m_pctype->is(std::ctype<charT>::space, c) && !(is_separator(c) || (c == '\v')));
 }
 #endif
 
 
 template <class charT>
-inline boost::shared_ptr<cpp_regex_traits_implementation<charT> > create_cpp_regex_traits(const std::locale& l BOOST_APPEND_EXPLICIT_TEMPLATE_TYPE(charT))
+inline boost::shared_ptr<const cpp_regex_traits_implementation<charT> > create_cpp_regex_traits(const std::locale& l BOOST_APPEND_EXPLICIT_TEMPLATE_TYPE(charT))
 {
    cpp_regex_traits_base<charT> key(l);
    return ::boost::object_cache<cpp_regex_traits_base<charT>, cpp_regex_traits_implementation<charT> >::get(key, 5);
@@ -920,6 +950,12 @@ public:
          && m_pimpl->m_pctype->is(std::ctype<charT>::space, c)
          && !re_detail::is_separator(c))
          return true;
+      else if((f & re_detail::cpp_regex_traits_implementation<charT>::mask_vertical) 
+         && (::boost::re_detail::is_separator(c) || (c == '\v')))
+         return true;
+      else if((f & re_detail::cpp_regex_traits_implementation<charT>::mask_horizontal) 
+         && this->isctype(c, std::ctype<charT>::space) && !this->isctype(c, re_detail::cpp_regex_traits_implementation<charT>::mask_vertical))
+         return true;
       return false;
 #else
       return m_pimpl->isctype(c, f);
@@ -954,7 +990,7 @@ public:
    static std::string get_catalog_name();
 
 private:
-   boost::shared_ptr<re_detail::cpp_regex_traits_implementation<charT> > m_pimpl;
+   boost::shared_ptr<const re_detail::cpp_regex_traits_implementation<charT> > m_pimpl;
    //
    // catalog name handler:
    //
@@ -969,17 +1005,21 @@ private:
 template <class charT>
 int cpp_regex_traits<charT>::toi(const charT*& first, const charT* last, int radix)const
 {
+   re_detail::parser_buf<charT>   sbuf;            // buffer for parsing numbers.
+   std::basic_istream<charT>      is(&sbuf);       // stream for parsing numbers.
+
    // we do NOT want to parse any thousands separators inside the stream:
-   last = std::find(first, last, BOOST_USE_FACET(std::numpunct<charT>, m_pimpl->m_is.getloc()).thousands_sep());
-   m_pimpl->m_sbuf.pubsetbuf(const_cast<charT*>(static_cast<const charT*>(first)), static_cast<std::streamsize>(last-first));
-   m_pimpl->m_is.clear();
-   if(std::abs(radix) == 16) m_pimpl->m_is >> std::hex;
-   else if(std::abs(radix) == 8) m_pimpl->m_is >> std::oct;
-   else m_pimpl->m_is >> std::dec;
+   last = std::find(first, last, BOOST_USE_FACET(std::numpunct<charT>, is.getloc()).thousands_sep());
+
+   sbuf.pubsetbuf(const_cast<charT*>(static_cast<const charT*>(first)), static_cast<std::streamsize>(last-first));
+   is.clear();
+   if(std::abs(radix) == 16) is >> std::hex;
+   else if(std::abs(radix) == 8) is >> std::oct;
+   else is >> std::dec;
    int val;
-   if(m_pimpl->m_is >> val)
+   if(is >> val)
    {
-      first = first + ((last - first) - m_pimpl->m_sbuf.in_avail());
+      first = first + ((last - first) - sbuf.in_avail());
       return val;
    }
    else
@@ -1030,10 +1070,19 @@ static_mutex& cpp_regex_traits<charT>::get_mutex_inst()
 #pragma warning(pop)
 #endif
 
+#ifdef BOOST_MSVC
+#pragma warning(push)
+#pragma warning(disable: 4103)
+#endif
 #ifdef BOOST_HAS_ABI_HEADERS
 #  include BOOST_ABI_SUFFIX
 #endif
-
+#ifdef BOOST_MSVC
+#pragma warning(pop)
 #endif
 
 #endif
+
+#endif
+
+

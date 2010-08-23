@@ -1,6 +1,6 @@
 //  return_type_traits.hpp -- Boost Lambda Library ---------------------------
 
-// Copyright (C) 1999, 2000 Jaakko Järvi (jaakko.jarvi@cs.utu.fi)
+// Copyright (C) 1999, 2000 Jaakko Jarvi (jaakko.jarvi@cs.utu.fi)
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -216,8 +216,6 @@ typedef typename
 
 
   // currently there are no protectable actions with > 2 args
-  // Note, that if there will be, lambda_functor_base will have to be 
-  // changed to not get rid of references in Args elements
 
 template<class Act, class Args> struct return_type_N_prot {
   typedef typename return_type_N<Act, Args>::type type;

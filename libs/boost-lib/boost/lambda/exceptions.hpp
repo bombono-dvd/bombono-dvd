@@ -1,7 +1,7 @@
 // -- Boost Lambda Library -- exceptions.hpp ----------------
 //
 // Copyright (C) 2000 Gary Powell (gwpowell@hotmail.com)
-// Copyright (C) 1999, 2000 Jaakko Järvi (jaakko.jarvi@cs.utu.fi)
+// Copyright (C) 1999, 2000 Jaakko Jarvi (jaakko.jarvi@cs.utu.fi)
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -14,6 +14,7 @@
 #if !defined(BOOST_LAMBDA_EXCEPTIONS_HPP)
 #define BOOST_LAMBDA_EXCEPTIONS_HPP
 
+#include "boost/lambda/core.hpp"
 #include "boost/lambda/detail/control_constructs_common.hpp"
 
 namespace boost { 

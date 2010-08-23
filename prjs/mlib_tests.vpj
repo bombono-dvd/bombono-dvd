@@ -188,6 +188,30 @@
 		<Folder
 			Name="Source Files"
 			Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
+			<F N="../src/mlib/tests/foreach/array_byref.cpp"/>
+			<F N="../src/mlib/tests/foreach/array_byref_r.cpp"/>
+			<F N="../src/mlib/tests/foreach/array_byval.cpp"/>
+			<F N="../src/mlib/tests/foreach/array_byval_r.cpp"/>
+			<F N="../src/mlib/tests/foreach/call_once.cpp"/>
+			<F N="../src/mlib/tests/foreach/cstr_byref.cpp"/>
+			<F N="../src/mlib/tests/foreach/cstr_byref_r.cpp"/>
+			<F N="../src/mlib/tests/foreach/cstr_byval.cpp"/>
+			<F N="../src/mlib/tests/foreach/cstr_byval_r.cpp"/>
+			<F N="../src/mlib/tests/foreach/dependent_type.cpp"/>
+			<F N="../src/mlib/tests/foreach/misc.cpp"/>
+			<F N="../src/mlib/tests/foreach/noncopyable.cpp"/>
+			<F N="../src/mlib/tests/foreach/pair_byref.cpp"/>
+			<F N="../src/mlib/tests/foreach/pair_byref_r.cpp"/>
+			<F N="../src/mlib/tests/foreach/pair_byval.cpp"/>
+			<F N="../src/mlib/tests/foreach/pair_byval_r.cpp"/>
+			<F N="../src/mlib/tests/foreach/rvalue_const.cpp"/>
+			<F N="../src/mlib/tests/foreach/rvalue_const_r.cpp"/>
+			<F N="../src/mlib/tests/foreach/rvalue_nonconst.cpp"/>
+			<F N="../src/mlib/tests/foreach/rvalue_nonconst_r.cpp"/>
+			<F N="../src/mlib/tests/foreach/stl_byref.cpp"/>
+			<F N="../src/mlib/tests/foreach/stl_byref_r.cpp"/>
+			<F N="../src/mlib/tests/foreach/stl_byval.cpp"/>
+			<F N="../src/mlib/tests/foreach/stl_byval_r.cpp"/>
 			<F N="../src/mlib/tests/test_common.cpp"/>
 			<F N="../src/mlib/tests/test_dataware.cpp"/>
 			<F N="../src/mlib/tests/test_main.cpp"/>
@@ -195,12 +219,14 @@
 			<F N="../src/mlib/tests/test_stream.cpp"/>
 			<F N="../src/mlib/tests/test_tech.cpp"/>
 			<F N="../src/mlib/tests/test_utils.cpp"/>
+			<F N="../src/mlib/tests/foreach/user_defined.cpp"/>
 		</Folder>
 		<Folder
 			Name="Header Files"
 			Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
 			<F N="../src/mlib/tests/_pc_.h"/>
 			<F N="../src/mlib/tests/test_common.h"/>
+			<F N="../src/mlib/tests/foreach/utility.hpp"/>
 		</Folder>
 		<Folder
 			Name="Other Files"

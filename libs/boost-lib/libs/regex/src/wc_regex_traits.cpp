@@ -19,7 +19,55 @@
 
 #define BOOST_REGEX_SOURCE
 
-#include <boost/config.hpp>
+#include <boost/detail/workaround.hpp>
+#include <memory>
+#include <string>
+
+#if defined(_DLL_CPPLIB) && !defined(_M_CEE_PURE) && defined(_NATIVE_WCHAR_T_DEFINED) \
+   && !(defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION) || defined(__STD_RWCOMPILER_H__) || defined(_RWSTD_VER))\
+   && BOOST_WORKAROUND(BOOST_MSVC, <1600)
+//
+// This is a horrible workaround, but without declaring these symbols extern we get
+// duplicate symbol errors when linking if the application is built without
+// /Zc:wchar_t
+//
+#ifdef _CRTIMP2_PURE
+#  define BOOST_REGEX_STDLIB_DECL _CRTIMP2_PURE
+#else
+#  define BOOST_REGEX_STDLIB_DECL _CRTIMP2
+#endif
+
+namespace std{
+
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+template class BOOST_REGEX_STDLIB_DECL allocator<unsigned short>;
+template class BOOST_REGEX_STDLIB_DECL _String_val<unsigned short, allocator<unsigned short> >;
+template class BOOST_REGEX_STDLIB_DECL basic_string<unsigned short, char_traits<unsigned short>, allocator<unsigned short> >;
+#endif
+
+#if BOOST_WORKAROUND(BOOST_MSVC, > 1300) && BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1400))
+template<> BOOST_REGEX_STDLIB_DECL std::size_t __cdecl char_traits<unsigned short>::length(unsigned short const*);
+#endif
+
+template BOOST_REGEX_STDLIB_DECL bool __cdecl operator==(
+   const basic_string<unsigned short, char_traits<unsigned short>, allocator<unsigned short> >&,
+   const basic_string<unsigned short, char_traits<unsigned short>, allocator<unsigned short> >&);
+template BOOST_REGEX_STDLIB_DECL bool __cdecl operator==(
+   const unsigned short *,
+   const basic_string<unsigned short, char_traits<unsigned short>, allocator<unsigned short> >&);
+template BOOST_REGEX_STDLIB_DECL bool __cdecl operator==(
+   const basic_string<unsigned short, char_traits<unsigned short>, allocator<unsigned short> >&,
+   const unsigned short *);
+template BOOST_REGEX_STDLIB_DECL bool __cdecl operator<(
+   const basic_string<unsigned short, char_traits<unsigned short>, allocator<unsigned short> >&,
+   const basic_string<unsigned short, char_traits<unsigned short>, allocator<unsigned short> >&);
+template BOOST_REGEX_STDLIB_DECL bool __cdecl operator>(
+   const basic_string<unsigned short, char_traits<unsigned short>, allocator<unsigned short> >&,
+   const basic_string<unsigned short, char_traits<unsigned short>, allocator<unsigned short> >&);
+}
+#endif
+
+#include <boost/regex/config.hpp>
 #include <boost/detail/workaround.hpp>
 
 #if !BOOST_WORKAROUND(__BORLANDC__, < 0x560)
@@ -114,7 +162,9 @@ enum
    char_class_graph=char_class_alnum|char_class_punct,
    char_class_blank=1<<9,
    char_class_word=1<<10,
-   char_class_unicode=1<<11
+   char_class_unicode=1<<11,
+   char_class_horizontal=1<<12,
+   char_class_vertical=1<<13
 };
 
 c_regex_traits<wchar_t>::char_class_type BOOST_REGEX_CALL c_regex_traits<wchar_t>::lookup_classname(const wchar_t* p1, const wchar_t* p2) 
@@ -129,6 +179,7 @@ c_regex_traits<wchar_t>::char_class_type BOOST_REGEX_CALL c_regex_traits<wchar_t
       char_class_digit,
       char_class_digit,
       char_class_graph,
+      char_class_horizontal,
       char_class_lower,
       char_class_lower,
       char_class_print,
@@ -138,21 +189,22 @@ c_regex_traits<wchar_t>::char_class_type BOOST_REGEX_CALL c_regex_traits<wchar_t
       char_class_upper,
       char_class_unicode,
       char_class_upper,
+      char_class_vertical,
       char_class_alnum | char_class_word, 
       char_class_alnum | char_class_word, 
       char_class_xdigit,
    };
 
-   int id = ::boost::re_detail::get_default_class_id(p1, p2);
-   if(id < 0)
+   int idx = ::boost::re_detail::get_default_class_id(p1, p2);
+   if(idx < 0)
    {
       std::wstring s(p1, p2);
       for(std::wstring::size_type i = 0; i < s.size(); ++i)
          s[i] = (std::towlower)(s[i]);
-      id = ::boost::re_detail::get_default_class_id(&*s.begin(), &*s.begin() + s.size());
+      idx = ::boost::re_detail::get_default_class_id(&*s.begin(), &*s.begin() + s.size());
    }
-   BOOST_ASSERT(id+1 < static_cast<int>(sizeof(masks) / sizeof(masks[0])));
-   return masks[id+1];
+   BOOST_ASSERT(idx+1 < static_cast<int>(sizeof(masks) / sizeof(masks[0])));
+   return masks[idx+1];
 }
 
 bool BOOST_REGEX_CALL c_regex_traits<wchar_t>::isctype(wchar_t c, char_class_type mask) 
@@ -169,7 +221,9 @@ bool BOOST_REGEX_CALL c_regex_traits<wchar_t>::isctype(wchar_t c, char_class_typ
       || ((mask & char_class_xdigit) && (std::iswxdigit)(c))
       || ((mask & char_class_blank) && (std::iswspace)(c) && !::boost::re_detail::is_separator(c))
       || ((mask & char_class_word) && (c == '_'))
-      || ((mask & char_class_unicode) && (c & ~static_cast<wchar_t>(0xff)));
+      || ((mask & char_class_unicode) && (c & ~static_cast<wchar_t>(0xff)))
+      || ((mask & char_class_vertical) && (::boost::re_detail::is_separator(c) || (c == L'\v')))
+      || ((mask & char_class_horizontal) && (std::iswspace)(c) && !::boost::re_detail::is_separator(c) && (c != L'\v'));
 }
 
 c_regex_traits<wchar_t>::string_type BOOST_REGEX_CALL c_regex_traits<wchar_t>::lookup_collatename(const wchar_t* p1, const wchar_t* p2) 

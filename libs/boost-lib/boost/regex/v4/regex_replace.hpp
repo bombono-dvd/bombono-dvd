@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 1998-2002
+ * Copyright (c) 1998-2009
  * John Maddock
  *
  * Use, modification and distribution are subject to the 
@@ -24,16 +24,23 @@
 
 namespace boost{
 
+#ifdef BOOST_MSVC
+#pragma warning(push)
+#pragma warning(disable: 4103)
+#endif
 #ifdef BOOST_HAS_ABI_HEADERS
 #  include BOOST_ABI_PREFIX
 #endif
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
 
-template <class OutputIterator, class BidirectionalIterator, class traits, class charT>
+template <class OutputIterator, class BidirectionalIterator, class traits, class charT, class Formatter>
 OutputIterator regex_replace(OutputIterator out,
                          BidirectionalIterator first,
                          BidirectionalIterator last,
                          const basic_regex<charT, traits>& e, 
-                         const charT* fmt, 
+                         Formatter fmt, 
                          match_flag_type flags = match_default)
 {
    regex_iterator<BidirectionalIterator, charT, traits> i(first, last, e, flags);
@@ -45,7 +52,7 @@ OutputIterator regex_replace(OutputIterator out,
    }
    else
    {
-      BidirectionalIterator last_m = first;
+      BidirectionalIterator last_m(first);
       while(i != j)
       {
          if(!(flags & regex_constants::format_no_copy))
@@ -62,21 +69,10 @@ OutputIterator regex_replace(OutputIterator out,
    return out;
 }
 
-template <class OutputIterator, class Iterator, class traits, class charT>
-inline OutputIterator regex_replace(OutputIterator out,
-                         Iterator first,
-                         Iterator last,
-                         const basic_regex<charT, traits>& e, 
-                         const std::basic_string<charT>& fmt,
-                         match_flag_type flags = match_default)
-{
-   return regex_replace(out, first, last, e, fmt.c_str(), flags);
-}
-
-template <class traits, class charT>
+template <class traits, class charT, class Formatter>
 std::basic_string<charT> regex_replace(const std::basic_string<charT>& s,
                          const basic_regex<charT, traits>& e, 
-                         const charT* fmt,
+                         Formatter fmt,
                          match_flag_type flags = match_default)
 {
    std::basic_string<charT> result;
@@ -85,20 +81,15 @@ std::basic_string<charT> regex_replace(const std::basic_string<charT>& s,
    return result;
 }
 
-template <class traits, class charT>
-std::basic_string<charT> regex_replace(const std::basic_string<charT>& s,
-                         const basic_regex<charT, traits>& e, 
-                         const std::basic_string<charT>& fmt,
-                         match_flag_type flags = match_default)
-{
-   std::basic_string<charT> result;
-   re_detail::string_out_iterator<std::basic_string<charT> > i(result);
-   regex_replace(i, s.begin(), s.end(), e, fmt.c_str(), flags);
-   return result;
-}
-
+#ifdef BOOST_MSVC
+#pragma warning(push)
+#pragma warning(disable: 4103)
+#endif
 #ifdef BOOST_HAS_ABI_HEADERS
 #  include BOOST_ABI_SUFFIX
+#endif
+#ifdef BOOST_MSVC
+#pragma warning(pop)
 #endif
 
 } // namespace boost

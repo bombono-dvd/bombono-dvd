@@ -1,13 +1,13 @@
-//  (C) Copyright Gennadiy Rozental 2005.
+//  (C) Copyright Gennadiy Rozental 2005-2008.
 //  Distributed under the Boost Software License, Version 1.0.
 //  (See accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 
 //  See http://www.boost.org/libs/test for the library home page.
 //
-//  File        : $RCSfile: progress_monitor.ipp,v $
+//  File        : $RCSfile$
 //
-//  Version     : $Revision: 1.1 $
+//  Version     : $Revision: 57992 $
 //
 //  Description : implements simple text based progress monitor
 // ***************************************************************************
@@ -17,7 +17,9 @@
 
 // Boost.Test
 #include <boost/test/progress_monitor.hpp>
-#include <boost/test/unit_test_suite.hpp>
+#include <boost/test/unit_test_suite_impl.hpp>
+
+#include <boost/test/detail/unit_test_parameters.hpp>
 
 // Boost
 #include <boost/progress.hpp>
@@ -40,7 +42,7 @@ namespace {
 struct progress_monitor_impl {
     // Constructor
     progress_monitor_impl()
-    : m_stream( &std::cout )
+        : m_stream( runtime_config::log_sink() )
     {}
 
     std::ostream*                m_stream;
@@ -84,7 +86,7 @@ progress_monitor_t::test_unit_skipped( test_unit const& tu )
     test_case_counter tcc;
     traverse_test_tree( tu, tcc );
     
-    (*s_pm_impl().m_progress_display) += tcc.m_count;
+    (*s_pm_impl().m_progress_display) += tcc.p_count;
 }
 
 //____________________________________________________________________________//
@@ -104,14 +106,5 @@ progress_monitor_t::set_stream( std::ostream& ostr )
 //____________________________________________________________________________//
 
 #include <boost/test/detail/enable_warnings.hpp>
-
-// ***************************************************************************
-//  Revision History :
-//
-//  $Log: progress_monitor.ipp,v $
-//  Revision 1.1  2005/02/20 08:27:07  rogeeff
-//  This a major update for Boost.Test framework. See release docs for complete list of fixes/updates
-//
-// ***************************************************************************
 
 #endif // BOOST_TEST_PROGRESS_MONITOR_IPP_020105GER

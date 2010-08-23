@@ -1,7 +1,7 @@
 // - construct.hpp -- Lambda Library -------------
 //
 // Copyright (C) 2000 Gary Powell (powellg@amazon.com)
-// Copyright (C) 1999, 2000 Jaakko Järvi (jaakko.jarvi@cs.utu.fi)
+// Copyright (C) 1999, 2000 Jaakko Jarvi (jaakko.jarvi@cs.utu.fi)
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -13,6 +13,9 @@
 
 #if !defined(BOOST_LAMBDA_CONSTRUCT_HPP)
 #define BOOST_LAMBDA_CONSTRUCT_HPP
+
+#include "boost/type_traits/remove_cv.hpp"
+#include "boost/type_traits/is_pointer.hpp"
 
 namespace boost { 
 namespace lambda {

@@ -2,19 +2,57 @@
 
 //  (C) Copyright John Maddock 2001 - 2003. 
 //  (C) Copyright Martin Wille 2003.
-//  (C) Copyright Guillaume Melquiond 2003. 
-//  Use, modification and distribution are subject to the 
-//  Boost Software License, Version 1.0. (See accompanying file 
-//  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//  (C) Copyright Guillaume Melquiond 2003.
+//
+//  Distributed under the Boost Software License, Version 1.0.
+//  (See accompanying file LICENSE_1_0.txt or copy at
+//   http://www.boost.org/LICENSE_1_0.txt)
 
-//  See http://www.boost.org for most recent version.
+//  See http://www.boost.org/ for most recent version.
+
+
+// one identification macro for each of the
+// compilers we support:
+
+#   define BOOST_CXX_GCCXML   0
+#   define BOOST_CXX_CLANG    0
+#   define BOOST_CXX_COMO     0
+#   define BOOST_CXX_DMC      0
+#   define BOOST_CXX_INTEL    0
+#   define BOOST_CXX_GNUC     0
+#   define BOOST_CXX_KCC      0
+#   define BOOST_CXX_SGI      0
+#   define BOOST_CXX_TRU64    0
+#   define BOOST_CXX_GHS      0
+#   define BOOST_CXX_BORLAND  0
+#   define BOOST_CXX_CW       0
+#   define BOOST_CXX_SUNPRO   0
+#   define BOOST_CXX_HPACC    0
+#   define BOOST_CXX_MPW      0
+#   define BOOST_CXX_IBMCPP   0
+#   define BOOST_CXX_MSVC     0
+#   define BOOST_CXX_PGI      0
+#   define BOOST_CXX_NVCC     0
+
 
 // locate which compiler we are using and define
 // BOOST_COMPILER_CONFIG as needed: 
 
-# if defined __COMO__
+#if defined(__GCCXML__)
+// GCC-XML emulates other compilers, it has to appear first here!
+#   define BOOST_COMPILER_CONFIG "boost/config/compiler/gcc_xml.hpp"
+
+#elif defined __CUDACC__
+//  NVIDIA CUDA C++ compiler for GPU
+#   define BOOST_COMPILER_CONFIG "boost/config/compiler/nvcc.hpp"
+
+#elif defined __COMO__
 //  Comeau C++
 #   define BOOST_COMPILER_CONFIG "boost/config/compiler/comeau.hpp"
+
+#elif defined __clang__
+//  Clang C++ emulates GCC, so it has to appear early.
+#   define BOOST_COMPILER_CONFIG "boost/config/compiler/clang.hpp"
 
 #elif defined __DMC__
 //  Digital Mars C++
@@ -44,6 +82,10 @@
 //  Greenhills C++
 #   define BOOST_COMPILER_CONFIG "boost/config/compiler/greenhills.hpp"
 
+#elif defined __CODEGEARC__
+//  CodeGear - must be checked for before Borland
+#   define BOOST_COMPILER_CONFIG "boost/config/compiler/codegear.hpp"
+
 #elif defined __BORLANDC__
 //  Borland
 #   define BOOST_COMPILER_CONFIG "boost/config/compiler/borland.hpp"
@@ -67,6 +109,10 @@
 #elif defined(__IBMCPP__)
 //  IBM Visual Age
 #   define BOOST_COMPILER_CONFIG "boost/config/compiler/vacpp.hpp"
+
+#elif defined(__PGI)
+//  Portland Group Inc.
+#   define BOOST_COMPILER_CONFIG "boost/config/compiler/pgi.hpp"
 
 #elif defined _MSC_VER
 //  Microsoft Visual C++

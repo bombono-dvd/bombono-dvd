@@ -8,24 +8,32 @@ lib_dir = user_options_dict['LIB_BUILD_DIR']
 #
 butf_env = boost_env.Clone()
 
+def make_source_files(fpath, lst):
+    return [ fpath + fname for fname in lst ]
+
 butf_src = 'libs/test/src/'
-butf_source_files = [
-                butf_src + 'compiler_log_formatter.cpp',
-                butf_src + 'execution_monitor.cpp',
-                butf_src + 'framework.cpp',
-                butf_src + 'plain_report_formatter.cpp',
-                butf_src + 'progress_monitor.cpp',
-                butf_src + 'results_collector.cpp',
-                butf_src + 'results_reporter.cpp',
-                butf_src + 'test_tools.cpp',
-                butf_src + 'unit_test_log.cpp',
-                butf_src + 'unit_test_main.cpp',
-                butf_src + 'unit_test_monitor.cpp',
-                butf_src + 'unit_test_parameters.cpp',
-                butf_src + 'unit_test_suite.cpp',
-                butf_src + 'xml_log_formatter.cpp',
-                butf_src + 'xml_report_formatter.cpp'
-               ]
+butf_source_files = make_source_files(butf_src, 
+[
+    'compiler_log_formatter.cpp',
+    'debug.cpp',                #1.44
+    'exception_safety.cpp',     #1.44
+    'execution_monitor.cpp',
+    'framework.cpp',
+    'interaction_based.cpp',    #1.44
+    'logged_expectations.cpp',  #1.44
+    'plain_report_formatter.cpp',
+    'progress_monitor.cpp',
+    'results_collector.cpp',
+    'results_reporter.cpp',
+    'test_tools.cpp',
+    'unit_test_log.cpp',
+    'unit_test_main.cpp',
+    'unit_test_monitor.cpp',
+    'unit_test_parameters.cpp',
+    'unit_test_suite.cpp',
+    'xml_log_formatter.cpp',
+    'xml_report_formatter.cpp'
+])
 
 # libboost_unit_test_framework.a
 # Depends('.',
@@ -38,13 +46,26 @@ butf_env.Library( target = lib_dir+'/boost_unit_test_framework', source = butf_s
 #
 bfs_env = butf_env
 
-bfs_src = 'libs/filesystem/src/'
-bfs_source_files = [
-                bfs_src + 'convenience.cpp',
-                bfs_src + 'exception.cpp',
-                bfs_src + 'operations_posix_windows.cpp',
-                bfs_src + 'path_posix_windows.cpp'
-               ]
+bfs_src = 'libs/filesystem/'
+bfs_source_files = make_source_files(bfs_src, 
+[
+    #'convenience.cpp',
+    #'exception.cpp',
+    #'operations_posix_windows.cpp',
+    #'path_posix_windows.cpp'
+
+    'v2/src/v2_operations.cpp',
+    'v2/src/v2_path.cpp',
+    'v2/src/v2_portability.cpp',
+    'v3/src/operations.cpp', 
+    'v3/src/path.cpp',
+    'v3/src/portability.cpp',
+    'v3/src/utf8_codecvt_facet.cpp',
+    'v3/src/codecvt_error_category.cpp',
+    'v3/src/path_traits.cpp',
+    'v3/src/unique_path.cpp',
+    'v3/src/windows_file_codecvt.cpp'
+])
 # libboost_filesystem.a
 bfs_env.Library( target = lib_dir+'/boost_filesystem', source = bfs_source_files )
 
@@ -56,25 +77,26 @@ bfs_env.Library( target = lib_dir+'/boost_filesystem', source = bfs_source_files
 brg_env = butf_env
 
 brg_src = 'libs/regex/src/'
-brg_source_files = [
-                brg_src + 'c_regex_traits.cpp',
-                brg_src + 'cpp_regex_traits.cpp',
-                brg_src + 'cregex.cpp',
-                brg_src + 'fileiter.cpp',
-                brg_src + 'icu.cpp',
-                brg_src + 'instances.cpp',
-                brg_src + 'posix_api.cpp',
-                brg_src + 'regex.cpp',
-                brg_src + 'regex_debug.cpp',
-                brg_src + 'regex_raw_buffer.cpp',
-                brg_src + 'regex_traits_defaults.cpp',
-                brg_src + 'static_mutex.cpp',
-                brg_src + 'w32_regex_traits.cpp',
-                brg_src + 'wc_regex_traits.cpp',
-                brg_src + 'wide_posix_api.cpp',
-                brg_src + 'winstances.cpp',
-                brg_src + 'usinstances.cpp'
-               ]
+brg_source_files = make_source_files(brg_src, 
+[
+    'c_regex_traits.cpp',
+    'cpp_regex_traits.cpp',
+    'cregex.cpp',
+    'fileiter.cpp',
+    'icu.cpp',
+    'instances.cpp',
+    'posix_api.cpp',
+    'regex.cpp',
+    'regex_debug.cpp',
+    'regex_raw_buffer.cpp',
+    'regex_traits_defaults.cpp',
+    'static_mutex.cpp',
+    'w32_regex_traits.cpp',
+    'wc_regex_traits.cpp',
+    'wide_posix_api.cpp',
+    'winstances.cpp',
+    'usinstances.cpp'
+])
 # libboost_regex.a
 bfs_env.Library( target = lib_dir+'/boost_regex', source = brg_source_files )
 

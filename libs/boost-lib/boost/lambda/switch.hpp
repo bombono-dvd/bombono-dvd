@@ -1,7 +1,7 @@
 // Boost Lambda Library -- switch.hpp -----------------------------------
 //
 // Copyright (C) 2000 Gary Powell (powellg@amazon.com)
-// Copyright (C) 1999, 2000 Jaakko Järvi (jaakko.jarvi@cs.utu.fi)
+// Copyright (C) 1999, 2000 Jaakko Jarvi (jaakko.jarvi@cs.utu.fi)
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -465,12 +465,18 @@ BOOST_LAMBDA_SWITCH( BOOST_PP_INC(N) )
 #define BOOST_LAMBDA_SWITCH_STATEMENT_HELPER(z, N, A) \
 BOOST_LAMBDA_SWITCH_STATEMENT(BOOST_PP_INC(N))
 
-
+#ifdef BOOST_MSVC
+#pragma warning(push)
+#pragma warning(disable:4065)
+#endif
 
   // up to 9 cases supported (counting default:)
 BOOST_PP_REPEAT_2ND(9,BOOST_LAMBDA_SWITCH_HELPER,FOO)
 BOOST_PP_REPEAT_2ND(9,BOOST_LAMBDA_SWITCH_STATEMENT_HELPER,FOO)
 
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
 
 } // namespace lambda 
 } // namespace boost

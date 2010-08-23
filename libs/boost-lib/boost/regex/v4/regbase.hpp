@@ -19,8 +19,15 @@
 #ifndef BOOST_REGEX_V4_REGBASE_HPP
 #define BOOST_REGEX_V4_REGBASE_HPP
 
+#ifdef BOOST_MSVC
+#pragma warning(push)
+#pragma warning(disable: 4103)
+#endif
 #ifdef BOOST_HAS_ABI_HEADERS
 #  include BOOST_ABI_PREFIX
+#endif
+#ifdef BOOST_MSVC
+#pragma warning(pop)
 #endif
 
 namespace boost{
@@ -77,6 +84,8 @@ public:
       nocollate = 0,                                    // don't use locale specific collation (deprecated)
       collate = 1 << 21,                                // use locale specific collation
       nosubs = 1 << 22,                                 // don't mark sub-expressions
+      save_subexpression_location = 1 << 23,            // save subexpression locations
+      no_empty_expressions = 1 << 24,                   // no empty expressions allowed
       optimize = 0,                                     // not really supported
       
 
@@ -134,6 +143,8 @@ namespace regex_constants{
       mod_x = ::boost::regbase::mod_x,
       mod_s = ::boost::regbase::mod_s,
       no_mod_s = ::boost::regbase::no_mod_s,
+      save_subexpression_location = ::boost::regbase::save_subexpression_location,
+      no_empty_expressions = ::boost::regbase::no_empty_expressions,
 
       basic = ::boost::regbase::basic,
       extended = ::boost::regbase::extended,
@@ -154,8 +165,15 @@ namespace regex_constants{
 
 } // namespace boost
 
+#ifdef BOOST_MSVC
+#pragma warning(push)
+#pragma warning(disable: 4103)
+#endif
 #ifdef BOOST_HAS_ABI_HEADERS
 #  include BOOST_ABI_SUFFIX
+#endif
+#ifdef BOOST_MSVC
+#pragma warning(pop)
 #endif
 
 #endif

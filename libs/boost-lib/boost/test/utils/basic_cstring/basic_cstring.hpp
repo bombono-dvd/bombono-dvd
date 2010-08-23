@@ -1,13 +1,13 @@
-//  (C) Copyright Gennadiy Rozental 2004-2005.
+//  (C) Copyright Gennadiy Rozental 2004-2008.
 //  Distributed under the Boost Software License, Version 1.0.
 //  (See accompanying file LICENSE_1_0.txt or copy at 
 //  http://www.boost.org/LICENSE_1_0.txt)
 
 //  See http://www.boost.org/libs/test for the library home page.
 //
-//  File        : $RCSfile: basic_cstring.hpp,v $
+//  File        : $RCSfile$
 //
-//  Version     : $Revision: 1.9 $
+//  Version     : $Revision: 57992 $
 //
 //  Description : class basic_cstring wraps C string and provide std_string like 
 //                interface
@@ -54,10 +54,10 @@ public:
     typedef value_type const*                           const_iterator;
     typedef value_type*                                 iterator;
 
-    //!! should also present reverse_iterator, const_reverse_iterator
+    // !! should also present reverse_iterator, const_reverse_iterator
 
 #if !BOOST_WORKAROUND(__IBMCPP__, BOOST_TESTED_AT(600))
-    enum npos_type { npos = (size_type)-1 };
+    enum npos_type { npos = static_cast<size_type>(-1) };
 #else
     // IBM/VisualAge version 6 is not able to handle enums larger than 4 bytes.
     // But size_type is 8 bytes in 64bit mode.
@@ -83,7 +83,7 @@ public:
     void            clear();
     void            resize( size_type new_len );
 
-    //!! only for STL container conformance use is_empty instead
+    // !! only for STL container conformance use is_empty instead
     bool            empty() const; 
 
     // Trimming
@@ -128,7 +128,7 @@ public:
     iterator        end();
     const_iterator  end() const;
 
-    //!! should have rbegin, rend
+    // !! should have rbegin, rend
 
     // substring search operation
     size_type       find( basic_cstring ) const;
@@ -218,7 +218,7 @@ inline typename basic_cstring<CharT>::value_type
 basic_cstring<CharT>::at( size_type index ) const
 {
     if( m_begin + index >= m_end )
-        return (value_type)0;
+        return static_cast<value_type>(0);
 
     return m_begin[index];
 }
@@ -306,7 +306,7 @@ basic_cstring<CharT>::trim_left( basic_cstring exclusions )
 
     iterator it;
     for( it = begin(); it != end(); ++it ) {
-        if( traits_type::find( exclusions.begin(), exclusions.size(), *it ) == (pointer)0 )
+        if( traits_type::find( exclusions.begin(), exclusions.size(), *it ) == reinterpret_cast<pointer>(0) )
             break;
     }
     
@@ -351,7 +351,7 @@ basic_cstring<CharT>::trim_right( basic_cstring exclusions )
     iterator it;
 
     for( it = end()-1; it != begin()-1; --it ) {
-        if( self_type::traits_type::find( exclusions.begin(),  exclusions.size(), *it ) == (pointer)0 )
+        if( self_type::traits_type::find( exclusions.begin(),  exclusions.size(), *it ) == reinterpret_cast<pointer>(0) )
             break;
     }
     
@@ -511,44 +511,44 @@ basic_cstring<CharT>::end() const
 
 template<typename CharT>
 inline typename basic_cstring<CharT>::size_type
-basic_cstring<CharT>::find( basic_cstring<CharT> substr ) const
+basic_cstring<CharT>::find( basic_cstring<CharT> str ) const
 {
-    if( substr.is_empty() || substr.size() > size() )
-        return (size_type)npos;
+    if( str.is_empty() || str.size() > size() )
+        return static_cast<size_type>(npos);
 
     const_iterator it   = begin();
-    const_iterator last = end() - substr.size() + 1;
+    const_iterator last = end() - str.size() + 1;
 
     while( it != last ) {
-        if( traits_type::compare( it, substr.begin(), substr.size() ) == 0 )
+        if( traits_type::compare( it, str.begin(), str.size() ) == 0 )
             break;
 
         ++it;
     }
 
-    return it == last ? (size_type)npos : it - begin();
+    return it == last ? static_cast<size_type>(npos) : it - begin();
 }
 
 //____________________________________________________________________________//
 
 template<typename CharT>
 inline typename basic_cstring<CharT>::size_type
-basic_cstring<CharT>::rfind( basic_cstring<CharT> substr ) const
+basic_cstring<CharT>::rfind( basic_cstring<CharT> str ) const
 {
-    if( substr.is_empty() || substr.size() > size() )
-        return (size_type)npos;
+    if( str.is_empty() || str.size() > size() )
+        return static_cast<size_type>(npos);
 
-    const_iterator it   = end() - substr.size();
+    const_iterator it   = end() - str.size();
     const_iterator last = begin()-1;
 
     while( it != last ) {
-        if( traits_type::compare( it, substr.begin(), substr.size() ) == 0 )
+        if( traits_type::compare( it, str.begin(), str.size() ) == 0 )
             break;
 
         --it;
     }
 
-    return it == last ? npos : it - begin();
+    return it == last ? static_cast<size_type>(npos) : static_cast<size_type>(it - begin());
 }
 
 //____________________________________________________________________________//
@@ -570,7 +570,7 @@ template<typename CharT>
 inline basic_cstring<CharT>
 basic_cstring<CharT>::default_trim_ex()
 {
-    static CharT ws[3] = { CharT(' '), CharT('\t'), CharT('\n') }; //!! wide case
+    static CharT ws[3] = { CharT(' '), CharT('\t'), CharT('\n') }; // !! wide case
 
     return self_type( ws, 3 );
 }
@@ -687,7 +687,7 @@ first_char( basic_cstring<CharT> source )
 {
     typedef typename basic_cstring<CharT>::value_type string_value_type;
 
-    return source.is_empty() ? (string_value_type)0 : *source.begin();
+    return source.is_empty() ? static_cast<string_value_type>(0) : *source.begin();
 }
 
 //____________________________________________________________________________//
@@ -702,7 +702,7 @@ last_char( basic_cstring<CharT> source )
 {
     typedef typename basic_cstring<CharT>::value_type string_value_type;
 
-    return source.is_empty() ? (string_value_type)0 : *(source.end()-1);
+    return source.is_empty() ? static_cast<string_value_type>(0) : *(source.end()-1);
 }
 
 //____________________________________________________________________________//
@@ -713,11 +713,7 @@ last_char( basic_cstring<CharT> source )
 
 template<typename CharT1, typename CharT2>
 inline void
-#if BOOST_WORKAROUND(__SUNPRO_CC, BOOST_TESTED_AT(0x530) )
-assign_op( std::basic_string<CharT1>& target, basic_cstring<CharT2> const& src, int )
-#else
 assign_op( std::basic_string<CharT1>& target, basic_cstring<CharT2> src, int )
-#endif
 {
     target.assign( src.begin(), src.size() );
 }
@@ -731,44 +727,5 @@ assign_op( std::basic_string<CharT1>& target, basic_cstring<CharT2> src, int )
 //____________________________________________________________________________//
 
 #include <boost/test/detail/enable_warnings.hpp>
-
-// ***************************************************************************
-//  Revision History :
-//  
-//  $Log: basic_cstring.hpp,v $
-//  Revision 1.9  2005/07/13 21:49:46  danieljames
-//  Boost.Test workarounds for Digital Mars bugs.
-//
-//  Revision 1.8  2005/04/12 06:49:05  rogeeff
-//  assign_to -> assign_op
-//
-//  Revision 1.7  2005/03/23 21:02:37  rogeeff
-//  Sunpro CC 5.3 fixes
-//
-//  Revision 1.6  2005/03/22 07:02:57  rogeeff
-//  assign_to made free function
-//
-//  Revision 1.5  2005/03/22 07:00:56  rogeeff
-//  assign_to made free function
-//
-//  Revision 1.4  2005/02/20 08:27:08  rogeeff
-//  This a major update for Boost.Test framework. See release docs for complete list of fixes/updates
-//
-//  Revision 1.3  2005/02/01 06:40:08  rogeeff
-//  copyright update
-//  old log entries removed
-//  minor stilistic changes
-//  depricated tools removed
-//
-//  Revision 1.2  2005/01/22 19:22:13  rogeeff
-//  implementation moved into headers section to eliminate dependency of included/minimal component on src directory
-//
-//  Revision 1.1  2005/01/22 18:21:40  rogeeff
-//  moved sharable staff into utils
-//
-//  Revision 1.12  2005/01/21 07:33:51  rogeeff
-//  small aCC fix
-//
-// ***************************************************************************
 
 #endif // BOOST_TEST_BASIC_CSTRING_HPP_071894GER

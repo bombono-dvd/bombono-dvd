@@ -35,13 +35,21 @@
 #include <boost/regex/pending/object_cache.hpp>
 #endif
 
+#ifdef BOOST_MSVC
+#pragma warning(push)
+#pragma warning(disable: 4103)
+#endif
 #ifdef BOOST_HAS_ABI_HEADERS
 #  include BOOST_ABI_PREFIX
+#endif
+#ifdef BOOST_MSVC
+#pragma warning(pop)
 #endif
 
 #ifdef BOOST_MSVC
 #pragma warning(push)
 #pragma warning(disable:4786)
+#pragma warning(disable:4800)
 #endif
 
 namespace boost{ 
@@ -68,36 +76,36 @@ BOOST_REGEX_DECL bool BOOST_REGEX_CALL w32_is_lower(char, lcid_type);
 #ifndef BOOST_NO_WREGEX
 BOOST_REGEX_DECL bool BOOST_REGEX_CALL w32_is_lower(wchar_t, lcid_type);
 #ifdef BOOST_REGEX_HAS_OTHER_WCHAR_T
-BOOST_REGEX_DECL bool BOOST_REGEX_CALL w32_is_lower(unsigned short ca, lcid_type id);
+BOOST_REGEX_DECL bool BOOST_REGEX_CALL w32_is_lower(unsigned short ca, lcid_type state_id);
 #endif
 #endif
 BOOST_REGEX_DECL bool BOOST_REGEX_CALL w32_is_upper(char, lcid_type);
 #ifndef BOOST_NO_WREGEX
 BOOST_REGEX_DECL bool BOOST_REGEX_CALL w32_is_upper(wchar_t, lcid_type);
 #ifdef BOOST_REGEX_HAS_OTHER_WCHAR_T
-BOOST_REGEX_DECL bool BOOST_REGEX_CALL w32_is_upper(unsigned short ca, lcid_type id);
+BOOST_REGEX_DECL bool BOOST_REGEX_CALL w32_is_upper(unsigned short ca, lcid_type state_id);
 #endif
 #endif
 BOOST_REGEX_DECL cat_type BOOST_REGEX_CALL w32_cat_open(const std::string& name);
-BOOST_REGEX_DECL std::string BOOST_REGEX_CALL w32_cat_get(const cat_type& cat, lcid_type id, int i, const std::string& def);
+BOOST_REGEX_DECL std::string BOOST_REGEX_CALL w32_cat_get(const cat_type& cat, lcid_type state_id, int i, const std::string& def);
 #ifndef BOOST_NO_WREGEX
-BOOST_REGEX_DECL std::wstring BOOST_REGEX_CALL w32_cat_get(const cat_type& cat, lcid_type id, int i, const std::wstring& def);
+BOOST_REGEX_DECL std::wstring BOOST_REGEX_CALL w32_cat_get(const cat_type& cat, lcid_type state_id, int i, const std::wstring& def);
 #ifdef BOOST_REGEX_HAS_OTHER_WCHAR_T
 BOOST_REGEX_DECL std::basic_string<unsigned short> BOOST_REGEX_CALL w32_cat_get(const cat_type& cat, lcid_type, int i, const std::basic_string<unsigned short>& def);
 #endif
 #endif
-BOOST_REGEX_DECL std::string BOOST_REGEX_CALL w32_transform(lcid_type id, const char* p1, const char* p2);
+BOOST_REGEX_DECL std::string BOOST_REGEX_CALL w32_transform(lcid_type state_id, const char* p1, const char* p2);
 #ifndef BOOST_NO_WREGEX
-BOOST_REGEX_DECL std::wstring BOOST_REGEX_CALL w32_transform(lcid_type id, const wchar_t* p1, const wchar_t* p2);
+BOOST_REGEX_DECL std::wstring BOOST_REGEX_CALL w32_transform(lcid_type state_id, const wchar_t* p1, const wchar_t* p2);
 #ifdef BOOST_REGEX_HAS_OTHER_WCHAR_T
-BOOST_REGEX_DECL std::basic_string<unsigned short> BOOST_REGEX_CALL w32_transform(lcid_type id, const unsigned short* p1, const unsigned short* p2);
+BOOST_REGEX_DECL std::basic_string<unsigned short> BOOST_REGEX_CALL w32_transform(lcid_type state_id, const unsigned short* p1, const unsigned short* p2);
 #endif
 #endif
 BOOST_REGEX_DECL char BOOST_REGEX_CALL w32_tolower(char c, lcid_type);
 #ifndef BOOST_NO_WREGEX
 BOOST_REGEX_DECL wchar_t BOOST_REGEX_CALL w32_tolower(wchar_t c, lcid_type);
 #ifdef BOOST_REGEX_HAS_OTHER_WCHAR_T
-BOOST_REGEX_DECL unsigned short BOOST_REGEX_CALL w32_tolower(unsigned short c, lcid_type id);
+BOOST_REGEX_DECL unsigned short BOOST_REGEX_CALL w32_tolower(unsigned short c, lcid_type state_id);
 #endif
 #endif
 BOOST_REGEX_DECL char BOOST_REGEX_CALL w32_toupper(char c, lcid_type);
@@ -108,7 +116,7 @@ BOOST_REGEX_DECL bool BOOST_REGEX_CALL w32_is(lcid_type, boost::uint32_t mask, c
 #ifndef BOOST_NO_WREGEX
 BOOST_REGEX_DECL bool BOOST_REGEX_CALL w32_is(lcid_type, boost::uint32_t mask, wchar_t c);
 #ifdef BOOST_REGEX_HAS_OTHER_WCHAR_T
-BOOST_REGEX_DECL bool BOOST_REGEX_CALL w32_is(lcid_type id, boost::uint32_t m, unsigned short c);
+BOOST_REGEX_DECL bool BOOST_REGEX_CALL w32_is(lcid_type state_id, boost::uint32_t m, unsigned short c);
 #endif
 #endif
 //
@@ -166,7 +174,7 @@ public:
    {
       return ::boost::re_detail::w32_tolower(c, this->m_locale);
    }
-   bool isctype(boost::uint32_t mask, charT c)
+   bool isctype(boost::uint32_t mask, charT c)const
    {
       return ::boost::re_detail::w32_is(this->m_locale, mask, c);
    }
@@ -263,7 +271,7 @@ public:
    {
       return m_lower_map[static_cast<unsigned char>(c)];
    }
-   bool isctype(boost::uint32_t mask, char c)
+   bool isctype(boost::uint32_t mask, char c)const
    {
       return m_type_map[static_cast<unsigned char>(c)] & mask;
    }
@@ -286,6 +294,8 @@ public:
    typedef typename w32_regex_traits<charT>::char_class_type char_class_type;
    BOOST_STATIC_CONSTANT(char_class_type, mask_word = 0x0400); // must be C1_DEFINED << 1
    BOOST_STATIC_CONSTANT(char_class_type, mask_unicode = 0x0800); // must be C1_DEFINED << 2
+   BOOST_STATIC_CONSTANT(char_class_type, mask_horizontal = 0x1000); // must be C1_DEFINED << 3
+   BOOST_STATIC_CONSTANT(char_class_type, mask_vertical = 0x2000); // must be C1_DEFINED << 4
    BOOST_STATIC_CONSTANT(char_class_type, mask_base = 0x3ff);  // all the masks used by the CT_CTYPE1 group
 
    typedef std::basic_string<charT> string_type;
@@ -502,7 +512,7 @@ template <class charT>
 typename w32_regex_traits_implementation<charT>::char_class_type 
    w32_regex_traits_implementation<charT>::lookup_classname_imp(const charT* p1, const charT* p2) const
 {
-   static const char_class_type masks[20] = 
+   static const char_class_type masks[22] = 
    {
       0,
       0x0104u, // C1_ALPHA | C1_DIGIT
@@ -512,6 +522,7 @@ typename w32_regex_traits_implementation<charT>::char_class_type
       0x0004u, // C1_DIGIT
       0x0004u, // C1_DIGIT
       (~(0x0020u|0x0008u|0x0040) & 0x01ffu) | 0x0400u, // not C1_CNTRL or C1_SPACE or C1_BLANK
+      w32_regex_traits_implementation<charT>::mask_horizontal, 
       0x0002u, // C1_LOWER
       0x0002u, // C1_LOWER
       (~0x0020u & 0x01ffu) | 0x0400, // not C1_CNTRL
@@ -521,6 +532,7 @@ typename w32_regex_traits_implementation<charT>::char_class_type
       0x0001u, // C1_UPPER
       w32_regex_traits_implementation<charT>::mask_unicode,
       0x0001u, // C1_UPPER
+      w32_regex_traits_implementation<charT>::mask_vertical, 
       0x0104u | w32_regex_traits_implementation<charT>::mask_word, 
       0x0104u | w32_regex_traits_implementation<charT>::mask_word, 
       0x0080u, // C1_XDIGIT
@@ -532,14 +544,15 @@ typename w32_regex_traits_implementation<charT>::char_class_type
       if(pos != m_custom_class_names.end())
          return pos->second;
    }
-   std::size_t id = 1 + re_detail::get_default_class_id(p1, p2);
-   BOOST_ASSERT(id < sizeof(masks) / sizeof(masks[0]));
-   return masks[id];
+   std::size_t state_id = 1 + re_detail::get_default_class_id(p1, p2);
+   if(state_id < sizeof(masks) / sizeof(masks[0]))
+      return masks[state_id];
+   return masks[0];
 }
 
 
 template <class charT>
-boost::shared_ptr<w32_regex_traits_implementation<charT> > create_w32_regex_traits(::boost::re_detail::lcid_type l BOOST_APPEND_EXPLICIT_TEMPLATE_TYPE(charT))
+boost::shared_ptr<const w32_regex_traits_implementation<charT> > create_w32_regex_traits(::boost::re_detail::lcid_type l BOOST_APPEND_EXPLICIT_TEMPLATE_TYPE(charT))
 {
    // TODO: create a cache for previously constructed objects.
    return boost::object_cache< ::boost::re_detail::lcid_type, w32_regex_traits_implementation<charT> >::get(l, 5);
@@ -619,6 +632,12 @@ public:
          return true;
       else if((f & re_detail::w32_regex_traits_implementation<charT>::mask_word) && (c == '_'))
          return true;
+      else if((f & re_detail::w32_regex_traits_implementation<charT>::mask_vertical)
+         && (::boost::re_detail::is_separator(c) || (c == '\v')))
+         return true;
+      else if((f & re_detail::w32_regex_traits_implementation<charT>::mask_horizontal) 
+         && this->isctype(c, 0x0008u) && !this->isctype(c, re_detail::w32_regex_traits_implementation<charT>::mask_vertical))
+         return true;
       return false;
    }
    int toi(const charT*& p1, const charT* p2, int radix)const
@@ -653,7 +672,7 @@ public:
    static std::string get_catalog_name();
 
 private:
-   boost::shared_ptr<re_detail::w32_regex_traits_implementation<charT> > m_pimpl;
+   boost::shared_ptr<const re_detail::w32_regex_traits_implementation<charT> > m_pimpl;
    //
    // catalog name handler:
    //
@@ -708,8 +727,15 @@ static_mutex& w32_regex_traits<charT>::get_mutex_inst()
 #pragma warning(pop)
 #endif
 
+#ifdef BOOST_MSVC
+#pragma warning(push)
+#pragma warning(disable: 4103)
+#endif
 #ifdef BOOST_HAS_ABI_HEADERS
 #  include BOOST_ABI_SUFFIX
+#endif
+#ifdef BOOST_MSVC
+#pragma warning(pop)
 #endif
 
 #endif

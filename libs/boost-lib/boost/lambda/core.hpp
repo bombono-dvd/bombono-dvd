@@ -1,7 +1,7 @@
 // -- core.hpp -- Boost Lambda Library -------------------------------------
 //
 // Copyright (C) 2000 Gary Powell (powellg@amazon.com)
-// Copyright (C) 1999, 2000 Jaakko Järvi (jaakko.jarvi@cs.utu.fi)
+// Copyright (C) 1999, 2000 Jaakko Jarvi (jaakko.jarvi@cs.utu.fi)
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -61,16 +61,14 @@ namespace lambda {
 
 namespace {
 
-  // Muravj'ov - have to declare vars as static to compatilbe with gcc' precompiled
-  // headers
   // These are constants types and need to be initialised
-  static boost::lambda::placeholder1_type free1 = boost::lambda::placeholder1_type();
-  static boost::lambda::placeholder2_type free2 = boost::lambda::placeholder2_type();
-  static boost::lambda::placeholder3_type free3 = boost::lambda::placeholder3_type();
+  boost::lambda::placeholder1_type free1 = boost::lambda::placeholder1_type();
+  boost::lambda::placeholder2_type free2 = boost::lambda::placeholder2_type();
+  boost::lambda::placeholder3_type free3 = boost::lambda::placeholder3_type();
 
-  static boost::lambda::placeholder1_type& _1 = free1;
-  static boost::lambda::placeholder2_type& _2 = free2;
-  static boost::lambda::placeholder3_type& _3 = free3;
+  boost::lambda::placeholder1_type& _1 = free1;
+  boost::lambda::placeholder2_type& _2 = free2;
+  boost::lambda::placeholder3_type& _3 = free3;
   // _1, _2, ... naming scheme by Peter Dimov
 } // unnamed
    

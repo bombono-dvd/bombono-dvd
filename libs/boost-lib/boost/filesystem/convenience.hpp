@@ -1,39 +1,32 @@
-//  boost/filesystem/convenience.hpp  ----------------------------------------//
+//  boost/filesystem/convenience.hpp  --------------------------------------------------//
 
-//  © Copyright Beman Dawes, 2002
-//  © Copyright Vladimir Prus, 2002
-//  Use, modification, and distribution is subject to the Boost Software
-//  License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
-//  http://www.boost.org/LICENSE_1_0.txt)
+//  Copyright Beman Dawes 2010
 
-//  See library home page at http://www.boost.org/libs/filesystem
+//  Distributed under the Boost Software License, Version 1.0.
+//  See http://www.boost.org/LICENSE_1_0.txt
 
-//----------------------------------------------------------------------------// 
+//  Library home page: http://www.boost.org/libs/filesystem
 
-#ifndef BOOST_FILESYSTEM_CONVENIENCE_HPP
-#define BOOST_FILESYSTEM_CONVENIENCE_HPP
+//--------------------------------------------------------------------------------------// 
 
-#include <boost/filesystem/path.hpp>  // includes <boost/filesystem/config.hpp>
-#include <boost/filesystem/operations.hpp>
+#ifndef BOOST_FILESYSTEM_CONVENIENCEX_HPP
+#define BOOST_FILESYSTEM_CONVENIENCEX_HPP
 
-#include <boost/config/abi_prefix.hpp> // must be the last header
+# if defined(BOOST_FILESYSTEM_VERSION) \
+  && BOOST_FILESYSTEM_VERSION != 2  && BOOST_FILESYSTEM_VERSION != 3
+#   error BOOST_FILESYSTEM_VERSION defined, but not as 2 or 3
+# endif
 
-namespace boost
-{
-  namespace filesystem
-  {
+# if !defined(BOOST_FILESYSTEM_VERSION)
+#   define BOOST_FILESYSTEM_VERSION 2
+# endif
 
-    BOOST_FILESYSTEM_DECL bool create_directories(const path& ph);
+#if BOOST_FILESYSTEM_VERSION == 2
+#  include <boost/filesystem/v2/convenience.hpp>
 
-    BOOST_FILESYSTEM_DECL std::string extension(const path& ph);
+# else
+#  include <boost/filesystem/v3/convenience.hpp>
 
-    BOOST_FILESYSTEM_DECL std::string basename(const path& ph);
+# endif
 
-    BOOST_FILESYSTEM_DECL path change_extension(const path& ph,
-      const std::string& new_extension);
-
-  } // namespace filesystem
-} // namespace boost
-
-#include <boost/config/abi_suffix.hpp> // pops abi_suffix.hpp pragmas
-#endif // BOOST_FILESYSTEM_CONVENIENCE_HPP
+#endif  // BOOST_FILESYSTEM_CONVENIENCEX_HPP 

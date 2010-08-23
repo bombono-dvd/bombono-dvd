@@ -1,6 +1,6 @@
 // Boost Lambda Library  lambda_functor_base.hpp -----------------------------
 //
-// Copyright (C) 1999, 2000 Jaakko Järvi (jaakko.jarvi@cs.utu.fi)
+// Copyright (C) 1999, 2000 Jaakko Jarvi (jaakko.jarvi@cs.utu.fi)
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -13,9 +13,19 @@
 #ifndef BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_HPP
 #define BOOST_LAMBDA_LAMBDA_FUNCTOR_BASE_HPP
 
+#include "boost/type_traits/add_reference.hpp"
+#include "boost/type_traits/add_const.hpp"
+#include "boost/type_traits/remove_const.hpp"
+#include "boost/lambda/detail/lambda_fwd.hpp"
+#include "boost/lambda/detail/lambda_traits.hpp"
+
 namespace boost { 
 namespace lambda {
 
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(push)
+#pragma warning(disable:4512) //assignment operator could not be generated
+#endif
 
   // for return type deductions we wrap bound argument to this class,
   // which fulfils the base class contract for lambda_functors
@@ -27,7 +37,7 @@ public:
   
   typedef T element_t;
 
-  // take all parameters as const rererences. Note that non-const references
+  // take all parameters as const references. Note that non-const references
   // stay as they are.
   typedef typename boost::add_reference<
     typename boost::add_const<T>::type
@@ -36,11 +46,15 @@ public:
   explicit identity(par_t t) : elem(t) {}
 
   template <typename SigArgs> 
-  struct sig { typedef element_t type; };
+  struct sig { typedef typename boost::remove_const<element_t>::type type; };
 
   template<class RET, CALL_TEMPLATE_ARGS>
   RET call(CALL_FORMAL_ARGS) const { CALL_USE_ARGS; return elem; }
 };
+
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(pop)
+#endif
 
 template <class T> 
 inline lambda_functor<identity<T&> > var(T& t) { return identity<T&>(t); }
@@ -262,6 +276,8 @@ class lambda_functor_base<explicit_return_type_action<RET>, Args>
 public:
   Args args;
 
+  typedef RET result_type;
+
   explicit lambda_functor_base(const Args& a) : args(a) {}
 
   template <class SigArgs> struct sig { typedef RET type; };
@@ -317,7 +333,7 @@ public:
 };  
 
 
-//  These specializatoins provide a shorter notation to define actions.
+//  These specializations provide a shorter notation to define actions.
 //  These lambda_functor_base instances take care of the recursive evaluation
 //  of the arguments and pass the evaluated arguments to the apply function
 //  of an action class. To make action X work with these classes, one must
@@ -337,7 +353,7 @@ class lambda_functor_base<action<0, Act>, Args>
 {  
 public:  
 //  Args args; not needed
-  explicit lambda_functor_base(const Args& a) {}  
+  explicit lambda_functor_base(const Args& /*a*/) {}  
   
   template<class SigArgs> struct sig {  
     typedef typename return_type_N<Act, null_type>::type type;
@@ -367,7 +383,7 @@ public:                                                                \
                                                                        \
   template<class SigArgs> struct sig {                                 \
     typedef typename                                                   \
-    detail::deduce_non_ref_argument_types<Args, SigArgs>::type rets_t; \
+    detail::deduce_argument_types<Args, SigArgs>::type rets_t;         \
   public:                                                              \
     typedef typename                                                   \
       return_type_N_prot<Act, rets_t>::type type;                      \

@@ -10,6 +10,7 @@
 #define BOOST_IO_IOS_STATE_HPP
 
 #include <boost/io_fwd.hpp>  // self include
+#include <boost/detail/workaround.hpp>
 
 #include <ios>        // for std::ios_base, std::basic_ios, etc.
 #ifndef BOOST_NO_STD_LOCALE
@@ -49,6 +50,8 @@ public:
 private:
     state_type &       s_save_;
     aspect_type const  a_save_;
+
+    ios_flags_saver& operator=(const ios_flags_saver&);
 };
 
 class ios_precision_saver
@@ -72,6 +75,8 @@ public:
 private:
     state_type &       s_save_;
     aspect_type const  a_save_;
+
+    ios_precision_saver& operator=(const ios_precision_saver&);
 };
 
 class ios_width_saver
@@ -95,6 +100,7 @@ public:
 private:
     state_type &       s_save_;
     aspect_type const  a_save_;
+    ios_width_saver& operator=(const ios_width_saver&);
 };
 
 
@@ -122,6 +128,7 @@ public:
 private:
     state_type &       s_save_;
     aspect_type const  a_save_;
+    basic_ios_iostate_saver& operator=(const basic_ios_iostate_saver&);
 };
 
 template < typename Ch, class Tr >
@@ -134,7 +141,11 @@ public:
     explicit  basic_ios_exception_saver( state_type &s )
         : s_save_( s ), a_save_( s.exceptions() )
         {}
+#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
+    basic_ios_exception_saver( state_type &s, aspect_type a )
+#else
     basic_ios_exception_saver( state_type &s, aspect_type const &a )
+#endif
         : s_save_( s ), a_save_( s.exceptions() )
         { s.exceptions(a); }
     ~basic_ios_exception_saver()
@@ -146,6 +157,7 @@ public:
 private:
     state_type &       s_save_;
     aspect_type const  a_save_;
+    basic_ios_exception_saver& operator=(const basic_ios_exception_saver&);
 };
 
 template < typename Ch, class Tr >
@@ -170,6 +182,7 @@ public:
 private:
     state_type &       s_save_;
     aspect_type const  a_save_;
+    basic_ios_tie_saver& operator=(const basic_ios_tie_saver&);
 };
 
 template < typename Ch, class Tr >
@@ -194,6 +207,7 @@ public:
 private:
     state_type &       s_save_;
     aspect_type const  a_save_;
+    basic_ios_rdbuf_saver& operator=(const basic_ios_rdbuf_saver&);
 };
 
 template < typename Ch, class Tr >
@@ -218,6 +232,7 @@ public:
 private:
     state_type &       s_save_;
     aspect_type const  a_save_;
+    basic_ios_fill_saver& operator=(const basic_ios_fill_saver&);
 };
 
 #ifndef BOOST_NO_STD_LOCALE
@@ -243,6 +258,7 @@ public:
 private:
     state_type &       s_save_;
     aspect_type const  a_save_;
+    basic_ios_locale_saver& operator=(const basic_ios_locale_saver&);
 };
 #endif
 
@@ -272,6 +288,8 @@ private:
     state_type &       s_save_;
     aspect_type const  a_save_;
     index_type const   i_save_;
+
+    ios_iword_saver& operator=(const ios_iword_saver&);
 };
 
 class ios_pword_saver
@@ -297,6 +315,8 @@ private:
     state_type &       s_save_;
     aspect_type const  a_save_;
     index_type const   i_save_;
+
+    ios_pword_saver operator=(const ios_pword_saver&);
 };
 
 
@@ -327,6 +347,8 @@ private:
     state_type::fmtflags const  a1_save_;
     ::std::streamsize const     a2_save_;
     ::std::streamsize const     a3_save_;
+
+    ios_base_all_saver& operator=(const ios_base_all_saver&);
 };
 
 template < typename Ch, class Tr >
@@ -376,6 +398,8 @@ private:
     #ifndef BOOST_NO_STD_LOCALE
     ::std::locale const                     a9_save_;
     #endif
+
+    basic_ios_all_saver& operator=(const basic_ios_all_saver&);
 };
 
 class ios_all_word_saver
@@ -403,6 +427,8 @@ private:
     index_type const  i_save_;
     long const        a1_save_;
     void * const      a2_save_;
+
+    ios_all_word_saver& operator=(const ios_all_word_saver&);
 };
 
 

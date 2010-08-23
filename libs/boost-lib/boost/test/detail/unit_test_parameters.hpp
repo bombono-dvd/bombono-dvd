@@ -1,13 +1,13 @@
-//  (C) Copyright Gennadiy Rozental 2001-2005.
+//  (C) Copyright Gennadiy Rozental 2001-2008.
 //  Distributed under the Boost Software License, Version 1.0.
 //  (See accompanying file LICENSE_1_0.txt or copy at 
 //  http://www.boost.org/LICENSE_1_0.txt)
 
 //  See http://www.boost.org/libs/test for the library home page.
 //
-//  File        : $RCSfile: unit_test_parameters.hpp,v $
+//  File        : $RCSfile$
 //
-//  Version     : $Revision: 1.21 $
+//  Version     : $Revision: 57992 $
 //
 //  Description : storage for unit test framework parameters information
 // ***************************************************************************
@@ -19,6 +19,9 @@
 #include <boost/test/detail/log_level.hpp>
 
 #include <boost/test/detail/suppress_warnings.hpp>
+
+// STL
+#include <iosfwd>
 
 //____________________________________________________________________________//
 
@@ -32,20 +35,26 @@ namespace unit_test {
 
 namespace runtime_config {
 
-void                    init( int* argc, char** argv );
+BOOST_TEST_DECL void                     init( int& argc, char** argv );
 
-unit_test::log_level    log_level();
-bool                    no_result_code();
-unit_test::report_level report_level();
-const_string            test_to_run();
-bool                    save_pattern();
-bool                    show_build_info();
-bool                    show_progress();
-bool                    catch_sys_errors();
-output_format           report_format();
-output_format           log_format();
-long                    detect_memory_leak();
-int                     random_seed();
+BOOST_TEST_DECL unit_test::log_level     log_level();
+BOOST_TEST_DECL bool                     no_result_code();
+BOOST_TEST_DECL unit_test::report_level  report_level();
+BOOST_TEST_DECL const_string             test_to_run();
+BOOST_TEST_DECL const_string             break_exec_path();
+BOOST_TEST_DECL bool                     save_pattern();
+BOOST_TEST_DECL bool                     show_build_info();
+BOOST_TEST_DECL bool                     show_progress();
+BOOST_TEST_DECL bool                     catch_sys_errors();
+BOOST_TEST_DECL bool                     auto_start_dbg();
+BOOST_TEST_DECL bool                     use_alt_stack();
+BOOST_TEST_DECL bool                     detect_fp_exceptions();
+BOOST_TEST_DECL output_format            report_format();
+BOOST_TEST_DECL output_format            log_format();
+BOOST_TEST_DECL std::ostream*            report_sink();
+BOOST_TEST_DECL std::ostream*            log_sink();
+BOOST_TEST_DECL long                     detect_memory_leaks();
+BOOST_TEST_DECL int                      random_seed();
 
 } // namespace runtime_config
 
@@ -56,20 +65,5 @@ int                     random_seed();
 //____________________________________________________________________________//
 
 #include <boost/test/detail/enable_warnings.hpp>
-
-// ***************************************************************************
-//  Revision History :
-//  
-//  $Log: unit_test_parameters.hpp,v $
-//  Revision 1.21  2005/04/05 06:11:37  rogeeff
-//  memory leak allocation point detection\nextra help with _WIN32_WINNT
-//
-//  Revision 1.20  2005/02/21 10:18:30  rogeeff
-//  random cla support
-//
-//  Revision 1.19  2005/02/20 08:27:06  rogeeff
-//  This a major update for Boost.Test framework. See release docs for complete list of fixes/updates
-//
-// ***************************************************************************
 
 #endif // BOOST_TEST_UNIT_TEST_PARAMETERS_HPP_071894GER

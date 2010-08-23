@@ -25,27 +25,27 @@ namespace boost {
 // ---  basic_format implementation -----------------------------------------//
 
     template< class Ch, class Tr, class Alloc>
-    basic_format<Ch, Tr, Alloc>:: basic_format(const Ch* str)
+    basic_format<Ch, Tr, Alloc>:: basic_format(const Ch* s)
         : style_(0), cur_arg_(0), num_args_(0), dumped_(false),
           exceptions_(io::all_error_bits)
     {
-        if( str)
-            parse( str );
+        if( s)
+            parse( s );
     }
 
 #if !defined(BOOST_NO_STD_LOCALE)
     template< class Ch, class Tr, class Alloc>
-    basic_format<Ch, Tr, Alloc>:: basic_format(const Ch* str, const std::locale & loc)
+    basic_format<Ch, Tr, Alloc>:: basic_format(const Ch* s, const std::locale & loc)
         : style_(0), cur_arg_(0), num_args_(0), dumped_(false),
-          loc_(loc), exceptions_(io::all_error_bits)
+          exceptions_(io::all_error_bits), loc_(loc)
     {
-        if(str) parse( str );
+        if(s) parse( s );
     }
 
     template< class Ch, class Tr, class Alloc>
     basic_format<Ch, Tr, Alloc>:: basic_format(const string_type& s, const std::locale & loc)
         : style_(0), cur_arg_(0), num_args_(0), dumped_(false),
-          loc_(loc), exceptions_(io::all_error_bits)
+          exceptions_(io::all_error_bits), loc_(loc)
     {
         parse(s);  
     }
@@ -67,7 +67,7 @@ namespace boost {
     template< class Ch, class Tr, class Alloc> // just don't copy the buf_ member
     basic_format<Ch, Tr, Alloc>:: basic_format(const basic_format& x)
         : items_(x.items_), bound_(x.bound_), style_(x.style_),
-          cur_arg_(x.cur_arg_), num_args_(x.num_args_), dumped_(false),
+          cur_arg_(x.cur_arg_), num_args_(x.num_args_), dumped_(x.dumped_),
           prefix_(x.prefix_), exceptions_(x.exceptions_), loc_(x.loc_)
     {
     }
@@ -123,6 +123,7 @@ namespace boost {
             for(std::size_t i=0; i < nbitems; ++i)
                 items_[i].reset(fill); //  strings are resized, instead of reallocated
         }
+        prefix_.resize(0);
     }
 
     template< class Ch, class Tr, class Alloc>
@@ -135,7 +136,7 @@ namespace boost {
 
         for(unsigned long i=0; i<items_.size(); ++i) {
             // clear converted strings only if the corresponding argument is not  bound :
-            if( bound_.size()==0 || !bound_[ items_[i].argN_ ] )
+            if( bound_.size()==0 || items_[i].argN_<0 || !bound_[ items_[i].argN_ ] )
                 items_[i].res_.resize(0);
         }
         cur_arg_=0; dumped_=false;
@@ -171,6 +172,47 @@ namespace boost {
     }
 
     template< class Ch, class Tr, class Alloc>
+    int basic_format<Ch,Tr, Alloc>::
+    bound_args() const {
+        if(bound_.size()==0)
+            return 0;
+        int n=0;
+        for(int i=0; i<num_args_ ; ++i)
+            if(bound_[i])
+                ++n;
+        return n;
+    }
+
+    template< class Ch, class Tr, class Alloc>
+    int basic_format<Ch,Tr, Alloc>::
+    fed_args() const {
+        if(bound_.size()==0)
+            return cur_arg_;
+        int n=0;
+        for(int i=0; i<cur_arg_ ; ++i)
+            if(!bound_[i])
+                ++n;
+        return n;
+    }
+
+    template< class Ch, class Tr, class Alloc>
+    int basic_format<Ch,Tr, Alloc>::
+    cur_arg() const {
+      return cur_arg_+1; }
+
+    template< class Ch, class Tr, class Alloc>
+    int basic_format<Ch,Tr, Alloc>::
+    remaining_args() const {
+        if(bound_.size()==0)
+            return num_args_-cur_arg_;
+        int n=0;
+        for(int i=cur_arg_; i<num_args_ ; ++i)
+            if(!bound_[i])
+                ++n;
+        return n;
+    }
+
+    template< class Ch, class Tr, class Alloc>
     typename basic_format<Ch, Tr, Alloc>::string_type 
     basic_format<Ch,Tr, Alloc>:: 
     str () const {
@@ -202,6 +244,13 @@ namespace boost {
     template< class Ch, class Tr, class Alloc>
     typename std::basic_string<Ch, Tr, Alloc>::size_type  basic_format<Ch,Tr, Alloc>:: 
     size () const {
+#ifdef BOOST_MSVC
+       // If std::min<unsigned> or std::max<unsigned> are already instantiated
+       // at this point then we get a blizzard of warning messages when we call
+       // those templates with std::size_t as arguments.  Weird and very annoyning...
+#pragma warning(push)
+#pragma warning(disable:4267)
+#endif
         BOOST_USING_STD_MAX();
         size_type sz = prefix_.size();
         unsigned long i;
@@ -214,6 +263,9 @@ namespace boost {
             sz += item.appendix_.size();
         }
         return sz;
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
     }
 
 namespace io {
@@ -250,7 +302,7 @@ namespace detail {
             while(self.cur_arg_ < self.num_args_ && self.bound_[self.cur_arg_])   
                 ++self.cur_arg_;
         }
-        // In any case, we either have all args, or are on a non-binded arg :
+        // In any case, we either have all args, or are on an unbound arg :
         BOOST_ASSERT( self.cur_arg_ >= self.num_args_ || ! self.bound_[self.cur_arg_]);
         return self;
     }
@@ -261,7 +313,7 @@ namespace detail {
         // this is a permanent change, clear or reset won't cancel that.
         if(itemN<1 || itemN > static_cast<signed int>(self.items_.size() )) {
             if( self.exceptions() & io::out_of_range_bit ) 
-                boost::throw_exception(io::out_of_range(itemN, 1, self.items_.size() ));
+                boost::throw_exception(io::out_of_range(itemN, 1, static_cast<int>(self.items_.size()) ));
             else return self;
         }
         self.items_[itemN-1].fmtstate_. template apply_manip<T> ( manipulator );
