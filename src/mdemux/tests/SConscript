@@ -22,7 +22,7 @@ lib_mdemux_tests_env.Library( target = lib_path +'/'+mdemux_tests_lib_name, sour
 ######
 # bin
 
-bin_mdemux_tests_env.Prepend( LIBS = [mdemux_tests_lib_name, 'mlib_tests', 'MdComposite', 'MdDemuxer', 'MdLib'] )
+bin_mdemux_tests_env.Prepend( LIBS = [mdemux_tests_lib_name, 'mlib_tests', 'MdDemuxer', 'MdLib'] )
 
 test_prg_name = 'mdemux_tests'
 source_files = [

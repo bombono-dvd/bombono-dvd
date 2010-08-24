@@ -53,7 +53,7 @@ inline boost::mpl::true_ *boost_foreach_is_lightweight_proxy(noncopy_range *&, b
 ///////////////////////////////////////////////////////////////////////////////
 // main
 //   
-BOOST_AUTO_TEST_CASE( Test )
+BOOST_AUTO_TEST_CASE( noncopyable )
 {
     noncopy_vector v1;
     BOOST_FOREACH( int & i, v1 ) { (void)i; }

@@ -17,7 +17,7 @@
 # error Expected failure : rvalues disallowed
 #else
 
-std::vector<int> get_vector()
+static std::vector<int> get_vector()
 {
     return std::vector<int>(4, 4);
 }
@@ -25,7 +25,7 @@ std::vector<int> get_vector()
 ///////////////////////////////////////////////////////////////////////////////
 // test_main
 //   
-BOOST_AUTO_TEST_CASE( Test )
+BOOST_AUTO_TEST_CASE( rvalue_nonconst )
 {
     int counter = 0;
 

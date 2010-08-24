@@ -25,13 +25,13 @@ typedef int const &foreach_const_reference_type;
 ///////////////////////////////////////////////////////////////////////////////
 // define some containers
 //
-int my_array[5] = { 1,2,3,4,5 };
-int const (&my_const_array)[5] = my_array;
+static int my_array[5] = { 1,2,3,4,5 };
+static int const (&my_const_array)[5] = my_array;
 
 ///////////////////////////////////////////////////////////////////////////////
 // test_main
 //   
-BOOST_AUTO_TEST_CASE( Test )
+BOOST_AUTO_TEST_CASE( array_byref_r )
 {
     // non-const containers by reference
     BOOST_CHECK(sequence_equal_byref_n_r(my_array, "\5\4\3\2\1"));

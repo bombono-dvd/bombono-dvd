@@ -29,7 +29,7 @@ void do_test(Vector const & vect)
 ///////////////////////////////////////////////////////////////////////////////
 // test_main
 //   
-BOOST_AUTO_TEST_CASE( Test )
+BOOST_AUTO_TEST_CASE( dependent_type )
 {
     std::vector<int> vect;
     do_test(vect);

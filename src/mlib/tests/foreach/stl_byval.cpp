@@ -27,7 +27,7 @@ typedef int const &foreach_const_reference_type;
 
 ///////////////////////////////////////////////////////////////////////////////
 // initialize a std::list<int>
-std::list<int> make_list()
+static std::list<int> make_list()
 {
     std::list<int> l;
     l.push_back(1);
@@ -41,15 +41,15 @@ std::list<int> make_list()
 ///////////////////////////////////////////////////////////////////////////////
 // define some containers
 //
-std::list<int> my_list = make_list();
-std::list<int> const &my_const_list = my_list;
+static std::list<int> my_list = make_list();
+static std::list<int> const &my_const_list = my_list;
 
 ///////////////////////////////////////////////////////////////////////////////
 // test_main
 //   
-BOOST_AUTO_TEST_CASE( Test )
+BOOST_AUTO_TEST_CASE( stl_byval )
 {
-    boost::mpl::false_ *p = BOOST_FOREACH_IS_LIGHTWEIGHT_PROXY(my_list);
+    check_lightweight<false>(my_list);
 
     // non-const containers by value
     BOOST_CHECK(sequence_equal_byval_n(my_list, "\1\2\3\4\5"));

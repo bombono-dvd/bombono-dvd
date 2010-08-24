@@ -26,14 +26,14 @@ typedef int const &foreach_const_reference_type;
 ///////////////////////////////////////////////////////////////////////////////
 // define some containers
 //
-int my_array[] = { 1,2,3,4,5 };
-std::pair<int*,int*> my_pair(my_array,my_array+5);
-std::pair<int const*,int const*> const my_const_pair(my_array,my_array+5);
+static int my_array[] = { 1,2,3,4,5 };
+static std::pair<int*,int*> my_pair(my_array,my_array+5);
+static std::pair<int const*,int const*> const my_const_pair(my_array,my_array+5);
 
 ///////////////////////////////////////////////////////////////////////////////
 // test_main
 //   
-BOOST_AUTO_TEST_CASE( Test )
+BOOST_AUTO_TEST_CASE( pair_byref )
 {
     // non-const containers by reference
     BOOST_CHECK(sequence_equal_byref_n(my_pair, "\1\2\3\4\5"));

@@ -140,4 +140,11 @@ inline void mutate_foreach_byref_r( foreach_container_type & rng )
     }
 }
 
+template< bool C_, typename T>
+inline void check_lightweight(T& t)
+{
+    boost::mpl::bool_<C_> *p = BOOST_FOREACH_IS_LIGHTWEIGHT_PROXY(t);
+    BOOST_CHECK(p->value == C_);
+}
+
 #endif

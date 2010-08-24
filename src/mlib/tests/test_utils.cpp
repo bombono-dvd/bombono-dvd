@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( TestFilesystem )
     }
 
     // 
-    BOOST_CHECK( !fs::exists("/root/.config") );
+    //BOOST_CHECK( !fs::exists("/root/.config") );
 }
 
 BOOST_AUTO_TEST_CASE( TestStringstream )

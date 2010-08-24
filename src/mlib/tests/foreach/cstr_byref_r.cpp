@@ -25,14 +25,14 @@ typedef char const &foreach_const_reference_type;
 ///////////////////////////////////////////////////////////////////////////////
 // define some containers
 //
-char my_ntcs_buffer[] = "\1\2\3\4\5";
-char *my_ntcs  = my_ntcs_buffer;
-char const *my_const_ntcs  = my_ntcs;
+static char my_ntcs_buffer[] = "\1\2\3\4\5";
+static char *my_ntcs  = my_ntcs_buffer;
+static char const *my_const_ntcs  = my_ntcs;
 
 ///////////////////////////////////////////////////////////////////////////////
 // test_main
 //   
-BOOST_AUTO_TEST_CASE( Test )
+BOOST_AUTO_TEST_CASE( cstr_byref_r )
 {
     // non-const containers by reference
     BOOST_CHECK(sequence_equal_byref_n_r(my_ntcs, "\5\4\3\2\1"));

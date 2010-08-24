@@ -25,15 +25,15 @@ typedef int const &foreach_const_reference_type;
 ///////////////////////////////////////////////////////////////////////////////
 // define some containers
 //
-int my_array[5] = { 1,2,3,4,5 };
-int const (&my_const_array)[5] = my_array;
+static int my_array[5] = { 1,2,3,4,5 };
+static int const (&my_const_array)[5] = my_array;
 
 ///////////////////////////////////////////////////////////////////////////////
 // test_main
 //   
-BOOST_AUTO_TEST_CASE( Test )
+BOOST_AUTO_TEST_CASE( array_byval )
 {
-    boost::mpl::false_ *p = BOOST_FOREACH_IS_LIGHTWEIGHT_PROXY(my_array);
+    check_lightweight<false>(my_array);
 
     // non-const containers by value
     BOOST_CHECK(sequence_equal_byval_n(my_array, "\1\2\3\4\5"));

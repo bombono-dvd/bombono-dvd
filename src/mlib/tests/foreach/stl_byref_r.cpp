@@ -25,7 +25,7 @@ typedef int const &foreach_const_reference_type;
 
 ///////////////////////////////////////////////////////////////////////////////
 // initialize a std::list<int>
-std::list<int> make_list()
+static std::list<int> make_list()
 {
     std::list<int> l;
     l.push_back(1);
@@ -39,13 +39,13 @@ std::list<int> make_list()
 ///////////////////////////////////////////////////////////////////////////////
 // define some containers
 //
-std::list<int> my_list = make_list();
-std::list<int> const &my_const_list = my_list;
+static std::list<int> my_list = make_list();
+static std::list<int> const &my_const_list = my_list;
 
 ///////////////////////////////////////////////////////////////////////////////
 // test_main
 //   
-BOOST_AUTO_TEST_CASE( Test )
+BOOST_AUTO_TEST_CASE( stl_byref_r )
 {
     // non-const containers by reference
     BOOST_CHECK(sequence_equal_byref_n_r(my_list, "\5\4\3\2\1"));

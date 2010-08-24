@@ -33,7 +33,6 @@ source_files = [
 
                 #
                 'foreach/array_byref.cpp',
-                'foreach/array_byref.cpp',
                 'foreach/array_byref_r.cpp',
                 'foreach/array_byval.cpp',
                 'foreach/array_byval_r.cpp',
@@ -58,7 +57,7 @@ source_files = [
                 'foreach/stl_byval.cpp',
                 'foreach/stl_byval_r.cpp',
                 'foreach/user_defined.cpp',
-                'foreach/utility.hpp',
+                #'foreach/utility.hpp',
                ]
 
 bin_mlib_tests_env.Prepend( LIBS = [mlib_tests_lib_name, 'MdLib'] )

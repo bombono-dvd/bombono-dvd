@@ -25,16 +25,16 @@ typedef char const &foreach_const_reference_type;
 ///////////////////////////////////////////////////////////////////////////////
 // define some containers
 //
-char my_ntcs_buffer[] = "\1\2\3\4\5";
-char *my_ntcs  = my_ntcs_buffer;
-char const *my_const_ntcs  = my_ntcs;
+static char my_ntcs_buffer[] = "\1\2\3\4\5";
+static char *my_ntcs  = my_ntcs_buffer;
+static char const *my_const_ntcs  = my_ntcs;
 
 ///////////////////////////////////////////////////////////////////////////////
 // test_main
 //   
-BOOST_AUTO_TEST_CASE( Test )
+BOOST_AUTO_TEST_CASE( cstr_byval )
 {
-    boost::mpl::true_ *p = BOOST_FOREACH_IS_LIGHTWEIGHT_PROXY(my_ntcs);
+    check_lightweight<true>(my_ntcs);
 
     // non-const containers by value
     BOOST_CHECK(sequence_equal_byval_n(my_ntcs, "\1\2\3\4\5"));

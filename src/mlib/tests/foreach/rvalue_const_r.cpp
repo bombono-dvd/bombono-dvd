@@ -20,7 +20,7 @@
 #endif
 #else
 
-std::vector<int> const get_vector()
+static std::vector<int> const get_vector()
 {
     return std::vector<int>(4, 4);
 }
@@ -28,7 +28,7 @@ std::vector<int> const get_vector()
 ///////////////////////////////////////////////////////////////////////////////
 // test_main
 //   
-BOOST_AUTO_TEST_CASE( Test )
+BOOST_AUTO_TEST_CASE( rvalue_const_r )
 {
     int counter = 0;
 

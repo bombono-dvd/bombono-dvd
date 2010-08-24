@@ -51,14 +51,14 @@ class FileCmdLine
 };
 
 // получить аргументы, передаваемые Boost.Test при выполнении тестов
-typedef std::pair<int, char**> ArgumentsPair;
-
-inline ArgumentsPair GetBTArguments()
-{
-    boost::unit_test::auto_unit_test_suite_t* master_test_suite =
-        boost::unit_test::auto_unit_test_suite();
-    return ArgumentsPair(master_test_suite->argc, master_test_suite->argv);
-}
+//typedef std::pair<int, char**> ArgumentsPair;
+//
+//inline ArgumentsPair GetBTArguments()
+//{
+//    boost::unit_test::auto_unit_test_suite_t* master_test_suite =
+//        boost::unit_test::auto_unit_test_suite();
+//    return ArgumentsPair(master_test_suite->argc, master_test_suite->argv);
+//}
 
 // Тест-функции для обнаружения виджетов:
 // путь вложения виджета
