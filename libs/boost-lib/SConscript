@@ -7,6 +7,11 @@ lib_dir = user_options_dict['LIB_BUILD_DIR']
 # Boost.Test
 #
 butf_env = boost_env.Clone()
+# Boost.Test dynamic build is being built without main(),
+# static - with main() . I find it stupid (having the difference).
+# So, build it like dynamic so external Boost can be used without any modification
+# to sources.
+butf_env.Append(CPPDEFINES = ['BOOST_TEST_DYN_LINK'])
 
 def make_source_files(fpath, lst):
     return [ fpath + fname for fname in lst ]
@@ -42,9 +47,9 @@ butf_source_files = make_source_files(butf_src,
 butf_env.Library( target = lib_dir+'/boost_unit_test_framework', source = butf_source_files )
 
 #
-# Boost.Filesystem
+# Boost.Filesystem & Boost.System
 #
-bfs_env = butf_env
+bfs_env = boost_env
 
 bfs_src = 'libs/filesystem/'
 bfs_source_files = make_source_files(bfs_src, 
@@ -68,17 +73,16 @@ bfs_source_files = make_source_files(bfs_src,
     #'v3/src/unique_path.cpp',
     #'v3/src/windows_file_codecvt.cpp'
 ]) 
- # Boost.System is included in Boost.Filesystem (library) => simplification
-bfs_source_files += ['libs/system/src/error_code.cpp']
 # libboost_filesystem.a
 bfs_env.Library( target = lib_dir+'/boost_filesystem', source = bfs_source_files )
+bfs_env.Library( target = lib_dir+'/boost_system', source = ['libs/system/src/error_code.cpp'] )
 
 #
 # Boost.Regex
 #
 # If there will be need for ICU then add "-DBOOST_HAS_ICU=1" + corresponding lib for linking,
 # see libs/regex/build/Jamfile(Jamfile.v2)
-brg_env = butf_env
+brg_env = boost_env
 
 brg_src = 'libs/regex/src/'
 brg_source_files = make_source_files(brg_src, 
@@ -102,5 +106,5 @@ brg_source_files = make_source_files(brg_src,
     'usinstances.cpp'
 ])
 # libboost_regex.a
-bfs_env.Library( target = lib_dir+'/boost_regex', source = brg_source_files )
+brg_env.Library( target = lib_dir+'/boost_regex', source = brg_source_files )
 

@@ -226,6 +226,7 @@
 			Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
 			<F N="../src/mlib/tests/_pc_.h"/>
 			<F N="../src/mlib/tests/test_common.h"/>
+			<F N="../src/mlib/tests/turn_on_test_main.h"/>
 			<F N="../src/mlib/tests/foreach/utility.hpp"/>
 		</Folder>
 		<Folder

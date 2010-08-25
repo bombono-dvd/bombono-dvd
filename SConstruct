@@ -377,11 +377,12 @@ Import('boost_env', 'boost_test_dict')
 # 
 # mlib
 #
-# Depends on ext: Boost, boost-logging, Boost.Filesystem
+# Depends on ext: Boost, boost-logging, Boost.Filesystem&System
 #
 mlib_env = boost_env.Clone()
 mlib_env.Append(CPPPATH = ['#libs/boost-logging']) #, LIBS = ['pthread']))
-mlib_env.Append( LIBS = ['boost_filesystem'] )
+# libboost_system.a linking is needed only for static builds
+mlib_env.Append( LIBS = ['boost_filesystem', 'boost_system'] )
 Export('mlib_env')
 
 # 
