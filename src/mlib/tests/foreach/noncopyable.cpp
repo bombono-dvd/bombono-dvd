@@ -20,12 +20,18 @@ struct noncopy_vector
   : std::vector<int>
   , private boost::noncopyable
 {
+  noncopy_vector() { }
 };
 
 struct noncopy_range
   : boost::iterator_range<noncopy_vector::iterator>
   , private boost::noncopyable
 {
+    // Муравьев - пришлось самому поправить конструктор ради Boost 1.40;
+    // тамошний iterator_range.hpp в отладочном режиме доп. проверки устраивает
+    // (внимание вопрос: автор Boost.Foreach свое детище разрабатывает исключительно под release'ом?)
+    typedef boost::iterator_range<noncopy_vector::iterator> MyParent;
+  noncopy_range(): MyParent(iterator(), iterator()) { }
 };
 
 // Tell FOREACH that noncopy_vector and noncopy_range are non-copyable.
@@ -66,4 +72,4 @@ BOOST_AUTO_TEST_CASE( noncopyable )
 
     noncopy_range const rng2;
     BOOST_FOREACH( int & l, rng2 ) { (void)l; }
-}
+} 
