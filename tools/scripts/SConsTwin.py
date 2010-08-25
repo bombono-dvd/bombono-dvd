@@ -21,10 +21,13 @@ def IsSConsVersionGE(triple):
             return 1
     return 0
 
-def MakeGenAction(function):
+def MakeGenAction(function, strfunction=None):
     if IsSConsVersionGE((1, 2, 0)):
         # official way to create Action generator
-        act = SCons.Action.Action(function, generator=1)
+        kw = {}
+        if strfunction:
+            kw['strfunction'] = strfunction
+        act = SCons.Action.Action(function, generator=1, **kw)
     else:
         act = SCons.Action.CommandGeneratorAction(function)
     return act

@@ -103,14 +103,37 @@ def CheckSettings(main_env):
     def_env.Export('TestSConscript')
     # make test Builder
     if RunTests:
-        def generate_test_actions(source, target, env, for_signature):    
-            return '%s' % (source[0])
-        #test_bld = Builder(action = '$SOURCE $TARGET')
-        test_bld = main_env.Builder(generator = generate_test_actions)
+        #def generate_test_actions(source, target, env, for_signature):    
+        #    return '%s' % (source[0])
+        #test_bld = main_env.Builder(generator = generate_test_actions)
+        #
+        #def TestingString(target, source, env):
+        #    return '\nRunning tests: %s' % (source[0])
+        #test_bld.action.strfunction = TestingString
 
-        def TestingString(target, source, env):
-            return '\nRunning tests: %s' % (source[0])
-        test_bld.action.strfunction = TestingString
+        # :TODO: now all tests have the same args; should be fixed
+        # by storing dict of (test_bin_Node, args) and using it in make_test_str()
+        #
+        # --catch_system_errors=no is needed because Boost.Test of new Boost versions conflicts
+        # with other software (e.g. GTK) by handling signals its own way.
+        # Attention: UNIX signals are CRAP!!! I hate you.
+        UT_ARGS = '--catch_system_errors=no'
+
+        def make_test_str(source, is_cmd):
+            res = '%s' % (source[0])
+            if is_cmd or (not BuildBrief):
+                if UT_ARGS:
+                    res += ' ' + UT_ARGS 
+            return res
+
+        def generate_test_actions(source, target, env, for_signature):
+            return make_test_str(source, True)
+
+        def generate_test_str(target, source, env):
+            return '\nRunning tests: %s' % (make_test_str(source, False))
+
+        test_act = MakeGenAction(generate_test_actions, generate_test_str)
+        test_bld = main_env.Builder(action = test_act)
 
         main_env.Append( BUILDERS = {'UnitTest_': test_bld} )
 

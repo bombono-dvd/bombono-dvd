@@ -1832,6 +1832,7 @@
 		<Folder
 			Name="Other Files"
 			Filters="">
+			<F N="../libs/boost-lib/SConscript"/>
 		</Folder>
 	</Files>
 </Project>

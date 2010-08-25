@@ -94,12 +94,22 @@ static void TestAR(bool line_up)
     BOOST_CHECK_EQUAL( he_str, err_str );
 }
 
-BOOST_AUTO_TEST_CASE( TestAsyncReading )
+// функционал выделен в 2 теста ради тестирования конфликта Boost.Test и GTK:
+// при запуске тестов без --catch_system_errors=no B.T. перед выполнением каждого
+// теста (!) химичит с UNIX-сигналами, и из-за этого ExecuteAsyncImpl() не прекращает работу,-
+// не приходит событие завершения процесса в WaitExitCode()
+//
+// Долбаные сигналы UNIX!!! Вы - проклятье всех POSIX-систем из-за своей несовершенности=
+// =устаревшести и должны сдохнуть в корчах.
+BOOST_AUTO_TEST_CASE( TestAsyncReadingFalse )
 {
-    //return;
     InitGtkmm();
-
     TestAR(false);
+}
+
+BOOST_AUTO_TEST_CASE( TestAsyncReadingTrue )
+{
+    InitGtkmm();
     TestAR(true);
 }
 
