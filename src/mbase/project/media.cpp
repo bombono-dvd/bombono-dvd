@@ -104,14 +104,15 @@ std::string GetFilename(StorageMD& smd)
 bool CreateDirs(const fs::path& dir, std::string& err_str) 
 {
     bool res = true;
-    if( !fs::exists(dir) )
+    try
     {
-        try { fs::create_directories(dir); } 
-        catch( const std::exception& )
-        {
-            err_str = BF_("Cant create folder %1% (check permissions)") % dir.string() % bf::stop;
-            res = false;
-        }
+        if( !fs::exists(dir) )
+            fs::create_directories(dir);
+    }
+    catch( const std::exception& )
+    {
+        err_str = BF_("Cant create folder %1% (check permissions)") % dir.string() % bf::stop;
+        res = false;
     }
     return res;
 }

@@ -21,6 +21,7 @@
 
 #include "filesystem.h"
 #include "tech.h"
+#include "format.h"
 
 #include <string.h> // strstr()
 
@@ -116,10 +117,9 @@ bool ClearAllFiles(const fs::path& dir_path, std::string& err_str)
             itr != end_itr; ++itr )
             fs::remove_all(*itr);
     }
-    catch( const std::exception& err )
+    catch( const fs::filesystem_error& fe )
     {
-        // :TODO: перейти на версию boost >= 1.37 ради сообщений об ошибках, Boost.System
-        err_str = err.what();
+        err_str = FormatFSError(fe);
         res = false;
     }
     return res;
@@ -130,5 +130,15 @@ bool ClearAllFiles(const fs::path& dir_path, std::string& err_str)
 std::string AppendPath(const std::string& dir, const std::string& path)
 {
     return (fs::path(dir)/path).string();
+}
+
+std::string FormatFSError(const fs::filesystem_error& fe)
+{
+    std::string what  = fe.code().message();
+    // бывает и второй путь, path2(), но пока не требуется
+    std::string fpath = fe.path1().string();
+    if( !fpath.empty() )
+        what = boost::format("%1%: \"%2%\"") % what % fpath % bf::stop;
+    return what;
 }
 

@@ -28,6 +28,7 @@
 #include <mgui/sdk/widget.h>
 #include <mgui/sdk/packing.h>
 #include <mgui/gettext.h>
+#include <mgui/dialog.h>
 
 #include <mlib/filesystem.h>
 
@@ -51,20 +52,27 @@ struct Bunch: public Singleton<Bunch>
 
 static void OpenFile(Gtk::FileChooserWidget& fcw, OpenFileFnr fnr)
 {
-    Glib::ustring fname_ = fcw.get_filename();
-    const char*   fname  = fname_.c_str();
-
-    if( fs::exists(fname) && fs::is_directory(fname) )
+    try
     {
-        // просто откроем директорию, если выделена только она
-        if( fcw.get_filenames().size() == 1 )
-        {
-            fcw.set_current_folder(fname);
-            return;
-        }
-    }
+        Glib::ustring fname_ = fcw.get_filename();
+        const char*   fname  = fname_.c_str();
 
-    fnr(fname, fcw);
+        if( fs::exists(fname) && fs::is_directory(fname) )
+        {
+            // просто откроем директорию, если выделена только она
+            if( fcw.get_filenames().size() == 1 )
+            {
+                fcw.set_current_folder(fname);
+                return;
+            }
+        }
+
+        fnr(fname, fcw);
+    }
+    catch( const fs::filesystem_error& fe )
+    {
+        ErrorBox(_("Error while opening file:"), FormatFSError(fe));
+    }
 }
 
 // ну что тут скажешь - HIG

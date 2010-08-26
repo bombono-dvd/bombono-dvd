@@ -200,6 +200,7 @@
 			<F N="../src/mlib/const.h"/>
 			<F N="../src/mlib/dataware.h"/>
 			<F N="../src/mlib/filesystem.h"/>
+			<F N="../src/mlib/format.h"/>
 			<F N="../src/mlib/function.h"/>
 			<F N="../src/mlib/geom2d.h"/>
 			<F N="../src/mlib/gettext.h"/>

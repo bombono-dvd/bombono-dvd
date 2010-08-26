@@ -45,9 +45,9 @@ Gtk::ResponseType MessageBoxWeb(const std::string& msg_str, Gtk::MessageType typ
     return MessageBoxEx(msg_str, typ, b_typ, desc_str, SetWeblinkCallback);
 }
 
-inline void ErrorBox(const std::string& err_msg)
+inline void ErrorBox(const std::string& err_msg, const std::string& desc_str = std::string())
 {
-    MessageBox(err_msg, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK);
+    MessageBox(err_msg, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, desc_str);
 }
 
 void AddCancelDoButtons(Gtk::Dialog& dialog, Gtk::BuiltinStockID do_id);

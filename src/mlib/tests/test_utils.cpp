@@ -152,8 +152,12 @@ BOOST_AUTO_TEST_CASE( TestFilesystem )
         BOOST_CHECK( Project::MakeRelativeToDir(pth, dir) && (pth == fs::path("../../ttt")) );
     }
 
-    // 
+     
     //BOOST_CHECK( !fs::exists("/root/.config") );
+#ifdef NDEBUG
+    // не включаем при отладке чтобы каждый раз здесь не останавливаться
+    BOOST_CHECK_THROW( fs::exists("/root/.config"), fs::filesystem_error );
+#endif
 }
 
 BOOST_AUTO_TEST_CASE( TestStringstream )
