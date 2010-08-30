@@ -13,8 +13,7 @@ butf_env = boost_env.Clone()
 # to sources.
 butf_env.Append(CPPDEFINES = ['BOOST_TEST_DYN_LINK'])
 
-def make_source_files(fpath, lst):
-    return [ fpath + fname for fname in lst ]
+make_source_files = user_options_dict['make_source_files']
 
 butf_src = 'libs/test/src/'
 butf_source_files = make_source_files(butf_src, 

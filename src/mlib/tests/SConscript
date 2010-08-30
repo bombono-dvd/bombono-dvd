@@ -23,42 +23,92 @@ lib_mlib_tests_env.Library( target = lib_path +'/'+mlib_tests_lib_name, source =
 
 ######
 # bin
+
+make_source_files = user_options_dict['make_source_files']
+
 source_files = [
                 'test_dataware.cpp',
+                'test_iterator.cpp',
                 'test_main.cpp',
                 'test_ptr.cpp',
                 'test_stream.cpp',
                 'test_tech.cpp',
                 'test_utils.cpp',
-
-                #
-                'foreach/array_byref.cpp',
-                'foreach/array_byref_r.cpp',
-                'foreach/array_byval.cpp',
-                'foreach/array_byval_r.cpp',
-                'foreach/call_once.cpp',
-                'foreach/cstr_byref.cpp',
-                'foreach/cstr_byref_r.cpp',
-                'foreach/cstr_byval.cpp',
-                'foreach/cstr_byval_r.cpp',
-                'foreach/dependent_type.cpp',
-                'foreach/misc.cpp',
-                'foreach/noncopyable.cpp',
-                'foreach/pair_byref.cpp',
-                'foreach/pair_byref_r.cpp',
-                'foreach/pair_byval.cpp',
-                'foreach/pair_byval_r.cpp',
-                'foreach/rvalue_const.cpp',
-                'foreach/rvalue_const_r.cpp',
-                'foreach/rvalue_nonconst.cpp',
-                'foreach/rvalue_nonconst_r.cpp',
-                'foreach/stl_byref.cpp',
-                'foreach/stl_byref_r.cpp',
-                'foreach/stl_byval.cpp',
-                'foreach/stl_byval_r.cpp',
-                'foreach/user_defined.cpp',
-                #'foreach/utility.hpp',
                ]
+
+# Boost.Foreach tests
+source_files += make_source_files('foreach', '''
+array_byref.cpp
+array_byref_r.cpp
+array_byval.cpp
+array_byval_r.cpp
+call_once.cpp
+cstr_byref.cpp
+cstr_byref_r.cpp
+cstr_byval.cpp
+cstr_byval_r.cpp
+dependent_type.cpp
+misc.cpp
+noncopyable.cpp
+pair_byref.cpp
+pair_byref_r.cpp
+pair_byval.cpp
+pair_byval_r.cpp
+rvalue_const.cpp
+rvalue_const_r.cpp
+rvalue_nonconst.cpp
+rvalue_nonconst_r.cpp
+stl_byref.cpp
+stl_byref_r.cpp
+stl_byval.cpp
+stl_byval_r.cpp
+user_defined.cpp
+''') #utility.hpp
+
+# any_iterator tests
+source_files += make_source_files('any_iterator', '''
+any_iterator_demo.cpp
+any_iterator_test.cpp
+any_iterator_wrapper_test.cpp
+boost_iterator_library_example_test.cpp
+test_any_iterator.cpp
+''')
+
+# range adaptors' tests (Boost.Range)
+source_files += make_source_files('range', '''
+irange.cpp
+adaptors.cpp
+''') + make_source_files('range/adaptor_test', '''
+adjacent_filtered.cpp
+adjacent_filtered_example.cpp
+copied.cpp
+copied_example.cpp
+filtered.cpp
+filtered_example.cpp
+indexed.cpp
+indexed_example.cpp
+indirected.cpp
+indirected_example.cpp
+map.cpp
+map_keys_example.cpp
+map_values_example.cpp
+replaced.cpp
+replaced_example.cpp
+replaced_if.cpp
+replaced_if_example.cpp
+reversed.cpp
+reversed_example.cpp
+sliced.cpp
+sliced_example.cpp
+strided2.cpp
+strided.cpp
+strided_example.cpp
+tokenized.cpp
+transformed.cpp
+transformed_example.cpp
+uniqued.cpp
+uniqued_example.cpp
+''')
 
 bin_mlib_tests_env.Prepend( LIBS = [mlib_tests_lib_name, 'MdLib'] )
 

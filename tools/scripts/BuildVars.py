@@ -568,4 +568,16 @@ def InstallDir(env, dst_dir, src_dir):
         tgt = env.InstallAs(dst_list, src_list)
     return tgt
 
+def make_source_files(fpath, lst):
+    typ = type(lst)
+    if typ != list :
+        assert( typ == str )
+        lst = GetDefEnv().Split(lst)
+
+    return [ os.path.join(fpath, fname) for fname in lst ]
+
+def InitUOD(user_options_dict):
+    global UserOptDict
+    UserOptDict = user_options_dict
+    UserOptDict['make_source_files'] = make_source_files
 

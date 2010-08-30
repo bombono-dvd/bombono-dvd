@@ -333,6 +333,7 @@
 			<F N="../libs/boost-lib/boost/mpl/aux_/preprocessed/no_ttp/and.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/preprocessed/plain/and.hpp"/>
 			<F N="../libs/boost-lib/boost/preprocessor/logical/and.hpp"/>
+			<F N="../libs/boost-lib/boost/iterator/detail/any_conversion_eater.hpp"/>
 			<F N="../libs/boost-lib/boost/system/api_config.hpp"/>
 			<F N="../libs/boost-lib/boost/preprocessor/list/append.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/apply.hpp"/>
@@ -485,6 +486,7 @@
 			<F N="../libs/boost-lib/boost/bind/bind_mf2_cc.hpp"/>
 			<F N="../libs/boost-lib/boost/bind/bind_mf_cc.hpp"/>
 			<F N="../libs/boost-lib/boost/bind/bind_template.hpp"/>
+			<F N="../libs/boost-lib/boost/mpl/bitand.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/preprocessed/bcc/bitand.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/preprocessed/bcc551/bitand.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/preprocessed/bcc_pre590/bitand.hpp"/>
@@ -609,6 +611,7 @@
 			<F N="../libs/boost-lib/boost/lambda/core.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/count_args.hpp"/>
 			<F N="../libs/boost-lib/boost/preprocessor/slot/detail/counter.hpp"/>
+			<F N="../libs/boost-lib/boost/iterator/counting_iterator.hpp"/>
 			<F N="../libs/boost-lib/boost/regex/v4/cpp_regex_traits.hpp"/>
 			<F N="../libs/boost-lib/boost/cregex.hpp"/>
 			<F N="../libs/boost-lib/boost/regex/v4/cregex.hpp"/>
@@ -735,6 +738,7 @@
 			<F N="../libs/boost-lib/boost/type_traits/detail/false_result.hpp"/>
 			<F N="../libs/boost-lib/boost/format/feed_args.hpp"/>
 			<F N="../libs/boost-lib/boost/regex/v4/fileiter.hpp"/>
+			<F N="../libs/boost-lib/boost/iterator/filter_iterator.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/preprocessor/filter_params.hpp"/>
 			<F N="../libs/boost-lib/boost/algorithm/string/find_format.hpp"/>
 			<F N="../libs/boost-lib/boost/algorithm/string/detail/find_format.hpp"/>
@@ -915,6 +919,7 @@
 			<F N="../libs/boost-lib/boost/preprocessor/arithmetic/inc.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/include_preprocessed.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/vector/aux_/include_preprocessed.hpp"/>
+			<F N="../libs/boost-lib/boost/iterator/indirect_iterator.hpp"/>
 			<F N="../libs/boost-lib/boost/indirect_reference.hpp"/>
 			<F N="../libs/boost-lib/boost/detail/indirect_traits.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/preprocessed/bcc/inherit.hpp"/>
@@ -983,6 +988,7 @@
 			<F N="../libs/boost-lib/boost/detail/is_incrementable.hpp"/>
 			<F N="../libs/boost-lib/boost/lambda/detail/is_instance_of.hpp"/>
 			<F N="../libs/boost-lib/boost/type_traits/is_integral.hpp"/>
+			<F N="../libs/boost-lib/boost/iterator/is_lvalue_iterator.hpp"/>
 			<F N="../libs/boost-lib/boost/type_traits/is_lvalue_reference.hpp"/>
 			<F N="../libs/boost-lib/boost/type_traits/detail/is_mem_fun_pointer_impl.hpp"/>
 			<F N="../libs/boost-lib/boost/type_traits/detail/is_mem_fun_pointer_tester.hpp"/>
@@ -996,6 +1002,7 @@
 			<F N="../libs/boost-lib/boost/type_traits/is_pod.hpp"/>
 			<F N="../libs/boost-lib/boost/type_traits/is_pointer.hpp"/>
 			<F N="../libs/boost-lib/boost/type_traits/is_polymorphic.hpp"/>
+			<F N="../libs/boost-lib/boost/iterator/is_readable_iterator.hpp"/>
 			<F N="../libs/boost-lib/boost/type_traits/is_reference.hpp"/>
 			<F N="../libs/boost-lib/boost/type_traits/is_rvalue_reference.hpp"/>
 			<F N="../libs/boost-lib/boost/type_traits/is_same.hpp"/>
@@ -1041,6 +1048,7 @@
 			<F N="../libs/boost-lib/boost/range/iterator.hpp"/>
 			<F N="../libs/boost-lib/boost/range/detail/iterator.hpp"/>
 			<F N="../libs/boost-lib/boost/iterator/iterator_adaptor.hpp"/>
+			<F N="../libs/boost-lib/boost/iterator/iterator_archetypes.hpp"/>
 			<F N="../libs/boost-lib/boost/iterator/iterator_categories.hpp"/>
 			<F N="../libs/boost-lib/boost/regex/v4/iterator_category.hpp"/>
 			<F N="../libs/boost-lib/boost/iterator/iterator_concepts.hpp"/>
@@ -1049,6 +1057,7 @@
 			<F N="../libs/boost-lib/boost/range/iterator_range_core.hpp"/>
 			<F N="../libs/boost-lib/boost/range/iterator_range_io.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/iterator_tags.hpp"/>
+			<F N="../libs/boost-lib/boost/pending/iterator_tests.hpp"/>
 			<F N="../libs/boost-lib/boost/iterator/iterator_traits.hpp"/>
 			<F N="../libs/boost-lib/boost/regex/v4/iterator_traits.hpp"/>
 			<F N="../libs/boost-lib/boost/config/compiler/kai.hpp"/>
@@ -1183,6 +1192,7 @@
 			<F N="../libs/boost-lib/boost/config/compiler/metrowerks.hpp"/>
 			<F N="../libs/boost-lib/boost/regex/mfc.hpp"/>
 			<F N="../libs/boost-lib/boost/test/minimal.hpp"/>
+			<F N="../libs/boost-lib/boost/iterator/detail/minimum_category.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/minus.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/preprocessed/bcc/minus.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/preprocessed/bcc551/minus.hpp"/>
@@ -1235,6 +1245,7 @@
 			<F N="../libs/boost-lib/boost/test/utils/named_params.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/negate.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/nested_type_wknd.hpp"/>
+			<F N="../libs/boost-lib/boost/iterator/new_iterator_tests.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/next.hpp"/>
 			<F N="../libs/boost-lib/boost/next_prior.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/next_prior.hpp"/>
@@ -1265,6 +1276,7 @@
 			<F N="../libs/boost-lib/boost/mpl/numeric_cast.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/numeric_cast_utils.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/numeric_op.hpp"/>
+			<F N="../libs/boost-lib/boost/detail/numeric_traits.hpp"/>
 			<F N="../libs/boost-lib/boost/config/compiler/nvcc.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/vector/aux_/O1_size.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/O1_size_fwd.hpp"/>
@@ -1313,6 +1325,7 @@
 			<F N="../libs/boost-lib/boost/regex/v4/perl_matcher_common.hpp"/>
 			<F N="../libs/boost-lib/boost/regex/v4/perl_matcher_non_recursive.hpp"/>
 			<F N="../libs/boost-lib/boost/regex/v4/perl_matcher_recursive.hpp"/>
+			<F N="../libs/boost-lib/boost/iterator/permutation_iterator.hpp"/>
 			<F N="../libs/boost-lib/boost/config/compiler/pgi.hpp"/>
 			<F N="../libs/boost-lib/boost/bind/placeholders.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/placeholders.hpp"/>
@@ -1482,6 +1495,7 @@
 			<F N="../libs/boost-lib/boost/lambda/detail/select_functions.hpp"/>
 			<F N="../libs/boost-lib/boost/config/select_platform_config.hpp"/>
 			<F N="../libs/boost-lib/boost/config/select_stdlib_config.hpp"/>
+			<F N="../libs/boost-lib/boost/detail/select_type.hpp"/>
 			<F N="../libs/boost-lib/boost/preprocessor/iteration/self.hpp"/>
 			<F N="../libs/boost-lib/boost/preprocessor/iteration/detail/self.hpp"/>
 			<F N="../libs/boost-lib/boost/preprocessor/seq/seq.hpp"/>
@@ -1658,6 +1672,7 @@
 			<F N="../libs/boost-lib/boost/mpl/aux_/traits_lambda_spec.hpp"/>
 			<F N="../libs/boost-lib/boost/preprocessor/list/transform.hpp"/>
 			<F N="../libs/boost-lib/boost/preprocessor/seq/transform.hpp"/>
+			<F N="../libs/boost-lib/boost/iterator/transform_iterator.hpp"/>
 			<F N="../libs/boost-lib/boost/type_traits/transform_traits.hpp"/>
 			<F N="../libs/boost-lib/boost/test/utils/trivial_singleton.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/aux_/config/ttp.hpp"/>
@@ -1828,6 +1843,7 @@
 			<F N="../libs/boost-lib/boost/algorithm/string/yes_no_type.hpp"/>
 			<F N="../libs/boost-lib/boost/type_traits/detail/yes_no_type.hpp"/>
 			<F N="../libs/boost-lib/boost/smart_ptr/detail/yield_k.hpp"/>
+			<F N="../libs/boost-lib/boost/iterator/zip_iterator.hpp"/>
 		</Folder>
 		<Folder
 			Name="Other Files"

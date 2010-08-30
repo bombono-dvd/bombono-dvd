@@ -205,8 +205,8 @@ def ParseVariables(user_options):
     global user_options_dict
     user_options_dict = user_options_env.Dictionary()
     # must be later than assigning
+    BV.InitUOD(user_options_dict)
     Export('user_options_dict')
-    BV.UserOptDict = user_options_dict
     user_options_dict['AdjustConfigOptions'] = AdjustConfigOptions
 
     # fill in BuildVars
@@ -382,7 +382,7 @@ Import('boost_env', 'boost_test_dict')
 mlib_env = boost_env.Clone()
 mlib_env.Append(CPPPATH = ['#libs/boost-logging']) #, LIBS = ['pthread']))
 # libboost_system.a linking is needed only for static builds
-mlib_env.Append( LIBS = ['boost_filesystem', 'boost_system'] )
+mlib_env.Append( LIBS = ['boost_filesystem', 'boost_system', 'boost_regex'] )
 Export('mlib_env')
 
 # 
@@ -449,7 +449,6 @@ Export('mbase_tests_env')
 mgui_env = mbase_env.Clone()
 AddMovieDicts(mgui_env)
 mgui_env.AppendUnique(**gtk2mm_dict)
-mgui_env.Append( LIBS = ['boost_regex'] )
 
 # if BV.Cc == 'como':
 #     mgui_env.Append(CXXFLAGS='--g++')
