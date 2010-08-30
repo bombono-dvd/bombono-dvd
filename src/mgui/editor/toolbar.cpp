@@ -23,6 +23,7 @@
 
 #include "toolbar.h"
 #include "actions.h"
+#include "fe-select.h"
 
 #include <mgui/win_utils.h>
 #include <mgui/img-factory.h>
@@ -40,6 +41,7 @@
 
 #include <mbase/project/theme.h>
 #include <mlib/sdk/logger.h>
+#include <mlib/range/enumerate.h>
 
 namespace Editor
 {
@@ -48,10 +50,12 @@ void ForAllSelected(FTOFunctor fto_fnr, TextObjFunctor txt_fnr, MenuRegion& mn_r
 {
     bool fto_continue = fto_fnr;
     bool txt_continue = txt_fnr;
-    Comp::ListObj::ArrType& lst = mn_rgn.List();
-    for( int i=0; (fto_continue || txt_continue) && i<(int)sel_arr.size(); ++i )
+    //Comp::ListObj::ArrType& lst = mn_rgn.List();
+    //for( int i=0; (fto_continue || txt_continue) && i<(int)sel_arr.size(); ++i )
+    boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs(mn_rgn, sel_arr) )
     {
-        Comp::Object* obj = lst[sel_arr[i]];
+        if( !(fto_continue || txt_continue) )
+            break;
 
         if( fto_continue )
             if( FrameThemeObj* fto_obj = dynamic_cast<FrameThemeObj*>(obj) )
@@ -161,16 +165,15 @@ Toolbar::Toolbar(): selTool(MakeSelectionToolImage()), txtTool(MakeTextToolLabel
         //TooltipFactory().set_tip(*combo.get_child(), "Frame Type");
         Str::List lst;
         Project::GetThemeList(lst);
-        //fill_clr = GetStyleColorBg(Gtk::STATE_NORMAL, combo).ToUint();
-        for( Str::List::iterator itr = lst.begin(), end = lst.end(); itr != end; ++itr )
+        boost_foreach( fe::index_value<std::string&> iv, lst | fe::enumerated() )
         {
             Gtk::TreeRow row = *f_store->append();
-            const std::string& theme_str = *itr;
+            const std::string& theme_str = iv.value();
             // *
             row[pix_cln] = RenderToolbarFrame(theme_str, fill_clr);
             row[str_cln] = theme_str;
             if( theme_str == "rect" )
-                combo.set_active(itr-lst.begin());
+                combo.set_active(iv.index());
         }
         // * внешний вид
         combo.pack_start(pix_cln, false);
@@ -243,8 +246,8 @@ Str::PList GetFamiliesList(RefPtr<Pango::Context> context)
 
     typedef Glib::ArrayHandle<RefPtr<Pango::FontFamily> > FFArray;
     FFArray arr = context->list_families();
-    for( FFArray::iterator itr = arr.begin(), end = arr.end(); itr != end; ++itr )
-        lst->push_back((*itr)->get_name());
+    boost_foreach( RefPtr<Pango::FontFamily> ff, arr )
+        lst->push_back(ff->get_name());
 
     std::sort(lst->begin(), lst->end());
     return lst;
@@ -503,11 +506,11 @@ Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box)
         // * семейства
         Gtk::ComboBoxEntryText& fonts_ent = edt_tbar.fontFmlEnt;
         Str::PList lst = GetFamiliesList(tbar.get_toplevel()->get_pango_context());
-        for( Str::List::iterator itr = lst->begin(), end = lst->end(); itr != end; ++itr )
+        boost_foreach( fe::index_value<std::string&> ff, *lst | fe::enumerated() )
         {
-            fonts_ent.append_text(*itr);
-            if( *itr == def_font )
-                fonts_ent.set_active(itr-lst->begin());
+            fonts_ent.append_text(ff.value());
+            if( ff.value() == def_font )
+                fonts_ent.set_active(ff.index());
         }
         AppendToToolbarWithAC(tbar, fonts_ent, true);
         {

@@ -30,6 +30,7 @@
 #include "text.h"
 #include "toolbar.h"
 #include "visitors.h"
+#include "fe-select.h"
 
 #include <mgui/win_utils.h>
 #include <mgui/key.h>
@@ -37,7 +38,45 @@
 #include <mgui/sdk/menu.h>  // Popup()
 #include <mgui/gettext.h>
 
-#include <mlib/sigc.h>
+#include <mlib/range/transform.h>
+
+//typedef boost::function<bool(Comp::MediaObj*)> CMFunctor;
+//
+//static void ForeachSelectedCM(MEditorArea& edt_area, const CMFunctor& fnr)
+//{
+//    MenuRegion& m_rgn = edt_area.CurMenuRegion();
+//    Comp::ListObj::ArrType& lst = m_rgn.List();
+//    const int_array sel_arr     = edt_area.SelArr();
+//    for( int i=0; i<(int)sel_arr.size(); ++i )
+//        if( Comp::MediaObj* obj = dynamic_cast<Comp::MediaObj*>(lst[sel_arr[i]]) )
+//            if( fnr(obj) )
+//               break;
+//}
+
+struct ToMOTransform
+{
+    Comp::ListObj::ArrType& lst;
+
+    ToMOTransform(MenuRegion& m_rgn): lst(m_rgn.List()) {}
+
+    typedef Comp::MediaObj* result_type;
+    Comp::MediaObj* operator()(int i) const 
+    {
+        Comp::MediaObj* obj = dynamic_cast<Comp::MediaObj*>(lst[i]);
+        ASSERT(obj);
+        return obj;
+    }
+};
+
+fe::range<Comp::MediaObj*> SelectedMediaObjs(MenuRegion& mn_rgn, const int_array& sel_arr)
+{
+    return fe::make_any( sel_arr | fe::transformed(ToMOTransform(mn_rgn)) );
+}
+
+fe::range<Comp::MediaObj*> SelectedMediaObjs(MEditorArea& edt_area)
+{
+    return SelectedMediaObjs(edt_area.CurMenuRegion(), edt_area.SelArr());
+}
 
 static void SetCursorForEdt(SelActionType typ, Gtk::Widget& wdg);
 
@@ -154,12 +193,13 @@ static bool SetupCurFrame(FrameThemeObj* obj, MenuRegion&, MEditorArea& edt_area
     Gtk::ComboBox&     combo = edt_area.Toolbar().frame_combo;
     if( theme != Editor::GetActiveTheme(combo) )
     {
-        Gtk::TreeModel::Children children = combo.get_model()->children();
-        for( Gtk::TreeModel::iterator itr = children.begin(), end = children.end();
-             itr != end; ++itr )
-            if( itr->get_value(Editor::FrameTypeColumn) == theme )
+        //Gtk::TreeModel::Children children = combo.get_model()->children();
+        //for( Gtk::TreeModel::iterator itr = children.begin(), end = children.end();
+        //     itr != end; ++itr )
+        boost_foreach( const Gtk::TreeRow& row, combo.get_model()->children() )
+            if( row.get_value(Editor::FrameTypeColumn) == theme )
             {
-                combo.set_active(itr);
+                combo.set_active(row);
                 break;
             }
     }
@@ -257,24 +297,11 @@ void MovePress::OnPressUp(MEditorArea& edt_area, NormalSelect::Data& dat)
 
 static void DeleteSelObjects(MEditorArea& edt_area);
 
-typedef boost::function<bool(Comp::MediaObj*)> CMFunctor;
- 
-static void ForeachSelectedCM(MEditorArea& edt_area, const CMFunctor& fnr)
-{
-    MenuRegion& m_rgn = edt_area.CurMenuRegion();
-    Comp::ListObj::ArrType& lst = m_rgn.List();
-    const int_array sel_arr     = edt_area.SelArr();
-    for( int i=0; i<(int)sel_arr.size(); ++i )
-        if( Comp::MediaObj* obj = dynamic_cast<Comp::MediaObj*>(lst[sel_arr[i]]) )
-            if( fnr(obj) )
-               break;
-}
-
-static bool GetFirstMILink(Comp::MediaObj* obj, Project::MediaItem& res_mi)
-{
-    res_mi = obj->MediaItem();
-    return true;
-}
+//static bool GetFirstMILink(Comp::MediaObj* obj, Project::MediaItem& res_mi)
+//{
+//    res_mi = obj->MediaItem();
+//    return true;
+//}
 
 static Project::MediaItem GetCurObjectLink(MEditorArea& edt_area, bool is_background)
 {
@@ -282,7 +309,12 @@ static Project::MediaItem GetCurObjectLink(MEditorArea& edt_area, bool is_backgr
     if( is_background )
         res_mi = edt_area.CurMenuRegion().BgRef();
     else
-        ForeachSelectedCM(edt_area, bl::bind(&GetFirstMILink, bl::_1, boost::ref(res_mi)));
+        //ForeachSelectedCM(edt_area, bl::bind(&GetFirstMILink, bl::_1, boost::ref(res_mi)));
+        boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs(edt_area) )
+        {
+            res_mi = obj->MediaItem();
+            break;
+        }
 
     return res_mi;
 }
@@ -367,18 +399,6 @@ class PosterMenuBuilder: public Project::EditorMenuBuilder
     }
 };
 
-static bool CalcAlignSettings(Comp::MediaObj* obj, Rect& edge_rct, bool& is_first)
-{
-    Rect rct = obj->Placement();
-    edge_rct.lft = is_first ? rct.lft : std::min(rct.lft, edge_rct.lft);
-    edge_rct.rgt = is_first ? rct.rgt : std::max(rct.rgt, edge_rct.rgt);
-    edge_rct.top = is_first ? rct.top : std::min(rct.top, edge_rct.top);
-    edge_rct.btm = is_first ? rct.btm : std::max(rct.btm, edge_rct.btm);
-
-    is_first = false;
-    return false;
-}
-
 typedef boost::function<void(Comp::MediaObj*)> CMFunctor2;
 
 class AlignVis: public CommonDrawVis
@@ -442,11 +462,33 @@ static void CenterVrImpl(Comp::MediaObj* m_obj, const Rect& edge_rct)
 
 typedef boost::function<void(Comp::MediaObj*, const Rect&)> CMFunctor3;
 
+//static bool CalcAlignSettings(Comp::MediaObj* obj, Rect& edge_rct, bool& is_first)
+//{
+//    Rect rct = obj->Placement();
+//    edge_rct.lft = is_first ? rct.lft : std::min(rct.lft, edge_rct.lft);
+//    edge_rct.rgt = is_first ? rct.rgt : std::max(rct.rgt, edge_rct.rgt);
+//    edge_rct.top = is_first ? rct.top : std::min(rct.top, edge_rct.top);
+//    edge_rct.btm = is_first ? rct.btm : std::max(rct.btm, edge_rct.btm);
+//
+//    is_first = false;
+//    return false;
+//}
+
 static void AlignByFunctor(MEditorArea& edt_area, const CMFunctor3& fnr)
 {
     Rect edge_rct;
     bool is_first = true;
-    ForeachSelectedCM(edt_area, bl::bind(&CalcAlignSettings, bl::_1, boost::ref(edge_rct), boost::ref(is_first)));
+    //ForeachSelectedCM(edt_area, bl::bind(&CalcAlignSettings, bl::_1, boost::ref(edge_rct), boost::ref(is_first)));
+    boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs(edt_area) )
+    {
+        Rect rct = obj->Placement();
+        edge_rct.lft = is_first ? rct.lft : std::min(rct.lft, edge_rct.lft);
+        edge_rct.rgt = is_first ? rct.rgt : std::max(rct.rgt, edge_rct.rgt);
+        edge_rct.top = is_first ? rct.top : std::min(rct.top, edge_rct.top);
+        edge_rct.btm = is_first ? rct.btm : std::max(rct.btm, edge_rct.btm);
+
+        is_first = false;
+    }
     ASSERT( !is_first );
 
     AlignVis vis(bl::bind(fnr, bl::_1, edge_rct), edt_area.SelArr());
