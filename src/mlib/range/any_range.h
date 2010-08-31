@@ -16,14 +16,7 @@ template <class Reference>
 struct traits
 {
     typedef typename boost::remove_reference<Reference>::type Value;
-    // Справка по типам итераторов (BOOST/libs/iterator/doc/new-iter-concepts.html#incrementable-iterators-lib-incrementable-iterators):
-    // - incrementable_traversal_tag: ++ и deref
-    // - single_pass_traversal_tag:   дополнительно сравнение
-    // - forward_traversal_tag:       дополнительно конструктор по умолчанию
-    // - bidirectional_traversal_tag: --
-    // - random_access_traversal_tag: + n, a[n], b - a 
-    // 
-    // на практике, для обхода, необходим и достаточен bidirectional
+    // in practice, only bidirectional one is needed
     typedef any_iterator<Value, boost::bidirectional_traversal_tag, Reference> iterator;
 
     typedef boost::iterator_range<iterator> range_base;
@@ -62,8 +55,6 @@ _make_any(Range& r)
     return range<reference>(boost::begin(r), boost::end(r));
 }
 
-// 2 варианта приходится делать ради того, чтобы принимались
-// константные (передача временных объектов!) и не константные объекты
 template <class Range>
 typename range_range<Range>::type
 make_any(Range& r)

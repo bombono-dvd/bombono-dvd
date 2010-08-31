@@ -1,0 +1,2 @@
+This code is taken from Boost.Range 1.44 + my additions.
+The reason: the project could be built with relatively old external Boost versions.
