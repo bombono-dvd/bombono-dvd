@@ -39,6 +39,7 @@
 #include <mgui/gettext.h>
 
 #include <mlib/range/transform.h>
+#include <mlib/range/slice.h>
 
 //typedef boost::function<bool(Comp::MediaObj*)> CMFunctor;
 //
@@ -460,162 +461,40 @@ static void CenterVrImpl(Comp::MediaObj* m_obj, const Rect& edge_rct)
     m_obj->SetPlacement(CenterRect(m_obj->Placement(), edge_rct, false, true));
 }
 
-static RectListRgn CalcSelRegion(MEditorArea& edt_area)
+// to calculate the convex hull of non-empty set of rect's
+struct EdgeCalcer
 {
-    MenuRegion& rgn = edt_area.CurMenuRegion();
-    SelRectVis sr_vis(edt_area.SelArr());
-    rgn.Accept(sr_vis);
-    return sr_vis.RectList();
-}
-
-static bool sort_Hz(Comp::MediaObj* a, Comp::MediaObj* b)
-{
-    return (a->Placement().lft < b->Placement().lft);
-}
-
-static void DistributeHzImpl(MEditorArea& edt_area)
-{
-    typedef Comp::ListObj::ArrType ArrType;
-    MenuRegion& rgn    = edt_area.CurMenuRegion();
-    int_array& sel_arr = edt_area.SelArr();
-    ArrType&       lst = rgn.List();
-
-    int sum_width = 0;
-    int min_x = std::numeric_limits<int>::max();
-    int max_x = 0;
-    int next_pos = 0;
-
-    //tally sum of widths and calc 1st position to place object
-    std::vector<Comp::MediaObj *> m_objs;
-    std::vector<Comp::MediaObj *>::iterator ndx;
-    for( int i=0; i<(int)sel_arr.size(); ++i )
+    bool  isFirst;
+    Rect& edgeRct;
+    
+    EdgeCalcer(Rect& edge_rct): isFirst(true), edgeRct(edge_rct) {}
+    ~EdgeCalcer()
     {
-        Comp::MediaObj* m_obj =  dynamic_cast<Comp::MediaObj*>(lst[i]);
-        if( IsInArray(i, sel_arr) )
-        {
-            m_objs.push_back(m_obj);
-            sum_width += m_obj->Placement().Width();
-            if (min_x > m_obj->Placement().lft)
-            {
-                min_x = m_obj->Placement().lft;
-                next_pos = m_obj->Placement().rgt;
-            }
-            max_x = std::max(max_x, m_obj->Placement().rgt);
-        }
+        ASSERT( !isFirst );
     }
 
-    RectListRgn old_rlr = CalcSelRegion(edt_area);
-    //now have what's needed to distribute
-    //only distribute if there is room to do such, the dis_amt must be greater than zero
-    int distr_amt = (max_x - min_x - sum_width) / ( m_objs.size() - 1 );
-    if ( distr_amt > 0 )
+    void Update(const Rect& rct)
     {
-        next_pos += distr_amt;
-        std::sort(m_objs.begin(),m_objs.end(),sort_Hz);
-        ndx=m_objs.begin();
-        for(++ndx;ndx!=m_objs.end();ndx++)
-        {
-            (*ndx)->SetPlacement((*ndx)->Placement() + Point(next_pos - (*ndx)->Placement().lft, 0));
-            next_pos += (*ndx)->Placement().Width() + distr_amt;
-        }
+        edgeRct.lft = isFirst ? rct.lft : std::min(rct.lft, edgeRct.lft);
+        edgeRct.rgt = isFirst ? rct.rgt : std::max(rct.rgt, edgeRct.rgt);
+        edgeRct.top = isFirst ? rct.top : std::min(rct.top, edgeRct.top);
+        edgeRct.btm = isFirst ? rct.btm : std::max(rct.btm, edgeRct.btm);
 
-        RectListRgn new_rlr = CalcSelRegion(edt_area);
-
-        // join regions & redraw
-        new_rlr.insert(new_rlr.end(), old_rlr.begin(), old_rlr.end());
-        RenderForRegion(edt_area, new_rlr);
+        isFirst = false;
     }
-}
-
-static bool sort_Vr(Comp::MediaObj* a, Comp::MediaObj* b)
-{
-    return (a->Placement().top < b->Placement().top);
-}
-
-static void DistributeVrImpl(MEditorArea& edt_area)
-{
-    typedef Comp::ListObj::ArrType ArrType;
-    MenuRegion& rgn    = edt_area.CurMenuRegion();
-    int_array& sel_arr = edt_area.SelArr();
-    ArrType&       lst = rgn.List();
-
-    int sum_height = 0;
-    int min_y = std::numeric_limits<int>::max();
-    int max_y = 0;
-    int next_pos = 0;
-
-    //tally sum of widths and calc 1st position to place object
-    std::vector<Comp::MediaObj *> m_objs;
-    std::vector<Comp::MediaObj *>::iterator ndx;
-    for( int i=0; i<(int)sel_arr.size(); ++i )
-    {
-        Comp::MediaObj* m_obj =  dynamic_cast<Comp::MediaObj*>(lst[i]);
-        if( IsInArray(i, sel_arr) )
-        {
-            m_objs.push_back(m_obj);
-            sum_height += m_obj->Placement().Height();
-            if (min_y > m_obj->Placement().top)
-            {
-                min_y = m_obj->Placement().top;
-                next_pos = m_obj->Placement().btm;
-            }
-            max_y = std::max(max_y, m_obj->Placement().btm);
-        }
-    }
-
-    RectListRgn old_rlr = CalcSelRegion(edt_area);
-    //now have what's needed to distribute
-    //only distribute if there is room to do such, the dis_amt must be greater than zero
-    int distr_amt = (max_y - min_y - sum_height) / ( m_objs.size() - 1 );
-    if ( distr_amt > 0 )
-    {
-        next_pos += distr_amt;
-        std::sort(m_objs.begin(),m_objs.end(),sort_Vr);
-        ndx=m_objs.begin();
-        for(++ndx;ndx!=m_objs.end();ndx++)
-        {
-            (*ndx)->SetPlacement((*ndx)->Placement() + Point(0, next_pos - (*ndx)->Placement().top));
-            next_pos += (*ndx)->Placement().Height() + distr_amt;
-        }
-
-        RectListRgn new_rlr = CalcSelRegion(edt_area);
-
-        // join regions & redraw
-        new_rlr.insert(new_rlr.end(), old_rlr.begin(), old_rlr.end());
-        RenderForRegion(edt_area, new_rlr);
-    }
-}
+};
 
 typedef boost::function<void(Comp::MediaObj*, const Rect&)> CMFunctor3;
-
-//static bool CalcAlignSettings(Comp::MediaObj* obj, Rect& edge_rct, bool& is_first)
-//{
-//    Rect rct = obj->Placement();
-//    edge_rct.lft = is_first ? rct.lft : std::min(rct.lft, edge_rct.lft);
-//    edge_rct.rgt = is_first ? rct.rgt : std::max(rct.rgt, edge_rct.rgt);
-//    edge_rct.top = is_first ? rct.top : std::min(rct.top, edge_rct.top);
-//    edge_rct.btm = is_first ? rct.btm : std::max(rct.btm, edge_rct.btm);
-//
-//    is_first = false;
-//    return false;
-//}
 
 static void AlignByFunctor(MEditorArea& edt_area, const CMFunctor3& fnr)
 {
     Rect edge_rct;
-    bool is_first = true;
     //ForeachSelectedCM(edt_area, bl::bind(&CalcAlignSettings, bl::_1, boost::ref(edge_rct), boost::ref(is_first)));
-    boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs(edt_area) )
     {
-        Rect rct = obj->Placement();
-        edge_rct.lft = is_first ? rct.lft : std::min(rct.lft, edge_rct.lft);
-        edge_rct.rgt = is_first ? rct.rgt : std::max(rct.rgt, edge_rct.rgt);
-        edge_rct.top = is_first ? rct.top : std::min(rct.top, edge_rct.top);
-        edge_rct.btm = is_first ? rct.btm : std::max(rct.btm, edge_rct.btm);
-
-        is_first = false;
+        EdgeCalcer ec(edge_rct);
+        boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs(edt_area) )
+            ec.Update(obj->Placement());
     }
-    ASSERT( !is_first );
 
     AlignVis vis(bl::bind(fnr, bl::_1, edge_rct), edt_area.SelArr());
     RenderByRLV(edt_area, vis);
@@ -624,8 +503,84 @@ static void AlignByFunctor(MEditorArea& edt_area, const CMFunctor3& fnr)
 //Adds an Align Menu Item to Context Menu
 static void AddAlignItem(Gtk::Menu& menu, const CMFunctor3& fnr, const char* name, MEditorArea& edt_area)
 {
-    Gtk::MenuItem& itm = AppendMI(menu, NewManaged<Gtk::MenuItem>(name));
+    Gtk::MenuItem& itm = MakeAppendMI(menu, name);
     itm.signal_activate().connect(bl::bind(&AlignByFunctor, boost::ref(edt_area), fnr));
+}
+
+static RectListRgn CalcSelRegion(MEditorArea& edt_area)
+{
+    MenuRegion& rgn = edt_area.CurMenuRegion();
+    SelRectVis sr_vis(edt_area.SelArr());
+    rgn.Accept(sr_vis);
+    return sr_vis.RectList();
+}
+
+static bool SortHzOrVr(Comp::MediaObj* a, Comp::MediaObj* b, bool is_hz)
+{
+    return is_hz ?
+        a->Placement().lft < b->Placement().lft
+    :
+        a->Placement().top < b->Placement().btm;
+}
+
+static int LinearSize(const Rect& rct, bool is_hz)
+{
+    return (is_hz ? rct.Width() : rct.Height());
+}
+
+static void DistributeImpl(MEditorArea& edt_area, bool is_hz)
+{
+    int sum_size = 0;
+    std::vector<Comp::MediaObj*> m_objs;
+
+    // tally sum of widths
+    Rect edge_rct;
+    {
+        EdgeCalcer ec(edge_rct);
+        boost_foreach( Comp::MediaObj* m_obj, SelectedMediaObjs(edt_area) )
+        {
+            m_objs.push_back(m_obj);
+    
+            Rect plc = m_obj->Placement();
+            sum_size += LinearSize(plc, is_hz);
+            ec.Update(plc);
+        }
+    }
+    // now have what's needed to distribute
+    int distr_amt = (LinearSize(edge_rct, is_hz) - sum_size) / int(m_objs.size() - 1);
+
+    RectListRgn old_rlr = CalcSelRegion(edt_area);
+    // only distribute if there is room to do such, the dis_amt must be greater than zero
+    // why? let us distribute always
+    //if( distr_amt > 0 )
+    {
+        std::sort(m_objs.begin(), m_objs.end(), bl::bind(&SortHzOrVr, bl::_1, bl::_2, is_hz));
+        // first object
+        Rect f_plc = m_objs[0]->Placement();
+        int next_pos = (is_hz ? f_plc.rgt : f_plc.btm) + distr_amt;
+        // move objects in slice [1, -1]
+        boost_foreach( Comp::MediaObj* m_obj, m_objs | fe::sliced(1, m_objs.size()-1) )
+        {
+            Rect plc = m_obj->Placement();
+
+            Point move_vector = is_hz ? Point(next_pos - plc.lft, 0) : Point(0, next_pos - plc.top);
+            m_obj->SetPlacement(plc + move_vector);
+
+            next_pos += LinearSize(plc, is_hz) + distr_amt;
+        }
+    }
+    RectListRgn new_rlr = CalcSelRegion(edt_area);
+
+    // join regions & redraw
+    new_rlr.insert(new_rlr.end(), old_rlr.begin(), old_rlr.end());
+    RenderForRegion(edt_area, new_rlr);
+}
+
+static void AddEnabledItem(Gtk::Menu& menu, const char* name, bool is_enabled, const ActionFunctor& fnr)
+{
+    Gtk::MenuItem& itm = MakeAppendMI(menu, name);
+    itm.set_sensitive(is_enabled);
+    itm.signal_activate().connect(fnr);
 }
 
 void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
@@ -687,7 +642,7 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
                                                 Project::MediaItem(), is_background)));
 
         // Poster Link
-        Gtk::MenuItem& poster_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("Set Poster")));
+        Gtk::MenuItem& poster_itm = MakeAppendMI(mn, _("Set Poster"));
         bool can_set_poster;
         Project::MediaItem cur_pstr = GetCurPosterLink(edt_area, can_set_poster);
         poster_itm.set_sensitive(can_set_poster);
@@ -696,7 +651,7 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
 
         // Align
         {
-            Gtk::MenuItem& align_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("Align")));
+            Gtk::MenuItem& align_itm = MakeAppendMI(mn, _("Align"));
             bool can_align = !is_background;
             align_itm.set_sensitive(can_align);
             if( can_align )
@@ -708,26 +663,21 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
                 AddAlignItem(menu, RightAlignImpl,  _("Align Right"),  edt_area);
                 AddAlignItem(menu, TopAlignImpl,    _("Align Top"),    edt_area);
                 AddAlignItem(menu, BottomAlignImpl, _("Align Bottom"), edt_area);
-                menu.append(NewManaged<Gtk::SeparatorMenuItem>());
+                AppendSeparator(menu);
 
                 AddAlignItem(menu, CenterHzImpl, _("Center Horizontally"), edt_area);
                 AddAlignItem(menu, CenterVrImpl, _("Center Vertically"),   edt_area);
 
-		//allow horizontal or vertical distribute if three or more objects selected
-		bool can_distribute = ( sel_arr.size() > 2 );
-		if( can_distribute )
-		{
-		    menu.append(NewManaged<Gtk::SeparatorMenuItem>());
-		    menu.items().push_back(MenuElem(_("Distribute Horizontally"), bl::bind(&DistributeHzImpl, edt_ref)));
-		    menu.items().push_back(MenuElem(_("Distribute Vertically"), bl::bind(&DistributeVrImpl, edt_ref)));
-		}
+                //allow horizontal or vertical distribute if three or more objects selected
+                bool can_distribute = ( sel_arr.size() > 2 );
+                AppendSeparator(menu);
+                AddEnabledItem(menu, _("Distribute Horizontally"), can_distribute, bl::bind(&DistributeImpl, edt_ref, true));
+                AddEnabledItem(menu, _("Distribute Vertically"),   can_distribute, bl::bind(&DistributeImpl, edt_ref, false));
             }
         }
 
         // Set Background Color
-        Gtk::MenuItem& bg_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("Set Background Color...")));
-        bg_itm.set_sensitive(is_background);
-        bg_itm.signal_activate().connect(bl::bind(&SetBgColor, edt_ref));
+        AddEnabledItem(mn, _("Set Background Color..."), is_background, bl::bind(&SetBgColor, edt_ref));
 
         //mn.accelerate(edt_area);
         Popup(mn, event, true);

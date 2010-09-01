@@ -227,6 +227,7 @@
 			<F N="../src/mlib/range/adaptor/replaced_if.hpp"/>
 			<F N="../src/mlib/range/adaptor/reversed.hpp"/>
 			<F N="../src/mlib/sigc.h"/>
+			<F N="../src/mlib/range/slice.h"/>
 			<F N="../src/mlib/range/adaptor/sliced.hpp"/>
 			<F N="../src/mlib/stream.h"/>
 			<F N="../src/mlib/sdk/stream_util.h"/>

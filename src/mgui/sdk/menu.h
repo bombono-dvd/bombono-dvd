@@ -37,6 +37,16 @@ inline Gtk::Menu& MakeSubmenu(Gtk::MenuItem& mi)
     return sub_menu;
 }
 
+inline Gtk::MenuItem& MakeAppendMI(Gtk::MenuShell& ms, const char* name)
+{
+    return AppendMI(ms, NewManaged<Gtk::MenuItem>(name));
+}
+
+inline void AppendSeparator(Gtk::MenuShell& ms)
+{
+    ms.append(NewManaged<Gtk::SeparatorMenuItem>());
+}
+
 //
 // NewPopupMenu() - создание контекстного меню
 // Удаляется автоматом сразу после деактивации и выполнения соответ. действия
