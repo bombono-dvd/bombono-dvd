@@ -460,6 +460,132 @@ static void CenterVrImpl(Comp::MediaObj* m_obj, const Rect& edge_rct)
     m_obj->SetPlacement(CenterRect(m_obj->Placement(), edge_rct, false, true));
 }
 
+static RectListRgn CalcSelRegion(MEditorArea& edt_area)
+{
+    MenuRegion& rgn = edt_area.CurMenuRegion();
+    SelRectVis sr_vis(edt_area.SelArr());
+    rgn.Accept(sr_vis);
+    return sr_vis.RectList();
+}
+
+static bool sort_Hz(Comp::MediaObj* a, Comp::MediaObj* b)
+{
+    return (a->Placement().lft < b->Placement().lft);
+}
+
+static void DistributeHzImpl(MEditorArea& edt_area)
+{
+    typedef Comp::ListObj::ArrType ArrType;
+    MenuRegion& rgn    = edt_area.CurMenuRegion();
+    int_array& sel_arr = edt_area.SelArr();
+    ArrType&       lst = rgn.List();
+
+    int sum_width = 0;
+    int min_x = std::numeric_limits<int>::max();
+    int max_x = 0;
+    int next_pos = 0;
+
+    //tally sum of widths and calc 1st position to place object
+    std::vector<Comp::MediaObj *> m_objs;
+    std::vector<Comp::MediaObj *>::iterator ndx;
+    for( int i=0; i<(int)sel_arr.size(); ++i )
+    {
+        Comp::MediaObj* m_obj =  dynamic_cast<Comp::MediaObj*>(lst[i]);
+        if( IsInArray(i, sel_arr) )
+        {
+            m_objs.push_back(m_obj);
+            sum_width += m_obj->Placement().Width();
+            if (min_x > m_obj->Placement().lft)
+            {
+                min_x = m_obj->Placement().lft;
+                next_pos = m_obj->Placement().rgt;
+            }
+            max_x = std::max(max_x, m_obj->Placement().rgt);
+        }
+    }
+
+    RectListRgn old_rlr = CalcSelRegion(edt_area);
+    //now have what's needed to distribute
+    //only distribute if there is room to do such, the dis_amt must be greater than zero
+    int distr_amt = (max_x - min_x - sum_width) / ( m_objs.size() - 1 );
+    if ( distr_amt > 0 )
+    {
+        next_pos += distr_amt;
+        std::sort(m_objs.begin(),m_objs.end(),sort_Hz);
+        ndx=m_objs.begin();
+        for(++ndx;ndx!=m_objs.end();ndx++)
+        {
+            (*ndx)->SetPlacement((*ndx)->Placement() + Point(next_pos - (*ndx)->Placement().lft, 0));
+            next_pos += (*ndx)->Placement().Width() + distr_amt;
+        }
+
+        RectListRgn new_rlr = CalcSelRegion(edt_area);
+
+        // join regions & redraw
+        new_rlr.insert(new_rlr.end(), old_rlr.begin(), old_rlr.end());
+        RenderForRegion(edt_area, new_rlr);
+    }
+}
+
+static bool sort_Vr(Comp::MediaObj* a, Comp::MediaObj* b)
+{
+    return (a->Placement().top < b->Placement().top);
+}
+
+static void DistributeVrImpl(MEditorArea& edt_area)
+{
+    typedef Comp::ListObj::ArrType ArrType;
+    MenuRegion& rgn    = edt_area.CurMenuRegion();
+    int_array& sel_arr = edt_area.SelArr();
+    ArrType&       lst = rgn.List();
+
+    int sum_height = 0;
+    int min_y = std::numeric_limits<int>::max();
+    int max_y = 0;
+    int next_pos = 0;
+
+    //tally sum of widths and calc 1st position to place object
+    std::vector<Comp::MediaObj *> m_objs;
+    std::vector<Comp::MediaObj *>::iterator ndx;
+    for( int i=0; i<(int)sel_arr.size(); ++i )
+    {
+        Comp::MediaObj* m_obj =  dynamic_cast<Comp::MediaObj*>(lst[i]);
+        if( IsInArray(i, sel_arr) )
+        {
+            m_objs.push_back(m_obj);
+            sum_height += m_obj->Placement().Height();
+            if (min_y > m_obj->Placement().top)
+            {
+                min_y = m_obj->Placement().top;
+                next_pos = m_obj->Placement().btm;
+            }
+            max_y = std::max(max_y, m_obj->Placement().btm);
+        }
+    }
+
+    RectListRgn old_rlr = CalcSelRegion(edt_area);
+    //now have what's needed to distribute
+    //only distribute if there is room to do such, the dis_amt must be greater than zero
+    int distr_amt = (max_y - min_y - sum_height) / ( m_objs.size() - 1 );
+    if ( distr_amt > 0 )
+    {
+        next_pos += distr_amt;
+        std::sort(m_objs.begin(),m_objs.end(),sort_Vr);
+        ndx=m_objs.begin();
+        for(++ndx;ndx!=m_objs.end();ndx++)
+        {
+            (*ndx)->SetPlacement((*ndx)->Placement() + Point(0, next_pos - (*ndx)->Placement().top));
+            next_pos += (*ndx)->Placement().Height() + distr_amt;
+        }
+
+        RectListRgn new_rlr = CalcSelRegion(edt_area);
+
+        // join regions & redraw
+        new_rlr.insert(new_rlr.end(), old_rlr.begin(), old_rlr.end());
+        RenderForRegion(edt_area, new_rlr);
+    }
+}
+
 typedef boost::function<void(Comp::MediaObj*, const Rect&)> CMFunctor3;
 
 //static bool CalcAlignSettings(Comp::MediaObj* obj, Rect& edge_rct, bool& is_first)
@@ -495,6 +621,7 @@ static void AlignByFunctor(MEditorArea& edt_area, const CMFunctor3& fnr)
     RenderByRLV(edt_area, vis);
 }
 
+//Adds an Align Menu Item to Context Menu
 static void AddAlignItem(Gtk::Menu& menu, const CMFunctor3& fnr, const char* name, MEditorArea& edt_area)
 {
     Gtk::MenuItem& itm = AppendMI(menu, NewManaged<Gtk::MenuItem>(name));
@@ -585,6 +712,15 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
 
                 AddAlignItem(menu, CenterHzImpl, _("Center Horizontally"), edt_area);
                 AddAlignItem(menu, CenterVrImpl, _("Center Vertically"),   edt_area);
+
+		//allow horizontal or vertical distribute if three or more objects selected
+		bool can_distribute = ( sel_arr.size() > 2 );
+		if( can_distribute )
+		{
+		    menu.append(NewManaged<Gtk::SeparatorMenuItem>());
+		    menu.items().push_back(MenuElem(_("Distribute Horizontally"), bl::bind(&DistributeHzImpl, edt_ref)));
+		    menu.items().push_back(MenuElem(_("Distribute Vertically"), bl::bind(&DistributeVrImpl, edt_ref)));
+		}
             }
         }
 
