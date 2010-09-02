@@ -6,6 +6,14 @@
 #include <mlib/range/any_range.h>
 #include <mlib/foreach.h>
 
+//
+// Iterating over selected objects; example:
+//  boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs(edt_area) )
+//  {
+//      res_mi = obj->MediaItem();
+//      break;
+//  }
+//
 fe::range<Comp::MediaObj*> SelectedMediaObjs(MenuRegion& mn_rgn, const int_array& sel_arr);
 
 
