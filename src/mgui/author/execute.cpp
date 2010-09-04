@@ -55,7 +55,7 @@ void ExecState::Init()
     Clean();
 
     // чтобы сбросить старые обработчики
-    ReRefPtr(execBtn);
+    RenewPtr(execBtn);
 }
 
 void ExecState::Clean()

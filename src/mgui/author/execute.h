@@ -39,7 +39,7 @@ struct ExecState: public Singleton<ExecState>
 {
               bool  isExec;
 
-RefPtr<Gtk::Button> execBtn;
+ptr::shared<Gtk::Button> execBtn;
   Gtk::ProgressBar  prgBar;
         Gtk::Label  prgLabel;
      Gtk::TextView  detailsView;
@@ -55,7 +55,7 @@ RefPtr<Gtk::Button> execBtn;
               ExecState() { Init(); }
 	
         void  Init(); // конструктор, повторное использование
- Gtk::Button& ExecButton() { return *UnRefPtr(execBtn); }
+ Gtk::Button& ExecButton() { return *execBtn; }
 
         void  Clean(); // (повторный) запуск на выполнение
         void  Set(bool is_exec)
@@ -118,12 +118,17 @@ class BuildDvdOF: public OutputFilter
     virtual void  SetProgress(double percent);
 };
 
-
-
+// вообще говоря, подойдет любой умный указатель, имеющий swap()
+// (ptr::shared<>); изначально функция создавалась для Glib::RefPtr<>,
+// но это оказалось неправильно (для всех порожденных от Gtk::Object),
+// так как реально управление С++-объекта по кол-ву ссылок происходит
+// только после Gtk::manage() + необходим явный g_object_ref_sink()
+// (и напротив, Gdk::Pixbuf порожден от Glib::Object => С++-деструктор
+// управляется Glib::RefPtr<>)
 template<typename T, template<typename R> class RefPtrT>
-void ReRefPtr(RefPtrT<T>& p)
+void RenewPtr(RefPtrT<T>& p)
 {
-    RefPtr<T> new_p(new T);
+    RefPtrT<T> new_p(new T);
     p.swap(new_p);
 }
 

@@ -27,6 +27,7 @@
 #include <mgui/mguiconst.h>
 
 #include <mlib/patterns.h> // Singleton<>
+#include <mlib/ptr.h>
 
 namespace Author
 {
@@ -44,15 +45,15 @@ struct BurnData: public Singleton<BurnData>
 {
     typedef std::vector<Burner> BurnerArray;
 
-              BurnerArray  brnArr;
- RefPtr<Gtk::ComboBoxText> dvdDevices; // приводы DVD
+                   BurnerArray  brnArr;
+ ptr::shared<Gtk::ComboBoxText> dvdDevices; // приводы DVD
 
-     RefPtr<Gtk::ComboBox> speedBtn;   // список скоростей для болванки
-        RefPtr<Gtk::Entry> label;      // метка диска
+     ptr::shared<Gtk::ComboBox> speedBtn;   // список скоростей для болванки
+        ptr::shared<Gtk::Entry> label;      // метка диска
 
-     Gtk::ComboBoxText& DVDDevices() { return *UnRefPtr(dvdDevices); }
-         Gtk::ComboBox& SpeedBtn()   { return *UnRefPtr(speedBtn); }
-            Gtk::Entry& Label()      { return *UnRefPtr(label); }
+     Gtk::ComboBoxText& DVDDevices() { return *dvdDevices; }
+         Gtk::ComboBox& SpeedBtn()   { return *speedBtn; }
+            Gtk::Entry& Label()      { return *label; }
 };
 
 inline BurnData& GetBD()

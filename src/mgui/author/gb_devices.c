@@ -327,6 +327,7 @@ devices_get_cdrominfo(gchar **proccdrominfo, gint deviceindex)
 					}
 					++column;
 				}
+                g_strfreev(columns);
 
 				/* We must check if we found the device index we were
 				 looking for */
@@ -338,8 +339,6 @@ devices_get_cdrominfo(gchar **proccdrominfo, gint deviceindex)
 					ret = NULL;
 					break;
 				}
-
-				g_strfreev(columns);
 			}
 		}
 		++info;

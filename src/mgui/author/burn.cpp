@@ -66,9 +66,9 @@ BurnData& GetInitedBD()
 {
     BurnData& bd = GetBD();
     // чтобы сбросить старые обработчики
-    ReRefPtr(bd.dvdDevices);
-    ReRefPtr(bd.speedBtn);
-    ReRefPtr(bd.label);
+    RenewPtr(bd.dvdDevices);
+    RenewPtr(bd.speedBtn);
+    RenewPtr(bd.label);
 
     devices_probe_busses();
     Gtk::ComboBoxText& dvd_btn = bd.DVDDevices();

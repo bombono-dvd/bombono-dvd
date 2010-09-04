@@ -721,10 +721,7 @@ bool TimeToFrames(long& pos, int hh, int mm, int ss, int ff, double fps)
 void EditBigLabelTL::BeginState(TrackLayout& trk)
 {
     Data& dat = trk;
-    // :TODO: :LEAK: почему-то действий в EditBigLabelTL::EndState()
-    // оказалось недостаточно и dat.edt "утек" - посмотреть кол-во ссылок
-    // в EditBigLabelTL::EndState()
-    dat.edt = RefPtr<Gtk::Entry>(new Gtk::Entry());
+    dat.edt = RefPtr<Gtk::Entry>(&NewManaged<Gtk::Entry>());
 
     Rect lct(GetBigLabelLocation(trk));
     Gtk::Entry& ent = *UnRefPtr(dat.edt);
