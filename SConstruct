@@ -19,7 +19,7 @@ BV.Args = ARGUMENTS
 BV.Targets = COMMAND_LINE_TARGETS
 
 ############################################
-# Dependency libraries
+# Dependency libraries & Settings
 
 # via pkg-config
 RequiredLibs = ['glibmm-2.4', 'libxml++-2.6', 'gtkmm-2.4']
@@ -43,6 +43,10 @@ def AddLibOptions(user_options):
 BuildMcomposite = False
 if BuildMcomposite:
     RequiredLibs.extend(['mjpegtools', 'GraphicsMagick++'])
+
+# global -pthread
+IsThreadedBuild = False
+ThreadOpt = ['-pthread']
             
 ############################################
 # Compilers
@@ -137,6 +141,10 @@ def AdjustConfigOptions(env):
             dict.update(BV.ParseFlagsForCommand('getconf LFS_LIBS'))
         AdjustConfigOptions.lfs = dict
     env.Append(**AdjustConfigOptions.lfs)
+
+    # Multithreading, global
+    if IsThreadedBuild:
+        env.Append(CCFLAGS = ThreadOpt, LINKFLAGS = ThreadOpt)
 
 ############################################
 # Defaults
@@ -358,7 +366,16 @@ Export('env', 'menv')
 # 4 get lib dicts
 GetDict = BV.GetDict
 
-gtk2mm_dict   = GetDict('gtkmm-2.4')
+def GetGtkmmDict():
+    dct = GetDict('gtkmm-2.4')
+    if not IsThreadedBuild:
+        # make happy gdb (debugger) by linking with multithreaded libc (in advance),
+        # cause it doesn't like singlethreaded app turns into multithreaded one
+        # in runtime (gtk shared libraries've become multithreaded)
+        dct['LINKFLAGS'] = dct.get('LINKFLAGS', []) + ThreadOpt
+    return dct
+
+gtk2mm_dict   = GetGtkmmDict()
 libxmlpp_dict = GetDict('libxml++-2.6')
 
 ############################################
