@@ -30,7 +30,19 @@
 
 #include <mbase/project/_extlibs_.h>
 
-#include <gtkmm.h>
+//#include <gtkmm.h>
+#include <gdkmm/cursor.h>
+
+#include <gtkmm/drawingarea.h>
+#include <gtkmm/menu.h>
+#include <gtkmm/box.h>
+#include <gtkmm/combobox.h>
+#include <gtkmm/comboboxentrytext.h>
+#include <gtkmm/radiotoolbutton.h>
+#include <gtkmm/colorbutton.h>
+#include <gtkmm/toolbar.h>
+#include <gtkmm/dialog.h>
+#include <gtkmm/colorselection.h>
 
 
 #endif // __MGUI__EXTLIBS__H__

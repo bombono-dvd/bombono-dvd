@@ -28,5 +28,27 @@
 
 #include "_extlibs_.h"
 
+// :TEMP:
+#include "editor/select.h"
+
+#include "editor/kit.h"
+#include "editor/bind.h"
+#include "editor/render.h"
+#include "editor/actions.h"
+#include "editor/text.h"
+#include "editor/toolbar.h"
+#include "editor/visitors.h"
+#include "editor/fe-select.h"
+
+#include <mgui/win_utils.h>
+#include <mgui/key.h>
+#include <mgui/project/handler.h>
+#include <mgui/sdk/menu.h>  // Popup()
+#include <mgui/gettext.h>
+
+#include <mlib/range/transform.h>
+#include <mlib/range/slice.h>
+
+
 #endif // __MGUI__PC__H__
 
