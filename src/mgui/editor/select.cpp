@@ -21,25 +21,25 @@
 
 #include <mgui/_pc_.h>
 
-//#include "select.h"
-//
-//#include "kit.h"
-//#include "bind.h"
-//#include "render.h"
-//#include "actions.h"
-//#include "text.h"
-//#include "toolbar.h"
-//#include "visitors.h"
-//#include "fe-select.h"
-//
-//#include <mgui/win_utils.h>
-//#include <mgui/key.h>
-//#include <mgui/project/handler.h>
-//#include <mgui/sdk/menu.h>  // Popup()
-//#include <mgui/gettext.h>
-//
-//#include <mlib/range/transform.h>
-//#include <mlib/range/slice.h>
+#include "select.h"
+
+#include "kit.h"
+#include "bind.h"
+#include "render.h"
+#include "actions.h"
+#include "text.h"
+#include "toolbar.h"
+#include "visitors.h"
+#include "fe-select.h"
+
+#include <mgui/win_utils.h>
+#include <mgui/key.h>
+#include <mgui/project/handler.h>
+#include <mgui/sdk/menu.h>  // Popup()
+#include <mgui/gettext.h>
+
+#include <mlib/range/transform.h>
+#include <mlib/range/slice.h>
 
 //typedef boost::function<bool(Comp::MediaObj*)> CMFunctor;
 //
