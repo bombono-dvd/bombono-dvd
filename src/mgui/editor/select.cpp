@@ -38,9 +38,6 @@
 #include <mgui/sdk/menu.h>  // Popup()
 #include <mgui/gettext.h>
 
-#include <mlib/range/transform.h>
-#include <mlib/range/slice.h>
-
 //typedef boost::function<bool(Comp::MediaObj*)> CMFunctor;
 //
 //static void ForeachSelectedCM(MEditorArea& edt_area, const CMFunctor& fnr)

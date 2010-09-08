@@ -28,18 +28,63 @@
 
 #include "tech.h"
 
-#include <boost/function.hpp>
-
-#ifndef EXT_BOOST
+//
+// mlib
+//
+//#include <boost/smart_ptr.hpp>
+//#include <boost/intrusive_ptr.hpp>
+#include <mlib/ptr.h>
+#include <mlib/format.h>
+#include <mlib/sdk/logger.h>
+#include <mlib/stream.h>
+//#ifndef EXT_BOOST
+//#include <mlib/lambda.h>
+//#endif // EXT_BOOST
 #include <mlib/lambda.h>
-#endif // EXT_BOOST
+
+//
+// Foreach & Range 
+//
+#include <mlib/foreach.h>
+#include <mlib/range/any_range.h>
+#include <mlib/range/enumerate.h>
+#include <mlib/range/filter.h>
+#include <mlib/range/irange.h>
+#include <mlib/range/slice.h>
+#include <mlib/range/transform.h>
+
+//
+// Boost
+//
+#include <boost/function.hpp>
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 
-//#include <boost/smart_ptr.hpp>
-#include <boost/intrusive_ptr.hpp>
+//#include <boost/regex.hpp>
+//#include <boost/lexical_cast.hpp>
 
+//
+// STL
+//
+#include <vector>
+#include <list>
+//#include <deque>
+//#include <set>
+//#include <map>
+//
+//#include <sstream>
+#include <string>
+
+//#include <limits>
+#include <cmath>
+#include <algorithm>
+#include <utility>
+#include <stdexcept>
+
+//
+// Misc
+//
 //#include <glibmm.h>
 #include <glibmm/convert.h>
 
