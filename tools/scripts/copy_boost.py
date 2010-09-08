@@ -36,7 +36,7 @@ if __name__ == '__main__':
     
     cmd = '''%(bcp)s --boost=%(boost_src)s boost/smart_ptr.hpp boost/test boost/function.hpp boost/lambda boost/filesystem \
 system boost/regex format boost/foreach.hpp boost/iterator boost/cast.hpp boost/range/reference.hpp \
-boost/assign/list_of.hpp boost/assign.hpp %(boost_dst)s''' % locals()
+boost/assign/list_of.hpp boost/assign.hpp boost/mpl/print.hpp %(boost_dst)s''' % locals()
     #print cmd
     call_cmd(cmd, err_msg='bcp failed.')
 

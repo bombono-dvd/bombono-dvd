@@ -986,6 +986,7 @@
 			<F N="../libs/boost-lib/boost/test/prg_exec_monitor.hpp"/>
 			<F N="../libs/boost-lib/boost/test/included/prg_exec_monitor.hpp"/>
 			<F N="../libs/boost-lib/boost/regex/v4/primary_transform.hpp"/>
+			<F N="../libs/boost-lib/boost/mpl/print.hpp"/>
 			<F N="../libs/boost-lib/boost/mpl/prior.hpp"/>
 			<F N="../libs/boost-lib/boost/progress.hpp"/>
 			<F N="../libs/boost-lib/boost/test/progress_monitor.hpp"/>
