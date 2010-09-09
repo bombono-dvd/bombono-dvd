@@ -34,6 +34,10 @@ source_files = [
                 'test_stream.cpp',
                 'test_tech.cpp',
                 'test_utils.cpp',
+
+                # compiler benchmark test cases
+                'profile_boost_lambda.cpp',
+                'profile_boost_function.cpp',
                ]
 
 # Boost.Foreach tests

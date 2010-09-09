@@ -186,6 +186,20 @@
 	</Config>
 	<Files>
 		<Folder
+			Name="Header Files"
+			Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
+			<F N="../src/mlib/tests/_pc_.h"/>
+			<F N="../src/mlib/foreach.h"/>
+			<F N="../src/mlib/tests/test_common.h"/>
+			<F N="../src/mlib/tests/turn_on_test_main.h"/>
+			<F N="../src/mlib/tests/foreach/utility.hpp"/>
+		</Folder>
+		<Folder
+			Name="Other Files"
+			Filters="">
+			<F N="../src/mlib/tests/SConscript"/>
+		</Folder>
+		<Folder
 			Name="Source Files"
 			Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
 			<F N="../src/mlib/tests/range/adaptors.cpp"/>
@@ -223,6 +237,7 @@
 			<F N="../src/mlib/tests/foreach/pair_byref_r.cpp"/>
 			<F N="../src/mlib/tests/foreach/pair_byval.cpp"/>
 			<F N="../src/mlib/tests/foreach/pair_byval_r.cpp"/>
+			<F N="../src/mlib/tests/profile_boost_lambda.cpp"/>
 			<F N="../src/mlib/tests/range/adaptor_test/replaced.cpp"/>
 			<F N="../src/mlib/tests/range/adaptor_test/replaced_example.cpp"/>
 			<F N="../src/mlib/tests/range/adaptor_test/replaced_if.cpp"/>
@@ -258,19 +273,6 @@
 			<F N="../src/mlib/tests/range/adaptor_test/uniqued_example.cpp"/>
 			<F N="../src/mlib/tests/foreach/user_defined.cpp"/>
 		</Folder>
-		<Folder
-			Name="Header Files"
-			Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
-			<F N="../src/mlib/tests/_pc_.h"/>
-			<F N="../src/mlib/foreach.h"/>
-			<F N="../src/mlib/tests/test_common.h"/>
-			<F N="../src/mlib/tests/turn_on_test_main.h"/>
-			<F N="../src/mlib/tests/foreach/utility.hpp"/>
-		</Folder>
-		<Folder
-			Name="Other Files"
-			Filters="">
-			<F N="../src/mlib/tests/SConscript"/>
-		</Folder>
+		<F N="../src/mlib/tests/profile_boost_function.cpp"/>
 	</Files>
 </Project>
