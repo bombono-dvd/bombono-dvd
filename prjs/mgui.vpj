@@ -213,6 +213,7 @@
 			<F N="../src/mgui/project/dnd.h"/>
 			<F N="../src/mgui/sdk/dndtreeview.h"/>
 			<F N="../src/mgui/dvdimport.h"/>
+			<F N="../src/mgui/timeline/dvdmark.h"/>
 			<F N="../src/mgui/render/editor.h"/>
 			<F N="../src/mgui/sdk/entry.h"/>
 			<F N="../src/mgui/author/execute.h"/>

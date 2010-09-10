@@ -22,7 +22,7 @@
 #ifndef __MGUI_TIMELINE_MVIEWER_H__
 #define __MGUI_TIMELINE_MVIEWER_H__
 
-#include "layout.h" 
+#include <mlib/function.h> 
 
 typedef boost::function<void(const char*, Gtk::FileChooser&)> OpenFileFnr;
 // add_open_button = true - для просмотрщика mviewer

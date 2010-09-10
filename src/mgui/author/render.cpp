@@ -411,18 +411,16 @@ void AuthorMenus(const std::string& out_dir)
     menu_list << "Is4_3 = " << (IsMenuToBe4_3() ? 1 : 0) << "\n";
     // список меню
     menu_list << "List = [\n";
-    using namespace boost;
     // за один проход можно сделать и подготовку, и рендеринг вспомог. данных
     // * подготовка к рендерингу
     // * создание слоев/субтитров выбора и скрипта
     //ForeachMenu(lambda::bind(&SetAuthorControl, lambda::_1, lambda::_2));
-    ForeachMenu(lambda::bind(&RenderSubPictures, boost::ref(out_dir), lambda::_1, lambda::_2, 
-                             boost::ref(menu_list)));
+    ForeachMenu(bl::bind(&RenderSubPictures, boost::ref(out_dir), bl::_1, bl::_2, boost::ref(menu_list)));
     menu_list << "]\n" << io::endl;
     PulseRenderProgress();
 
     // * отрисовка основного изображения
-    ForeachMenu(lambda::bind(&RenderMainPicture, boost::ref(out_dir), lambda::_1, lambda::_2));
+    ForeachMenu(bl::bind(&RenderMainPicture, boost::ref(out_dir), bl::_1, bl::_2));
 }
 
 } // namespace Project

@@ -22,7 +22,7 @@
 #ifndef __MGUI_TRACKWINDOW_H__
 #define __MGUI_TRACKWINDOW_H__
 
-#include <mgui/timeline/mviewer.h>
+#include <mgui/timeline/layout.h>
 #include <mgui/sdk/widget.h>
 
 typedef boost::function<void(Gtk::HPaned&, Timeline::DAMonitor&, TrackLayout&)> TWFunctor;

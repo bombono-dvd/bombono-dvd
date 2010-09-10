@@ -24,15 +24,17 @@
 #include "mb-actions.h"
 #include "handler.h"
 #include "thumbnail.h"
-#include "mconstructor.h" // APROJECT_NAME
 
-#include <mbase/project/table.h>
-#include <mgui/timeline/service.h>
+#include <mgui/init.h>
+#include <mgui/timeline/dvdmark.h>
+#include <mgui/timeline/mviewer.h>
 #include <mgui/trackwindow.h>
 #include <mgui/img-factory.h>
 #include <mgui/dialog.h>
 #include <mgui/sdk/window.h>
 #include <mgui/gettext.h>
+
+#include <mbase/project/table.h>
 
 #include <gtk/gtktreestore.h>
 #include <mlib/sdk/logger.h>

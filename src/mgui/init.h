@@ -43,5 +43,7 @@ AStores& InitAndLoadPrj(const std::string& prj_file_name);
 
 } // namespace Project
 
+const int DVD_PACK_SZ  = 2048;
+
 #endif // #ifndef __MGUI_INIT_H__
 

@@ -22,6 +22,7 @@
 #include <mgui/_pc_.h>
 
 #include "mviewer.h"
+#include <mgui/win_utils.h>
 
 // 
 // Утилита MViewer - просмотр видео

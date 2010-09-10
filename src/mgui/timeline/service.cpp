@@ -21,11 +21,12 @@
 
 #include <mgui/_pc_.h>
 
-#include <cmath> // std::ceil(), std::floor()
+#include "service.h"
 
 #include <mgui/render/text.h>
 #include <mgui/img-factory.h>
-#include "service.h"
+
+#include <cmath> // std::ceil(), std::floor()
 
 namespace Timeline
 {

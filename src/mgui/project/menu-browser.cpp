@@ -33,6 +33,7 @@
 #include <mgui/sdk/menu.h>
 #include <mgui/gettext.h>
 #include <mgui/init.h>
+#include <mgui/win_utils.h>
 
 #include <mlib/sdk/logger.h>
 

@@ -25,8 +25,6 @@
 #include <mgui/init.h>
 #include <mlib/dataware.h>
 
-const int DVD_PACK_SZ  = 2048;
-
 namespace Project
 {
 

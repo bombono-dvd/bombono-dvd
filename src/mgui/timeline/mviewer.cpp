@@ -21,7 +21,7 @@
 
 #include <mgui/_pc_.h>
 
-#include <gtk/gtkhpaned.h> // GTK_IS_HPANED()
+#include "mviewer.h"
 
 #include <mgui/trackwindow.h>
 #include <mgui/sdk/window.h>
@@ -31,6 +31,8 @@
 #include <mgui/dialog.h>
 
 #include <mlib/filesystem.h>
+
+#include <gtk/gtkhpaned.h> // GTK_IS_HPANED()
 
 //////////////////////////////////////////////////////////////////
 // Временное подключение просмотра VOB из DVD-VIDEO в MViewer

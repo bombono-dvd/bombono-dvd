@@ -23,6 +23,7 @@
 #define __MGUI_TIMELINE_SERVICE_H__
 
 #include "layout.h"
+#include "dvdmark.h"
 
 namespace Timeline
 {
@@ -306,29 +307,6 @@ inline bool IsVisibleObj(int pos, int rgn_wdh)
 
 // отрисовать курсор
 void PaintPointer(CR::RefPtr<CR::Context> cr, DPoint pos, bool form_only = false);
-
-extern Project::VideoItem CurrVideo;
-
-typedef Project::VideoMD::ListType DVDArrType;
-typedef Project::ChapterItem       DVDMark;
-
-inline DVDArrType& DVDMarks()
-{
-    ASSERT( CurrVideo );
-    return CurrVideo->List();
-}
-
-struct DVDMarkData
-{ 
-                           int  pos; 
-   CR::RefPtr<CR::ImageSurface> thumbPix;
-}; 
-
-// получение данных главы для монтажного окна
-inline DVDMarkData& GetMarkData(const DVDMark& ci)
-{ return ci->GetData<DVDMarkData>(); }
-inline DVDMarkData& GetMarkData(int idx)
-{ return GetMarkData(DVDMarks()[idx]); }
 
 Project::VideoItem SetCurrentVideo(Project::VideoItem new_vd);
 DVDMark PushBackDVDMark(int frame_pos);
