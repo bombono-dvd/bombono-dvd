@@ -35,9 +35,12 @@ source_files = [
                 'test_tech.cpp',
                 'test_utils.cpp',
 
-                # compiler benchmark test cases
-                'profile_boost_lambda.cpp',
-                'profile_boost_function.cpp',
+                # compiler benchmark test cases (uncomment if needed)
+                #'profile_boost_lambda.cpp',   # 4.5: 9.57sec, 4.2: 14.75sec, clang 1.1/llvm 2.7: 6.00sec
+                #'profile_boost_foreach.cpp',  # g++ 4.5: 3.15sec, g++ 4.2: 3.95sec, clang 1.1/llvm 2.7: 3.07sec
+                #'profile_boost_function.cpp', # g++ 4.5: 3.20sec, g++ 4.2: 3.30sec, clang 1.1/llvm 2.7: 2.74sec
+                #'profile_boost_range.cpp',    # 4.5: 4.27sec, 4.2: 6.60sec, clang 1.1/llvm 2.7: 3.48sec
+                #'profile_any_iterator.cpp', # 4.5, 4.2: >6min.!, 1.1/llvm 2.7: fatal error after 30sec
                ]
 
 # Boost.Foreach tests

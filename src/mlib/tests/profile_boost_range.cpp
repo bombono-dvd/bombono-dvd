@@ -1,5 +1,5 @@
 
-#include <boost/function.hpp>
+#include <boost/range/adaptor/filtered.hpp>
 
 template<int value>
 struct TestStruct
@@ -7,11 +7,12 @@ struct TestStruct
 };
 
 #define IMPL_DEF_(Idx, Type) \
-void Impl ## Idx(Type) {}    \
-void TestImpl ## Idx()       \
+bool Filter ## Idx(Type) { return true; } \
+bool TestImpl ## Idx()       \
 {                            \
-    boost::function<void(Type)> fnr(&Impl ## Idx); \
-    fnr(Type()); \
+    typedef TestStruct<Idx> ts_t; \
+    ts_t arr[1];   \
+    return (arr | boost::adaptors::filtered(&Filter ## Idx)).empty(); \
 } \
 /**/
 
@@ -42,5 +43,4 @@ IMPL_DEF_10(__LINE__)
 IMPL_DEF_10(__LINE__)
 IMPL_DEF_10(__LINE__)
 IMPL_DEF_10(__LINE__)
-
 
