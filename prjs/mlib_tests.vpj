@@ -237,7 +237,11 @@
 			<F N="../src/mlib/tests/foreach/pair_byref_r.cpp"/>
 			<F N="../src/mlib/tests/foreach/pair_byval.cpp"/>
 			<F N="../src/mlib/tests/foreach/pair_byval_r.cpp"/>
+			<F N="../src/mlib/tests/profile_any_iterator.cpp"/>
+			<F N="../src/mlib/tests/profile_boost_foreach.cpp"/>
+			<F N="../src/mlib/tests/profile_boost_function.cpp"/>
 			<F N="../src/mlib/tests/profile_boost_lambda.cpp"/>
+			<F N="../src/mlib/tests/profile_boost_range.cpp"/>
 			<F N="../src/mlib/tests/range/adaptor_test/replaced.cpp"/>
 			<F N="../src/mlib/tests/range/adaptor_test/replaced_example.cpp"/>
 			<F N="../src/mlib/tests/range/adaptor_test/replaced_if.cpp"/>
@@ -257,6 +261,7 @@
 			<F N="../src/mlib/tests/range/adaptor_test/strided.cpp"/>
 			<F N="../src/mlib/tests/range/adaptor_test/strided2.cpp"/>
 			<F N="../src/mlib/tests/range/adaptor_test/strided_example.cpp"/>
+			<F N="../src/mlib/tests/test_adobe_any_iterator.cpp"/>
 			<F N="../src/mlib/tests/any_iterator/test_any_iterator.cpp"/>
 			<F N="../src/mlib/tests/test_common.cpp"/>
 			<F N="../src/mlib/tests/test_dataware.cpp"/>
@@ -273,6 +278,5 @@
 			<F N="../src/mlib/tests/range/adaptor_test/uniqued_example.cpp"/>
 			<F N="../src/mlib/tests/foreach/user_defined.cpp"/>
 		</Folder>
-		<F N="../src/mlib/tests/profile_boost_function.cpp"/>
 	</Files>
 </Project>

@@ -1,7 +1,11 @@
+#include <mlib/any_iterator.h>
 
-#include <mlib/any_iterator/any_iterator.hpp>
+#ifdef ADOBE_AIT
+#   define AIT_INSTANCE(ts_t) adobe::bidirectional_iter<ts_t> it((ts_t*)arr)
+#else
+#   define AIT_INSTANCE(ts_t) IteratorTypeErasure::any_iterator<ts_t, boost::bidirectional_traversal_tag> it((ts_t*)arr);
+#endif
 
-using namespace IteratorTypeErasure;
 
 template<int value>
 struct TestStruct
@@ -12,7 +16,7 @@ struct TestStruct
     {                  \
         typedef TestStruct<Idx> ts_t; \
         ts_t arr[1];   \
-        any_iterator<ts_t, boost::bidirectional_traversal_tag> it((ts_t*)arr); \
+        AIT_INSTANCE(ts_t); \
     }         \
 /**/
 

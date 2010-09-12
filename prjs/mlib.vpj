@@ -186,14 +186,18 @@
 			<F N="../src/mlib/range/adaptors.hpp"/>
 			<F N="../src/mlib/range/adaptor/adjacent_filtered.hpp"/>
 			<F N="../src/mlib/range/algorithm_ext.hpp"/>
+			<F N="../src/mlib/any_iterator.h"/>
+			<F N="../src/mlib/adobe/any_iterator.hpp"/>
 			<F N="../src/mlib/any_iterator/any_iterator.hpp"/>
 			<F N="../src/mlib/any_iterator/detail/any_iterator_abstract_base.hpp"/>
 			<F N="../src/mlib/any_iterator/detail/any_iterator_metafunctions.hpp"/>
 			<F N="../src/mlib/any_iterator/detail/any_iterator_wrapper.hpp"/>
 			<F N="../src/mlib/range/any_range.h"/>
 			<F N="../src/mlib/range/adaptor/argument_fwd.hpp"/>
+			<F N="../src/mlib/adobe/config.hpp"/>
 			<F N="../src/mlib/const.h"/>
 			<F N="../src/mlib/range/adaptor/copied.hpp"/>
+			<F N="../src/mlib/adobe/algorithm/copy.hpp"/>
 			<F N="../src/mlib/range/algorithm/copy.hpp"/>
 			<F N="../src/mlib/dataware.h"/>
 			<F N="../src/mlib/range/adaptor/define_adaptor.hpp"/>
@@ -204,6 +208,7 @@
 			<F N="../src/mlib/range/adaptor/filtered.hpp"/>
 			<F N="../src/mlib/format.h"/>
 			<F N="../src/mlib/function.h"/>
+			<F N="../src/mlib/adobe/config/compiler/gcc.hpp"/>
 			<F N="../src/mlib/geom2d.h"/>
 			<F N="../src/mlib/gettext.h"/>
 			<F N="../src/mlib/range/adaptor/indexed.hpp"/>
@@ -215,17 +220,20 @@
 			<F N="../src/mlib/sdk/memmem.h"/>
 			<F N="../src/mlib/sdk/misc.h"/>
 			<F N="../src/mlib/mlib.h"/>
+			<F N="../src/mlib/adobe/move.hpp"/>
 			<F N="../src/mlib/mstdio_sync_filebuf.h"/>
 			<F N="../src/mlib/range/my_adaptors.h"/>
 			<F N="../src/mlib/pack_off.h"/>
 			<F N="../src/mlib/pack_on.h"/>
 			<F N="../src/mlib/patterns.h"/>
+			<F N="../src/mlib/adobe/poly.hpp"/>
 			<F N="../src/mlib/ptr.h"/>
 			<F N="../src/mlib/range/algorithm_ext/push_back.hpp"/>
 			<F N="../src/mlib/read_stream.h"/>
 			<F N="../src/mlib/range/adaptor/replaced.hpp"/>
 			<F N="../src/mlib/range/adaptor/replaced_if.hpp"/>
 			<F N="../src/mlib/range/adaptor/reversed.hpp"/>
+			<F N="../src/mlib/adobe/config/select_compiler.hpp"/>
 			<F N="../src/mlib/sigc.h"/>
 			<F N="../src/mlib/range/slice.h"/>
 			<F N="../src/mlib/range/adaptor/sliced.hpp"/>
@@ -233,12 +241,14 @@
 			<F N="../src/mlib/sdk/stream_util.h"/>
 			<F N="../src/mlib/range/adaptor/strided.hpp"/>
 			<F N="../src/mlib/string.h"/>
+			<F N="../src/mlib/adobe/implementation/swap.hpp"/>
 			<F N="../src/mlib/sdk/system.h"/>
 			<F N="../src/mlib/tech.h"/>
 			<F N="../src/mlib/range/adaptor/tokenized.hpp"/>
 			<F N="../src/mlib/range/adaptor/transformed.hpp"/>
-			<F N="../src/mgui/sdk/treemodel.h"/>
+			<F N="../src/mlib/adobe/typeinfo.hpp"/>
 			<F N="../src/mlib/range/adaptor/uniqued.hpp"/>
+			<F N="../src/mlib/adobe/config/compiler/visualc.hpp"/>
 		</Folder>
 		<Folder
 			Name="Other Files"
@@ -258,6 +268,7 @@
 			<F N="../src/mlib/sdk/stream_util.cpp"/>
 			<F N="../src/mlib/sdk/system.cpp"/>
 			<F N="../src/mlib/tech.cpp"/>
+			<F N="../src/mlib/adobe/typeinfo.cpp"/>
 		</Folder>
 		<F N="../src/mlib/range/irange.h"/>
 		<F N="../src/mlib/range/my_config.h"/>

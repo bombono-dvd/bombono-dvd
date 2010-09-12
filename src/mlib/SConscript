@@ -21,7 +21,9 @@ lib_src_files = [
                  #'sdk/memmem.cpp',
                  'sdk/misc.cpp',
                  'sdk/stream_util.cpp',
-                 'sdk/system.cpp'
+                 'sdk/system.cpp',
+
+                 'adobe/typeinfo.cpp',
                 ]
 
 mlib_lib_name = 'MdLib'

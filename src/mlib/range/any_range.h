@@ -1,7 +1,7 @@
 #ifndef __MLIB_RANGE_ANY_RANGE_H__
 #define __MLIB_RANGE_ANY_RANGE_H__
 
-#include <mlib/any_iterator/any_iterator.hpp>
+#include <mlib/any_iterator.h>
 
 #include <boost/range/iterator_range.hpp>
 #include <boost/range/reference.hpp>
@@ -9,7 +9,6 @@
 namespace fe
 {
 
-using namespace IteratorTypeErasure;
 using boost::range_reference;
 
 template <class Reference>
@@ -17,7 +16,11 @@ struct traits
 {
     typedef typename boost::remove_reference<Reference>::type Value;
     // in practice, only bidirectional one is needed
-    typedef any_iterator<Value, boost::bidirectional_traversal_tag, Reference> iterator;
+#ifdef ADOBE_AIT
+    typedef adobe::bidirectional_iter<Value, Reference> iterator;
+#else
+    typedef IteratorTypeErasure::any_iterator<Value, boost::bidirectional_traversal_tag, Reference> iterator;
+#endif
 
     typedef boost::iterator_range<iterator> range_base;
 };
