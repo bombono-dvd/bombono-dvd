@@ -11,8 +11,11 @@
 
 #include <mlib/string.h>
 #include <mlib/stream.h>
+#include <mlib/lambda.h>
+#include <mlib/function.h>
 
 #include <boost/lexical_cast.hpp>
+#include <boost/bind.hpp>
 #include <vector>
 
 struct is_positive_number {
@@ -63,6 +66,11 @@ static void CheckRange(const Range& rng, const std::string& str)
 //static Rect Int2Rect(int& x) { return Rect(0, 0, x, x); }
 static std::string Int2Str(int& x) { return boost::lexical_cast<std::string>(x); }
 
+int MPTransform(int x, int mult)
+{
+    return x > 0 ? x*mult : x ;
+}
+
 struct MyltiplePositiveTransform {
     int mult;
 
@@ -74,9 +82,20 @@ struct MyltiplePositiveTransform {
     typedef int result_type;
     int operator()(int x) const 
     {
-        return x > 0 ? x*2 : x ;
+        return MPTransform(x, mult);
     }
+
+    private:
+    MyltiplePositiveTransform& operator=(const MyltiplePositiveTransform&);
 };
+
+template <class UnaryFunctor>
+void CheckIntRange(UnaryFunctor fnr)
+{
+    fe::range<int> a_rng = fe::make_any( IntArr | fe::transformed(fnr) );
+    CheckRange<int>(a_rng, IntArrStr2);
+}
+
 
 BOOST_AUTO_TEST_CASE( test_iterator_transform )
 {
@@ -84,7 +103,15 @@ BOOST_AUTO_TEST_CASE( test_iterator_transform )
 
     CheckRange<std::string>(fe::transform(IntArr, &Int2Str), IntArrStr);
 
-    CheckRange<int>(fe::transform(IntArr, MyltiplePositiveTransform(2)), IntArrStr2);
+    CheckIntRange(MyltiplePositiveTransform(2));
+
+    boost::function<int(int)> fnr = bl::bind(&MPTransform, bl::_1, 2);
+    CheckIntRange(fnr);
+
+    // в отличие от Boost.Lambda (BBL) BB устанавливает result_type,
+    // потому что в концепции библиотеки явно заложено определение типа
+    // по первому аргументу
+    CheckIntRange(boost::bind(&MPTransform, _1, 2));
 }
 
 //

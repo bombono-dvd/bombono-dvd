@@ -133,7 +133,12 @@ struct any_bidirectional_iterator_instance {
     {
         typedef typename optimized_storage_type<I, any_bidirectional_iterator_interface<V, R, D> >::type base_t;
     
-        BOOST_CLASS_REQUIRE(I, boost, BidirectionalIteratorConcept);      
+        // :KLUDGE: (Boost.Iterator' fault)
+        // Murav'jov - std::random_access_iterator_tag -> transform_iterator -> 
+        // iterator_category_with_traversal<std::input_iterator_tag, boost::random_access_traversal_tag>, which cannot be
+        // comparable with std/boost::bidirectional_iterator_tag by simple means. Tricky things are being done by Thomas Becker's
+        // any_iterator (see traversal_types_erasure_compatible<>) but I better leave it simple.
+        //BOOST_CLASS_REQUIRE(I, boost, BidirectionalIteratorConcept);      
 
         type(const I& x) 
             : base_t(x) {}

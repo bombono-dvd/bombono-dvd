@@ -70,8 +70,8 @@ struct poly_copyable_interface {
     virtual const void* cast() const = 0;
     virtual const std::type_info& type_info() const = 0;
 
-    // Precondition of assignment: this->type_info() == x.type_info()
-    virtual void assign(const poly_copyable_interface& x) = 0;
+    //// Precondition of assignment: this->type_info() == x.type_info()
+    //virtual void assign(const poly_copyable_interface& x) = 0;
 
     // Precondition of exchange: this->type_info() == x.type_info()
     virtual void exchange(poly_copyable_interface& x) = 0;
@@ -112,9 +112,9 @@ struct poly_state_remote : Interface
     ~poly_state_remote()
     { delete value_ptr_m; }
 
-    // Precondition : this->type_info() == x.type_info()
-    void assign(const poly_copyable_interface& x)
-    { *value_ptr_m = *static_cast<const poly_state_remote&>(x).value_ptr_m; }
+    //// Precondition : this->type_info() == x.type_info()
+    //void assign(const poly_copyable_interface& x)
+    //{ *value_ptr_m = *static_cast<const poly_state_remote&>(x).value_ptr_m; }
 
     const std::type_info& type_info() const
     { return typeid(value_type); }
@@ -154,9 +154,9 @@ struct poly_state_local : Interface
     explicit poly_state_local(U x, typename move_sink<U, value_type>::type = 0)
         : value_m(move(x)) { }
     
-    // Precondition : this->type_info() == x.type_info()
-    void assign(const poly_copyable_interface& x)
-    { value_m = static_cast<const poly_state_local&>(x).value_m; }
+    //// Precondition : this->type_info() == x.type_info()
+    //void assign(const poly_copyable_interface& x)
+    //{ value_m = static_cast<const poly_state_local&>(x).value_m; }
 
     const std::type_info& type_info() const
     { return typeid(value_type); }
@@ -361,28 +361,28 @@ struct poly_base {
         return true;
     }
 
-    template <typename T> poly_base& assign(const T& x)
-    {
-        if (type_info() == typeid(T))
-            cast<T>() = x;
-        else
-        {
-            poly_base tmp(x);
-            swap(*this, tmp);
-        }
-        return *this;
-    }
+    //template <typename T> poly_base& assign(const T& x)
+    //{
+    //    if (type_info() == typeid(T))
+    //        cast<T>() = x;
+    //    else
+    //    {
+    //        poly_base tmp(x);
+    //        swap(*this, tmp);
+    //    }
+    //    return *this;
+    //}
 
-        // Assign from related (may throw if downcastisng)
-    template <typename J, template <typename> class K> 
-    typename boost::enable_if<is_base_derived_or_same<I, J> >::type
-    assign(const poly_base<J, K>& x)
-    {
-        if(boost::is_base_of<J, I>::value)
-            dynamic_cast<I&>(static_cast<J&>(*x.interface_ptr())); //make sure type safe
-        interface_ref().~interface_type();
-        x.interface_ref().clone(storage());      
-    }
+    //    // Assign from related (may throw if downcastisng)
+    //template <typename J, template <typename> class K>
+    //typename boost::enable_if<is_base_derived_or_same<I, J> >::type
+    //assign(const poly_base<J, K>& x)
+    //{
+    //    if(boost::is_base_of<J, I>::value)
+    //        dynamic_cast<I&>(static_cast<J&>(*x.interface_ptr())); //make sure type safe
+    //    interface_ref().~interface_type();
+    //    x.interface_ref().clone(storage());
+    //}
 
     const interface_type* operator->() const
     { return &interface_ref(); }

@@ -26,7 +26,7 @@
 // в gcc' PCH, см. ошибку gcc #10591
 #include <boost/lambda/lambda.hpp> // для _1,..., и операторов =,+,-,...
 #include <boost/lambda/bind.hpp>   // bind
-#include <boost/lambda/if.hpp>     // if_then
+//#include <boost/lambda/if.hpp>     // if_then
 
 namespace bl = boost::lambda;
 

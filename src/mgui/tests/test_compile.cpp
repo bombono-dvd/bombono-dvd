@@ -23,6 +23,7 @@
 
 #include <mgui/render/rgba.h>
 #include <mlib/lambda.h>
+#include <boost/lambda/if.hpp>     // if_then
 
 BOOST_AUTO_TEST_CASE( test_lambda )
 {
