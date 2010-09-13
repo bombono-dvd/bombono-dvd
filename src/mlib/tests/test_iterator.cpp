@@ -16,6 +16,8 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
+#include <boost/concept_check.hpp> // RandomAccessIterator
+
 #include <vector>
 
 struct is_positive_number {
@@ -113,6 +115,11 @@ BOOST_AUTO_TEST_CASE( test_iterator_transform )
     // по первому аргументу
     CheckIntRange(boost::bind(&MPTransform, _1, 2));
 }
+
+// пример формально плохого итератора из-за его типа, см. mlib/adobe/any_iterator.hpp
+typedef std::vector<int>::iterator int_iterator;
+typedef boost::transform_iterator<int(*)(int), int_iterator> tr_iterator;
+BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<tr_iterator>));
 
 //
 // filter
