@@ -238,6 +238,7 @@
 			<F N="../src/mlib/tests/foreach/pair_byval.cpp"/>
 			<F N="../src/mlib/tests/foreach/pair_byval_r.cpp"/>
 			<F N="../src/mlib/tests/profile_any_iterator.cpp"/>
+			<F N="../src/mlib/tests/profile_boost_bind.cpp"/>
 			<F N="../src/mlib/tests/profile_boost_foreach.cpp"/>
 			<F N="../src/mlib/tests/profile_boost_function.cpp"/>
 			<F N="../src/mlib/tests/profile_boost_lambda.cpp"/>

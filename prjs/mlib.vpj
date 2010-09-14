@@ -194,6 +194,7 @@
 			<F N="../src/mlib/any_iterator/detail/any_iterator_wrapper.hpp"/>
 			<F N="../src/mlib/range/any_range.h"/>
 			<F N="../src/mlib/range/adaptor/argument_fwd.hpp"/>
+			<F N="../src/mlib/bind.h"/>
 			<F N="../src/mlib/adobe/config.hpp"/>
 			<F N="../src/mlib/const.h"/>
 			<F N="../src/mlib/range/adaptor/copied.hpp"/>

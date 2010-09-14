@@ -52,6 +52,12 @@
 // значение (почему?), см. шаблонные конструкторы классов slotN в sigc++/functors/slot.h, а также
 // доки проекта по libsigc++.
 // 
+// Дополнения (2010):
+// 1) автор sigc пишет о возможности использовать SIGC_FUNCTORS_HAVE_RESULT_TYPE, однако тогда требуется
+//    выдавать функторы с обязательным встроенным result_type, что не всегда верно (например для boost::lambda::bind);
+//    делать же глобальный переход не стоит из-за незначительной выгоды,- лучше обернуть
+// 2) более простым образом можно подключить так:
+//     sig::connect(layout.signal_expose_event(), bb::bind(&MyTempTLayoutExpose, true, _1));
 
 template<typename Ret, typename Functor>
 struct wrap_return_t: public sigc::functor_base
@@ -108,11 +114,45 @@ struct wrap_return_t: public sigc::functor_base
          { return functor_(A_arg1, A_arg2, A_arg3, A_arg4, A_arg5, A_arg6, A_arg7); }
 };
 
+// wrap_return<Ret>()
 template<typename Ret, typename Functor>
-wrap_return_t<Ret, Functor> wrap_return(Functor fnr)
+wrap_return_t<Ret, Functor> wrap_return(const Functor& fnr)
 {
     return wrap_return_t<Ret, Functor>(fnr);
 }
+
+namespace sig
+{
+
+template<class Ret>
+struct return_traits
+{
+    template<class SignalProxy, class Functor>
+    static sigc::connection connect(SignalProxy sp, const Functor& fnr, bool after)
+    {
+        return sp.connect(wrap_return_t<Ret, Functor>(fnr), after);
+    }
+};
+
+template<>
+struct return_traits<void>
+{
+    template<class SignalProxy, class Functor>
+    static sigc::connection connect(SignalProxy sp, const Functor& fnr, bool after)
+    {
+        return sp.connect(fnr, after);
+    }
+};
+
+// sig::connect()
+template<class SignalProxy, class Functor>
+sigc::connection connect(SignalProxy sp, const Functor& fnr, bool after = true)
+{
+    typedef typename SignalProxy::SlotType::result_type result_type;
+    return return_traits<result_type>::connect(sp, fnr, after);
+}
+
+} // namespace sig
 
 
 #endif // #ifndef __MLIB_SIGC_H__

@@ -440,8 +440,8 @@ static void OnVideoView(TrackLayout& layout, VideoMD* vd, int chp_pos)
 static ViewMediaVis::Fnr MakeViewFnr(VideoItem vi, int chp_pos)
 {
     using namespace boost;
-    TLFunctor a_fnr = lambda::bind(&OnVideoView, lambda::_1, vi.get(), chp_pos);
-    return lambda::bind(&OpenTrackLayout, lambda::_1, vi, a_fnr);
+    TLFunctor a_fnr = bb::bind(&OnVideoView, _1, vi.get(), chp_pos);
+    return bb::bind(&OpenTrackLayout, _1, vi, a_fnr);
 }
 
 void ViewMediaVis::Visit(VideoMD& obj)
@@ -789,19 +789,19 @@ void PackMBWindow(Gtk::HPaned& fcw_hpaned, Timeline::DAMonitor& mon, TrackLayout
                   MediaBrowser& brw)
 {
     ActionFunctor open_fnr = 
-        PackFileChooserWidget(fcw_hpaned, bl::bind(&MediaBrowserAdd, boost::ref(brw), bl::_1, bl::_2), false);
+        PackFileChooserWidget(fcw_hpaned, bb::bind(&MediaBrowserAdd, boost::ref(brw), _1, _2), false);
 
     Gtk::HPaned& hpaned = *Gtk::manage(new Gtk::HPaned);
     hpaned.set_position(BROWSER_WDH);
     fcw_hpaned.add2(hpaned);
 
     // *
-    MediaActionFnr view_fnr = bl::bind(&ViewMedia, boost::ref(layout), bl::_1);
+    MediaActionFnr view_fnr = bb::bind(&ViewMedia, boost::ref(layout), _1);
     PackMediaBrowserAll(PackAlignedForBrowserTB(hpaned), brw, open_fnr, 
-                        bl::bind(&DeleteMediaFromBrowser, boost::ref(brw)),
-                        bl::bind(&ExecuteForMedia, boost::ref(brw), view_fnr));
+                        bb::bind(&DeleteMediaFromBrowser, boost::ref(brw)),
+                        bb::bind(&ExecuteForMedia, boost::ref(brw), view_fnr));
     brw.signal_row_activated().connect( 
-       bl::bind(&OnBrowserRowActivated, boost::ref(brw), view_fnr, bl::_1) );
+       bb::bind(&OnBrowserRowActivated, boost::ref(brw), view_fnr, _1) );
 
     // *
     hpaned.add2(PackMonitorIn(mon));

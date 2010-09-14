@@ -13,9 +13,9 @@
 #include <mlib/stream.h>
 #include <mlib/lambda.h>
 #include <mlib/function.h>
+#include <mlib/bind.h>
 
 #include <boost/lexical_cast.hpp>
-#include <boost/bind.hpp>
 #include <boost/iterator/iterator_concepts.hpp> // RandomAccessTraversal
 
 #include <vector>
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE( test_iterator_transform )
     // в отличие от Boost.Lambda (BBL) BB устанавливает result_type,
     // потому что в концепции библиотеки явно заложено определение типа
     // по первому аргументу
-    CheckIntRange(boost::bind(&MPTransform, _1, 2));
+    CheckIntRange(bb::bind(&MPTransform, _1, 2));
 }
 
 // пример превращения категории итератора в гораздо более низкую по STL

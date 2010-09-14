@@ -192,7 +192,7 @@ MediaBrowser::MediaBrowser(RefPtr<MediaStore> a_lst)
     BuildStructure();
 
     SetupURIDrop(*this, bl::bind(&OnURIsDrop, boost::ref(*this), bl::_1, bl::_2));
-    signal_button_press_event().connect(wrap_return<bool>(bl::bind(&OnMBButtonPress, boost::ref(*this), bl::_1)), false);
+    sig::connect(signal_button_press_event(), bb::bind(&OnMBButtonPress, boost::ref(*this), _1), false);
 }
 
 // Названия типов для i18n
