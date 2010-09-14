@@ -16,7 +16,7 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
-#include <boost/concept_check.hpp> // RandomAccessIterator
+#include <boost/iterator/iterator_concepts.hpp> // RandomAccessTraversal
 
 #include <vector>
 
@@ -116,10 +116,11 @@ BOOST_AUTO_TEST_CASE( test_iterator_transform )
     CheckIntRange(boost::bind(&MPTransform, _1, 2));
 }
 
-// пример формально плохого итератора из-за его типа, см. mlib/adobe/any_iterator.hpp
+// пример превращения категории итератора в гораздо более низкую по STL
 typedef std::vector<int>::iterator int_iterator;
 typedef boost::transform_iterator<int(*)(int), int_iterator> tr_iterator;
-BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<tr_iterator>));
+//BOOST_CONCEPT_ASSERT((boost::RandomAccessIterator<tr_iterator>));
+BOOST_CONCEPT_ASSERT((boost_concepts::RandomAccessTraversal<tr_iterator>));
 
 //
 // filter
