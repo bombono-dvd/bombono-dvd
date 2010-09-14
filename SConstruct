@@ -350,7 +350,10 @@ CalcCommonFlags()
 # :TODO: remake via gcc' -include option, see "build todos"
 # need for shared_ptr speed (to use quick heap implementation
 # for ref count holding)
-prj_defines  = ['BOOST_SP_USE_QUICK_ALLOCATOR']
+prj_defines = [
+    'BOOST_SP_USE_QUICK_ALLOCATOR',
+    'BOOST_SYSTEM_NO_DEPRECATED' # remove warnings for 'boost::system::posix_category' defined but not used ...
+]
 if not BV.IsDebugCfg():
     prj_defines += ['NDEBUG']
 
