@@ -74,7 +74,10 @@ def CalcCommonFlags():
         cxx_warn_flags = ['-Wall', '-W', '-Wno-reorder'] # -W == -Wextra
     elif BV.IsClangCompiler():
         common_warn_flags = ['-ansi']
-        cxx_warn_flags    = ['-Wall']
+        cxx_warn_flags    = [
+            '-Wall', '-Wno-reorder', 
+            '-Wno-unused-variable'   # many Boost code throws it like "boost::lambda::_1"
+        ]
     elif BV.Cc == 'como' or BV.Cxx == 'como':
         # Comeau compiler
         #

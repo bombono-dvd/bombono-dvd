@@ -54,6 +54,7 @@ void TestPtr()
         BOOST_CHECK( b );
 
         Ptr<set_bool> new_ptr(ptr);
+        BOOST_CHECK( ptr.get() == 0 );
         BOOST_CHECK( new_ptr.get() == p_sb );
         BOOST_CHECK( b );
     }

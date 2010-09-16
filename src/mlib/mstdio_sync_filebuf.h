@@ -292,67 +292,6 @@ inline std::streamsize
 stdio_sync_filebuf<char>::xsputn(const char* __s, std::streamsize __n)
 { return std::fwrite(__s, 1, __n, _M_file);}
 
-#ifdef _GLIBCXX_USE_WCHAR_T
-template<>
-inline stdio_sync_filebuf<wchar_t>::int_type
-stdio_sync_filebuf<wchar_t>::syncgetc()
-{ return std::getwc(_M_file);}
-
-template<>
-inline stdio_sync_filebuf<wchar_t>::int_type
-stdio_sync_filebuf<wchar_t>::syncungetc(int_type __c)
-{ return std::ungetwc(__c, _M_file);}
-
-template<>
-inline stdio_sync_filebuf<wchar_t>::int_type
-stdio_sync_filebuf<wchar_t>::syncputc(int_type __c)
-{ return std::putwc(__c, _M_file);}
-
-template<>
-inline std::streamsize
-stdio_sync_filebuf<wchar_t>::xsgetn(wchar_t* __s, std::streamsize __n)
-{
-    std::streamsize __ret = 0;
-    const int_type __eof = traits_type::eof();
-    while(__n--)
-    {
-        int_type __c = this->syncgetc();
-        if(traits_type::eq_int_type(__c, __eof))
-            break;
-        __s[__ret] = traits_type::to_char_type(__c);
-        ++__ret;
-    }
-
-    if(__ret > 0)
-        _M_unget_buf = traits_type::to_int_type(__s[__ret - 1]);
-    else
-        _M_unget_buf = traits_type::eof();
-    return __ret;
-}
-
-template<>
-inline std::streamsize
-stdio_sync_filebuf<wchar_t>::xsputn(const wchar_t* __s,
-                                    std::streamsize __n)
-{
-    std::streamsize __ret = 0;
-    const int_type __eof = traits_type::eof();
-    while(__n--)
-    {
-        if(traits_type::eq_int_type(this->syncputc(*__s++), __eof))
-            break;
-        ++__ret;
-    }
-    return __ret;
-}
-#endif
-
-//#if _GLIBCXX_EXTERN_TEMPLATE
-//  extern template class stdio_sync_filebuf<char>;
-//#ifdef _GLIBCXX_USE_WCHAR_T
-//  extern template class stdio_sync_filebuf<wchar_t>;
-//#endif
-//#endif
 } // namespace msys
 
 

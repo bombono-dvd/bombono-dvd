@@ -147,7 +147,7 @@ class shared: public boost::shared_ptr<T>
         // 1 присваивание указателя
         shared& operator =(T* ptr)
         {
-            reset(ptr);
+            this->reset(ptr);
             return *this;
         }
 

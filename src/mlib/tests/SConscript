@@ -77,14 +77,14 @@ stl_byval_r.cpp
 user_defined.cpp
 ''') #utility.hpp
 
-# any_iterator tests
-source_files += make_source_files('any_iterator', '''
-any_iterator_demo.cpp
-any_iterator_test.cpp
-any_iterator_wrapper_test.cpp
-boost_iterator_library_example_test.cpp
-test_any_iterator.cpp
-''')
+# any_iterator tests (replaced by adobe any_iterator)
+#source_files += make_source_files('any_iterator', '''
+#any_iterator_demo.cpp
+#any_iterator_test.cpp
+#any_iterator_wrapper_test.cpp
+#boost_iterator_library_example_test.cpp
+#test_any_iterator.cpp
+#''')
 
 # range adaptors' tests (Boost.Range)
 source_files += make_source_files('range', '''
