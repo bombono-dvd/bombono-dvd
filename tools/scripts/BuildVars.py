@@ -335,9 +335,24 @@ def IsAlphaArch():
     str = GetArch().lower()
     return str.startswith('alpha')
 
+def IsGccLike():
+    # all those compilers who understand gcc extensions: gcc, clang
+    return UserOptDict['IS_GCC']
+
 def IsGccCompiler():
     #return Cc == 'gcc'
-    return UserOptDict['IS_GCC']
+    return UserOptDict['IS_GCC'] and not UserOptDict['IS_CLANG']
+
+def IsClangCompiler():
+    def has_tail(name, tail):
+        ln = len(name) - len(tail)
+        return name[ln:] == tail
+
+    #res = has_tail(BV.Cc, 'clang')
+    res = UserOptDict['IS_CLANG']
+    if res:
+        assert( has_tail(Cxx, 'clang++') )
+    return res
 
 def MakeObjectComment(obj_name, is_one_set):
     prefix = "Define "

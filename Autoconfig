@@ -19,22 +19,28 @@ def GetYesNo(bool_type):
         return 'yes'
     return 'no'
 
-gnu_compiler_text = """
+compiler_text = """
 int main()
 {
-#ifndef __GNUC__
+#ifndef %s
     choke me
 #endif
     return 0;
 }
 """
 
-def CheckGNUCompiler(context):
-    context.Message( 'Checking whether we are using the GNU C compiler ... ' )
+def CheckCompiler(context, c_name, cdef_name):
+    context.Message( 'Checking whether we are using the %s compiler ... ' % c_name ) 
 
-    ret = context.TryCompile(gnu_compiler_text, '.c')
+    ret = context.TryCompile(compiler_text % cdef_name, '.c')
     context.Result( GetYesNo(ret) )
     return ret
+
+def CheckGNUCompiler(context):
+    return CheckCompiler(context, 'GNU C', '__GNUC__')
+
+def CheckClangCompiler(context):
+    return CheckCompiler(context, 'Clang', '__clang__')
 
 # copy-n-paste from linuxdcpp project :)
 def CheckPKGConfig(context):
@@ -112,7 +118,7 @@ def CheckMaxAligning(context):
     context.Message( 'Checking maximum supported data alignment ... ' )
     origCCFLAGS = context.env['CCFLAGS']
 
-    if IsGccCompiler():
+    if IsGccLike():
         context.env.Append(CCFLAGS = ['-Werror'])
     max_align = 0
     for try_align in [2, 4, 8, 16, 32, 64]:
@@ -140,7 +146,7 @@ def GetFlags(opt_name, env):
 
 def CheckBuiltinExpect(context):
     context.Message( 'Checking whether compiler understands __builtin_expect ... ' )
-    if IsGccCompiler():
+    if IsGccLike():
         origLINKFLAGS, origLIBS = GetFlags('LINKFLAGS', context.env), GetFlags('LIBS', context.env)
     
         context.env.Append(LINKFLAGS = ['-nostdlib', '-nostartfiles'], LIBS = ['gcc'])
@@ -244,6 +250,7 @@ conf = Configure(
         custom_tests = 
         {
             'CheckGNUCompiler'  : CheckGNUCompiler,
+            'CheckClangCompiler': CheckClangCompiler,
             'CheckPKGConfig'    : CheckPKGConfig,
             'CheckTimeval'      : CheckTimeval, 
             'CheckAltivec'      : CheckAltivec,
@@ -265,7 +272,8 @@ conf.env.Append(**user_options_dict['DVDREAD_DICT'])
 # 
 
 # is gcc?
-user_options_dict["IS_GCC"] = conf.CheckGNUCompiler()
+user_options_dict["IS_GCC"]   = conf.CheckGNUCompiler()
+user_options_dict["IS_CLANG"] = conf.CheckClangCompiler()
 # pkg-config
 if not conf.CheckPKGConfig():
     ErrorAndExit("'pkg-config' utility is not found.")

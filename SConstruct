@@ -72,7 +72,9 @@ def CalcCommonFlags():
         # but not
         #   CXXCOM = $CXX -o $TARGET -c $CCFLAGS $CXXFLAGS ...
         cxx_warn_flags = ['-Wall', '-W', '-Wno-reorder'] # -W == -Wextra
-
+    elif BV.IsClangCompiler():
+        common_warn_flags = ['-ansi']
+        cxx_warn_flags    = ['-Wall']
     elif BV.Cc == 'como' or BV.Cxx == 'como':
         # Comeau compiler
         #
@@ -204,7 +206,10 @@ def ParseVariables(user_options):
     AddLibOptions(user_options)
 
     # Configuration
-    user_options.AddVariables( ('IS_GCC',), ('CONFIGURATION',) )
+    def add_calc_variables(*lst):
+        lst = ((name,) for name in lst)
+        user_options.AddVariables( *lst )
+    add_calc_variables('IS_GCC', 'IS_CLANG', 'CONFIGURATION')
 
     # make help (scons -h)
     user_options_env = Environment(ENV = os.environ, options = user_options)
@@ -257,6 +262,9 @@ else:
     user_options = Variables(None, BV.Args)
     ParseVariables(user_options)
     try:
+        def write_dict_value(name):
+            config.write('%s = %r\n' % (name, user_options_dict[name]))
+
         # save to file
         config = open(BV.CfgFile, 'w')
     
@@ -265,9 +273,9 @@ else:
         config.write('BUILD_DIR = %r\n' % (BV.BuildDir))
         config.write('BUILD_PROFILE = %r\n' % (BV.BuildProfile))
         config.write('BUILD_BRIEF = %r\n' % (BV.BuildBrief))
-        config.write('BUILD_QUICK = %r\n' % (user_options_dict['BUILD_QUICK']))
-        config.write('PREFIX = %r\n' % (user_options_dict['PREFIX']))
-        config.write('DESTDIR = %r\n' % (user_options_dict['DESTDIR']))
+        write_dict_value('BUILD_QUICK')
+        write_dict_value('PREFIX')
+        write_dict_value('DESTDIR')
     
         config.write('\n# Compiler information\n')
         config.write('CC = %r\n' % (BV.Cc))
@@ -281,21 +289,23 @@ else:
         config.write('TEST_BUILD = %r\n' % (BV.BuildTests))
 
         config.write('\n# Boost library\n')
-        config.write('USE_EXT_BOOST = %r\n' % (user_options_dict['USE_EXT_BOOST']))
-        config.write('BOOST_INCLUDE = %r\n' % (user_options_dict['BOOST_INCLUDE']))
-        config.write('BOOST_LIBPATH = %r\n' % (user_options_dict['BOOST_LIBPATH']))
+        write_dict_value('USE_EXT_BOOST')
+        write_dict_value('BOOST_INCLUDE')
+        write_dict_value('BOOST_LIBPATH')
 
         config.write('\n# libdvdread library\n')
-        config.write('DVDREAD_INCLUDE = %r\n' % (user_options_dict['DVDREAD_INCLUDE']))
-        config.write('DVDREAD_LIBPATH = %r\n' % (user_options_dict['DVDREAD_LIBPATH']))
+        write_dict_value('DVDREAD_INCLUDE')
+        write_dict_value('DVDREAD_LIBPATH')
 
         config.write('\n### Calculated data ###\n')
         SConscript('Autoconfig')
 
-        config.write('\nIS_GCC = %r\n' % (user_options_dict['IS_GCC']))
+        config.write('\n')
+        write_dict_value('IS_GCC')
+        write_dict_value('IS_CLANG')
 
         config.write('\n# Configuration\n')
-        config.write('CONFIGURATION = %r\n' % (user_options_dict['CONFIGURATION']))
+        write_dict_value('CONFIGURATION')
 
         SetLibraries(config, user_options_dict)
 
