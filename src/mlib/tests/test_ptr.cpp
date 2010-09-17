@@ -37,7 +37,7 @@ void TestPtr()
         Ptr<set_bool> ptr1;
         Ptr<set_bool> ptr2((set_bool*)0);
 
-        Ptr<set_bool> ptr3 = new set_bool(b);
+        Ptr<set_bool> ptr3(new set_bool(b));
         BOOST_CHECK( b );
     }
     BOOST_CHECK( !b );
@@ -54,7 +54,6 @@ void TestPtr()
         BOOST_CHECK( b );
 
         Ptr<set_bool> new_ptr(ptr);
-        BOOST_CHECK( ptr.get() == 0 );
         BOOST_CHECK( new_ptr.get() == p_sb );
         BOOST_CHECK( b );
     }
@@ -62,7 +61,7 @@ void TestPtr()
 
     // reset()
     {
-        Ptr<set_bool> ptr = new set_bool(b); 
+        Ptr<set_bool> ptr(new set_bool(b)); 
 
         ptr.reset((set_bool*)0);
         BOOST_CHECK( !b );
@@ -89,7 +88,7 @@ void TestPtr()
     // operator ->
     {
         typedef std::pair<int, int> iint;
-        Ptr<iint> pair_ptr = new iint(1,2);
+        Ptr<iint> pair_ptr(new iint(1,2));
         BOOST_CHECK( pair_ptr->first  == 1 );
         BOOST_CHECK( pair_ptr->second == 2 );
     }
@@ -105,7 +104,7 @@ BOOST_AUTO_TEST_CASE( ptr_one )
     // конструктор ptr::one(ptr::one&)
     {
         set_bool* p_sb = new set_bool(b);
-        ptr::one<set_bool> ptr = p_sb;
+        ptr::one<set_bool> ptr(p_sb);
 
         ptr::one<set_bool> new_ptr(ptr);
         BOOST_CHECK( !ptr.get() );
@@ -115,7 +114,7 @@ BOOST_AUTO_TEST_CASE( ptr_one )
 
     // release()
     {
-        ptr::one<set_bool> ptr = new set_bool(b);
+        ptr::one<set_bool> ptr(new set_bool(b));
 
         set_bool* p_sb = ptr.release();
         BOOST_CHECK( p_sb && !ptr.get() );

@@ -462,8 +462,8 @@ static ReadDest* CreateReadDest(const ReadReadyFnr& fnr, bool is_out, bool line_
 ExitData ExecuteAsync(const char* dir, const char* cmd, ReadReadyFnr& fnr,
                       GPid* pid, bool line_up)
 {
-    ptr::one<ReadDest> o_rd = CreateReadDest(fnr, true, line_up);
-    ptr::one<ReadDest> e_rd = CreateReadDest(fnr, false, line_up);
+    ptr::one<ReadDest> o_rd(CreateReadDest(fnr, true,  line_up));
+    ptr::one<ReadDest> e_rd(CreateReadDest(fnr, false, line_up));
     return ExecuteAsyncImpl(dir, cmd, *o_rd, *e_rd, pid);
 }
 
