@@ -385,8 +385,8 @@ void HeaderDecode::NextState(Decoder& dcr)
         InvalidState(dcr);
         return;
     }
-    dat.vbvBufSz  = (hdr.inf[3] && 0x1f) << 5;
-    dat.vbvBufSz |=  hdr.inf[4]          >> 3;
+    dat.vbvBufSz  = (hdr.inf[3] & 0x1f) << 5;
+    dat.vbvBufSz |=  hdr.inf[4]         >> 3;
 
     // 2 матрицы
     if( hdr.inf[4] & 2 ) //  intra quantiser matrix
