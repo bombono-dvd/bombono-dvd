@@ -48,7 +48,7 @@ class Table: protected std::vector<Item>
               Table(): isIndexed(false) {}
 
               // вставка медиа 
-        void  Insert(const Item& mi) { push_back(mi); }
+        void  Insert(const Item& mi) { this->push_back(mi); }
               // удаление по одному не требуется
          //Itr  Erase(Itr itr) { return erase(itr); }
 
