@@ -132,7 +132,8 @@ def generate(env):
 
     env['GCHCOM']     = GCHCOMString
     env['GCHSHCOM']   = GCHSHCOMString
-    env['GCHSUFFIX']  = '.gch'
+    # client is to set GCHSUFFIX (gcc -> '.gch', clang -> '.pch')
+    #env['GCHSUFFIX']  = '.gch'
 
     for suffix in SCons.Util.Split('.c .C .cc .cxx .cpp .c++'):
         env['BUILDERS']['StaticObject'].add_emitter( suffix, static_pch_emitter )

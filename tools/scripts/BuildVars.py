@@ -455,7 +455,7 @@ def MoveIncludeOptions(dict):
 def GetDict(name):
     dict = UserOptDict[MakeDictName(name)]
     #reduce SCons' C scanner area, CPPPATH -> CPP_POST_FLAGS
-    if UserOptDict['BUILD_QUICK']:
+    if IsToBuildQuick():
         MoveIncludeOptions(dict)
     return dict
 
@@ -486,8 +486,21 @@ def CreateLEnv(**kw):
     env.Prepend(CPPPATH = [GetSrcBuildDir(), '#/' + GetSrcDirPath()])
     return env
 
-def MakeMainEnv():
+def IsToBuildQuick():
+    can_bq = IsGccLike() # gcc and clang only (because of PCH)
+
+    res = False
     if UserOptDict['BUILD_QUICK']:
+        if can_bq:
+            res = True
+        elif not IsReenter(IsToBuildQuick):
+            # warn once only
+            print 'BUILD_QUICK is not supported for current compiler(%s)!' % Cc
+
+    return res
+
+def MakeMainEnv():
+    if IsToBuildQuick():
         def SetPCH(env, header_name, additional_envs=[]):
             # :COMMENT: the "is_def" version is done to
             # check gcc' .gch using; once not used, dummy_pc_.h
@@ -536,8 +549,15 @@ def MakeMainEnv():
         UserOptDict['SetPCH'] = SetPCH
 
         env = CreateLEnv(tools = ['gch'])
-
-        # 2 - reduce SCons' C scanner area, CPPPATH -> CPP_POST_FLAGS
+        if IsGccCompiler():
+            suffix = '.gch'
+        elif IsClangCompiler():
+            suffix = '.pch'
+        else:
+            assert False
+        env['GCHSUFFIX'] = suffix
+    
+            # 2 - reduce SCons' C scanner area, CPPPATH -> CPP_POST_FLAGS
         env['_CPPINCFLAGS'] = env['_CPPINCFLAGS'] + ' $CPP_POST_FLAGS'
     else:
         def SetPCH(env, header_name, additional_envs=[]):
