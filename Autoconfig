@@ -291,7 +291,7 @@ arch_dict = {
              'ARCH_ALPHA' : 0, 
             }
 set_altivec = 0
-if IsGccCompiler():
+if IsGccLike():
     if IsX86Arch():
         arch_dict['ARCH_X86'] = 1
     elif IsPPCArch():

@@ -16,7 +16,7 @@ Import('env', 'user_options_dict')
 
 libmpeg2_env = env.Clone()
 
-if BuildVars.IsGccCompiler():
+if BuildVars.IsGccLike():
     warn_flags    = ['-Wall', '-fno-common']
     if BuildVars.BuildProfile:
         release_flags = []
@@ -33,7 +33,7 @@ if BuildVars.IsDebugCfg():
 else:
     cflags += release_flags
 
-if BuildVars.IsGccCompiler():
+if BuildVars.IsGccLike():
     # Tune flags should be set via command options like "scons CFLAGS='-mtune=i686' CXXFLAGS='-mtune=i686'"
     #if BuildVars.IsX86Arch():
     #    str = BuildVars.GetArch() # f.e., i586
