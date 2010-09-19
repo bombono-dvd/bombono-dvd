@@ -23,7 +23,7 @@
 
 #include "service.h"
 
-#include <mgui/project/mb-actions.h>
+#include <mgui/project/add.h>
 
 #include <mgui/project/handler.h>
 #include <mgui/project/thumbnail.h>

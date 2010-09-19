@@ -199,6 +199,7 @@
 			<F N="../src/mgui/_extlibs_.h"/>
 			<F N="../src/mgui/_pc_.h"/>
 			<F N="../src/mgui/editor/actions.h"/>
+			<F N="../src/mgui/project/add.h"/>
 			<F N="../src/mgui/editor/bind.h"/>
 			<F N="../src/mgui/project/browser.h"/>
 			<F N="../src/mgui/sdk/browser.h"/>
@@ -286,6 +287,7 @@
 			Name="Source Files"
 			Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
 			<F N="../src/mgui/editor/actions.cpp"/>
+			<F N="../src/mgui/project/add.cpp"/>
 			<F N="../src/mgui/editor/bind.cpp"/>
 			<F N="../src/mgui/project/browser.cpp"/>
 			<F N="../src/mgui/sdk/browser.cpp"/>

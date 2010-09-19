@@ -23,9 +23,8 @@
 
 #include "dvdimport.h"
 
-#include <mgui/render/common.h> // FillEmpty()
-#include <mgui/project/mb-actions.h> // TryAddMedia()
-#include <mgui/gettext.h>
+#include "render/common.h" // FillEmpty()
+#include "project/add.h" // TryAddMediaQuiet()
 
 #include "sdk/treemodel.h"
 #include "sdk/window.h"
@@ -33,8 +32,10 @@
 #include "sdk/widget.h"
 #include "sdk/browser.h"   // VideoPE
 #include "dialog.h"
+#include "gettext.h"
 
 #include <mbase/project/table.h>
+#include <mdemux/util.h> // SecToHMS
 #include <mlib/filesystem.h>
 #include <mlib/sdk/logger.h>
 

@@ -29,62 +29,13 @@
 namespace Project
 {
 
-class ViewMediaVis: public ObjVisitor
-{
-    public:
-    typedef boost::function<bool(TrackLayout&)> Fnr;
-            Fnr  vFnr;
-
-     static  Fnr  GetViewerFunctor(MediaItem mi)
-                  {
-                      ViewMediaVis vis;
-                      mi->Accept(vis);
-                      return vis.vFnr;
-                  }
-
-    protected:
-
-            void  Visit(VideoMD& obj);
-            void  Visit(VideoChapterMD& obj);
-};
-
-void ViewMedia(TrackLayout& layout, MediaItem mi);
-
-void FillThumbnail(const Gtk::TreeIter& itr, RefPtr<MediaStore> ms, Media& md);
-
-// определить тип файла и создать по нему соответствующее медиа
-StorageItem CreateMedia(const char* fname, std::string& err_string);
-
-// заполнить медиа в браузере
-void PublishMedia(const Gtk::TreeIter& itr, RefPtr<MediaStore> ms, MediaItem mi);
-void PublishMediaStore(RefPtr<MediaStore> ms);
+typedef boost::function<bool(TrackLayout&)> BoolTLFunctor;
+BoolTLFunctor GetViewerFunctor(MediaItem mi);
 
 void PackMBWindow(Gtk::HPaned& fcw_hpaned, Timeline::DAMonitor& mon, TrackLayout& layout, 
                   MediaBrowser& brw);
 
-// pth - куда вставлять; по выходу pth равен позиции вставленного
-// insert_after - вставить после pth, по возможности
-bool TryAddMedia(const char* fname, Gtk::TreePath& pth, std::string& err_str, 
-                 bool insert_after = true);
-// интерактивный вариант TryAddMedia()
-void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
-                  Gtk::TreePath& brw_pth, bool insert_after);
-// desc - метка происхождения, добавления
-void TryAddMediaQuiet(const std::string& fname, const std::string& desc);
-void MuxAddStreams(const std::string& src_fname);
-
-// ограничиваем возможность вставки верхним уровнем
-// want_ia - где хотим вставить (dnd)
-// возвращает - куда надо вставить (до или после)
-bool ValidateMediaInsertionPos(Gtk::TreePath& brw_pth, bool want_ia = true);
-
 } // namespace Project
-
-namespace DVD {
-
-void RunImport(Gtk::Window& par_win, const std::string& dvd_path = std::string());
-
-} // namespace DVD
 
 #endif // #ifndef __MGUI_PROJECT_MB_ACTIONS_H__
 

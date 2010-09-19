@@ -46,6 +46,7 @@ lib_src_files = [
                  'editor/txtool.cpp',
 
                  # project
+                 'project/add.cpp',
                  'project/browser.cpp',
                  'project/mconstructor.cpp',
                  'project/mb-actions.cpp',

@@ -24,8 +24,7 @@
 #include "test_mbrowser.h"
 #include "mgui_test.h"
 
-#include <mgui/trackwindow.h>
-#include <mgui/project/mb-actions.h>
+#include <mgui/project/add.h>
 #include <mgui/project/handler.h>
 #include <mgui/project/mconstructor.h>
 #include <mgui/sdk/window.h>
@@ -119,6 +118,7 @@ BOOST_AUTO_TEST_CASE( TestMBrowserActions )
 
     // * добавление медиа
     std::string tmp_str = GetTestFileName("colors.png");
+    StorageItem CreateMedia(const char* fname, std::string& err_string);
     StorageItem si = CreateMedia(tmp_str.c_str(), tmp_str);
     BOOST_CHECK( si );
     // перед AcerTX.png

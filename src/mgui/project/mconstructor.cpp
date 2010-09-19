@@ -25,6 +25,7 @@
 #include "menu-actions.h"
 #include "menu-render.h"
 #include "mb-actions.h"
+#include "add.h"
 #include <mgui/text_obj.h> // CalcAbsSizes()
 
 #include <mgui/win_utils.h>

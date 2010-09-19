@@ -22,6 +22,7 @@
 #include <mgui/_pc_.h>
 
 #include "mb-actions.h"
+#include "add.h"
 #include "handler.h"
 #include "dnd.h"
 
@@ -32,6 +33,7 @@
 #include <mgui/dialog.h> // MessageBox
 #include <mgui/gettext.h>
 #include <mgui/key.h>
+#include <mgui/win_utils.h>
 
 #include <mgui/editor/toolbar.h>
 
@@ -303,7 +305,7 @@ void OnMBChangeCursor(MediaBrowser& brw, Gtk::Button* edit_btn)
 {
     bool is_on = false;
     if( MediaItem mi = GetCurMedia(brw) )
-        is_on = ViewMediaVis::GetViewerFunctor(mi);
+        is_on = GetViewerFunctor(mi);
 
     edit_btn->set_sensitive(is_on);
 }
