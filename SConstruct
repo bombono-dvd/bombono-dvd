@@ -62,7 +62,7 @@ def CalcCommonFlags():
     if BV.IsReenter(CalcCommonFlags):
         return
 
-    global common_warn_flags, cxx_warn_flags, profile_flags, defines
+    global common_warn_flags, cxx_warn_flags, debug_flags, profile_flags, defines
     if BV.IsGccCompiler():
         # GCC
         common_warn_flags = ['-ansi']
@@ -72,6 +72,8 @@ def CalcCommonFlags():
         # but not
         #   CXXCOM = $CXX -o $TARGET -c $CCFLAGS $CXXFLAGS ...
         cxx_warn_flags = ['-Wall', '-W', '-Wno-reorder'] # -W == -Wextra
+        # Oh, GCC! Just give me the speed. If you don't stop getting slower, I'll go to Clang.
+        debug_flags += ['-pipe']
     elif BV.IsClangCompiler():
         common_warn_flags = ['-ansi']
         cxx_warn_flags    = [
