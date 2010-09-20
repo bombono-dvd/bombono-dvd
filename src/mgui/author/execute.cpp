@@ -498,7 +498,7 @@ GPid Spawn(const char* dir, const char *commandline, int out_err[2], bool need_w
     char* user_shell = gnome_util_user_shell();
     char * argv[4];
     argv[0] = user_shell;
-    argv[1] = "-c";
+    argv[1] = (char *)"-c";
     /* necessary cast, to avoid warning, but safe */
     argv[2] = (char *)commandline;
     argv[3] = NULL;
