@@ -24,6 +24,7 @@
 
 #include <mgui/init.h>
 #include <mlib/dataware.h>
+#include <mlib/resingleton.h>
 
 namespace Project
 {
@@ -34,7 +35,7 @@ struct SizeBar
     Gtk::ComboBoxText dvdTypes;
 };
 
-struct ConstructorApp
+struct ConstructorApp: public ReSingleton<ConstructorApp>
 {
       Gtk::Window  win;
              bool  askSaveOnExit;
@@ -58,6 +59,8 @@ struct ConstructorApp
 
           SizeBar  szBar;
 };
+
+inline ConstructorApp& Application() { return ConstructorApp::Instance(); }
 
 #define APROJECT_NAME "Bombono DVD"
 

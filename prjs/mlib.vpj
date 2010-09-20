@@ -233,6 +233,7 @@
 			<F N="../src/mlib/read_stream.h"/>
 			<F N="../src/mlib/range/adaptor/replaced.hpp"/>
 			<F N="../src/mlib/range/adaptor/replaced_if.hpp"/>
+			<F N="../src/mlib/resingleton.h"/>
 			<F N="../src/mlib/range/adaptor/reversed.hpp"/>
 			<F N="../src/mlib/adobe/config/select_compiler.hpp"/>
 			<F N="../src/mlib/sigc.h"/>

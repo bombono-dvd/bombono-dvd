@@ -186,7 +186,7 @@ static bool ClearEndAction(VideoItem vi, MediaItem mi)
 static void OnDeleteEndAction(MediaItem mi, const char* action)
 {
     if( mi && (strcmp("OnDelete", action) == 0) )
-        ForeachVideo(bl::bind(ClearEndAction, bl::_1, mi));
+        ForeachVideo(bb::bind(ClearEndAction, _1, mi));
 }
 
 // создать списки медиа и меню
@@ -204,10 +204,10 @@ static AStores& InitAStores()
     return as;
 }
 
-static void SetAppTitle(ConstructorApp& app, bool clear_change_flag = true);
-static void UpdateDVDSize(SizeBar& sz_bar);
+static void SetAppTitle(bool clear_change_flag = true);
+static void UpdateDVDSize();
 
-static void LoadApp(ConstructorApp& app, const std::string& fname)
+static void LoadApp(const std::string& fname)
 {
     LoadProjectInteractive(ConvertPathToUtf8(fname));
 
@@ -216,10 +216,10 @@ static void LoadApp(ConstructorApp& app, const std::string& fname)
 
     PublishMediaStore(as.mdStore);
     PublishMenuStore(as.mnStore, db.GetMN());
-    UpdateDVDSize(app.SB());
+    UpdateDVDSize();
 
     db.SetOut(true);
-    SetAppTitle(app);
+    SetAppTitle();
 }
 
 AStores& InitAndLoadPrj(const std::string& fname)
@@ -411,7 +411,7 @@ static void OnCloseAboutDlg(Gtk::AboutDialog* dlg, int reps)
         dlg->hide();
 }
 
-static void OnDlgAbout(Gtk::Window& win)
+static void OnDlgAbout()
 {
     // :TODO: включить кнопку лицензии пока нельзя из ограничения окна About на размер
     //const char* license =
@@ -456,7 +456,7 @@ static void OnDlgAbout(Gtk::Window& win)
     {
         dlg = new Gtk::AboutDialog;
         dlg->Gtk::Widget::set_name("AboutBombonoDVD");
-        dlg->set_transient_for(win);
+        dlg->set_transient_for(Application().win);
     
         dlg->set_name(APROJECT_NAME);
         dlg->set_version(APROJECT_VERSION);
@@ -471,7 +471,7 @@ static void OnDlgAbout(Gtk::Window& win)
         dlg->set_translator_credits(_("translator-credits"));
     
         ForAllWidgets(static_cast<Gtk::Widget&>(*dlg).gobj(), SetNoButtonRelief);
-        dlg->signal_response().connect(bl::bind(OnCloseAboutDlg, dlg.get(), bl::_1));
+        dlg->signal_response().connect(bb::bind(OnCloseAboutDlg, dlg.get(), _1));
     }
 
     //dlg.run();
@@ -517,13 +517,14 @@ static void OnGoItemToggled(Gtk::RadioMenuItem& itm, ConstructorApp& app)
 static Gtk::RadioMenuItem& CreateGoMenuItem(Gtk::RadioButtonGroup& grp, ConstructorApp& app)
 {
     Gtk::RadioMenuItem& itm = NewManaged<Gtk::RadioMenuItem>(grp);
-    itm.signal_toggled().connect(boost::lambda::bind(OnGoItemToggled, boost::ref(itm), boost::ref(app)));
+    itm.signal_toggled().connect( bb::bind(OnGoItemToggled, boost::ref(itm), boost::ref(app)) );
 
     return itm;
 }
 
-static void OnContentPageAdd(ConstructorApp& app, guint page_num)
+static void OnContentPageAdd(Gtk::Widget* , guint page_num)
 {
+    ConstructorApp& app = Application();
     Gtk::Notebook& nbook = app.BookTabs();
     int cnt = nbook.get_n_pages();
     ASSERT_RTL( app.BookContent().get_n_pages() == cnt + 1 );
@@ -549,8 +550,9 @@ static void OnContentPageAdd(ConstructorApp& app, guint page_num)
     }
 }
 
-static void OnMenuNotebookSwitch(ConstructorApp& app, guint page_num)
+static void OnMenuNotebookSwitch(GtkNotebookPage* , guint page_num)
 {
+    ConstructorApp& app = Application();
     app.BookContent().set_current_page(page_num);
     //app.BookContent().get_nth_page(page_num)->child_focus(Gtk::DIR_TAB_FORWARD);
 
@@ -571,8 +573,9 @@ static Gtk::Menu& DetachMenuFromUI(RefPtr<Gtk::UIManager> mngr, const char* path
     return menu;
 }
 
-static void SetAppTitle(ConstructorApp& app, bool clear_change_flag)
+static void SetAppTitle(bool clear_change_flag)
 {
+    ConstructorApp& app = Application();
     if( clear_change_flag )
         app.isProjectChanged = false;
 
@@ -598,8 +601,8 @@ static void NewProject()
     AData().ClearSettings();
 }
 
-static void OnSaveAsProject(ConstructorApp& app);
-static void OnSaveProject(ConstructorApp& app);
+static void OnSaveAsProject();
+static void OnSaveProject();
 
 // предложить пользователю сохранить измененный проект перед закрытием
 static bool CheckBeforeClosing(ConstructorApp& app)
@@ -631,7 +634,7 @@ static bool CheckBeforeClosing(ConstructorApp& app)
         }
 
         if( to_save )
-            OnSaveProject(app);
+            OnSaveProject();
     }
     return res;
 }
@@ -648,71 +651,65 @@ static Gtk::RadioButton& TVSelectionButton(bool &is_pal, bool val, Gtk::RadioBut
 
 static void OnNewProject(ConstructorApp& app)
 {
-    if( CheckBeforeClosing(app) )
+    bool is_pal = Prefs().isPAL;
+    Gtk::Dialog new_prj_dlg(_("New Project"), app.win, true, true);
+    new_prj_dlg.set_name("NewProject");
+    new_prj_dlg.set_resizable(false);
     {
-        bool is_pal = Prefs().isPAL;
-        Gtk::Dialog new_prj_dlg(_("New Project"), app.win, true, true);
-        new_prj_dlg.set_name("NewProject");
-        new_prj_dlg.set_resizable(false);
+        AddCancelDoButtons(new_prj_dlg, Gtk::Stock::OK);
+        Gtk::VBox& dlg_box = *new_prj_dlg.get_vbox();
+        PackStart(dlg_box, NewManaged<Gtk::Image>((fs::path(GetDataDir())/"cap400.png").string()));
+        Gtk::VBox& vbox = Add(PackStart(dlg_box, NewPaddingAlg(10, 40, 20, 20)), NewManaged<Gtk::VBox>());
+        
+        PackStart(vbox, NewManaged<Gtk::Label>(_("Please select a Television standard for your project:"),
+                                               0.0, 0.5, true));
         {
-            AddCancelDoButtons(new_prj_dlg, Gtk::Stock::OK);
-            Gtk::VBox& dlg_box = *new_prj_dlg.get_vbox();
-            PackStart(dlg_box, NewManaged<Gtk::Image>((fs::path(GetDataDir())/"cap400.png").string()));
-            Gtk::VBox& vbox = Add(PackStart(dlg_box, NewPaddingAlg(10, 40, 20, 20)), NewManaged<Gtk::VBox>());
-            
-            PackStart(vbox, NewManaged<Gtk::Label>(_("Please select a Television standard for your project:"),
-                                                   0.0, 0.5, true));
-            {
-                Gtk::VBox& vbox2 = Add(PackStart(vbox, NewPaddingAlg(10, 10, 0, 0)), NewManaged<Gtk::VBox>());
+            Gtk::VBox& vbox2 = Add(PackStart(vbox, NewPaddingAlg(10, 10, 0, 0)), NewManaged<Gtk::VBox>());
 
-                Gtk::RadioButtonGroup grp;
-                PackStart(vbox2, TVSelectionButton(is_pal, true,  grp));
-                PackStart(vbox2, TVSelectionButton(is_pal, false, grp));
-            }
-            dlg_box.show_all();
+            Gtk::RadioButtonGroup grp;
+            PackStart(vbox2, TVSelectionButton(is_pal, true,  grp));
+            PackStart(vbox2, TVSelectionButton(is_pal, false, grp));
         }
+        dlg_box.show_all();
+    }
 
-        if( Gtk::RESPONSE_OK == new_prj_dlg.run() )
-        {
-            NewProject();
-            AData().SetPalTvSystem(is_pal);
-            SetAppTitle(app);
-        }
+    if( Gtk::RESPONSE_OK == new_prj_dlg.run() )
+    {
+        NewProject();
+        AData().SetPalTvSystem(is_pal);
+        SetAppTitle();
     }
 }
 
 static void OnOpenProject(ConstructorApp& app)
 {
-    if( CheckBeforeClosing(app) )
-    {
-        Gtk::FileChooserDialog dialog(_("Open Project"), Gtk::FILE_CHOOSER_ACTION_OPEN);
-        BuildChooserDialog(dialog, true, app.win);
-    
-        Gtk::FileFilter prj_filter;
-        prj_filter.set_name(_("Project files (*.xml)"));
-        prj_filter.add_pattern("*.xml");
-        dialog.add_filter(prj_filter);
-    
-        Gtk::FileFilter all_filter;
-        all_filter.set_name(_("All Files (*.*)"));
-        all_filter.add_pattern("*");
-        dialog.add_filter(all_filter);
-    
-        if( Gtk::RESPONSE_OK == dialog.run() )
-        {
-            // в процессе загрузки не нужен
-            dialog.hide();
-            IteratePendingEvents();
-    
-            NewProject();
-            AData().SetOut(false);
+    Gtk::FileChooserDialog dialog(_("Open Project"), Gtk::FILE_CHOOSER_ACTION_OPEN);
+    BuildChooserDialog(dialog, true, app.win);
 
-            LoadApp(app, dialog.get_filename());
-        }
+    Gtk::FileFilter prj_filter;
+    prj_filter.set_name(_("Project files (*.xml)"));
+    prj_filter.add_pattern("*.xml");
+    dialog.add_filter(prj_filter);
+
+    Gtk::FileFilter all_filter;
+    all_filter.set_name(_("All Files (*.*)"));
+    all_filter.add_pattern("*");
+    dialog.add_filter(all_filter);
+
+    if( Gtk::RESPONSE_OK == dialog.run() )
+    {
+        // в процессе загрузки не нужен
+        dialog.hide();
+        IteratePendingEvents();
+
+        NewProject();
+        AData().SetOut(false);
+
+        LoadApp(dialog.get_filename());
     }
 }
 
-static void SaveProject(ConstructorApp& app)
+static void SaveProject()
 {
     ASSERT( AData().IsProjectSet() );
 
@@ -725,21 +722,21 @@ static void SaveProject(ConstructorApp& app)
          itr != end; ++itr )
         ClearMenuSavedData(GetMenu(mn_store, itr));
 
-    SetAppTitle(app);
+    SetAppTitle();
 }
 
-static void OnSaveProject(ConstructorApp& app)
+static void OnSaveProject()
 {
     if( AData().IsProjectSet() )
-        SaveProject(app);
+        SaveProject();
     else
-        OnSaveAsProject(app);
+        OnSaveAsProject();
 }
 
-static void OnSaveAsProject(ConstructorApp& app)
+static void OnSaveAsProject()
 {
-    if( SaveProjectAs(app.win) )
-        SaveProject(app);
+    if( SaveProjectAs(Application().win) )
+        SaveProject();
 }
 
 static bool OnConstructorAppClose(ConstructorApp& app)
@@ -747,8 +744,9 @@ static bool OnConstructorAppClose(ConstructorApp& app)
     return !app.askSaveOnExit || CheckBeforeClosing(app);
 }
 
-static void QuitApplication(ConstructorApp& app)
+static void QuitApplication()
 {
+    ConstructorApp& app = Application();
     // согласно политике gtkmm окна Gtk::Window не уничтожаются; признаком
     // выхода из цикла является скрытие того окна, которое было аргументом
     // функции Gtk::Main::run() = "обработка очереди сообщений пока не скрыто окно"
@@ -756,24 +754,25 @@ static void QuitApplication(ConstructorApp& app)
         app.win.hide();
 }
 
-static bool OnDeleteApp(ConstructorApp& app)
+static bool OnDeleteApp(GdkEventAny* )
 {
-    QuitApplication(app);
+    QuitApplication();
     return true; // окно закрывает только QuitApplication()
 }
 
-static void OnChangeProject(ConstructorApp& app)
+static void OnChangeProject(MediaItem /*mi*/, const char* /*action*/)
 {
+    ConstructorApp& app = Application();
     if( !app.isProjectChanged )
     {
         app.isProjectChanged = true;
-        SetAppTitle(app, false);
+        SetAppTitle(false);
     }
 }
 
-static void ImportFromDVD(ConstructorApp& app)
+static void ImportFromDVD()
 {
-    DVD::RunImport(app.win);
+    DVD::RunImport(Application().win);
 }
 
 //////////////////////////////////////////////////
@@ -884,8 +883,9 @@ static std::string ToSizeString(gint64 size)
     return str_res;
 }
 
-static void UpdateDVDSize(SizeBar& sz_bar)
+static void UpdateDVDSize()
 {
+    SizeBar& sz_bar = Application().SB();
     io::pos sz     = Author::VideoSizeSum();
     io::pos typ_sz = DVDTypeSize((DVDType)sz_bar.dvdTypes.get_active_row_number());
 
@@ -906,10 +906,8 @@ static void UpdateDVDSize(SizeBar& sz_bar)
 class UpdateDVDSizeVis: public ObjVisitor
 {
     public:
-    SizeBar& szBar;
-                       UpdateDVDSizeVis(SizeBar& sz_bar): szBar(sz_bar) {}
 
-    virtual      void  Visit(VideoMD& ) { UpdateDVDSize(szBar); }
+    virtual      void  Visit(VideoMD& ) { UpdateDVDSize(); }
 };
 
 void MuxAddStreams(const std::string& src_fname)
@@ -921,10 +919,22 @@ void MuxAddStreams(const std::string& src_fname)
 
 //////////////////////////////////////////////////
 
+typedef boost::function<void(ConstructorApp&)> ConstructorAppFnr;
+static void OnOtherProject(ConstructorAppFnr& fnr)
+{
+    ConstructorApp& app = Application();
+    if( CheckBeforeClosing(app) )
+        fnr(app);
+}
+
+ActionFunctor MakeOnOtherPrjFunctor(const ConstructorAppFnr& fnr)
+{
+    return bb::bind(OnOtherProject, fnr);
+}
+
 ConstructorApp::ConstructorApp(): askSaveOnExit(true), isProjectChanged(false)
 {
     using namespace boost;
-    reference_wrapper<ConstructorApp> app_ref(*this);
     Add(win, vBox);
     // * область главного меню
     {
@@ -938,22 +948,22 @@ ConstructorApp::ConstructorApp(): askSaveOnExit(true), isProjectChanged(false)
             RefPtr<Gtk::ActionGroup> prj_actions = Gtk::ActionGroup::create("ProjectActions");
 
             prj_actions->add( Gtk::Action::create("ProjectMenu", "_Project") ); 
-            prj_actions->add( Gtk::Action::create("New",    Gtk::Stock::NEW,  _("_New Project")),
-                              Gtk::AccelKey("<control>N"), lambda::bind(&OnNewProject, app_ref) );
+            prj_actions->add( Gtk::Action::create("New",   Gtk::Stock::NEW,  _("_New Project")),
+                              Gtk::AccelKey("<control>N"), MakeOnOtherPrjFunctor(OnNewProject) );
             prj_actions->add( Gtk::Action::create("Open",   Gtk::Stock::OPEN, _("_Open...")),
-                              Gtk::AccelKey("<control>O"), lambda::bind(&OnOpenProject, app_ref) );
+                              Gtk::AccelKey("<control>O"), MakeOnOtherPrjFunctor(OnOpenProject) );
             prj_actions->add( Gtk::Action::create("Save",   Gtk::Stock::SAVE, _("_Save")),
-                              Gtk::AccelKey("<control>S"), lambda::bind(&OnSaveProject, app_ref) );
+                              Gtk::AccelKey("<control>S"), &OnSaveProject );
             prj_actions->add( Gtk::Action::create("SaveAs", Gtk::Stock::SAVE_AS, _("Save _As...")),
-                              lambda::bind(&OnSaveAsProject, app_ref) );
+                              &OnSaveAsProject );
             prj_actions->add( Gtk::Action::create("Quit",   Gtk::Stock::QUIT, _("_Quit")), 
-                              Gtk::AccelKey("<control>Q"), lambda::bind(&QuitApplication, app_ref) );
+                              Gtk::AccelKey("<control>Q"), &QuitApplication );
             prj_actions->add( Gtk::Action::create("Import DVD", DOTS_("Add Videos from _DVD"), _("DVD-Import Assistant")), 
-                              lambda::bind(&ImportFromDVD, app_ref) );
+                              &ImportFromDVD );
             prj_actions->add( Gtk::Action::create("Mux Streams", DOTS_("_Mux"), _("Mux Elementary Streams into MPEG2")),
-                              bl::bind(&MuxAddStreams, std::string()) );
+                              bb::bind(&MuxAddStreams, std::string()) );
             prj_actions->add( Gtk::Action::create("Preferences", Gtk::Stock::PREFERENCES, DOTS_("Pr_eferences")), 
-                              bl::bind(&ShowPrefs, &win) );
+                              bb::bind(&ShowPrefs, &win) );
 
 
             RefPtr<Gtk::UIManager> mngr = Gtk::UIManager::create();
@@ -999,7 +1009,7 @@ ConstructorApp::ConstructorApp(): askSaveOnExit(true), isProjectChanged(false)
         // Help
         Gtk::Menu& hlp_menu     = MakeSubmenu(AppendMI(main_bar, NewManaged<Gtk::MenuItem>(_("_Help"), true)));
         Gtk::MenuItem& about_mi = AppendMI(hlp_menu, *Gtk::manage(new Gtk::ImageMenuItem(Gtk::Stock::ABOUT)));
-        about_mi.signal_activate().connect(lambda::bind(&OnDlgAbout, boost::ref(win)));
+        about_mi.signal_activate().connect(&OnDlgAbout);
 
         // разведем меню и закладки на небольшое расстояние
         main_bar.show_all();
@@ -1053,8 +1063,8 @@ ConstructorApp::ConstructorApp(): askSaveOnExit(true), isProjectChanged(false)
         }
         dvd_types.set_active(dvdFIVE);
         // обработчики
-        dvd_types.signal_changed().connect( bl::bind(&UpdateDVDSize, boost::ref(szBar)));
-        MHandler mh = new UpdateDVDSizeVis(szBar);
+        dvd_types.signal_changed().connect(&UpdateDVDSize);
+        MHandler mh = new UpdateDVDSizeVis();
         RegisterOnInsert(mh);
         RegisterOnDelete(mh);
     }
@@ -1066,15 +1076,15 @@ ConstructorApp::ConstructorApp(): askSaveOnExit(true), isProjectChanged(false)
     //bookCont.property_tab_pos()     = Gtk::POS_LEFT; // RIGHT;
     bookCont.property_show_tabs()   = false;
 
-    bookCont.signal_page_added().connect(lambda::bind(&OnContentPageAdd, app_ref, lambda::_2));
-    bookTabs.signal_switch_page().connect(lambda::bind(&OnMenuNotebookSwitch, app_ref, lambda::_2));
+    bookCont.signal_page_added().connect(&OnContentPageAdd);
+    bookTabs.signal_switch_page().connect(&OnMenuNotebookSwitch);
 
     //Gtk::PositionType pt = bookCont.get_tab_pos();
     //if( (pt == Gtk::POS_LEFT) || (pt == Gtk::POS_RIGHT) )
     //    bookCont.property_tab_hborder() = 1;
     
-    win.signal_delete_event().connect( wrap_return<bool>(lambda::bind(&OnDeleteApp, app_ref)) );
-    RegisterHook(lambda::bind(&OnChangeProject, app_ref));
+    win.signal_delete_event().connect(&OnDeleteApp);
+    RegisterHook(&OnChangeProject);
 }
 
 void ConstructorApp::SetTabName(const std::string& name, int pos)
@@ -1088,7 +1098,7 @@ ActionFunctor BuildConstructor(ConstructorApp& app, const std::string& prj_file_
     // *
     InitAStores();
     // *
-    LoadApp(app, prj_file_name);
+    LoadApp(prj_file_name);
     SetAppWindowSize(app.win, 1000);
     // *
     AStores& as = GetAStores();
@@ -1116,8 +1126,9 @@ void RunConstructor(const std::string& prj_file_name, bool ask_save_on_exit)
     LoadPrefs();
     AData().SetPalTvSystem(Prefs().isPAL);
 
+    SingletonStack<ConstructorApp> ssi(new ConstructorApp());
     // *
-    ConstructorApp app;
+    ConstructorApp& app = Application();
     app.askSaveOnExit = ask_save_on_exit;
 
     std::list<RefPtr<Gdk::Pixbuf> > pix_lst;
