@@ -260,6 +260,7 @@
 			<F N="../src/mgui/author/script.h"/>
 			<F N="../src/mgui/editor/select.h"/>
 			<F N="../src/mgui/timeline/select.h"/>
+			<F N="../src/mgui/project/serialize.h"/>
 			<F N="../src/mgui/timeline/service.h"/>
 			<F N="../src/mgui/stream_utils.h"/>
 			<F N="../src/mgui/editor/text.h"/>
@@ -335,6 +336,7 @@
 			<F N="../src/mgui/author/script.cpp"/>
 			<F N="../src/mgui/editor/select.cpp"/>
 			<F N="../src/mgui/timeline/select.cpp"/>
+			<F N="../src/mgui/project/serialize.cpp"/>
 			<F N="../src/mgui/timeline/service.cpp"/>
 			<F N="../src/mgui/stream_utils.cpp"/>
 			<F N="../src/mgui/editor/text.cpp"/>

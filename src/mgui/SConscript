@@ -54,6 +54,7 @@ lib_src_files = [
                  'project/menu-actions.cpp',
                  'project/menu-browser.cpp',
                  'project/menu-render.cpp',
+                 'project/serialize.cpp',
                  'project/thumbnail.cpp',
 
                  # render

@@ -2,6 +2,7 @@
 #define __MLIB_RESINGLETON_H__
 
 #include "ptr.h"
+#include "tech.h"
 
 // перезаряжаемый Singleton
 template<typename Si>
