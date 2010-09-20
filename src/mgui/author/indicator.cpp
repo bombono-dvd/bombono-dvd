@@ -21,7 +21,6 @@
 
 #include <mgui/_pc_.h>
 
-#include "execute.h"
 #include "script.h"  // CheckAuthorMode
 
 #include <mgui/img_utils.h> // Round()

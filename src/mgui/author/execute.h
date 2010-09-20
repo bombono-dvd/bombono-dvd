@@ -140,40 +140,7 @@ void RenewPtr(RefPtrT<T>& p)
 #define RG_NUM "([0-9]+)"     // число
 #define RG_CMD_BEG RG_BW // "^"RG_SPS  // начало команды
 
-typedef boost::function<void(const char*, int, bool)> ReadReadyFnr;
-
-struct ExitData
-{
-    bool  normExit; // нет в случае ненормального выхода (по сигналу, например)
-     int  retCode;  // если !normExit, то это номер сигнала
-
-     // вроде как больше 127 не может быть
-     static const int impossibleRetCode = 128;
-
-           ExitData(): normExit(true), retCode(impossibleRetCode) {}
-
-      bool IsGood() const { return normExit && (retCode == 0); }
-};
-
-// line_up - вывод по строкам, а не по мере поступления данных
-ExitData ExecuteAsync(const char* dir, const char* cmd, ReadReadyFnr& fnr, 
-                      GPid* pid = 0, bool line_up = true);
 ExitData ExecuteAsync(const char* dir, const char* cmd, Author::OutputFilter& of, GPid* pid);
-
-std::string ExitDescription(const ExitData& ed);
-
-// COPY_N_PASTE_ETALON - симбиоз из:
-// 1) g_spawn_command_line_async() - собственно выполнение
-// 2) gnome_execute_shell()        - удобное преобразование в argv
-//
-// Изначально использовал свой gnome_execute_shell_redirect() 
-// (подправленный gnome_execute_shell()), но из-за устаревания gnome_executeXXX
-// перешел на g_spawnXXX 
-// 
-// need_watch - из-за специфики Unix (waitpid()) требуется явно указывать,
-// будем ли наблюдать за запущенным процессом
-GPid Spawn(const char* dir, const char *commandline, 
-           int out_err[2] = 0, bool need_watch = false);
 
 #endif // #ifndef __MGUI_AUTHOR_EXECUTE_H__
 

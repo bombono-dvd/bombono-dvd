@@ -22,6 +22,7 @@
 #include <mgui/_pc_.h>
 
 #include "mux.h"
+#include "execution.h" // ExecuteAsync()
 
 #include <mgui/sdk/textview.h>
 #include <mgui/sdk/packing.h>
@@ -30,8 +31,6 @@
 #include <mgui/execution.h>
 #include <mgui/gettext.h>
 #include <mgui/dialog.h>
-
-#include <mgui/author/execute.h> // ExecuteAsync()
 
 #include <mlib/filesystem.h>
 

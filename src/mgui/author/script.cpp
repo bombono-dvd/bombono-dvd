@@ -22,7 +22,6 @@
 #include <mgui/_pc_.h>
 
 #include "script.h"
-#include "execute.h"
 #include "burn.h"
 
 #include <mgui/init.h>
