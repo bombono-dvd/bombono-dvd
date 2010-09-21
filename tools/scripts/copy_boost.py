@@ -7,7 +7,7 @@
 # Пример: BCP=bcp tools/scripts/copy_boost.py /home/ilya/opt/programming/atom-project/boost_1_44_0 libs/boost-lib/
 #
 
-from fabrico import call_cmd
+from call_cmd import call_cmd, make_call_in_dst
 import os
 import shutil
 
@@ -40,12 +40,8 @@ boost/assign/list_of.hpp boost/assign.hpp boost/mpl/print.hpp %(boost_dst)s''' %
     #print cmd
     call_cmd(cmd, err_msg='bcp failed.')
 
+    call_in_dst = make_call_in_dst(boost_dst)
     # Чистим все неиспользуемое
-    def call_in_dst(cmd, rel_cwd=None):
-        cwd = boost_dst
-        if rel_cwd:
-            cwd = os.path.join(boost_dst, rel_cwd)
-        call_cmd(cmd, cwd=cwd)
 
     # I boost/preprocessor
     # 1 - iteration - 1 файл для Function
