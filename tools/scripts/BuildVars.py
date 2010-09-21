@@ -472,17 +472,13 @@ def GetSrcBuildDir():
         GetSrcBuildDir.obj = GetDefEnv().Dir(BuildDir + '/' + GetSrcDirPath())
     return GetSrcBuildDir.obj
 
-def CreateEnv(**kw):
+def CreateEnvVersion2(**kw):
     tools = ['default', 'AuxTools']
     if kw.has_key('tools'):
         tools += kw['tools']
     kw['tools'] = tools
 
-    return GetDefEnv().Environment(ENV = os.environ, toolpath = ['tools/scripts'], **kw)
-
-def CreateLEnv(**kw):
-    env = CreateEnv(**kw)
-    # for local includes
+    env = GetDefEnv().Environment(ENV = os.environ, toolpath = ['tools/scripts'], **kw)
     env.Prepend(CPPPATH = [GetSrcBuildDir(), '#/' + GetSrcDirPath()])
     return env
 
@@ -501,6 +497,14 @@ def IsToBuildQuick():
 
 def MakeMainEnv():
     if IsToBuildQuick():
+        
+        if IsGccCompiler():
+            is_clang = False
+        elif IsClangCompiler():
+            is_clang = True
+        else:
+            assert False
+
         def SetPCH(env, header_name, additional_envs=[]):
             # :COMMENT: the "is_def" version is done to
             # check gcc' .gch using; once not used, dummy_pc_.h
@@ -510,62 +514,41 @@ def MakeMainEnv():
             # versions and so should be tested, resp.
             is_def = 1
             if is_def:
+                def make_pch(pch_env):
+                    # we need to set args definitely to override SCons '# and BuildDir' dualism
+                    return pch_env.Gch(target = header_name + env['GCHSUFFIX'], source = env.File(header_name).srcnode())[0]
+
+                if is_clang:
+                    pch_file = make_pch(env.Clone())
+                    # :KLUDGE: CPPFLAGS is right way but it breaks if there is an C file
+                    # in environment
+                    env.Append(CXXFLAGS = '-include %s' % env.File(header_name).path)
+                else:
+                    pch_file = make_pch(env)
+                    env.Depends(pch_file, env.InstallAs(target = './'+header_name, source = '#tools/scripts/dummy_pc_.h'))
+
                 env['DepGch'] = 1
-                #
-                # No need for this anymore
-                #
-                # # we need make own env for pch
-                # # because it should not include dummy_pc_.h,
-                # # so we modify CPPPATH
-                # copy_env = env.Copy()
-                #
-                # cpp_path = copy_env['CPPPATH']
-                # del_pos = None
-                # try:
-                #     del_pos = cpp_path.index(GetSrcBuildDir())
-                #     cpp_path.pop(del_pos)
-                # except ValueError:
-                #     # no path - no problem
-                #     pass
-                #
-                #     # :TEMP:
-                #     print "cpp_path - ValueError"
-                #
-                # env['Gch'] = copy_env.Gch(target = header_name + env['GCHSUFFIX'], source = env.File(header_name).srcnode())[0]
-    
-                # we need to set args definitely to override SCons '# and BuildDir' dualism
-                env['Gch'] = env.Gch(target = header_name + env['GCHSUFFIX'], source = env.File(header_name).srcnode())[0]
-
-                env.Depends(env['Gch'], env.InstallAs(target = './'+header_name, source = '#tools/scripts/dummy_pc_.h'))
-
                 for add_env in additional_envs:
                     add_env['DepGch'] = 1
             else:
-                env['Gch'] = env.Gch(header_name)[0]
+                pch_file = env.Gch(header_name)[0]
 
+            env['Gch'] = pch_file
             for add_env in additional_envs:
-                add_env['Gch'] = env['Gch']
+                add_env['Gch'] = pch_file
 
-        UserOptDict['SetPCH'] = SetPCH
-
-        env = CreateLEnv(tools = ['gch'])
-        if IsGccCompiler():
-            suffix = '.gch'
-        elif IsClangCompiler():
-            suffix = '.pch'
-        else:
-            assert False
+        env = CreateEnvVersion2(tools = ['gch'])
+        suffix = '.pch' if is_clang else '.gch'
         env['GCHSUFFIX'] = suffix
     
-            # 2 - reduce SCons' C scanner area, CPPPATH -> CPP_POST_FLAGS
+        # 2 - reduce SCons' C scanner area, CPPPATH -> CPP_POST_FLAGS
         env['_CPPINCFLAGS'] = env['_CPPINCFLAGS'] + ' $CPP_POST_FLAGS'
     else:
         def SetPCH(env, header_name, additional_envs=[]):
             pass
-        UserOptDict['SetPCH'] = SetPCH
+        env = CreateEnvVersion2()
 
-        env = CreateLEnv()
-
+    UserOptDict['SetPCH'] = SetPCH
     # we use function Dir() so SCons do not change it
     # for local libs
     env.Append(LIBPATH = env.Dir(UserOptDict['LIB_BUILD_DIR']))
