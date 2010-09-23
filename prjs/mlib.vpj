@@ -262,7 +262,9 @@
 			Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
 			<F N="../src/mlib/dataware.cpp"/>
 			<F N="../src/mlib/filesystem.cpp"/>
+			<F N="../src/mlib/foreach.h"/>
 			<F N="../src/mlib/geom2d.cpp"/>
+			<F N="../src/mlib/instantiate.cpp"/>
 			<F N="../src/mlib/sdk/logger.cpp"/>
 			<F N="../src/mlib/sdk/misc.cpp"/>
 			<F N="../src/mlib/read_stream.cpp"/>

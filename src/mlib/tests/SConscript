@@ -28,6 +28,7 @@ make_source_files = user_options_dict['make_source_files']
 
 source_files = [
                 'test_dataware.cpp',
+                'test_instantiate.cpp',
                 'test_iterator.cpp',
                 'test_main.cpp',
                 'test_ptr.cpp',

@@ -8,6 +8,7 @@ lib_path  = user_options_dict['LIB_BUILD_DIR']
 # lib
 lib_src_files = [
                  'composite/component.cpp',
+                 'instantiate.cpp',
                  'obj_bind.cpp',
                  #'resources.cpp',
 

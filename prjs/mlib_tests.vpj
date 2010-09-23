@@ -266,6 +266,7 @@
 			<F N="../src/mlib/tests/any_iterator/test_any_iterator.cpp"/>
 			<F N="../src/mlib/tests/test_common.cpp"/>
 			<F N="../src/mlib/tests/test_dataware.cpp"/>
+			<F N="../src/mlib/tests/test_instantiate.cpp"/>
 			<F N="../src/mlib/tests/test_iterator.cpp"/>
 			<F N="../src/mlib/tests/test_main.cpp"/>
 			<F N="../src/mlib/tests/test_ptr.cpp"/>

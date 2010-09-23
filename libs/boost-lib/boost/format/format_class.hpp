@@ -79,6 +79,10 @@ namespace boost {
             { return io::detail::feed<CharT, Tr, Alloc, int&>(*this,x); }
 #endif
 #endif
+        // Murav'jov - stop code bloating
+        template<int N_>
+        basic_format&   operator%(char const (&x)[N_])
+            { return io::detail::feed<CharT, Tr, Alloc, char const * const&>(*this,(char const * const&)x); }
 
         // The total number of arguments expected to be passed to the format objectt
         int expected_args() const

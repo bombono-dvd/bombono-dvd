@@ -188,6 +188,7 @@
 			<F N="../src/mbase/project/archieve.cpp"/>
 			<F N="../src/mbase/composite/component.cpp"/>
 			<F N="../src/mbase/project/handler.cpp"/>
+			<F N="../src/mbase/instantiate.cpp"/>
 			<F N="../src/mbase/project/media.cpp"/>
 			<F N="../src/mbase/project/menu.cpp"/>
 			<F N="../src/mbase/obj_bind.cpp"/>

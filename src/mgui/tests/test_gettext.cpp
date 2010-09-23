@@ -34,14 +34,6 @@
 #include <mlib/tech.h>
 //#include <mlib/filesystem.h>
 #include <mgui/gettext.h>
-#include <boost/format.hpp>
-
-BOOST_AUTO_TEST_CASE( TestFormat )
-{
-    // Boost.Format
-    std::string f_str = boost::str(boost::format("writing %2%,  x=%1% : %3%-th try") % "toto" % 40.23 % 50);
-    BOOST_CHECK( strcmp(f_str.c_str(), "writing 40.23,  x=toto : 50-th try") == 0 );
-}
 
 BOOST_AUTO_TEST_CASE( TestGettext )
 {

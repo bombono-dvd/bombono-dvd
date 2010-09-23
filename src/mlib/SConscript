@@ -12,6 +12,7 @@ lib_path  = user_options_dict['LIB_BUILD_DIR']
 lib_src_files = [
                  'dataware.cpp',
                  'filesystem.cpp',
+                 'instantiate.cpp',
                  'geom2d.cpp',
                  'read_stream.cpp',
                  'stream.cpp',
