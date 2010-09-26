@@ -28,6 +28,7 @@
 #include "menu-actions.h"
 #include "add.h"
 
+#include <mgui/editor/kit.h> // new Editor::Kit()
 #include <mgui/text_obj.h> // CalcAbsSizes()
 #include <mgui/trackwindow.h>
 #include <mgui/author/script.h> // VideoSizeSum()
@@ -832,7 +833,8 @@ void RunConstructor(const std::string& prj_file_name, bool ask_save_on_exit)
     LoadPrefs();
     AData().SetPalTvSystem(Prefs().isPAL);
 
-    SingletonStack<ConstructorApp> ssi(new ConstructorApp());
+    SingletonStack<ConstructorApp> app_ssi;
+    SingletonStack<MEditorArea> edt_ssi;
     // *
     ConstructorApp& app = Application();
     app.askSaveOnExit = ask_save_on_exit;

@@ -28,6 +28,8 @@
 #include <mgui/text_style.h> 
 #include <mgui/render/rgba.h> 
 
+#include <mlib/resingleton.h>
+
 namespace Editor
 {
 
@@ -59,8 +61,8 @@ struct Toolbar
 };
 
 // редактор меню с панелью инструментов и прочим
-class Kit: public /*Gtk::DrawingArea*/ DisplayArea, public EditorRegion,
-           public MEdt::ToolData
+class Kit: public ReSingleton<Kit>, public /*Gtk::DrawingArea*/ DisplayArea, 
+           public EditorRegion, public MEdt::ToolData
 {
     typedef Gtk::DrawingArea MyParent;
     public:
@@ -123,6 +125,9 @@ class ClearInitTextVis: public GuiObjVisitor
 void ClearLocalData(MenuRegion& m_rgn, const std::string& tag = std::string());
 
 } // namespace Editor
+
+inline Editor::Kit& MenuEditor() { return Editor::Kit::Instance(); }
+
 
 #endif // __MGUI_EDITOR_KIT_H__
 

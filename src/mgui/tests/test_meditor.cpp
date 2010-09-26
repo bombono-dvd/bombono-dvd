@@ -95,7 +95,9 @@ BOOST_AUTO_TEST_CASE( TestMEditor )
     Gtk::VBox& vbox = NewManaged<Gtk::VBox>();
     win.add(vbox);
     // *
-    MEditorArea editor;
+    SingletonStack<MEditorArea> edt_ssi;
+    MEditorArea& editor = MenuEditor();
+
     Editor::PackToolbar(editor, vbox);
     vbox.pack_start(editor);
 

@@ -36,8 +36,13 @@ template<typename Si>
 class SingletonStack
 {
     public:
-        SingletonStack(Si* si) { Si::InitInstance(si); }
-       ~SingletonStack()       { Si::InitInstance();   }
+        SingletonStack(Si* p = 0) 
+        {
+            if( !p )
+                p = new Si();
+            Si::InitInstance(p); 
+        }
+       ~SingletonStack() { Si::InitInstance();   }
 };
 
 #endif // #ifndef __MLIB_RESINGLETON_H__

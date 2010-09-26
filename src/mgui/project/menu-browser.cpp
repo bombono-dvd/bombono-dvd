@@ -318,7 +318,7 @@ void PackMenusWindow(Gtk::Container& contr, RefPtr<MenuStore> ms, RefPtr<MediaSt
 
     Gtk::Label& title_lbl = NewManaged<Gtk::Label>();
     title_lbl.set_padding(0, 5);
-    MEditorArea& meditor  = NewManaged<MEditorArea>();
+    MEditorArea& meditor = MenuEditor();
     meditor.StandAlone() = false;
     RegisterOnChangeName(new EdtOnChangeNameVis(meditor, title_lbl));
     RegisterOnDelete(new EdtOnDeleteVis(meditor, title_lbl));
