@@ -203,7 +203,7 @@ class LinkMenuBuilder: public EditorMenuBuilder
 
 ActionFunctor LinkMenuBuilder::CreateAction(MediaItem mi)
 {
-    return bl::bind(SetSelObjectsLinks, boost::ref(editor), mi, forPoster);
+    return bl::bind(SetSelObjectsLinks, mi, forPoster);
 }
 
 void AppendRadioItem(Gtk::RadioMenuItem& itm, bool is_active, const ActionFunctor& fnr, Gtk::Menu& lnk_list)

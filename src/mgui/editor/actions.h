@@ -34,6 +34,16 @@ void ClearRenderFrames(MEditorArea& edt_area);
 Point DisplaySizeOrDef(MenuRegion* m_rgn);
 Point DisplayAspectOrDef(MenuRegion* m_rgn);
 
+inline Editor::Toolbar& MenuToolbar()
+{
+    return MenuEditor().Toolbar();
+}
+
+inline MenuRegion& CurMenuRegion()
+{
+    return MenuEditor().CurMenuRegion();
+}
+
 #endif // __MGUI_EDITOR_ACTIONS_H__
 
 

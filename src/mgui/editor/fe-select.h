@@ -14,7 +14,7 @@
 //      break;
 //  }
 //
-fe::range<Comp::MediaObj*> SelectedMediaObjs(MenuRegion& mn_rgn, const int_array& sel_arr);
+fe::range<Comp::MediaObj*> SelectedMediaObjs();
 
 
 #endif // __MGUI_EDITOR_FE_SELECT_H__

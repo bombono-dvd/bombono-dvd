@@ -46,13 +46,15 @@
 namespace Editor
 {
 
-void ForAllSelected(FTOFunctor fto_fnr, TextObjFunctor txt_fnr, MenuRegion& mn_rgn, const int_array& sel_arr)
+void ForAllSelected(FTOFunctor fto_fnr, TextObjFunctor txt_fnr)
 {
+    MenuRegion& mn_rgn = CurMenuRegion();
+
     bool fto_continue = fto_fnr;
     bool txt_continue = txt_fnr;
     //Comp::ListObj::ArrType& lst = mn_rgn.List();
     //for( int i=0; (fto_continue || txt_continue) && i<(int)sel_arr.size(); ++i )
-    boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs(mn_rgn, sel_arr) )
+    boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs() )
     {
         if( !(fto_continue || txt_continue) )
             break;
@@ -73,9 +75,9 @@ void ForAllSelected(FTOFunctor fto_fnr, TextObjFunctor txt_fnr, MenuRegion& mn_r
     }
 }
 
-void ForAllSelectedFTO(FTOFunctor fnr, MenuRegion& mn_rgn, const int_array& sel_arr)
+void ForAllSelectedFTO(FTOFunctor fnr)
 {
-    ForAllSelected(fnr, TextObjFunctor(), mn_rgn, sel_arr);
+    ForAllSelected(fnr, TextObjFunctor());
 }
 
 
@@ -211,8 +213,9 @@ TextStyle Toolbar::GetFontDesc()
     return TextStyle(fnt_desc, undBtn.get_active(), pxl);
 }
 
-std::string GetActiveTheme(Gtk::ComboBox& combo)
+std::string GetActiveTheme()
 {
+    Gtk::ComboBox& combo = MenuToolbar().frame_combo;
     Gtk::TreeIter itr = combo.get_active();
     return itr ? itr->get_value(FrameTypeColumn) : std::string() ;
 }
@@ -359,7 +362,7 @@ static void AddFTOItem(MEditorArea& editor, const Rect& lct, Project::MediaItem 
 {
     MenuRegion& rgn = editor.CurMenuRegion();
 
-    Project::AddFTOItem(rgn, Editor::GetActiveTheme(editor.Toolbar().frame_combo), lct, mi);
+    Project::AddFTOItem(rgn, Editor::GetActiveTheme(), lct, mi);
     RenderForRegion(editor, Planed::AbsToRel(rgn.Transition(), lct));
 }
 
@@ -390,9 +393,9 @@ static void AddObjectClicked(MEditorArea& editor)
     }
 }
 
-static bool ReframeFTO(RectListRgn& r_lst, FrameThemeObj* obj, 
-                       const std::string& theme, MenuRegion& mn_rgn)
+static bool ReframeFTO(RectListRgn& r_lst, FrameThemeObj* obj, MenuRegion& mn_rgn)
 {
+    const std::string& theme = Editor::GetActiveTheme();
     if( theme != obj->Theme() )
     {
         obj->GetData<FTOInterPixData>().ClearPix();
@@ -404,12 +407,8 @@ static bool ReframeFTO(RectListRgn& r_lst, FrameThemeObj* obj,
 
 static void FrameTypeChanged(MEditorArea& editor)
 {
-    using namespace boost;
-    MenuRegion& mn_rgn = editor.CurMenuRegion();
     RectListRgn r_lst;
-    ForAllSelectedFTO( lambda::bind(&ReframeFTO, boost::ref(r_lst), lambda::_1, 
-                                    Editor::GetActiveTheme(editor.Toolbar().frame_combo), lambda::_2),
-                       mn_rgn, editor.SelArr() );
+    ForAllSelectedFTO( bb::bind(&ReframeFTO, boost::ref(r_lst), _1, _2));
     RenderForRegion(editor, r_lst);
 }
 
@@ -422,8 +421,8 @@ static void EntryChanged(Gtk::Entry& ent, bool is_activate, ActionFunctor fnr)
 // вызов действия при изменении в поле ввода (улучшенный "activate")
 void ConnectOnActivate(Gtk::Entry& ent, ActionFunctor fnr)
 {
-    ent.signal_activate().connect( boost::lambda::bind(&EntryChanged, boost::ref(ent), true, fnr) );
-    ent.signal_changed().connect(  boost::lambda::bind(&EntryChanged, boost::ref(ent), false, fnr) );
+    ent.signal_activate().connect( bb::bind(&EntryChanged, boost::ref(ent), true,  fnr) );
+    ent.signal_changed().connect(  bb::bind(&EntryChanged, boost::ref(ent), false, fnr) );
 }
 
 static void FontNameChanged(MEditorArea& editor, bool only_clr)

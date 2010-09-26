@@ -51,29 +51,17 @@
 //               break;
 //}
 
-struct ToMOTransform
+Comp::MediaObj* ToMOTransform(int i) 
 {
-    Comp::ListObj::ArrType& lst;
-
-    ToMOTransform(MenuRegion& m_rgn): lst(m_rgn.List()) {}
-
-    typedef Comp::MediaObj* result_type;
-    Comp::MediaObj* operator()(int i) const 
-    {
-        Comp::MediaObj* obj = dynamic_cast<Comp::MediaObj*>(lst[i]);
-        ASSERT(obj);
-        return obj;
-    }
-};
-
-fe::range<Comp::MediaObj*> SelectedMediaObjs(MenuRegion& mn_rgn, const int_array& sel_arr)
-{
-    return fe::make_any( sel_arr | fe::transformed(ToMOTransform(mn_rgn)) );
+    Comp::ListObj::ArrType& lst = CurMenuRegion().List();
+    Comp::MediaObj* obj = dynamic_cast<Comp::MediaObj*>(lst[i]);
+    ASSERT(obj);
+    return obj;
 }
 
-fe::range<Comp::MediaObj*> SelectedMediaObjs(MEditorArea& edt_area)
+fe::range<Comp::MediaObj*> SelectedMediaObjs()
 {
-    return SelectedMediaObjs(edt_area.CurMenuRegion(), edt_area.SelArr());
+    return fe::make_any( MenuEditor().SelArr() | fe::transformed(ToMOTransform) );
 }
 
 static void SetCursorForEdt(SelActionType typ, Gtk::Widget& wdg);
@@ -185,12 +173,12 @@ class CursorActionVis: public SelVis
         Rect intRct;
 };
 
-static bool SetupCurFrame(FrameThemeObj* obj, MenuRegion&, MEditorArea& edt_area)
+static bool SetupCurFrame(FrameThemeObj* obj, MenuRegion&)
 {
     const std::string& theme = obj->Theme();
-    Gtk::ComboBox&     combo = edt_area.Toolbar().frame_combo;
-    if( theme != Editor::GetActiveTheme(combo) )
+    if( theme != Editor::GetActiveTheme() )
     {
+	Gtk::ComboBox& combo = MenuToolbar().frame_combo;
         //Gtk::TreeModel::Children children = combo.get_model()->children();
         //for( Gtk::TreeModel::iterator itr = children.begin(), end = children.end();
         //     itr != end; ++itr )
@@ -204,10 +192,10 @@ static bool SetupCurFrame(FrameThemeObj* obj, MenuRegion&, MEditorArea& edt_area
     return false;
 }
 
-static bool SetupCurFont(TextObj* obj, MenuRegion&, MEditorArea& edt_area)
+static bool SetupCurFont(TextObj* obj, MenuRegion&)
 {
     const Pango::FontDescription& dsc = obj->FontDesc();
-    Editor::Toolbar& tbar = edt_area.Toolbar();
+    Editor::Toolbar& tbar = MenuToolbar();
     // * 
     tbar.fontFmlEnt.get_entry()->set_text(dsc.get_family());
     // *
@@ -233,14 +221,10 @@ static void DoSingleSelect(MEditorArea& edt_area, int pos)
 }
 
 // по первым найденным устанавливаем поля тулбара
-static void UpdateToolbar(MEditorArea& edt_area, bool only_font = false)
+static void UpdateToolbar(bool only_font = false)
 {
-    using namespace boost;
-    Editor::FTOFunctor fto_fnr = only_font ? Editor::FTOFunctor() : 
-        lambda::bind(&SetupCurFrame, lambda::_1, lambda::_2, boost::ref(edt_area));
-    Editor::ForAllSelected(fto_fnr,
-                           lambda::bind(&SetupCurFont,  lambda::_1, lambda::_2, boost::ref(edt_area)),
-                           edt_area.CurMenuRegion(), edt_area.SelArr());
+    Editor::FTOFunctor fto_fnr = only_font ? Editor::FTOFunctor() : &SetupCurFrame;
+    Editor::ForAllSelected(fto_fnr, &SetupCurFont);
 }
 
 static void DoSelection(MEditorArea& edt_area, NormalSelect::Data& dat, bool composite_select = true)
@@ -280,7 +264,7 @@ static void DoSelection(MEditorArea& edt_area, NormalSelect::Data& dat, bool com
     SetCursorForEdt(dat.curTyp, edt_area);
 
     // * 
-    UpdateToolbar(edt_area);
+    UpdateToolbar();
 }
 
 void SelectPress::OnPressDown(MEditorArea& edt_area, NormalSelect::Data& dat)
@@ -293,7 +277,7 @@ void MovePress::OnPressUp(MEditorArea& edt_area, NormalSelect::Data& dat)
     DoSelection(edt_area, dat);
 }
 
-static void DeleteSelObjects(MEditorArea& edt_area);
+static void DeleteSelObjects();
 
 //static bool GetFirstMILink(Comp::MediaObj* obj, Project::MediaItem& res_mi)
 //{
@@ -301,14 +285,14 @@ static void DeleteSelObjects(MEditorArea& edt_area);
 //    return true;
 //}
 
-static Project::MediaItem GetCurObjectLink(MEditorArea& edt_area, bool is_background)
+static Project::MediaItem GetCurObjectLink(bool is_background)
 {
     Project::MediaItem res_mi;
     if( is_background )
-        res_mi = edt_area.CurMenuRegion().BgRef();
+        res_mi = CurMenuRegion().BgRef();
     else
-        //ForeachSelectedCM(edt_area, bl::bind(&GetFirstMILink, bl::_1, boost::ref(res_mi)));
-        boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs(edt_area) )
+        //ForeachSelectedCM(edt_area, bb::bind(&GetFirstMILink, _1, boost::ref(res_mi))); 
+        boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs() )
         {
             res_mi = obj->MediaItem();
             break;
@@ -336,11 +320,9 @@ CalcMouseForData(MEditorArea& edt_area, GdkEventButton* event, int& sel_pos)
     return dat;
 }
 
-static void SetBgColor(MEditorArea& edt_area);
-
-static void ForAllSelectedFTO(Editor::FTOFunctor fnr, MEditorArea& edt_area)
+static void ForAllSelectedFTO(Editor::FTOFunctor fnr)
 {
-    Editor::ForAllSelectedFTO(fnr, edt_area.CurMenuRegion(), edt_area.SelArr());
+    Editor::ForAllSelectedFTO(fnr);
 }
 
 static bool GetCurPosterLink_(FrameThemeObj* obj, Project::MediaItem& mi, bool& can_set_poster)
@@ -350,13 +332,11 @@ static bool GetCurPosterLink_(FrameThemeObj* obj, Project::MediaItem& mi, bool& 
     return false;
 }
 
-static Project::MediaItem GetCurPosterLink(MEditorArea& edt_area, bool& can_set_poster)
+static Project::MediaItem GetCurPosterLink(bool& can_set_poster)
 {
     can_set_poster = false;
     Project::MediaItem mi;
-    ForAllSelectedFTO(
-        bl::bind(&GetCurPosterLink_, bl::_1, boost::ref(mi), boost::ref(can_set_poster)), 
-        edt_area);
+    ForAllSelectedFTO( bb::bind(&GetCurPosterLink_, _1, boost::ref(mi), boost::ref(can_set_poster)) );
     return mi;
 }
 
@@ -374,14 +354,10 @@ void SetLinkForObject(MEditorArea& edt_area, Project::MediaItem mi, int pos, boo
     SetObjectsLinksEx(edt_area, mi, single, for_poster);
 }
 
-static void SetObjectsLinks(MEditorArea& edt_area, Project::MediaItem mi, bool for_poster)
+static void SetObjectsLinks(Project::MediaItem mi, bool for_poster)
 {
+    MEditorArea& edt_area = MenuEditor();
     SetObjectsLinksEx(edt_area, mi, edt_area.SelArr(), for_poster);
-}
-
-static void SetPoster(MEditorArea& edt_area, Project::MediaItem mi)
-{
-    SetObjectsLinks(edt_area, mi, true);
 }
 
 class PosterMenuBuilder: public Project::EditorMenuBuilder
@@ -391,9 +367,9 @@ class PosterMenuBuilder: public Project::EditorMenuBuilder
                     PosterMenuBuilder(Project::MediaItem cur_itm, MEditorArea& ed)
                         :MyParent(cur_itm, ed, true) {}
 
-    virtual ActionFunctor  CreateAction(Project::MediaItem mi)
+    virtual ActionFunctor CreateAction(Project::MediaItem mi)
     {
-        return bl::bind(&SetPoster, boost::ref(editor), mi);
+        return bb::bind(&SetObjectsLinks, mi, true);
     }
 };
 
@@ -483,25 +459,26 @@ struct EdgeCalcer
 
 typedef boost::function<void(Comp::MediaObj*, const Rect&)> CMFunctor3;
 
-static void AlignByFunctor(MEditorArea& edt_area, const CMFunctor3& fnr)
+static void AlignByFunctor(const CMFunctor3& fnr)
 {
+    MEditorArea& edt_area = MenuEditor();
     Rect edge_rct;
-    //ForeachSelectedCM(edt_area, bl::bind(&CalcAlignSettings, bl::_1, boost::ref(edge_rct), boost::ref(is_first)));
+    //ForeachSelectedCM(edt_area, bb::bind(&CalcAlignSettings, _1, boost::ref(edge_rct), boost::ref(is_first)));
     {
         EdgeCalcer ec(edge_rct);
-        boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs(edt_area) )
+        boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs() )
             ec.Update(obj->Placement());
     }
 
-    AlignVis vis(bl::bind(fnr, bl::_1, edge_rct), edt_area.SelArr());
+    AlignVis vis(bb::bind(fnr, _1, edge_rct), edt_area.SelArr());
     RenderByRLV(edt_area, vis);
 }
 
 //Adds an Align Menu Item to Context Menu
-static void AddAlignItem(Gtk::Menu& menu, const CMFunctor3& fnr, const char* name, MEditorArea& edt_area)
+static void AddAlignItem(Gtk::Menu& menu, const CMFunctor3& fnr, const char* name)
 {
     Gtk::MenuItem& itm = MakeAppendMI(menu, name);
-    itm.signal_activate().connect(bl::bind(&AlignByFunctor, boost::ref(edt_area), fnr));
+    itm.signal_activate().connect(bb::bind(&AlignByFunctor, fnr));
 }
 
 static RectListRgn CalcSelRegion(MEditorArea& edt_area)
@@ -525,8 +502,9 @@ static int LinearSize(const Rect& rct, bool is_hz)
     return (is_hz ? rct.Width() : rct.Height());
 }
 
-static void DistributeImpl(MEditorArea& edt_area, bool is_hz)
+static void DistributeImpl(bool is_hz)
 {
+    MEditorArea& edt_area = MenuEditor();
     int sum_size = 0;
     std::vector<Comp::MediaObj*> m_objs;
 
@@ -534,7 +512,7 @@ static void DistributeImpl(MEditorArea& edt_area, bool is_hz)
     Rect edge_rct;
     {
         EdgeCalcer ec(edge_rct);
-        boost_foreach( Comp::MediaObj* m_obj, SelectedMediaObjs(edt_area) )
+        boost_foreach( Comp::MediaObj* m_obj, SelectedMediaObjs() )
         {
             m_objs.push_back(m_obj);
     
@@ -551,7 +529,7 @@ static void DistributeImpl(MEditorArea& edt_area, bool is_hz)
     // why? let us distribute always
     //if( distr_amt > 0 )
     {
-        std::sort(m_objs.begin(), m_objs.end(), bl::bind(&SortHzOrVr, bl::_1, bl::_2, is_hz));
+        std::sort(m_objs.begin(), m_objs.end(), bb::bind(&SortHzOrVr, _1, _2, is_hz));
         // first object
         Rect f_plc = m_objs[0]->Placement();
         int next_pos = (is_hz ? f_plc.rgt : f_plc.btm) + distr_amt;
@@ -579,6 +557,8 @@ static void AddEnabledItem(Gtk::Menu& menu, const char* name, bool is_enabled, c
     itm.set_sensitive(is_enabled);
     itm.signal_activate().connect(fnr);
 }
+
+static void SetBgColor();
 
 void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
 {
@@ -615,9 +595,8 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
         const int_array& sel_arr = edt_area.SelArr();
         bool is_background = sel_arr.empty();
         Gtk::Menu& mn      = NewPopupMenu(); 
-        boost::reference_wrapper<MEditorArea> edt_ref(edt_area);
 
-        mn.items().push_back(MenuElem(_("Delete"), bl::bind(&DeleteSelObjects, edt_ref)));
+        mn.items().push_back(MenuElem(_("Delete"), &DeleteSelObjects));
         if( is_background )
             mn.items().back().set_sensitive(false);
         mn.items().push_back(SeparatorElem());
@@ -626,7 +605,7 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
         Project::Menu      cur_mn = edt_area.CurMenu();
         Project::SetLinkMenu& slm = cur_mn->GetData<Project::SetLinkMenu>();
         slm.isForBack = is_background;
-        slm.newLink   = GetCurObjectLink(edt_area, is_background);
+        slm.newLink   = GetCurObjectLink(is_background);
 
         InvokeOn(cur_mn, "SetLinkMenu");
         if( slm.linkMenu )
@@ -635,13 +614,13 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
             mn.items().back().set_submenu(*slm.linkMenu.release());
         }
         mn.items().push_back(
-            MenuElem(_("Remove Link"), bl::bind(&SetSelObjectsLinks, edt_ref, 
+            MenuElem(_("Remove Link"), bb::bind(&SetSelObjectsLinks, 
                                                 Project::MediaItem(), is_background)));
 
         // Poster Link
         Gtk::MenuItem& poster_itm = MakeAppendMI(mn, _("Set Poster"));
         bool can_set_poster;
-        Project::MediaItem cur_pstr = GetCurPosterLink(edt_area, can_set_poster);
+        Project::MediaItem cur_pstr = GetCurPosterLink(can_set_poster);
         poster_itm.set_sensitive(can_set_poster);
         if( can_set_poster )
             poster_itm.set_submenu(PosterMenuBuilder(cur_pstr, edt_area).Create());
@@ -656,25 +635,25 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
                 Gtk::Menu& menu = NewManaged<Gtk::Menu>();
                 align_itm.set_submenu(menu);
 
-                AddAlignItem(menu, LeftAlignImpl,   _("Align Left"),   edt_area);
-                AddAlignItem(menu, RightAlignImpl,  _("Align Right"),  edt_area);
-                AddAlignItem(menu, TopAlignImpl,    _("Align Top"),    edt_area);
-                AddAlignItem(menu, BottomAlignImpl, _("Align Bottom"), edt_area);
+                AddAlignItem(menu, LeftAlignImpl,   _("Align Left"));
+                AddAlignItem(menu, RightAlignImpl,  _("Align Right"));
+                AddAlignItem(menu, TopAlignImpl,    _("Align Top"));
+                AddAlignItem(menu, BottomAlignImpl, _("Align Bottom"));
                 AppendSeparator(menu);
 
-                AddAlignItem(menu, CenterHzImpl, _("Center Horizontally"), edt_area);
-                AddAlignItem(menu, CenterVrImpl, _("Center Vertically"),   edt_area);
+                AddAlignItem(menu, CenterHzImpl, _("Center Horizontally"));
+                AddAlignItem(menu, CenterVrImpl, _("Center Vertically"));
 
                 //allow horizontal or vertical distribute if three or more objects selected
                 bool can_distribute = ( sel_arr.size() > 2 );
                 AppendSeparator(menu);
-                AddEnabledItem(menu, _("Distribute Horizontally"), can_distribute, bl::bind(&DistributeImpl, edt_ref, true));
-                AddEnabledItem(menu, _("Distribute Vertically"),   can_distribute, bl::bind(&DistributeImpl, edt_ref, false));
+                AddEnabledItem(menu, _("Distribute Horizontally"), can_distribute, bb::bind(&DistributeImpl, true));
+                AddEnabledItem(menu, _("Distribute Vertically"),   can_distribute, bb::bind(&DistributeImpl, false));
             }
         }
 
         // Set Background Color
-        AddEnabledItem(mn, _("Set Background Color..."), is_background, bl::bind(&SetBgColor, edt_ref));
+        AddEnabledItem(mn, _("Set Background Color..."), is_background, &SetBgColor);
 
         //mn.accelerate(edt_area);
         Popup(mn, event, true);
@@ -856,8 +835,9 @@ void SelRectVis::RedrawMO(Manager ming)
         Draw(ming); 
 }
 
-static void DeleteSelObjects(MEditorArea& edt_area)
+static void DeleteSelObjects()
 {
+    MEditorArea& edt_area = MenuEditor();
     typedef Comp::ListObj::ArrType ArrType;
     MenuRegion& rgn    = edt_area.CurMenuRegion();
     int_array& sel_arr = edt_area.SelArr();
@@ -906,33 +886,34 @@ void ClearLinkVis::Visit(TextObj& t_obj)
     //MyParent::Visit(t_obj);
 }
 
-void SetBackgroundLink(MEditorArea& edt_area, Project::MediaItem mi)
+void SetBackgroundLink(Project::MediaItem mi)
 {
+    MEditorArea& edt_area = MenuEditor();
     MenuRegion& mr = edt_area.CurMenuRegion();
     mr.BgRef().SetLink(mi);
     ResetBackgroundImage(mr);
     RenderForRegion(edt_area, Rect0Sz(edt_area.FramePlacement().Size()));
 }
 
-void SetSelObjectsLinks(MEditorArea& edt_area, Project::MediaItem mi, bool is_background)
+void SetSelObjectsLinks(Project::MediaItem mi, bool is_background)
 {
     if( is_background )
-        SetBackgroundLink(edt_area, mi);
+        SetBackgroundLink(mi);
     else
-        SetObjectsLinks(edt_area, mi, false);
+        SetObjectsLinks(mi, false);
 }
 
-static void SetBgColor(MEditorArea& edt_area)
+static void SetBgColor()
 {
     Gtk::ColorSelectionDialog dlg(_("Set Background Color..."));
     Gtk::ColorSelection& sel = *dlg.get_colorsel();
-    RGBA::Pixel& bg_clr      = edt_area.CurMenuRegion().BgColor();
+    RGBA::Pixel& bg_clr      = CurMenuRegion().BgColor();
 
     sel.set_current_color(PixelToColor(bg_clr));
     if( dlg.run() == Gtk::RESPONSE_OK )
     {
         bg_clr = RGBA::Pixel(sel.get_current_color());
-        SetBackgroundLink(edt_area, Project::MediaItem()); // очистка + перерисовка
+        SetBackgroundLink(Project::MediaItem()); // очистка + перерисовка
     }
 }
 
@@ -989,7 +970,7 @@ void NormalSelect::OnKeyPressEvent(MEditorArea& edt_area, GdkEventKey* event)
         switch( event->keyval )
         {
         case GDK_Delete:  case GDK_KP_Delete:
-            DeleteSelObjects(edt_area);
+            DeleteSelObjects();
             break;
         default:
             break;
@@ -1320,7 +1301,7 @@ void ResizeSelect::OnMouseMove(MEditorArea& edt_area, GdkEventMotion* event)
     ResizeVis rs_vis((int)event->x, (int)event->y, dat.origCoord, edt_area.SelArr());
     //SaveRectList(rs_vis.RectList());
     RenderByRLV(edt_area, rs_vis);
-    UpdateToolbar(edt_area, true);
+    UpdateToolbar(true);
 }
 
 //////////////////////////////////////////////////

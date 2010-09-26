@@ -126,7 +126,7 @@ void Editor::Kit::on_drag_data_received(const RefPtr<Gdk::DragContext>& context,
             if( IsControlPressed() )
             {
                 if( !IsMenu(mi) )
-                    SetBackgroundLink(*this, mi); // меняем фон
+                    SetBackgroundLink(mi); // меняем фон
             }
             else
             {

@@ -64,7 +64,7 @@ namespace Editor
 {
 
 extern Gtk::TreeModelColumn<std::string> FrameTypeColumn;
-std::string GetActiveTheme(Gtk::ComboBox& combo);
+std::string GetActiveTheme();
 Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box);
 
 const double DEF_FONT_SIZE = 28.0;
@@ -72,18 +72,18 @@ const int FONT_SZ_PRECISION = 6;
 
 typedef boost::function<bool(FrameThemeObj*, MenuRegion&)> FTOFunctor;
 typedef boost::function<bool(TextObj*, MenuRegion&)> TextObjFunctor;
-void ForAllSelected(FTOFunctor fto_fnr, TextObjFunctor txt_fnr, MenuRegion& mn_rgn, const int_array& sel_arr);
+void ForAllSelected(FTOFunctor fto_fnr, TextObjFunctor txt_fnr);
 
-void ForAllSelectedFTO(FTOFunctor fnr, MenuRegion& mn_rgn, const int_array& sel_arr);
+void ForAllSelectedFTO(FTOFunctor fnr);
 
 void AddFTOItem(MEditorArea& editor, const Point& center, Project::MediaItem mi);
 
 } // namespace Editor
 
-void SetSelObjectsLinks(MEditorArea& edt_area, Project::MediaItem mi, bool is_background);
+void SetSelObjectsLinks(Project::MediaItem mi, bool is_background);
 void SetSelObjectsTStyle(MEditorArea& edt_area, const Editor::TextStyle& ts, bool only_clr);
 
-void SetBackgroundLink(MEditorArea& edt_area, Project::MediaItem mi);
+void SetBackgroundLink(Project::MediaItem mi);
 void SetLinkForObject(MEditorArea& edt_area, Project::MediaItem mi, int pos, bool for_poster);
 
 void ToggleSafeArea(MEditorArea& edt_area);
