@@ -63,6 +63,9 @@ def DoSConsUseSTREnvs(env):
 
 ########################################################################
 
+def IsBuildOrRunTests():
+    return BuildTests or RunTests
+
 def CheckSettings(main_env):
     global Cc, Cxx, BuildDir, Targets, RunTests, BuildTests
     if RunTests :
@@ -98,7 +101,7 @@ def CheckSettings(main_env):
     # we use TestSConscript() function instead of SConscript()
     # to run tests 
     def TestSConscript(*args, **kwds):
-        if BuildTests or RunTests:
+        if IsBuildOrRunTests():
             def_env.SConscript(*args, **kwds)
     def_env.Export('TestSConscript')
     # make test Builder

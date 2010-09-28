@@ -90,21 +90,23 @@ user_options_dict['AddSourcesForXgettext'](lib_src_files)
 user_options_dict['SetPCH'](lib_mgui_env, '_pc_.h', [bin_mgui_env])
 
 mgui_lib_name = 'MdEditor'
-lib_mgui_env.Library( target = lib_path+'/'+mgui_lib_name, source = lib_src_files )
+lib_mgui_objs = lib_mgui_env.StaticObject(lib_src_files)
+lib_mgui_env.Library( target = lib_path+'/'+mgui_lib_name, source = lib_mgui_objs )
 
 ######
 # bin
 
-bin_mgui_env.Prepend( LIBS = [mgui_lib_name, 'MdBase', 'MdDemuxer', 'MdLib'] )
-# MEditor
-#bin_mgui_env.Program( target = bin_path + '/meditor', source = ['mgui.cpp'] )
+bin_mgui_env.Prepend( LIBS = ['MdBase', 'MdDemuxer', 'MdLib'] )
+def MGuiProgram(target, source):
+    return bin_mgui_env.Program(target=target, source=source+lib_mgui_objs)
+
 # MViewer
-viewer_bin = bin_mgui_env.Program( target = bin_path + '/mviewer', source = ['timeline/mviewer-main.cpp'] )
+viewer_bin = MGuiProgram(bin_path + '/mviewer', ['timeline/mviewer-main.cpp'])
 
 #
 # Bombono DVD
 #
-bombono_bin = bin_mgui_env.Program( target = bin_path + '/bombono-dvd', source = ['project/mconstructor-main.cpp'] )
+bombono_bin = MGuiProgram(target = bin_path + '/bombono-dvd', source = ['project/mconstructor-main.cpp'])
 bin_mgui_env.Install(user_options_dict['BIN_PREFIX'], bombono_bin) # + viewer_bin)
 
 # .desktop
@@ -115,9 +117,10 @@ mgui_env.Alias('install', mgui_env.Install(desktop_dir, 'bombono-dvd.desktop'))
 pixmap_path = os.path.join(dest_prefix, "share", "pixmaps", "bombono-dvd.png")
 mgui_env.Alias('install', mgui_env.InstallAs(pixmap_path, '#resources/icons/bombono-dvd_32px.png'))
 
+from BuildVars import IsBuildOrRunTests
 # we like tests
-Import('TestSConscript')
-TestSConscript([
-                'tests/SConscript',
-               ])
+if IsBuildOrRunTests():
+    MGuiProgram('tests/test_bmd', ['tests/test_bmd.cpp'])
+
+    SConscript(['tests/SConscript'])
 

@@ -33,7 +33,7 @@
 
 #include <mbase/project/colormd.h>
 
-//#include <mlib/sdk/logger.h>
+//#include <mlib/sdk/logger.h> 
 
 namespace Project
 {
@@ -41,7 +41,7 @@ bool CanOpenAsVideo(const char* fname, std::string& err_string, bool& must_be_vi
 
 BOOST_AUTO_TEST_CASE( TestConstructor )
 {
-    bool run_test = false;
+    bool run_test = true;
     const char* fname = "./test_menu";
     if( fs::exists(fname) )
     {
