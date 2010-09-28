@@ -228,7 +228,7 @@
 			Name="Other Files"
 			Filters="">
 			<F N="../src/mgui/tests/SConscript"/>
-			<F N="../test_menu"/>
+			<F N="../test_author"/>
 		</Folder>
 	</Files>
 </Project>

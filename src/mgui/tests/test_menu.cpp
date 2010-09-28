@@ -26,23 +26,14 @@
 
 #include <mgui/project/menu-actions.h>
 #include <mgui/project/menu-render.h>
-#include <mgui/author/output.h>
 #include <mgui/sdk/window.h>
 #include <mgui/sdk/packing.h>
-#include <mgui/dialog.h>
 
 #include <mbase/project/colormd.h>
 
-//#include <mlib/sdk/logger.h> 
-
-namespace Project
+bool IsTestOn(const char* fname)
 {
-bool CanOpenAsVideo(const char* fname, std::string& err_string, bool& must_be_video);
-
-BOOST_AUTO_TEST_CASE( TestConstructor )
-{
-    bool run_test = true;
-    const char* fname = "./test_menu";
+    bool run_test = false;
     if( fs::exists(fname) )
     {
         io::stream strm(fname);
@@ -52,27 +43,22 @@ BOOST_AUTO_TEST_CASE( TestConstructor )
         if( val == "1" )
             run_test = true;
     }
-    if( !run_test )
-        return;
-
-    //return;
-    GtkmmDBInit gd_init;
-
-    //bool must_be_video = false;
-    //std::string err_str;
-    //if( !CanOpenAsVideo("../ntsc/Autumn_ntsc.mpg", err_str, must_be_video) )
-    //{
-    //    MessageBox("Can't add file:", Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, err_str);
-    //}
-    //return;
-
-    //ConstructorApp app; 
-
-    std::string prj_fname = TestProjectPath();
-    //BuildConstructor(app, prj_fname, false);
-    //PackOutputAndRun(app, prj_fname);
-    RunConstructor(prj_fname, false);
+    return run_test;
 }
+
+namespace Project
+{
+
+//BOOST_AUTO_TEST_CASE( TestConstructor )
+//{
+//    if( !IsTestOn("./test_menu") )
+//        return;
+//
+//    GtkmmDBInit gd_init;
+//
+//    std::string prj_fname = TestProjectPath();
+//    RunConstructor(prj_fname, false);
+//}
 
 BOOST_AUTO_TEST_CASE( TestMapRectList )
 {

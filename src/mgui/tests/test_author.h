@@ -42,7 +42,10 @@ inline std::string TestProjectPath()
 
 bool AuthorDVDTest(const std::string& dir);
 
+
 } // namespace Project
+
+bool IsTestOn(const char* fname);
 
 #endif // __MGUI_TESTS_AUTHOR_H__
 

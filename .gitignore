@@ -7,5 +7,5 @@
 build/
 config.opts
 
-# indicator of GUI test 'test_menu'
-test_menu
+# tests indicators (e.g. GUI, long tests, etc)
+/test_*
