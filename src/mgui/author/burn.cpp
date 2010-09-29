@@ -30,7 +30,8 @@
 #include <mgui/gettext.h>
 #include <mgui/execution.h>
 
-#include <boost/regex.hpp>
+#include <mlib/regex.h>
+
 #include <boost/lexical_cast.hpp>
 
 void devices_clear_devicedata()
@@ -89,7 +90,7 @@ static void ConcatToStr(const char* buf, int sz, std::string& str)
     str += std::string(buf, sz);
 }
 
-boost::regex WriteSpeed_RE("Write Speed #"RG_NUM":"RG_SPS RG_NUM"\\."RG_NUM "x1385"); 
+re::pattern WriteSpeed_RE("Write Speed #"RG_NUM":"RG_SPS RG_NUM"\\."RG_NUM "x1385"); 
 
 RefPtr<Gtk::ListStore> sp_store;
 
@@ -175,8 +176,8 @@ static void UpdateSpeeds()
         if( TestDvdDisc(dev_path, str) )
         {
             std::string::const_iterator start = str.begin(), end = str.end();
-            boost::smatch what;
-            while( boost::regex_search(start, end, what, WriteSpeed_RE) )
+            re::match_results what;
+            while( re::search(start, end, what, WriteSpeed_RE) )
             {
                 start = what[0].second;
                 double speed = boost::lexical_cast<double>(what.str(2) + "." + what.str(3));
@@ -241,28 +242,28 @@ static void OnSpeedChange()
 
 DVDInfo ParseDVDInfo(bool is_good, const std::string& out_info)
 {
-    std::string::const_iterator start = out_info.begin(), end = out_info.end();
+    //std::string::const_iterator start = out_info.begin(), end = out_info.end();
     DVDInfo inf(dvdERROR);
     DVDType& res = inf.typ;
     if( !is_good )
     {
-        static boost::regex cd_drive_only(":-\\( not a DVD unit");
-        static boost::regex cd_disc(":-\\( non-DVD media mounted");
-        static boost::regex empty_drive(":-\\( no media mounted");
+        static re::pattern cd_drive_only(":-\\( not a DVD unit");
+        static re::pattern cd_disc(":-\\( non-DVD media mounted");
+        static re::pattern empty_drive(":-\\( no media mounted");
 
-        if( boost::regex_search(start, end, cd_drive_only) )
+        if( re::search(out_info, cd_drive_only) )
             res = dvdCD_DRIVE_ONLY;
-        else if( boost::regex_search(start, end, cd_disc) )
+        else if( re::search(out_info, cd_disc) )
             res = dvdCD_DISC;
-        else if( boost::regex_search(start, end, empty_drive) )
+        else if( re::search(out_info, empty_drive) )
             res = dvdEMPTY_DRIVE;
     }
     else
     {
-        static boost::regex media_type_re("Mounted Media:"RG_SPS"[0-9A-F]+h, ([^ \n]+)");
-        boost::smatch what;
+        static re::pattern media_type_re("Mounted Media:"RG_SPS"[0-9A-F]+h, ([^ \n]+)");
+        re::match_results what;
 
-        bool is_found = boost::regex_search(start, end, what, media_type_re);
+        bool is_found = re::search(out_info, what, media_type_re);
         ASSERT_RTL( is_found );
         res = dvdOTHER;
         std::string name = inf.name = what.str(1);
@@ -283,8 +284,8 @@ DVDInfo ParseDVDInfo(bool is_good, const std::string& out_info)
         // isBlank
         if( res != dvdOTHER )
         {
-            static boost::regex media_status_re("Disc status:"RG_SPS"([a-z]+)\n");
-            bool is_found = boost::regex_search(start, end, what, media_status_re);
+            static re::pattern media_status_re("Disc status:"RG_SPS"([a-z]+)\n");
+            bool is_found = re::search(out_info, what, media_status_re);
             ASSERT_RTL( is_found );
 
             std::string status = what.str(1);

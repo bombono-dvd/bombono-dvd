@@ -268,6 +268,7 @@
 			<F N="../src/mlib/sdk/logger.cpp"/>
 			<F N="../src/mlib/sdk/misc.cpp"/>
 			<F N="../src/mlib/read_stream.cpp"/>
+			<F N="../src/mlib/regex.cpp"/>
 			<F N="../src/mlib/stream.cpp"/>
 			<F N="../src/mlib/sdk/stream_util.cpp"/>
 			<F N="../src/mlib/sdk/system.cpp"/>
@@ -276,6 +277,7 @@
 		</Folder>
 		<F N="../src/mlib/range/irange.h"/>
 		<F N="../src/mlib/range/my_config.h"/>
+		<F N="../src/mlib/regex.h"/>
 		<F N="../src/mlib/range/transform.h"/>
 	</Files>
 </Project>

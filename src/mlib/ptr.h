@@ -68,7 +68,7 @@ class one
             template<class Y>
             one(one<Y>& a): ptr(a.release()) {}
 
-           ~one() { delete ptr; }
+           ~one() { /*delete ptr*/ boost::checked_delete(ptr); }
             
             // 1 присваивание указателя
        one& operator =(T* p)

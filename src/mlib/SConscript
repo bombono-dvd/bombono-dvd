@@ -15,6 +15,7 @@ lib_src_files = [
                  'instantiate.cpp',
                  'geom2d.cpp',
                  'read_stream.cpp',
+                 'regex.cpp',
                  'stream.cpp',
                  'tech.cpp',
 

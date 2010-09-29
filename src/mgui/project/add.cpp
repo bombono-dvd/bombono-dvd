@@ -15,7 +15,7 @@
 
 #include <mlib/filesystem.h>
 
-#include <boost/regex.hpp>
+#include <mlib/regex.h>
 #include <boost/lexical_cast.hpp>
 
 #include <gtk/gtkversion.h>
@@ -372,11 +372,10 @@ void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
         fs::path pth(fname); 
         std::string leaf = pth.leaf();
         {
-            std::string::const_iterator start = leaf.begin(), end = leaf.end();
-            static boost::regex dvd_video_vob("(VIDEO_TS|VTS_[0-9][0-9]_[0-9]).VOB", 
-                                              boost::regex::perl|boost::regex::icase);
+            static re::pattern dvd_video_vob("(VIDEO_TS|VTS_[0-9][0-9]_[0-9]).VOB", 
+                                              re::pattern::perl|re::pattern::icase);
     
-            if( boost::regex_match(start, end, dvd_video_vob) && 
+            if( re::match(leaf, dvd_video_vob) && 
                 MessageBox(BF_("The file \"%1%\" looks like VOB from DVD.\nRun import?") % leaf % bf::stop,
                            Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL) == Gtk::RESPONSE_OK )
             {

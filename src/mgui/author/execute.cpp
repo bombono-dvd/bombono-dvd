@@ -32,7 +32,7 @@
 #include <glib/gstdio.h>
 
 #include <boost/lexical_cast.hpp>
-#include <boost/regex.hpp>
+#include <mlib/regex.h>
 
 namespace Author
 {
@@ -67,20 +67,20 @@ static void InitFoundStageTag(RefPtr<Gtk::TextTag> tag)
     tag->property_foreground() = "darkgreen";
 }
 
-boost::regex DVDAuthorRE(RG_CMD_BEG"dvdauthor"RG_EW ".*-x"RG_EW RG_SPS RG_BW"DVDAuthor\\.xml"RG_EW);
-boost::regex MkIsoFsRE(RG_CMD_BEG"mkisofs"RG_EW ".*-dvd-video"RG_EW ".*>" RG_SPS RG_BW"dvd.iso"RG_EW);
-boost::regex GrowIsoFsRE(RG_CMD_BEG"growisofs"RG_EW ".*-dvd-compat"RG_EW ".*-dvd-video"RG_EW); 
+re::pattern DVDAuthorRE(RG_CMD_BEG"dvdauthor"RG_EW ".*-x"RG_EW RG_SPS RG_BW"DVDAuthor\\.xml"RG_EW);
+re::pattern MkIsoFsRE(RG_CMD_BEG"mkisofs"RG_EW ".*-dvd-video"RG_EW ".*>" RG_SPS RG_BW"dvd.iso"RG_EW);
+re::pattern GrowIsoFsRE(RG_CMD_BEG"growisofs"RG_EW ".*-dvd-compat"RG_EW ".*-dvd-video"RG_EW); 
 
-//static void PrintMatchResults(const boost::smatch& what)
+//static void PrintMatchResults(const re::match_results& what)
 //{
 //    for( int i=1; i<(int)what.size(); i++ )
 //        io::cout << "what[" << i << "] = \"" <<  what.str(i) << "\""<< io::endl;
 //}
 
-static bool ApplyStage(const std::string& line, const boost::regex& re, 
+static bool ApplyStage(const std::string& line, const re::pattern& re, 
                        Stage stg, const TextIterRange& tir, OutputFilter& of)
 {
-    bool res = boost::regex_search(line.begin(), line.end(), re);
+    bool res = re::search(line, re);
     if( res )
     {
         ApplyTag(of.GetTV(), tir, "Stage", InitFoundStageTag);
@@ -97,12 +97,12 @@ class MkIsoFsPP: public ProgressParser
     virtual void  Filter(const std::string& line);
 };
 
-boost::regex MkIsoFsPercent_RE( RG_NUM"([\\.,]"RG_NUM")?% done"); 
+re::pattern MkIsoFsPercent_RE( RG_NUM"([\\.,]"RG_NUM")?% done"); 
 
 void MkIsoFsPP::Filter(const std::string& line)
 {
-    boost::smatch what;
-    if( boost::regex_search(line.begin(), line.end(), what, MkIsoFsPercent_RE) )
+    re::match_results what;
+    if( re::search(line.begin(), line.end(), what, MkIsoFsPercent_RE) )
     {
         ASSERT( what[1].matched );
         std::string p_str = what.str(1) + "." + (what[3].matched ? what.str(3) : std::string("0"));
@@ -129,18 +129,18 @@ class DVDAuthorPP: public ProgressParser
             bool  fixStage;
 };
 
-boost::regex DVDAuthorVOB_RE( "^STAT: VOBU "RG_NUM" at "RG_NUM"MB"); 
-boost::regex DVDAuthorFix_RE( "^STAT: fixing VOBU at "RG_NUM"MB \\("RG_NUM"/"RG_NUM", "RG_NUM"%\\)"); 
+re::pattern DVDAuthorVOB_RE( "^STAT: VOBU "RG_NUM" at "RG_NUM"MB"); 
+re::pattern DVDAuthorFix_RE( "^STAT: fixing VOBU at "RG_NUM"MB \\("RG_NUM"/"RG_NUM", "RG_NUM"%\\)"); 
 
 void DVDAuthorPP::Filter(const std::string& line)
 {
     double p = 0.;
 
-    boost::smatch what;
-    bool is_fix = boost::regex_search(line.begin(), line.end(), what, DVDAuthorFix_RE);
+    re::match_results what;
+    bool is_fix = re::search(line.begin(), line.end(), what, DVDAuthorFix_RE);
     if( !(fixStage || is_fix) )
     {
-        if( boost::regex_search(line.begin(), line.end(), what, DVDAuthorVOB_RE) )
+        if( re::search(line.begin(), line.end(), what, DVDAuthorVOB_RE) )
         {
             int sz = boost::lexical_cast<int>(what.str(2));
             p = sz/(double)dvdSz * DVDAuthorRel;

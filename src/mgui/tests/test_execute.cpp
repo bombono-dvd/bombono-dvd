@@ -29,7 +29,7 @@
 #include <mgui/sdk/textview.h>
 
 #include <boost/test/floating_point_comparison.hpp>
-#include <boost/regex.hpp>
+#include <mlib/regex.h>
 
 static void CheckOutput(int fd, const std::string& etalon_str)
 {
@@ -245,7 +245,7 @@ BOOST_AUTO_TEST_CASE( TestIndicator )
 
 typedef std::map<std::string, std::string::difference_type, std::less<std::string> > map_type;
 
-const char* re = 
+const char* re_text = 
     // possibly leading whitespace:   
     "^[[:space:]]*" 
     // possible template declaration:
@@ -267,16 +267,16 @@ const char* re =
     // terminate in { or :
     "(\\{|:[^;\\{()]*\\{)";
 
-boost::regex expression(re);
+re::pattern expression(re_text);
 
 void IndexClasses(map_type& m, const std::string& file)
 {
     std::string::const_iterator start, end;
     start = file.begin();
     end = file.end();   
-    boost::match_results<std::string::const_iterator> what;
-    boost::match_flag_type flags = boost::match_default;
-    while( boost::regex_search(start, end, what, expression, flags) )
+    re::match_results what;
+    re::constants::match_flag_type flags = re::constants::match_default;
+    while( re::search(start, end, what, expression, flags) )
     {
         // what[0] contains the whole string
         // what[5] contains the class name.
