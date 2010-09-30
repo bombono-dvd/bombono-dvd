@@ -143,7 +143,7 @@ def CheckSettings(main_env):
     def UnitTest(test_program_name, env):
         if RunTests:
             # use non-existent target to run command always
-            env.UnitTest_(target = '_fiction_target_', source = test_program_name)
+            env.UnitTest_(target = '%s.run' % test_program_name, source = test_program_name)
     main_env.Export('UnitTest')
 
     # set brief output
