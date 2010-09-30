@@ -483,6 +483,9 @@ def CreateEnvVersion2(**kw):
 
     env = GetDefEnv().Environment(ENV = os.environ, toolpath = ['tools/scripts'], **kw)
     env.Prepend(CPPPATH = [GetSrcBuildDir(), '#/' + GetSrcDirPath()])
+    # thin archives ('T' option) are to speed up static libraries build
+    # :TODO: libmpeg2.a and etc should be built directly to build/lib (withour copying/symlinking)
+    #env.Replace(ARFLAGS = str(env['ARFLAGS']) + 'T')
     return env
 
 def IsToBuildQuick():
