@@ -25,6 +25,16 @@
 
 #include <string.h> // strstr()
 
+namespace boost { namespace filesystem {
+
+bool is_empty_directory(const path & dir_path)
+{
+    static const directory_iterator end_itr;
+    return directory_iterator(dir_path) == end_itr;
+}
+
+} } // namepspace filesystem, boost
+
 std::string get_basename(const fs::path& pth)
 {
     std::string name_s = pth.leaf();

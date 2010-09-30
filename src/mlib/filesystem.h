@@ -26,15 +26,10 @@
 #include <boost/filesystem/operations.hpp>
 
 #include <string>
-#include <stdexcept> // std::runtime_error
 
 namespace boost { namespace filesystem {
 
-inline bool is_empty_directory(const path & dir_path)
-{
-    static const directory_iterator end_itr;
-    return directory_iterator(dir_path) == end_itr;
-}
+bool is_empty_directory(const path & dir_path);
 
 } } // namepspace filesystem, boost
 namespace fs = boost::filesystem;

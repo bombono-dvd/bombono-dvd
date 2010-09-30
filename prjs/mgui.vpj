@@ -8,7 +8,7 @@
 		Type="gnuc"
 		DebugCallbackName="gdb"
 		Version="1"
-		OutputFile="%rw/build/bin/mconstructor"
+		OutputFile="%rw/build/src/mgui/tests/test_bmd"
 		CompilerConfigName="Latest Version"
 		ObjectDir="build/src/mgui">
 		<Menu>
@@ -60,9 +60,7 @@
 				Deletable="0"
 				SaveOption="SaveNone"
 				RunFromDir="%rw">
-				<Exec
-					CmdLine='vsdebugio -prog "%o" %~other'
-					OtherOptions="tools/test-data/menus.xml"/>
+				<Exec CmdLine='vsdebugio -prog "%o"'/>
 			</Target>
 			<Target
 				Name="Execute"
@@ -73,9 +71,7 @@
 				Deletable="0"
 				SaveOption="SaveWorkspaceFiles"
 				RunFromDir="%rw">
-				<Exec
-					CmdLine='"%o" %~other'
-					OtherOptions="tools/test-data/menus.xml"/>
+				<Exec CmdLine='"%o"'/>
 			</Target>
 			<Target
 				Name="dash"
@@ -102,7 +98,7 @@
 		Type="gnuc"
 		DebugCallbackName="gdb"
 		Version="1"
-		OutputFile="%rw/build/bin/mconstructor"
+		OutputFile="%rw/build/src/mgui/tests/test_bmd"
 		CompilerConfigName="Latest Version"
 		Defines="">
 		<Menu>
@@ -155,9 +151,7 @@
 				Deletable="0"
 				SaveOption="SaveNone"
 				RunFromDir="%rw">
-				<Exec
-					CmdLine='vsdebugio -prog "%o" %~other'
-					OtherOptions="tools/test-data/menus.xml"/>
+				<Exec CmdLine='vsdebugio -prog "%o"'/>
 			</Target>
 			<Target
 				Name="Execute"
@@ -168,9 +162,7 @@
 				Deletable="0"
 				SaveOption="SaveWorkspaceFiles"
 				RunFromDir="%rw">
-				<Exec
-					CmdLine='"%o" %~other'
-					OtherOptions="tools/test-data/menus.xml"/>
+				<Exec CmdLine='"%o"'/>
 			</Target>
 			<Target
 				Name="dash"
