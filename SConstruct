@@ -323,6 +323,8 @@ else:
         # raise is better, we'll see the error and its location
         raise #Exit(1)
 
+# optimization: checking files as make
+Decider('timestamp-newer')
 BV.VariantDir(BV.BuildDir, '.', duplicate=0)
 
 def GenerateBaseConfigH(target, source, env):
