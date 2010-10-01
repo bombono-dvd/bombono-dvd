@@ -323,7 +323,7 @@ else:
         # raise is better, we'll see the error and its location
         raise #Exit(1)
 
-BuildDir(BV.BuildDir, '.', duplicate=0)
+BV.VariantDir(BV.BuildDir, '.', duplicate=0)
 
 def GenerateBaseConfigH(target, source, env):
     cfg_file = open(target[0].path, 'w')

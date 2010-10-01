@@ -313,6 +313,13 @@ def Variables(*args, **kw):
     else:
         return SCons.Options.Options(*args, **kw)
 
+def VariantDir(variant_dir, src_dir, duplicate=1):
+    def_env = GetDefEnv()
+    if IsVariablesNow:
+        def_env.VariantDir(variant_dir, src_dir, duplicate)
+    else:
+        def_env.BuildDir(variant_dir, src_dir, duplicate)
+
 ################################################################
 # Autoconfig stuff
 
