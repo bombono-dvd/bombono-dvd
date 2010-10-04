@@ -564,7 +564,7 @@ def MakeMainEnv():
     UserOptDict['SetPCH'] = SetPCH
     # we use function Dir() so SCons do not change it
     # for local libs
-    env.Append(LIBPATH = env.Dir(UserOptDict['LIB_BUILD_DIR']))
+    env.Append(LIBPATH = [env.Dir(UserOptDict['LIB_BUILD_DIR'])])
     CheckSettings(env)
 
     return env
