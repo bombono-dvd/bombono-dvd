@@ -37,7 +37,7 @@ I. Requirements:
  o libdvdread     - http://www.dtek.chalmers.se/groups/dvd/
  o dvdauthor      - http://dvdauthor.sourceforge.net/
  o dvd+rw-tools   - http://fy.chalmers.se/~appro/linux/DVD+RW/
- o toolame        - http://sourceforge.net/projects/toolame/
+ o twolame        - http://www.twolame.org/
  o libxml++       - http://libxmlplusplus.sourceforge.net/
 
 II. You need SCons to build Bombono DVD - maybe the best build tool ever. ;) 
