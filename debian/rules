@@ -3,7 +3,7 @@
 include /usr/share/cdbs/1/rules/debhelper.mk
 
 ifneq (,$(filter noopt,$(DEB_BUILD_OPTIONS)))
-    BUILD_FLAGS := BUILD_CFG=debug BUILD_QUICK=1
+    BUILD_FLAGS := BUILD_CFG=debug
 else
     BUILD_FLAGS := 
 endif
