@@ -18,7 +18,9 @@ libmpeg2_env = env.Clone()
 
 if BuildVars.IsGccLike():
     warn_flags    = ['-Wall', '-fno-common']
-    if BuildVars.BuildProfile:
+    # e.g., for OProfile
+    build_profile = False
+    if build_profile:
         release_flags = []
     else:
         release_flags = ['-fomit-frame-pointer']

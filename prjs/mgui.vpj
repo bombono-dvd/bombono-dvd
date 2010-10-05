@@ -20,7 +20,7 @@
 				OutputExts="*.o"
 				SaveOption="SaveAll"
 				RunFromDir="%rw">
-				<Exec CmdLine="%(SCONS) TEST_BUILD=1 %(SC_COMPILE_NAME)"/>
+				<Exec CmdLine="%(SCONS) TEST=1 %(SC_COMPILE_NAME)"/>
 			</Target>
 			<Target
 				Name="Link"
@@ -40,7 +40,7 @@
 				Deletable="0"
 				SaveOption="SaveAll"
 				RunFromDir="%rw">
-				<Exec CmdLine="%(SCONS) TEST_BUILD=1 build/src/mgui/tests/test_bmd"/>
+				<Exec CmdLine="%(SCONS) TEST=1 build/src/mgui/tests/test_bmd"/>
 			</Target>
 			<Target
 				Name="Rebuild"
@@ -49,7 +49,7 @@
 				Deletable="0"
 				SaveOption="SaveWorkspaceFiles"
 				RunFromDir="%rw">
-				<Exec CmdLine="%(SCONS) TEST_BUILD=1 build/src/mgui/tests/test_bmd &amp;&amp; build/src/mgui/tests/test_bmd"/>
+				<Exec CmdLine="%(SCONS) TEST=1 build/src/mgui/tests/test_bmd &amp;&amp; build/src/mgui/tests/test_bmd"/>
 			</Target>
 			<Target
 				Name="Debug"

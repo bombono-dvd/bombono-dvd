@@ -55,14 +55,13 @@ common_warn_flags = []
 cxx_warn_flags    = []
 debug_flags   = ['-g', '-O0']
 release_flags = ['-O2']
-profile_flags = ['-g'] #['-pg']
 defines       = []
 
 def CalcCommonFlags():
     if BV.IsReenter(CalcCommonFlags):
         return
 
-    global common_warn_flags, cxx_warn_flags, debug_flags, profile_flags, defines
+    global common_warn_flags, cxx_warn_flags, debug_flags, defines
     if BV.IsGccCompiler():
         # GCC
         common_warn_flags = ['-ansi']
@@ -101,7 +100,6 @@ def CalcCommonFlags():
          '--diag_suppress=611,21,815,414',
         ]
         cxx_warn_flags = []
-        profile_flags = []
         # policy: no XOPEN things meanwhile.
         defines = [ 
                     ('_POSIX_C_SOURCE','200112L'),  # fdopen(), fileno(), ...
@@ -118,9 +116,9 @@ def AdjustConfigOptions(env):
         cflags = release_flags
 
     ldflags = []
-    if BV.BuildProfile:
-        cflags += profile_flags
-        ldflags += profile_flags
+    #if BV.BuildProfile:
+    #    cflags += profile_flags
+    #    ldflags += profile_flags
     
     env.Replace(CC = BV.Cc)
     env.Replace(CXX = BV.Cxx)
@@ -169,23 +167,20 @@ BoolVariable = BV.BoolVariable
 
 def ParseVariables(user_options):
     user_options.AddVariables (
-            (EnumVariable ('BUILD_CFG',
+            (EnumVariable('BUILD_CFG',
                         'Select release or debug build.', 
                         'release', allowed_values = ('release', 'debug'))),
     		('BUILD_DIR', 'Target directory for intermediate files.',
     					'build'),
-            (BoolVariable ('BUILD_PROFILE',
-                        #'Set to 1 if you want to compile in profiling information (gprof).',
-                        'Set to 1 if you want to compile in profiling information (just -g for oprofile, not for gprof).',
-                        'false')),
-            (BoolVariable ('BUILD_BRIEF',
+            (BoolVariable('BUILD_BRIEF',
                         'Set to 1 if you want brief compiling/linking output.',
                         'false')),
-            (BoolVariable ('BUILD_QUICK',
-                        'Set to 1 if you want to reduce building time using: \n' +
-                         '\t1) PCH - precompiled headers \n' +
-                         '\t2) some SCons perfomance tuning.\t\t\t',
-                        'false')),
+            (EnumVariable('BUILD_QUICK',
+                        "Set to 'true' if you want to reduce building time using: \n"
+                        "\t1) PCH - precompiled headers \n"
+                        "\t2) some SCons perfomance tuning.\n"
+                        "\t'auto' implies true for debug build and false for release one.",
+                        'auto', allowed_values = ('auto', 'false', 'true'))),
             ('PREFIX',  'Change the default install directory.', '/usr/local'),
             ('DESTDIR', 'Set the intermediate install directory.', ''),
             ('CC', 'C compiler.'),
@@ -193,19 +188,20 @@ def ParseVariables(user_options):
     		('CFLAGS',  'Extra C Compiler flags (for C++ too).', ''),
     		('CXXFLAGS','Extra C++ Compiler flags.', ''),
     		('LDFLAGS', 'Extra Linker flags.', ''),
-            (BoolVariable ('TEST',
-                        'Set to 1 if you want to run tests for checking your build.',
+            (BoolVariable('TEST',
+                        'Set to 1 if you want to build and run tests.',
                         'false')),
-            (BoolVariable ('TEST_BUILD',
-                        'Set to 1 if you want to build tests (for developers).',
-                        'false')),
-            (BoolVariable ('USE_EXT_BOOST',
+            (BoolVariable('USE_EXT_BOOST',
                         'Leave this setting 0 to use embedded Boost library version (recommended).',
                         'false')),
             ('BOOST_INCLUDE', 'Set to include path for external(not embedded) version of the Boost library.', ''),
             ('BOOST_LIBPATH', 'Set to library dir path for external(not embedded) version of the Boost library.', ''),
             ('DVDREAD_INCLUDE', 'Set to include path for libdvdread header files.', ''),
             ('DVDREAD_LIBPATH', 'Set to library path where the libdvdread is located.', ''),
+            # Undocumented
+            (BoolVariable('TEST_BUILD',
+                        'Set to 1 if you want to build with tests (all).',
+                        'false')),
             )
     # we need to add 'lib dict vars' user_options to load in user_options_env
     AddLibOptions(user_options)
@@ -230,7 +226,6 @@ def ParseVariables(user_options):
     # fill in BuildVars
     BV.BuildCfg = user_options_dict['BUILD_CFG']
     BV.BuildDir = user_options_dict['BUILD_DIR']
-    BV.BuildProfile = user_options_dict['BUILD_PROFILE']
     BV.BuildBrief = user_options_dict['BUILD_BRIEF']
 
     BV.Cc  = user_options_dict['CC']
@@ -276,9 +271,9 @@ else:
         config.write("# Options for building Atom project\n")
         config.write('BUILD_CFG = %r\n' % (BV.BuildCfg))
         config.write('BUILD_DIR = %r\n' % (BV.BuildDir))
-        config.write('BUILD_PROFILE = %r\n' % (BV.BuildProfile))
         config.write('BUILD_BRIEF = %r\n' % (BV.BuildBrief))
         write_dict_value('BUILD_QUICK')
+        config.write('TEST = %r\n' % (BV.RunTests))
         write_dict_value('PREFIX')
         write_dict_value('DESTDIR')
     
@@ -288,10 +283,6 @@ else:
         config.write('CFLAGS = %r\n' % (BV.CFlags))
         config.write('CXXFLAGS = %r\n' % (BV.CxxFlags))
         config.write('LDFLAGS = %r\n' % (BV.LdFlags))
-
-        config.write('\n# Test options\n')
-        config.write('TEST = %r\n' % (BV.RunTests))
-        config.write('TEST_BUILD = %r\n' % (BV.BuildTests))
 
         config.write('\n# Boost library\n')
         write_dict_value('USE_EXT_BOOST')
@@ -313,6 +304,11 @@ else:
         write_dict_value('CONFIGURATION')
 
         SetLibraries(config, user_options_dict)
+
+        config.write('\n# Undocumented\n')
+        # this one has only one purpose I can say: just build all
+        # to test/profile SCons speed
+        config.write('TEST_BUILD = %r\n' % (BV.BuildTests))
 
         config.close()
     except:

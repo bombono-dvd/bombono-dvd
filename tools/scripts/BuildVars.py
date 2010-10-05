@@ -11,7 +11,6 @@ CfgFile = ''
 
 BuildCfg = ''
 BuildDir = ''
-BuildProfile = 0
 # brief compiling/linking output
 BuildBrief = 0
 
@@ -69,10 +68,10 @@ def IsBuildOrRunTests():
 def CheckSettings(main_env):
     global Cc, Cxx, BuildDir, Targets, RunTests, BuildTests
     if RunTests :
-        print 'Building and running tests'
+        print 'Tests: on'
     else:
         if BuildTests:
-            print 'Building with tests'
+            print 'Tests: on (only building)'
 
     def_env = GetDefEnv()
     # for SCons =<0.96 we need to warn that just 'scons' is not enough:
@@ -498,13 +497,18 @@ def CreateEnvVersion2(**kw):
 def IsToBuildQuick():
     can_bq = IsGccLike() # gcc and clang only (because of PCH)
 
+    val = UserOptDict['BUILD_QUICK']
+    want_bq = val != 'false'
+    if val == 'auto':
+        want_bq = IsDebugCfg()
+
     res = False
-    if UserOptDict['BUILD_QUICK']:
+    if want_bq:
         if can_bq:
             res = True
         elif not IsReenter(IsToBuildQuick):
             # warn once only
-            print 'BUILD_QUICK is not supported for current compiler(%s)!' % Cc
+            print 'BUILD_QUICK=true is not supported for current compiler(%s)!' % Cc
 
     return res
 

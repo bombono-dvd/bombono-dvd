@@ -22,8 +22,7 @@ endif
 DEB_INSTALL_MANPAGES_bombono-dvd := debian/bombono-dvd.1 debian/mpeg2demux.1
 
 build/bombono-dvd::
-	# :KLUDGE: -Wno-extra due to boost warnings
-	scons -k $(BUILD_FLAGS) CFLAGS='-Wno-extra' PREFIX=/usr DESTDIR=$(CURDIR)/debian/bombono-dvd
+	scons -k $(BUILD_FLAGS) PREFIX=/usr DESTDIR=$(CURDIR)/debian/bombono-dvd
 
 cleanbuilddir/bombono-dvd::
 	rm -rf build config.opts tools/scripts/*.pyc

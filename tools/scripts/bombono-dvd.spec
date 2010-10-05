@@ -38,7 +38,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 %setup -q	
 
 %build
-scons -k %{BUILD_FLAGS} CFLAGS='-Wno-extra' PREFIX=%{_prefix} DESTDIR=$RPM_BUILD_ROOT
+scons -k %{BUILD_FLAGS} PREFIX=%{_prefix} DESTDIR=$RPM_BUILD_ROOT
 
 %install
 %clean_build_root
