@@ -28,7 +28,7 @@
 
 inline void CheckSelFormat(const Gtk::SelectionData& selection_data)
 {
-    ASSERT( selection_data.get_format() == 8 );
+    ASSERT_OR_UNUSED_VAR( selection_data.get_format() == 8, selection_data );
 }
 
 template<class DataType>

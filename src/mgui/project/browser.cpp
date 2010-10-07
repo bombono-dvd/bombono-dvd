@@ -119,7 +119,7 @@ Gtk::TreePath GetSourcePath(const Gtk::SelectionData& data)
 {
     Gtk::TreePath src_path;
     bool true_ = Gtk::TreePath::get_from_selection_data(data, src_path);
-    ASSERT( true_ );
+    ASSERT_OR_UNUSED( true_ );
 
     return src_path;
 }

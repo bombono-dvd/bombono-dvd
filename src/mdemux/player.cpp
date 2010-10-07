@@ -108,6 +108,7 @@ void Player::CheckState()
         FrameList& frm_lst = vl.GetFrames();
         ASSERT( frm_lst.IsPlayable() && 
                 (frm_lst.Beg() <= curPos) && (curPos < frm_lst.End()) );
+        UNUSED_VAR(frm_lst);
     }
 }
 

@@ -169,7 +169,9 @@ BOOST_AUTO_TEST_CASE( TestStreams )
             io::fd_proxy fp = strm.fileno();
             int fd = fp;
             BOOST_CHECK( io::tell(fd) == (int)strm.tellp() );
-            write(fd, " fd", 3);
+            // убираем warning: ignoring return value of
+            int res = write(fd, " fd", 3);
+            (void)res;
 
             last_pos = io::tell(fd);
         }
@@ -212,6 +214,10 @@ BOOST_AUTO_TEST_CASE( TestStreams )
         BOOST_CHECK( !strm.get_close() );
 
         // проверяем через ftell(), что не закрылся (что есть такой FILE*=stdout)
-        BOOST_CHECK( (errno=0, ftell(stdout), errno != EBADF) );
+        errno = 0;
+        // убираем warning: ignoring return value of
+        long res = ftell(stdout);
+        (void)res;
+        BOOST_CHECK( errno != EBADF );
     }
 }

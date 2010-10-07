@@ -97,7 +97,7 @@ bool OnMotionNotifyEvent(Obj& obj, ObjectState<Obj>* stt, GdkEventMotion* event)
 template<typename Obj>
 bool OnFocusInEvent(Obj& obj, ObjectState<Obj>* stt, GdkEventFocus* event)
 {
-    ASSERT( event->in );
+    ASSERT_OR_UNUSED_VAR( event->in, event );
     stt->OnGetFocus(obj);
     return false;
 }
@@ -105,7 +105,7 @@ bool OnFocusInEvent(Obj& obj, ObjectState<Obj>* stt, GdkEventFocus* event)
 template<typename Obj>
 bool OnFocusOutEvent(Obj& obj, ObjectState<Obj>* stt, GdkEventFocus* event)
 {
-    ASSERT( !(event->in) );
+    ASSERT_OR_UNUSED_VAR( !(event->in), event );
     stt->OnLeaveFocus(obj);
     return false;
 }

@@ -16,6 +16,11 @@
 #include <mlib/adobe/move.hpp>
 #include <mlib/adobe/poly.hpp>
 
+#include <mlib/tech.h>
+#ifdef __GNUC_INCORRECT_SAR__
+#pragma GCC system_header
+#endif
+
 /*************************************************************************************************/
 
 namespace adobe {

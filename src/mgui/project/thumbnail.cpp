@@ -62,7 +62,7 @@ static Mpeg::FwdPlayer& OpenCachePlayer(VideoItem vmd)
     {
         cache.curVI = vmd;
         bool is_open = cache.player.Open(GetFilename(*vmd).c_str());
-        ASSERT(is_open);
+        ASSERT_OR_UNUSED(is_open);
     }
     return cache.player;
 }
@@ -132,7 +132,7 @@ Point CalcProportionSize(const Point& sz, double etalon_square)
 void ThumbSizeCalcer::Visit(StillImageMD& obj)
 {
     bool true_ = gdk_pixbuf_get_file_info(GetFilename(obj).c_str(), &sz.x, &sz.y);
-    ASSERT( true_ );
+    ASSERT_OR_UNUSED( true_ );
 
     // вычисляем размеры кэша
     sz = CalcProportionSize(sz, ORIG_ITEM_AREA);

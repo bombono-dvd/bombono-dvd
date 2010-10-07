@@ -130,7 +130,7 @@ void ResetLink(MILinkList& Set, Comp::Object* obj, Project::MediaItem new_ref, P
     if( new_ref )
     {
         bool res = Set.insert(MILink(new_ref, obj)).second;
-        ASSERT( res );
+        ASSERT_OR_UNUSED( res );
     }
 }
 

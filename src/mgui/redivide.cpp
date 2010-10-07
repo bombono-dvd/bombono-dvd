@@ -285,6 +285,7 @@ int FindFirst(int cur, std::vector<BRect>& brct_arr)
 
 // проверочная функция - по выходу из DivideRects 
 // не должно быть пустых прямоугольников
+UNUSED_FUNCTION 
 static bool HastEmptyRects(RectsChangeType res, Rect& rct1, Rect& rct2, Rect& tmp_rct)
 {
     if( rct1.IsNull() )

@@ -153,7 +153,7 @@ Glib::IOCondition StreamConditionMask = Glib::IO_IN | Glib::IO_HUP;
 
 static bool OnStreamReadReady(ProgramOutput& po, bool is_out, Glib::IOCondition cond)
 {
-    ASSERT( cond & StreamConditionMask );
+    ASSERT_OR_UNUSED_VAR( cond & StreamConditionMask, cond );
     return ReadPendingData(po, is_out);
 }
 
@@ -193,7 +193,7 @@ static void TestFdState(int fd, bool be_open)
 
     errno = 0; // чистим
     io::tell(fd);
-    ASSERT( errno == need_errno );
+    ASSERT_OR_UNUSED_VAR( errno == need_errno, need_errno );
 }
 
 static void LogExecuteAsync(const std::string& str)

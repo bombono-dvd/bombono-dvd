@@ -105,9 +105,13 @@ void TSInfo::PrintTsStats(double max_dist)
     LOG_INF << "Min distance b/w ts: \t" << minDist << io::endl;
     LOG_INF << "Max distance b/w ts: \t" << maxDist << io::endl;
     if( max_dist != 0. && max_dist < maxDist )
+    {
         LOG_INF << "Permitted max distance (" << max_dist << " sec) is violated!" << io::endl;
+    }
     if( tsCnt >= 2 )
+    {
         LOG_INF << "Avg distance b/w ts: \t" << len / (tsCnt-1) << io::endl;
+    }
     LOG_INF << "Total ts number: " << tsCnt << io::endl;
 }
 
@@ -150,7 +154,9 @@ void PrintStats()
     LOG_INF << "Max decode delay: " << TsStats.maxScrPtsDist << " sec" << io::endl;
     // Doc: 2.4.2.6, D.0.1
     if( TsStats.maxScrPtsDist>1. )
+    {
         LOG_INF << "Permitted delay (1 sec, if not still pictures) is violated!" << io::endl;
+    }
     if( TsStats.disorderScrPts )
     {
         LOG_INF << "There is scr greater pts!" << io::endl;

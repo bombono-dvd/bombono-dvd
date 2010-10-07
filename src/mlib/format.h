@@ -1,11 +1,11 @@
 #ifndef __MLIB_FORMAT_H__
 #define __MLIB_FORMAT_H__
 
-#ifdef EXT_BOOST
+#if !(defined(EXT_BOOST) || defined(NDEBUG))
+#define EXTERNAL_INSTANTIATE
+#endif
 
-#include <boost/format.hpp>
-
-#else // EXT_BOOST
+#ifdef EXTERNAL_INSTANTIATE
 
 // format.hpp включает все реализацию, что добавляет
 // в каждый объектник ~400kb кода!
@@ -23,7 +23,11 @@
 
 #define INST_BFRMT_PERCENT(Type) template boost::format& boost::format::operator%<Type>(Type& x);
 
-#endif // EXT_BOOST
+#else // EXTERNAL_INSTANTIATE
+
+#include <boost/format.hpp>
+
+#endif // EXTERNAL_INSTANTIATE
 
 //
 // Приведение boost::format к std::string наиболее удобным способом:

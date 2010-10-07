@@ -213,7 +213,7 @@ MpegDecodec::PlanesType MpegDecodec::FrameData(FrameDecType fdt) const
     {
         dat = mpeg2Dec->fbuf[0]->buf;
         const mpeg2_fbuf_t * disp_dat = mpeg2_info(mpeg2Dec)->display_fbuf;
-        ASSERT( !disp_dat || (disp_dat->buf == dat) );
+        ASSERT_OR_UNUSED_VAR( !disp_dat || (disp_dat->buf == dat), disp_dat );
     }
     else
     {

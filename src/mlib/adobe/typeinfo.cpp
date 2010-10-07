@@ -24,7 +24,7 @@ namespace adobe {
 
 bad_cast::bad_cast() : what_m("bad_cast") { }
 
-bad_cast::bad_cast(const bad_cast& error) : what_m(error.what_m) { }
+bad_cast::bad_cast(const bad_cast& error) : my_parent(), what_m(error.what_m) { }
 
 /*
 REVISIT (sparent) : This is only for debugging, but a reliable way to map a type to a name would

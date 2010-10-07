@@ -299,13 +299,17 @@ void DemuxState::SetTS(double ts, Demuxer& dmx, bool is_pts)
     {
         dmx.curPts = ts;
         if( ts != INV_TS )
+        {
             LOG_DBG << "\t pts: " << ts << " (s)" << io::endl;
+        }
     }
     else
     {
         dmx.curScr = ts;
         if( ts != INV_TS )
+        {
             LOG_DBG2 << "\t scr: " << ts << " (s)" << io::endl;
+        }
     }
 }
 

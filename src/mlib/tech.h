@@ -85,5 +85,31 @@ void AssertImpl(const char* assertion, const char* file,
 #   error mlib/tech.h: unknown endianness (legacy PDP arch?)
 #endif
 
+// gcc 4.4 вываливает кучу предупреждений о strict-alias rules
+// (только при >= -O2), но чувствую, что неправильно
+
+#if defined(NDEBUG) && defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 4)
+#define __GNUC_INCORRECT_SAR__
+#endif
+
+// помечаем так переменные, чтобы убрать warning: unused variable;
+// которые тем не менее используются, но не всегда, см. ASSERT()
+#define UNUSED_VAR(x) ((void)(x))
+#ifdef NDEBUG
+#define ASSERT_OR_UNUSED(expr)        UNUSED_VAR(expr)
+#define ASSERT_OR_UNUSED_VAR(expr, x) UNUSED_VAR(x)
+#else
+#define ASSERT_OR_UNUSED(expr)        ASSERT(expr)
+#define ASSERT_OR_UNUSED_VAR(expr, x) ASSERT(expr)
+#endif // NDEBUG
+
+// тоже самое, но для функций (только gcc)
+#ifdef __GNUC__
+#define UNUSED_FUNCTION __attribute__((unused))
+#else
+#define UNUSED_FUNCTION
+#endif
+
 #endif // #ifndef __MLIB_TECH_H__
+
 

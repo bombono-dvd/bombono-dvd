@@ -378,6 +378,7 @@ construct the object, it simply relays "bad_cast".
 */
 class bad_cast : public std::bad_cast
 {
+    typedef std::bad_cast my_parent;
  public:
     bad_cast();
     bad_cast(const std::type_info& from, const std::type_info& to);

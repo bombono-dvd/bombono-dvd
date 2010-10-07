@@ -619,7 +619,7 @@ void VideoLine::GetData(Mpeg::Demuxer& dmx, int len)
 {
     double pts = dmx.CurPTS();
     double scr = dmx.CurSCR();
-    ASSERT( IsTSValid(scr) );
+    ASSERT_OR_UNUSED_VAR( IsTSValid(scr), scr );
 
     // пока не дошли до блока с pts не начинаем
     if( !IsTSValid(pts) )

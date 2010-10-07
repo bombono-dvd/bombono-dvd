@@ -101,7 +101,7 @@ TestMonitor::TestMonitor()
     std::string fname = "/opt/src/Video/elephantsdream.mpg";
     bool is_open = plyr.Open(fname.c_str());
     //bool is_open = plyr.Open("../Autumn.mpg");
-    ASSERT( is_open );
+    ASSERT_OR_UNUSED( is_open );
 
     CurrVideo->MakeByPath(fname);
     double fps = Mpeg::GetFrameFPS(plyr);
