@@ -34,6 +34,17 @@ class MenuItemMD;
 typedef boost::intrusive_ptr<MenuMD> Menu;
 typedef boost::intrusive_ptr<MenuItemMD> MenuItem;
 
+const double DEF_MOTION_DURATION = 15; // секунд
+
+struct MotionData
+{
+      bool  isMotion; // меню будет анимационным
+    double  duration; // длительность в секундах
+ MediaItem  audioRef; // отсюда берем аудио (видео или глава!)
+
+    MotionData(): isMotion(false), duration(DEF_MOTION_DURATION) {}
+};
+
 // меню
 class MenuMD: public PSO<MenuMD, Media> // от Media
 {
@@ -58,6 +69,7 @@ class MenuMD: public PSO<MenuMD, Media> // от Media
               ListType  itmLst; // список глав
              MediaItem  bgRef;  // фон меню
            std::string  color;
+            MotionData  mtnData;
 };
 
 Menu IsMenu(MediaItem mi);

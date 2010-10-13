@@ -61,7 +61,7 @@ static std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, boo
 
 BOOST_AUTO_TEST_CASE( TestRenderTranscoding )
 {
-    //return;
+    return;
     Mpeg::FwdPlayer plyr;
     SetOutputFormat(plyr, fofRGB);
 

@@ -68,12 +68,20 @@ void SerializeReference(Archieve& ar, const char* attr_name, MediaItem& mi)
         ar << NameValue(attr_name, Media2Ref(mi));
 }
 
+static void Serialize(Archieve& ar, MotionData& mtn_data)
+{
+    ar( "IsMotion", mtn_data.isMotion )
+      ( "Duration", mtn_data.duration );
+    SerializeReference(ar, "AudioRef", mtn_data.audioRef);
+}
+
 void MenuMD::SerializeImpl(Archieve& ar)
 {
     // * параметры
-    ar( "Params",  mPrms )
-      ( "Color",   color );
+    ar( "Params",     mPrms   )
+      ( "Color",      color   );
     SerializeReference(ar, "BGRef", bgRef);
+    ar( "MotionData", mtnData );
 
     // * пункты меню
     {
