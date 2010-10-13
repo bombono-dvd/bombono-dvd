@@ -325,7 +325,8 @@ static void ThrowGError(const std::string& dsc, GError* err)
     throw std::runtime_error(str);
 }
 
-GPid Spawn(const char* dir, const char *commandline, int out_err[2], bool need_watch)
+GPid Spawn(const char* dir, const char *commandline, int out_err[2], bool need_watch,
+           int* in_fd)
 {
     LOG_INF << "Spawn(" << commandline << ")" << io::endl;
     //// старый вариант
@@ -354,7 +355,7 @@ GPid Spawn(const char* dir, const char *commandline, int out_err[2], bool need_w
 
     GPid pid;
     bool res = g_spawn_async_with_pipes(dir, argv, 0, flags, 0, 0, &pid, 
-                                        0, out_err, out_err ? out_err+1 : 0, &error);
+                                        in_fd, out_err, out_err ? out_err+1 : 0, &error);
     //g_strfreev (argv);
     g_free (user_shell);
 

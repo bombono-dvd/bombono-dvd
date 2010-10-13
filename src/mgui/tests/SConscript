@@ -22,6 +22,7 @@ source_files = [
                 'test_mbrowser.cpp',
                 'test_mux.cpp',
                 'test_redivide.cpp',
+                'test_render.cpp',
                 'test_stream_utils.cpp',
                 #'test_scaled_text.cpp',
                 'test_text.cpp',

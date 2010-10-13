@@ -51,8 +51,6 @@ struct TempObjs
       void  SetNextBase() { nxtBas = true; }
 };
 
-// открыть файл: только для чтения (is_read) или только для записи
-int OpenFileAsArg(const char* fpath, bool is_read);
 //
 Comp::Media* CreateMedia(const char* fpath, bool& is_movie);
 

@@ -75,6 +75,8 @@ inline off_t tell(int fd) { return lseek(fd, 0, SEEK_CUR); }
 
 } //namespace msys
 
+// открыть файл: только для чтения (is_read) или только для записи
+int OpenFileAsArg(const char* fpath, bool is_read);
 
 #endif // #ifndef __MLIB_SDK_STREAM_UTIL_H__
 

@@ -53,6 +53,7 @@ class Pulse
 };
 
 void SimpleSpawn(const char *commandline, const char* dir = 0);
+void Stop(GPid& pid);
 
 } // namespace Exection
 
@@ -88,7 +89,7 @@ std::string ExitDescription(const ExitData& ed);
 // need_watch - из-за специфики Unix (waitpid()) требуется явно указывать,
 // будем ли наблюдать за запущенным процессом
 GPid Spawn(const char* dir, const char *commandline, 
-           int out_err[2] = 0, bool need_watch = false);
+           int out_err[2] = 0, bool need_watch = false, int* in_fd = 0);
 
 #endif // #ifndef __MGUI_EXECUTION_H__
 

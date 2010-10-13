@@ -20,7 +20,6 @@
 // 
 
 #include <getopt.h>
-#include <sys/stat.h> // S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH
 
 #include <Magick++.h>
 
@@ -77,27 +76,6 @@ static Comp::Media* TryMpegMedia(const char* fpath, bool& is_movie)
         }
     }
     return 0;
-}
-
-// открыть файл: только для чтения (is_read) или только для записи
-int OpenFileAsArg(const char* fpath, bool is_read)
-{
-    int fd =   is_read ? IN_HNDL  : OUT_HNDL ;
-    int opts = is_read ? O_RDONLY : O_WRONLY|O_CREAT|O_TRUNC ;
-
-    if( strcmp( fpath, "-" ) != 0 )
-    {
-        // обязательно выставляем режим mode с S_IRUSR|S_IWUSR,
-        // иначе у нас не будет прав на изменение/удаление этого
-        // же файла во второй раз (при перезаписи)!
-        mode_t mode = S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH;
-        fd = open(fpath, opts, mode);
-    }
-
-    if( fd == NO_HNDL )
-        Error("Cant open one of files!");
-
-    return fd;
 }
 
 Comp::Media* CreateMedia(const char* fpath, bool& is_movie)
