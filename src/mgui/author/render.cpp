@@ -214,8 +214,7 @@ void SPRenderVis::Visit(FrameThemeObj& fto)
         DiscreteByAlpha(obj_pix, clr);
 
         //drw->CompositePixbuf(obj_pix, plc);
-        using namespace boost;
-        RGBA::RgnPixelDrawer::DrwFunctor drw_fnr = lambda::bind(&CopyArea, drw->Canvas(), obj_pix, plc, lambda::_1);
+        RGBA::RgnPixelDrawer::DrwFunctor drw_fnr = bb::bind(&CopyArea, drw->Canvas(), obj_pix, plc, _1);
         drw->DrawWithFunctor(plc, drw_fnr);
 
         ScriptButton(spuNode, isSelect, plc);
@@ -371,8 +370,7 @@ RefPtr<Gdk::Pixbuf> FTOAuthorData::CalcSource(Project::MediaItem mi, const Point
     RefPtr<Gdk::Pixbuf> pix;
     if( Menu mn = IsMenu(mi) )
     {
-        using namespace boost;
-        ShotFunctor s_fnr = lambda::bind(&GetAuthoredMenu, mn);
+        ShotFunctor s_fnr = bb::bind(&GetAuthoredMenu, mn);
         pix = MakeCopyWithSz(GetAuthoredLRS(s_fnr), sz);
     }
     else
@@ -414,12 +412,12 @@ void AuthorMenus(const std::string& out_dir)
     // * подготовка к рендерингу
     // * создание слоев/субтитров выбора и скрипта
     //ForeachMenu(lambda::bind(&SetAuthorControl, lambda::_1, lambda::_2));
-    ForeachMenu(bl::bind(&RenderSubPictures, boost::ref(out_dir), bl::_1, bl::_2, boost::ref(menu_list)));
+    ForeachMenu(bb::bind(&RenderSubPictures, boost::ref(out_dir), _1, _2, boost::ref(menu_list)));
     menu_list << "]\n" << io::endl;
     PulseRenderProgress();
 
     // * отрисовка основного изображения
-    ForeachMenu(bl::bind(&RenderMainPicture, boost::ref(out_dir), bl::_1, bl::_2));
+    ForeachMenu(bb::bind(&RenderMainPicture, boost::ref(out_dir), _1, _2));
 }
 
 } // namespace Project
