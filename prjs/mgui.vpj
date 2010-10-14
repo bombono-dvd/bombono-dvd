@@ -322,7 +322,6 @@
 			<F N="../src/mgui/prefs.cpp"/>
 			<F N="../src/mgui/redivide.cpp"/>
 			<F N="../src/mgui/editor/region.cpp"/>
-			<F N="../src/mgui/author/render.cpp"/>
 			<F N="../src/mgui/editor/render.cpp"/>
 			<F N="../src/mgui/render/rgba.cpp"/>
 			<F N="../src/mgui/author/script.cpp"/>

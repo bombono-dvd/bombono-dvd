@@ -189,6 +189,7 @@
 			Name="Source Files"
 			Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
 			<F N="../src/mgui/tests/clearlooks.cpp"/>
+			<F N="../src/mgui/author/render.cpp"/>
 			<F N="../src/mgui/tests/test_author.cpp"/>
 			<F N="../src/mgui/tests/test_burn.cpp"/>
 			<F N="../src/mgui/tests/test_compile.cpp"/>
