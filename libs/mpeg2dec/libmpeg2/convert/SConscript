@@ -19,7 +19,7 @@
 #
 # EXTRA_DIST = convert_internal.h
 
-Import('libmpeg2_env')
+Import('libmpeg2_env', 'user_options_dict')
 
 libmpeg2convert_env = libmpeg2_env.Clone()
 
@@ -33,5 +33,5 @@ libmpeg2convertarch_objs = libmpeg2convert_env.Object(source = libmpeg2convertar
 # libmpeg2convert.a
 #
 libmpeg2convert_src = ['rgb.c', 'uyvy.c']
-libmpeg2convert_env.Library(target = 'libmpeg2convert', source = libmpeg2convert_src+libmpeg2convertarch_objs)
+libmpeg2convert_env.Library(target = user_options_dict['LIB_BUILD_DIR'] + '/libmpeg2convert', source = libmpeg2convert_src+libmpeg2convertarch_objs)
 

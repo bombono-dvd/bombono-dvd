@@ -25,7 +25,7 @@
 #
 # EXTRA_DIST = configure.incl vlc.h mpeg2_internal.h
 
-Import('libmpeg2_env')
+Import('libmpeg2_env', 'user_options_dict')
 
 libmpeg2_env_lib = libmpeg2_env.Clone()
 
@@ -43,7 +43,7 @@ libmpeg2arch_objs = libmpeg2_env_lib.Object(source = libmpeg2arch_src)
 # libmpeg2.a
 #
 libmpeg2_src = ['alloc.c', 'header.c', 'decode.c', 'slice.c', 'motion_comp.c', 'idct.c']
-libmpeg2_env_lib.Library(target = 'libmpeg2', source = libmpeg2_src + libmpeg2arch_objs)
+libmpeg2_env_lib.Library(target = user_options_dict['LIB_BUILD_DIR'] + '/libmpeg2', source = libmpeg2_src + libmpeg2arch_objs)
 
 SConscript('convert/SConscript')
 

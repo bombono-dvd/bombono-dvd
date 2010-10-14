@@ -89,9 +89,11 @@ user_options_dict['AddSourcesForXgettext'](lib_src_files)
 # SetPCH() function' argument 'additional_envs', like bin_mgui_env here!
 user_options_dict['SetPCH'](lib_mgui_env, '_pc_.h', [bin_mgui_env])
 
-mgui_lib_name = 'MdEditor'
 lib_mgui_objs = lib_mgui_env.StaticObject(lib_src_files)
-lib_mgui_env.Library( target = lib_path+'/'+mgui_lib_name, source = lib_mgui_objs )
+# build binaries directly, without slow-building static libraries
+Export('lib_mgui_objs')
+#mgui_lib_name = 'MdEditor'
+#lib_mgui_env.Library( target = lib_path+'/'+mgui_lib_name, source = lib_mgui_objs )
 
 ######
 # bin

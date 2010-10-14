@@ -25,7 +25,7 @@ mpeg2dec_env = libvo_env.Clone()
 #
 # mpeg2dec
 #
-mpeg2dec_ldadd = ['../libvo/libvo.a', '../libmpeg2/libmpeg2.a', '../libmpeg2/convert/libmpeg2convert.a']
+mpeg2dec_ldadd = ['../libvo/libvo.a']
 mpeg2dec_src   = ['mpeg2dec.c', 'dump_state.c', 'getopt.c', 'gettimeofday.c']
 mpeg2dec_env.Program(target = 'mpeg2dec', source = mpeg2dec_src + mpeg2dec_ldadd)
 

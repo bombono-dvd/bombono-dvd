@@ -107,6 +107,7 @@ libmpeg2_env.Append(CPPPATH = [include_dir, include_dir.srcnode()])
 Export('libmpeg2_env')
 
 libvo_env = libmpeg2_env.Clone()
+libvo_env.Append(LIBS=['mpeg2', 'mpeg2convert'])
 # libvo_env.Append(CPPPATH = ['/usr/include/SDL'], DEFINES = ['_REENTRANT'])
 # libvo_env.Append(LIBPATH = ['/usr/X11R6/lib'])
 # libvo_env.Append(LIBS=['SM', 'ICE', 'X11', 'Xext', 'Xv', 'SDL','pthread'])

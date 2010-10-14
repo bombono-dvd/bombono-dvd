@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-Import('mgui_tests_env', 'user_options_dict', 'UnitTest')
+Import('mgui_tests_env', 'user_options_dict', 'UnitTest', 'lib_mgui_objs')
 
 bin_mgui_tests_env = mgui_tests_env.Clone()
 
-bin_mgui_tests_env.Prepend( LIBS = ['MdEditor', 'mbase_tests', 'mdemux_tests', 'mlib_tests', 'MdBase',
+bin_mgui_tests_env.Prepend( LIBS = ['mbase_tests', 'mdemux_tests', 'mlib_tests', 'MdBase',
                                     'MdDemuxer', 'MdLib'] )
 
 test_prg_name = 'mgui_tests'
@@ -33,7 +33,7 @@ source_files = [
 # Precompiled header install
 user_options_dict['SetPCH'](bin_mgui_tests_env, '_pc_.h')
 
-bin_mgui_tests_env.Program( target = test_prg_name, source = source_files )
+bin_mgui_tests_env.Program(target=test_prg_name, source = source_files+lib_mgui_objs)
 
 import os
 if os.environ.has_key('DISPLAY'):

@@ -45,9 +45,9 @@ if embedded_boost:
 mpeg2dec_src = 'mpeg2dec'
 
 # install libmpeg2 for use by the project
-lib_mpeg_prefix = mpeg2dec_src + '/libmpeg2/'
-env.Install(dir = '../lib', 
-    source = [ lib_mpeg_prefix+'libmpeg2.a', lib_mpeg_prefix+'convert/libmpeg2convert.a' ] )
+#lib_mpeg_prefix = mpeg2dec_src + '/libmpeg2/'
+#env.Install(dir = '../lib',
+#    source = [ lib_mpeg_prefix+'libmpeg2.a', lib_mpeg_prefix+'convert/libmpeg2convert.a' ] )
 
 # # for config.h + = './include'
 # include_dir = Dir(mpeg2dec_src+'/include')
