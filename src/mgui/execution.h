@@ -71,6 +71,8 @@ struct ExitData
 
       bool IsGood() const { return normExit && (retCode == 0); }
 };
+// результат system() интерпретировать так
+ExitData StatusToExitData(int status);
 
 // line_up - вывод по строкам, а не по мере поступления данных
 ExitData ExecuteAsync(const char* dir, const char* cmd, ReadReadyFnr& fnr, 

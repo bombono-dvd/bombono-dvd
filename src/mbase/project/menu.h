@@ -41,8 +41,9 @@ struct MotionData
       bool  isMotion; // меню будет анимационным
     double  duration; // длительность в секундах
  MediaItem  audioRef; // отсюда берем аудио (видео или глава!)
+      bool  isStillPicture; // "неподвижное видео"
 
-    MotionData(): isMotion(false), duration(DEF_MOTION_DURATION) {}
+    MotionData(): isMotion(false), duration(DEF_MOTION_DURATION), isStillPicture(false) {}
 };
 
 // меню

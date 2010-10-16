@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE( TestRenderTranscoding )
 BOOST_AUTO_TEST_CASE( TestStillTranscoding )
 {
     return;
-    std::string fname   = "/home/ilya/opt/programming/atom-project/dvd_out/1.Billiard/Menu.png";
+    std::string fname   = "/home/ilya/opt/programming/atom-project/dvd_out/3.Menu 4/Menu.png";
 
     // в случае автономной работы ffmpeg указываем длительность аргументом
     double duration = 15;
@@ -125,5 +125,7 @@ BOOST_AUTO_TEST_CASE( TestStillTranscoding )
         % fname % FFmpegPostArgs("../dvd_out/trans.vob", false, true) % duration % bf::stop;
  
     io::cout << ffmpeg_cmd << io::endl;
-    Execution::SimpleSpawn(ffmpeg_cmd.c_str());
+    //Execution::SimpleSpawn(ffmpeg_cmd.c_str());
+    ExitData ed = StatusToExitData( system(ffmpeg_cmd.c_str()) );
+    BOOST_CHECK( ed.IsGood() );
 }

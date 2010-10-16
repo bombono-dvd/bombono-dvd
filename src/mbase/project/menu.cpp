@@ -73,6 +73,7 @@ static void Serialize(Archieve& ar, MotionData& mtn_data)
     ar( "IsMotion", mtn_data.isMotion )
       ( "Duration", mtn_data.duration );
     SerializeReference(ar, "AudioRef", mtn_data.audioRef);
+    ar( "IsStillPicture", mtn_data.isStillPicture );
 }
 
 void MenuMD::SerializeImpl(Archieve& ar)

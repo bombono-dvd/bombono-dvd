@@ -618,6 +618,53 @@ bool IsMotion(Menu mn)
 
 bool IsMenuToBe4_3();
 
+static void SaveMenuPng(const std::string& mn_dir, Menu mn)
+{
+    SaveMenuPicture(mn_dir, "Menu.png", GetAuthoredMenu(mn));
+}
+
+static std::string MakeFFmpegPostArgs(const std::string& mn_dir, Menu mn)
+{
+    MotionData& mtn_dat = mn->MtnData();
+    // аспект ставим как можем (а не из параметров меню) из-за того, что качество
+    // авторинга важнее гибкости (все валим в один titleset)
+    bool is_4_3 = IsMenuToBe4_3();
+    std::string out_fname = AppendPath(mn_dir, "Menu.mpg");
+
+    std::string a_fname;
+    double a_shift = 0.;
+    if( mtn_dat.audioRef )
+    {
+        VideoStart vs = GetVideoStart(mtn_dat.audioRef);
+        a_fname = GetFilename(vs);
+        a_shift = vs.second;
+    }
+    return FFmpegPostArgs(out_fname, is_4_3, AData().PalTvSystem(), a_fname, a_shift);
+}
+
+static double MenuDuration(Menu mn)
+{
+    double duration = mn->MtnData().duration;
+    const int MAX_MOTION_DUR = 60 * 5; // 5 минут максимум?
+    ASSERT_RTL( duration > 0 && duration <= MAX_MOTION_DUR );
+
+    return duration;
+}
+
+static void SaveStillMenuMpg(const std::string& mn_dir, Menu mn)
+{
+    // сохраняем Menu.png и рендерим из нее
+    SaveMenuPng(mn_dir, mn);
+    std::string img_fname = AppendPath(mn_dir, "Menu.png");
+
+    std::string ffmpeg_cmd = boost::format("ffmpeg -t %3$.2f -loop_input -i \"%1%\" %2%") 
+        % img_fname % MakeFFmpegPostArgs(mn_dir, mn) % MenuDuration(mn) % bf::stop;
+
+    // :TODO: визуализация через ExecuteAsync()
+    ExitData ed = StatusToExitData( system(ffmpeg_cmd.c_str()) );
+    ASSERT( ed.IsGood() );
+}
+
 bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
 {
     Author::Info((str::stream() << "Rendering menu \"" << mn->mdName << "\" ...").str());
@@ -625,97 +672,85 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
 
     if( IsMotion(mn) )
     {
-        MotionData& mtn_dat = mn->MtnData();
-        MenuRegion& m_rgn   = GetMenuRegion(mn);
-        PixCanvasBuf& mtn_buf = GetTaggedPCB(mn, MOTION_MENU_TAG);
-
-        // 0 подготовка
-        InitTextForTaggedPCB(mn, MOTION_MENU_TAG);
-
-        // рендеринг анимационного меню
-        // 1 определяем область перерисовки на итерацию
-        RectListRgn& rlr = mtn_buf.RenderList();
-        if( IsMovingBack(m_rgn) )
-            // вся область из-за фона
-            rlr.push_back(mtn_buf.FrameRect());
+        if( mn->MtnData().isStillPicture )
+            SaveStillMenuMpg(mn_dir, mn);
         else
         {
-            boost_foreach( Comp::Object* obj, m_rgn.List() )
-                if( FrameThemeObj* frame_obj = dynamic_cast<FrameThemeObj*>(obj) )
-                    if( IsToBeMoving(MIToDraw(*frame_obj)) )
-                        rlr.push_back(RealPosition(*frame_obj, mtn_buf.Transition()));
+            MenuRegion& m_rgn     = GetMenuRegion(mn);
+            PixCanvasBuf& mtn_buf = GetTaggedPCB(mn, MOTION_MENU_TAG);
+
+            // 1 определяем область перерисовки на итерацию
+            RectListRgn& rlr = mtn_buf.RenderList();
+            if( IsMovingBack(m_rgn) )
+                // вся область из-за фона
+                rlr.push_back(mtn_buf.FrameRect());
+            else
+            {
+                boost_foreach( Comp::Object* obj, m_rgn.List() )
+                    if( FrameThemeObj* frame_obj = dynamic_cast<FrameThemeObj*>(obj) )
+                        if( IsToBeMoving(MIToDraw(*frame_obj)) )
+                            rlr.push_back(RealPosition(*frame_obj, mtn_buf.Transition()));
+            }
+            ReDivideRects(rlr);
+
+            // рендеринг анимационного меню
+            // 2 рендеринг -> ffmpeg
+            if( rlr.size() )
+            {
+                // подготовка
+                InitTextForTaggedPCB(mn, MOTION_MENU_TAG);
+
+                // 1. Ставим частоту fps впереди -i pipe, чтобы она воспринималась для входного потока
+                // (а для выходного сработает -target)
+                // 2. И наоборот, для выходные параметры (-aspect, ...) ставим после всех входных файлов
+                std::string ffmpeg_cmd = boost::format("ffmpeg -r %1% -f image2pipe -vcodec ppm -i pipe: %2%")
+                    % MotionTimer::fps % MakeFFmpegPostArgs(mn_dir, mn) % bf::stop;
+
+                int in_fd = NO_HNDL;
+                GPid pid = Spawn(0, ffmpeg_cmd.c_str(), 0, false, &in_fd);
+                ASSERT( pid >= 0 );
+                ASSERT( in_fd != NO_HNDL );
+
+                // :TEMP:
+                double all_time = GetClockTime();
+
+                RefPtr<Gdk::Pixbuf> img = mtn_buf.FramePixbuf();
+                ASSERT( img );
+                MotionTimer& mt = GetMotionTimer(mn);
+
+                double duration = MenuDuration(mn);
+                ASSERT( mt.IsFirst() );
+                for( ; mt.Time() < duration; mt.idx++ )
+                {
+                    MotionMenuRVis r_vis(rlr);
+                    m_rgn.Accept(r_vis);
+
+                    //std::string fpath = "/dev/null"; //boost::format("../dvd_out/ppms/%1%.ppm") % i % bf::stop;
+                    //int fd = OpenFileAsArg(fpath.c_str(), false);
+                    WriteAsPPM(in_fd, img);
+                    //close(fd);
+                }
+                close(in_fd);
+                // варианты остановить транскодирование сразу после окончания видео, см. ffmpeg.c:av_encode():
+                // - через сигнал (SIGINT, SIGTERM, SIGQUIT)
+                // - по достижению размера или времени (см. соответ. опции вроде -t); но тут возможна проблема
+                //   блокировки/закрытия раньше, чем мы закончим посылку всех данных; да и время высчитывать тоже придется
+                // - в момент окончания первого из источников, -shortest; не подходит, если аудио существенно длинней
+                //   чем мы хотим записать
+                Execution::Stop(pid);
+                g_spawn_close_pid(pid);
+
+                // :TEMP:
+                all_time = GetClockTime() - all_time;
+                io::cout << "Time to run: " << all_time << io::endl;
+                io::cout << "FPS: " << mt.idx / all_time << io::endl;
+            }
+            else
+                SaveStillMenuMpg(mn_dir, mn);
         }
-        ReDivideRects(rlr);
-
-        // :TODO: если итерационная область пустая (так получилось), то сохраняем
-        // Menu.png и рендерим из нее
-        ASSERT( rlr.size() );
-
-        // 2 рендеринг -> ffmpeg
-        double duration = mtn_dat.duration;
-        const int MAX_MOTION_DUR = 60 * 5; // 5 минут максимум?
-        ASSERT_RTL( duration > 0 && duration <= MAX_MOTION_DUR );
-
-        // аспект ставим как можем (а не из параметров меню) из-за того, что качество
-        // авторинга важнее гибкости (все валим в один titleset)
-        bool is_4_3 = IsMenuToBe4_3();
-        std::string out_fname = AppendPath(mn_dir, "Menu.mpg");
-
-        std::string a_fname;
-        double a_shift = 0.;
-        if( mtn_dat.audioRef )
-        {
-            VideoStart vs = GetVideoStart(mtn_dat.audioRef);
-            a_fname = GetFilename(vs);
-            a_shift = vs.second;
-        }
-
-        // 1. Ставим частоту fps впереди -i pipe, чтобы она воспринималась для входного потока
-        // (а для выходного сработает -target)
-        // 2. И наоборот, для выходные параметры (-aspect, ...) ставим после всех входных файлов
-        std::string ffmpeg_cmd = boost::format("ffmpeg -r %1% -f image2pipe -vcodec ppm -i pipe: %2%")
-            % MotionTimer::fps % FFmpegPostArgs(out_fname, is_4_3, AData().PalTvSystem(), a_fname, a_shift) % bf::stop;
-
-        int in_fd = NO_HNDL;
-        GPid pid = Spawn(0, ffmpeg_cmd.c_str(), 0, false, &in_fd);
-        ASSERT( pid >= 0 );
-        ASSERT( in_fd != NO_HNDL );
-
-        // :TEMP:
-        double all_time = GetClockTime();
-
-        RefPtr<Gdk::Pixbuf> img = mtn_buf.FramePixbuf();
-        ASSERT( img );
-        MotionTimer& mt = GetMotionTimer(mn);
-
-        ASSERT( mt.IsFirst() );
-        for( ; mt.Time() < duration; mt.idx++ )
-        {
-            MotionMenuRVis r_vis(rlr);
-            m_rgn.Accept(r_vis);
-
-            //std::string fpath = "/dev/null"; //boost::format("../dvd_out/ppms/%1%.ppm") % i % bf::stop;
-            //int fd = OpenFileAsArg(fpath.c_str(), false);
-            WriteAsPPM(in_fd, img);
-            //close(fd);
-        }
-        close(in_fd);
-        // варианты остановить транскодирование сразу после окончания видео, см. ffmpeg.c:av_encode():
-        // - через сигнал (SIGINT, SIGTERM, SIGQUIT)
-        // - по достижению размера или времени (см. соответ. опции вроде -t); но тут возможна проблема
-        //   блокировки/закрытия раньше, чем мы закончим посылку всех данных; да и время высчитывать тоже придется
-        // - в момент окончания первого из источников, -shortest; не подходит, если аудио существенно длинней
-        //   чем мы хотим записать
-        Execution::Stop(pid);
-        g_spawn_close_pid(pid);
-
-        // :TEMP:
-        all_time = GetClockTime() - all_time;
-        io::cout << "Time to run: " << all_time << io::endl;
-        io::cout << "FPS: " << mt.idx / all_time << io::endl;
     }
     else
-        SaveMenuPicture(mn_dir, "Menu.png", GetAuthoredMenu(mn));
+        SaveMenuPng(mn_dir, mn);
 
     PulseRenderProgress();
     return true;

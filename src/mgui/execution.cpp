@@ -169,9 +169,9 @@ static void SetupEO(ProgramOutput& po, int fd, bool is_out)
     eo.outChnl->set_flags(Glib::IO_FLAG_NONBLOCK);
 }
 
-static void WaitExitCode(ExitData& ed, GPid pid, int status)
+ExitData StatusToExitData(int status)
 {
-    ed.normExit = true;
+    ExitData ed;
     if( WIFEXITED(status) )
         ed.retCode = WEXITSTATUS(status);
     else if( WIFSIGNALED(status) )
@@ -181,6 +181,13 @@ static void WaitExitCode(ExitData& ed, GPid pid, int status)
     }
     else
         ASSERT_RTL(0);
+
+    return ed;
+}
+
+static void WaitExitCode(ExitData& ed, GPid pid, int status)
+{
+    ed = StatusToExitData(status);
     g_spawn_close_pid(pid);
 
     Gtk::Main::quit();
