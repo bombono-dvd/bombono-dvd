@@ -34,10 +34,15 @@ bool OpenMediaFile(std::string& fname, Gtk::Window& par_win);
 namespace Project
 {
 
+typedef std::pair<VideoItem, double> VideoStart;
+VideoStart GetVideoStart(MediaItem mi);
+
 // чтение кадров с видео
 class VideoPE: public PixExtractor
 {
     public:
+                          VideoPE(VideoStart vs);
+
                           VideoPE(Mpeg::FwdPlayer& plyr_, double time_)
                             : plyr(plyr_), time(time_) {}
 

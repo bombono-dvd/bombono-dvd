@@ -54,6 +54,8 @@ class CanvasBuf
                       Point  Size() { return FramePlacement().Size(); }
                              // = Canvas(), только ограничен размерами Size()
         RefPtr<Gdk::Pixbuf>  FramePixbuf();
+                             // граница области рендеринга, FramePixbuf() (используются
+                             // относительные координаты!)
                        Rect  FrameRect() 
                              {
                                  Rect rct = FramePlacement();

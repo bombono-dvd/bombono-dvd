@@ -69,12 +69,12 @@ BOOST_AUTO_TEST_CASE( TestRenderTranscoding )
     std::string a_fname = "/home/ilya/opt/programming/atom-project/transition.mpg";
     bool is_open = plyr.Open(fname.c_str());
     ASSERT_OR_UNUSED( is_open );
+    bool is_pal = plyr.MInfo().vidSeq.hgt == 576;
 
     int fps = 30;
     double shift = 1. / fps;
     double end  = 1.; // секунда
 
-    bool is_pal = plyr.MInfo().vidSeq.hgt == 576;
     // 1. Ставим частоту fps впереди -i pipe, чтобы она воспринималась для входного потока
     // (а для выходного сработает -target)
     // 2. И наоборот, для выходные параметры (-aspect, ...) ставим после всех входных файлов

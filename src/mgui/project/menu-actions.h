@@ -44,6 +44,7 @@ void OpenPublishMenu(const Gtk::TreeIter& itr, RefPtr<MenuStore> ms, Menu mn);
 void RenderMenuSystem(Menu changed_mn, RectListRgn& rct_lst);
 
 bool IsMenuToBe4_3();
+bool Is4_3(Menu mn);
 
 } // namespace Project
 

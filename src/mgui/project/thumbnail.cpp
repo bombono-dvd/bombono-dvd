@@ -67,22 +67,49 @@ static Mpeg::FwdPlayer& OpenCachePlayer(VideoItem vmd)
     return cache.player;
 }
 
-RefPtr<Gdk::Pixbuf> GetVideoFrame(VideoItem vmd, double time, const Point& sz)
+//RefPtr<Gdk::Pixbuf> GetVideoFrame(VideoItem vmd, double time, const Point& sz)
+//{
+//    Mpeg::FwdPlayer& player = OpenCachePlayer(vmd);
+//    RefPtr<Gdk::Pixbuf> pix = CreatePixbuf(sz);
+//    return GetFrame(pix, time, player);
+//}
+
+const double VIDEO_THUMB_TIME = 0.;
+
+VideoStart GetVideoStart(MediaItem mi)
 {
-    Mpeg::FwdPlayer& player = OpenCachePlayer(vmd);
-    RefPtr<Gdk::Pixbuf> pix = CreatePixbuf(sz);
-    return GetFrame(pix, time, player);
+    VideoStart res;
+
+    if( VideoItem vi = IsVideo(mi) )
+    {
+        res.first  = vi;
+        res.second = VIDEO_THUMB_TIME;
+    }
+    else if( ChapterItem ci = IsChapter(mi) )
+    {
+        res.first  = ci->owner;
+        res.second = ci->chpTime;
+    }
+    else
+        ASSERT(0);
+    return res;
+}
+
+VideoPE::VideoPE(VideoStart vs): plyr(OpenCachePlayer(vs.first)), time(vs.second) {}
+
+static VideoPE* CreateVideoPE(Media& md)
+{
+    return new VideoPE(GetVideoStart(&md));
 }
 
 void PrimaryShotGetter::Visit(VideoMD& obj)
 {
-    const double VIDEO_THUMB_TIME = 0.;
-    pixExt = new VideoPE(OpenCachePlayer(&obj), VIDEO_THUMB_TIME);
+    pixExt = CreateVideoPE(obj);
 }
 
 void PrimaryShotGetter::Visit(VideoChapterMD& obj)
 {
-    pixExt = new VideoPE(OpenCachePlayer(obj.owner), obj.chpTime);
+    pixExt = CreateVideoPE(obj);
 }
 
 void PrimaryShotGetter::Visit(ColorMD& obj)

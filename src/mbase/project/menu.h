@@ -59,6 +59,7 @@ class MenuMD: public PSO<MenuMD, Media> // от Media
                  ListType& List()   { return itmLst; }
                 MediaItem& BgRef()  { return bgRef; }
               std::string& Color()  { return color; }
+               MotionData& MtnData(){ return mtnData; }
 
 
     virtual   std::string  TypeString() { return "Menu"; }

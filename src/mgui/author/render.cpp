@@ -28,11 +28,14 @@
 #include <mgui/project/thumbnail.h> // Project::PrimaryShotGetter
 #include <mgui/editor/text.h>   // EdtTextRenderer
 #include <mgui/editor/bind.h>   // MBind::TextRendering
+#include <mgui/redivide.h>
+#include <mgui/sdk/browser.h>   // VideoStart
 
 #include <mbase/project/table.h>
 
 #include <mlib/filesystem.h>
 #include <mlib/string.h>
+#include <mlib/sdk/system.h> // GetClockTime()
 
 #include <boost/lexical_cast.hpp>
 
@@ -45,29 +48,50 @@ void IteratePendingEvents()
 namespace Project 
 {
 
-PixCanvasBuf& GetAuthorPCB(Menu mn)
+PixCanvasBuf& GetTaggedPCB(Menu mn, const char* tag)
 {
-    PixCanvasBuf& pcb = mn->GetData<PixCanvasBuf>(AUTHOR_TAG);
+    PixCanvasBuf& pcb = mn->GetData<PixCanvasBuf>(tag);
     if( !pcb.Canvas() )
     {
         Point sz(mn->Params().Size());
         pcb.Set(CreatePixbuf(sz), Planed::Transition(Rect0Sz(sz), sz));
-        pcb.DataTag() = AUTHOR_TAG;
+        pcb.DataTag() = tag;
     }
     return pcb;
 }
 
-PixCanvasBuf& GetAuthorPCB(MenuRegion& menu_rgn)
+PixCanvasBuf& GetAuthorPCB(Menu mn)
 {
-    return GetAuthorPCB(GetOwnerMenu(&menu_rgn));
+    return GetTaggedPCB(mn, AUTHOR_TAG);
 }
 
-class SPRenderVis: public CommonRenderVis
+class CommonMenuRVis: public CommonRenderVis
 {
     typedef CommonRenderVis MyParent;
     public:
+                  CommonMenuRVis(const char* pcb_tag, RectListRgn& r_lst): 
+                      MyParent(r_lst), pcbTag(pcb_tag) {}
+
+    protected:
+        const char* pcbTag;
+
+     virtual CanvasBuf& FindCanvasBuf(MenuRegion& menu_rgn);
+
+void  RenderStatic(FrameThemeObj& fto);
+};
+
+CanvasBuf& CommonMenuRVis::FindCanvasBuf(MenuRegion& menu_rgn)
+{
+    MenuMD* mn = GetOwnerMenu(&menu_rgn);
+    return GetTaggedPCB(mn, pcbTag); 
+}
+
+class SPRenderVis: public CommonMenuRVis
+{
+    typedef CommonMenuRVis MyParent;
+    public:
                   SPRenderVis(RectListRgn& r_lst, xmlpp::Element* spu_node)
-                    : MyParent(r_lst), isSelect(false), spuNode(spu_node) {}
+                    : MyParent(AUTHOR_TAG, r_lst), isSelect(false), spuNode(spu_node) {}
 
             void  SetSelect(bool is_select) { isSelect = is_select; }
 
@@ -79,8 +103,6 @@ class SPRenderVis: public CommonRenderVis
     protected:
             bool  isSelect;
   xmlpp::Element* spuNode;
-
-     virtual CanvasBuf& FindCanvasBuf(MenuRegion& menu_rgn) { return GetAuthorPCB(menu_rgn); }
 };
 
 // используем "родной" прозрачный цвет в png
@@ -232,10 +254,15 @@ static void SaveMenuPicture(const std::string& mn_dir, const std::string fname,
     cnv_pix->save(AppendPath(mn_dir, fname), "png");
 }
 
+void InitTextForTaggedPCB(Menu mn, const char* tag)
+{
+    SimpleInitTextVis titv(GetTaggedPCB(mn, tag));
+    GetMenuRegion(mn).Accept(titv);
+}
+
 void InitAuthorData(Menu mn)
 {
-    SimpleInitTextVis titv(GetAuthorPCB(mn));
-    GetMenuRegion(mn).Accept(titv);
+    InitTextForTaggedPCB(mn, AUTHOR_TAG);
 }
 
 static int WorkCnt = 0;
@@ -303,18 +330,14 @@ bool RenderSubPictures(const std::string& out_dir, Menu mn, int i,
     return true;
 }
 
-class MenuRenderVis: public CommonRenderVis
+class MenuRenderVis: public CommonMenuRVis
 {
-    typedef CommonRenderVis MyParent;
+    typedef CommonMenuRVis MyParent;
     public:
-                  MenuRenderVis(RectListRgn& r_lst): MyParent(r_lst) {}
+                  MenuRenderVis(RectListRgn& r_lst): MyParent(AUTHOR_TAG, r_lst) {}
 
-         //virtual  void  VisitImpl(MenuRegion& menu_rgn);
          virtual RefPtr<Gdk::Pixbuf> CalcBgShot();
          virtual  void  Visit(FrameThemeObj& fto);
-
-    protected:
-     virtual CanvasBuf& FindCanvasBuf(MenuRegion& menu_rgn) { return GetAuthorPCB(menu_rgn); }
 };
 
 RefPtr<Gdk::Pixbuf> GetPrimaryAuthoredShot(MediaItem mi, const Point& sz = Point())
@@ -378,19 +401,296 @@ RefPtr<Gdk::Pixbuf> FTOAuthorData::CalcSource(Project::MediaItem mi, const Point
     return pix;
 }
 
-void MenuRenderVis::Visit(FrameThemeObj& fto)
+void CommonMenuRVis::RenderStatic(FrameThemeObj& fto)
 {
     // используем кэш
     FTOAuthorData& pix_data = fto.GetData<FTOAuthorData>(AUTHOR_TAG);
     drw->CompositePixbuf(pix_data.GetPix(), CalcRelPlacement(fto.Placement()));
 }
 
+void MenuRenderVis::Visit(FrameThemeObj& fto)
+{
+    RenderStatic(fto);
+}
+
+//
+// Функционал анимационных меню
+// 
+
+static bool IsToBeMoving(MediaItem mi)
+{
+    return mi && (IsVideo(mi) || IsChapter(mi));
+}
+
+static Rect RealPosition(Comp::MediaObj& obj, const Planed::Transition& trans)
+{
+    return AbsToRel(trans, obj.Placement());
+}
+
+// :REFACTOR: убрать копипаст
+
+static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix)
+{
+    int wdh = pix->get_width();
+    int hgt = pix->get_height();
+    int stride     = pix->get_rowstride();
+    int channels   = pix->get_n_channels();
+    guint8* pixels = pix->get_pixels();
+
+    char tmp[20];
+    snprintf(tmp, ARR_SIZE(tmp), "P6\n%d %d\n255\n", wdh, hgt);
+    write(fd, tmp, strlen(tmp));
+
+    for( int row = 0; row < hgt; row++, pixels += stride )
+    {
+        guint8* p = pixels;
+        for( int col = 0; col < wdh; col++, p += channels )
+        {
+            tmp[0] = p[0];
+            tmp[1] = p[1];
+            tmp[2] = p[2];
+
+            write(fd, tmp, 3);
+        }
+    }
+}
+
+static std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pal, 
+                                  const std::string& a_fname = std::string(), double a_shift = 0.)
+{
+    std::string a_input = "-an"; // без аудио
+    if( !a_fname.empty() )
+    {
+        std::string shift; // без смещения
+        if( a_shift )
+            shift = boost::format("-ss %.2f ") % a_shift % bf::stop;
+        a_input = boost::format("%2%-i \"%1%\"") % a_fname % shift % bf::stop; 
+    }
+
+    const char* target = "pal";
+    int wdh = 720; // меню всегда полноразмерное
+    int hgt = 576;
+    if( !is_pal )
+    {
+        target = "ntsc";
+        hgt = 480;
+    }
+
+    return boost::format("%1% -target %5%-dvd -aspect %2% -s %3%x%4% -y \"%6%\"")
+        % a_input % (is_4_3 ? "4:3" : "16:9") % wdh % hgt % target % out_fname % bf::stop;
+}
+
+#define MOTION_MENU_TAG "Motion Menus"
+
+class MotionMenuRVis: public CommonMenuRVis
+{
+    typedef CommonMenuRVis MyParent;
+    public:
+                  MotionMenuRVis(RectListRgn& r_lst): MyParent(MOTION_MENU_TAG, r_lst) {}
+
+         virtual  void  RenderBackground();
+         virtual  void  Visit(FrameThemeObj& fto);
+};
+
+static bool IsMovingBack(MenuRegion& m_rgn)
+{
+    return IsToBeMoving(m_rgn.BgRef());
+}
+
+struct MotionTimer
+{
+    int  idx;
+    // нарезаем изображения со своим fps (близким к стандартным 25 и 29,97),-
+    // ffmpeg разберется как сделать из -target %5%-dvd
+    static const int fps = 30;
+    static const double shift; // не интегральный тип, потому в C++98 "приравнивать" нельзя 
+
+            MotionTimer(): idx(0) {}
+
+            // рендеринг первого кадра
+      bool  IsFirst() { return idx == 0; }
+
+    double  Time() { return idx * shift; }
+};
+
+const int MotionTimer::fps;
+const double MotionTimer::shift = 1. / MotionTimer::fps;
+
+static MotionTimer& GetMotionTimer(Menu mn)
+{
+    return mn->GetData<MotionTimer>(MOTION_MENU_TAG);
+}
+
+// :REFACTOR:
+static void RGBOpen(Mpeg::FwdPlayer& plyr, const std::string& fname = std::string())
+{
+    SetOutputFormat(plyr, fofRGB);
+    if( !fname.empty() )
+    {
+        bool is_open = plyr.Open(fname.c_str());
+        ASSERT_OR_UNUSED( is_open );
+    }
+}
+
+void MotionMenuRVis::RenderBackground()
+{
+    Menu mn = GetOwnerMenu(menuRgn);
+    MotionTimer& mt  = GetMotionTimer(mn);
+    MediaItem bg_ref = menuRgn->BgRef();
+    RefPtr<Gdk::Pixbuf> menu_pix = cnvBuf->FramePixbuf();
+
+    if( IsToBeMoving(bg_ref) )
+    {
+        VideoStart vs = GetVideoStart(bg_ref);
+        Mpeg::FwdPlayer& plyr = mn->GetData<Mpeg::FwdPlayer>(MOTION_MENU_TAG);
+        if( mt.IsFirst() )
+            RGBOpen(plyr, GetFilename(*vs.first));
+
+        double tm = vs.second + mt.Time();
+        // явно отображаем кадр в стиле монитора (DAMonitor),
+        // а не редактора, потому что:
+        // - область и так всю перерисовывать
+        // - самый быстрый вариант (без каких-либо посредников)
+        //drw->ScalePixbuf(pix, cnvBuf->FrameRect());
+        GetFrame(menu_pix, tm, plyr);
+    }
+    else
+    {
+        RefPtr<Gdk::Pixbuf> static_menu_pix = GetAuthoredMenu(mn);
+        if( mt.IsFirst() )
+        {
+            // в первый раз отразим статичный вариант,
+            // потому что пока вообще пусто (а область рендеринга сужена
+            // до анимационных элементов)
+            //MyParent::RenderBackground();
+            RGBA::Scale(menu_pix, static_menu_pix);
+        }
+        else
+            drw->ScalePixbuf(static_menu_pix, cnvBuf->FrameRect());
+    }
+}
+
+void MotionMenuRVis::Visit(FrameThemeObj& fto)
+{
+    MediaItem mi = MIToDraw(fto);
+    if( IsToBeMoving(mi) )
+    {
+        Menu mn = GetOwnerMenu(&fto);
+        MotionTimer& mt = GetMotionTimer(mn);
+
+        // :REFACTOR:
+        VideoStart vs = GetVideoStart(mi);
+        Mpeg::FwdPlayer& plyr = fto.GetData<Mpeg::FwdPlayer>(MOTION_MENU_TAG);
+        if( mt.IsFirst() )
+            RGBOpen(plyr, GetFilename(*vs.first));
+        double tm = vs.second + mt.Time();
+
+        // напрямую делаем то же, что FTOData::CompositeFTO(),
+        // чтобы явно видеть затраты
+        const Editor::ThemeData& td = Editor::ThemeCache::GetTheme(fto.Theme());
+        // нужен оригинал в размере vFrameImg
+        RefPtr<Gdk::Pixbuf> obj_pix = td.vFrameImg->copy();
+        GetFrame(obj_pix, tm, plyr);
+
+        RefPtr<Gdk::Pixbuf> pix = CompositeWithFrame(obj_pix, td);
+
+        drw->CompositePixbuf(pix, CalcRelPlacement(fto.Placement()));
+    }
+    else
+        RenderStatic(fto);
+}
+
+bool IsMenuToBe4_3();
+
 bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
 {
     Author::Info((str::stream() << "Rendering menu \"" << mn->mdName << "\" ...").str());
+    const std::string mn_dir = MakeMenuPath(out_dir, mn, i);
 
-    CanvasBuf& cnv_buf = UpdateAuthoredMenu(mn);
-    SaveMenuPicture(MakeMenuPath(out_dir, mn, i), "Menu.png", cnv_buf.FramePixbuf());
+    MotionData& mtn_dat = mn->MtnData();
+    if( mtn_dat.isMotion )
+    {
+        MenuRegion& m_rgn = GetMenuRegion(mn);
+        PixCanvasBuf& mtn_buf = GetTaggedPCB(mn, MOTION_MENU_TAG);
+
+        // 0 подготовка
+        InitTextForTaggedPCB(mn, MOTION_MENU_TAG);
+
+        // рендеринг анимационного меню
+        // 1 определяем область перерисовки на итерацию
+        RectListRgn& rlr = mtn_buf.RenderList();
+        if( IsMovingBack(m_rgn) )
+            // вся область из-за фона
+            rlr.push_back(mtn_buf.FrameRect());
+        else
+        {
+            boost_foreach( Comp::Object* obj, m_rgn.List() )
+                if( FrameThemeObj* frame_obj = dynamic_cast<FrameThemeObj*>(obj) )
+                    if( IsToBeMoving(MIToDraw(*frame_obj)) )
+                        rlr.push_back(RealPosition(*frame_obj, mtn_buf.Transition()));
+        }
+        ReDivideRects(rlr);
+
+        // :TODO: если итерационная область пустая (так получилось), то сохраняем
+        // Menu.png и рендерим из нее
+        ASSERT( rlr.size() );
+
+        // 2 рендеринг -> ffmpeg
+        double duration = mtn_dat.duration;
+        const int MAX_MOTION_DUR = 60 * 5; // 5 минут максимум?
+        ASSERT_RTL( duration > 0 && duration <= MAX_MOTION_DUR );
+
+        // аспект ставим как можем (а не из параметров меню) из-за того, что качество
+        // авторинга важнее гибкости (все валим в один titleset)
+        bool is_4_3 = IsMenuToBe4_3();
+        std::string out_fname = AppendPath(mn_dir, "Menu.mpg");
+
+        // 1. Ставим частоту fps впереди -i pipe, чтобы она воспринималась для входного потока
+        // (а для выходного сработает -target)
+        // 2. И наоборот, для выходные параметры (-aspect, ...) ставим после всех входных файлов
+        std::string ffmpeg_cmd = boost::format("ffmpeg -r %1% -f image2pipe -vcodec ppm -i pipe: %2%")
+            % MotionTimer::fps % FFmpegPostArgs(out_fname, is_4_3, AData().PalTvSystem()) % bf::stop;
+
+        int in_fd = NO_HNDL;
+        GPid pid = Spawn(0, ffmpeg_cmd.c_str(), 0, false, &in_fd);
+        ASSERT( pid >= 0 );
+        ASSERT( in_fd != NO_HNDL );
+
+        // :TEMP:
+        double all_time = GetClockTime();
+
+        RefPtr<Gdk::Pixbuf> img = mtn_buf.FramePixbuf();
+        ASSERT( img );
+        MotionTimer& mt = GetMotionTimer(mn);
+
+        ASSERT( mt.IsFirst() );
+        for( ; mt.Time() < duration; mt.idx++ )
+        {
+            MotionMenuRVis r_vis(rlr);
+            m_rgn.Accept(r_vis);
+
+            //std::string fpath = "/dev/null"; //boost::format("../dvd_out/ppms/%1%.ppm") % i % bf::stop;
+            //int fd = OpenFileAsArg(fpath.c_str(), false);
+            WriteAsPPM(in_fd, img);
+            //close(fd);
+        }
+        close(in_fd);
+        // варианты остановить транскодирование сразу после окончания видео, см. ffmpeg.c:av_encode():
+        // - через сигнал (SIGINT, SIGTERM, SIGQUIT)
+        // - по достижению размера или времени (см. соответ. опции вроде -t); но тут возможна проблема
+        //   блокировки/закрытия раньше, чем мы закончим посылку всех данных; да и время высчитывать тоже придется
+        // - в момент окончания первого из источников, -shortest; не подходит, если аудио существенно длинней
+        //   чем мы хотим записать
+        Execution::Stop(pid);
+        g_spawn_close_pid(pid);
+
+        // :TEMP:
+        all_time = GetClockTime() - all_time;
+        io::cout << "Time to run: " << all_time << io::endl;
+        io::cout << "FPS: " << mt.idx / all_time << io::endl;
+    }
+    else
+        SaveMenuPicture(mn_dir, "Menu.png", GetAuthoredMenu(mn));
 
     PulseRenderProgress();
     return true;
@@ -404,7 +704,6 @@ void AuthorMenus(const std::string& out_dir)
 
     Author::Info("Rendering menu subtitles ...");
     std::iostream& menu_list = Author::GetES().settings;
-    bool IsMenuToBe4_3();
     menu_list << "Is4_3 = " << (IsMenuToBe4_3() ? 1 : 0) << "\n";
     // список меню
     menu_list << "List = [\n";

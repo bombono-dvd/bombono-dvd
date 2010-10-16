@@ -50,7 +50,7 @@ struct ThemeCacheData
 
 class ThemeCache: protected std::list<ThemeCacheData>, public Singleton<ThemeCache>
 {
-    typedef std::vector<ThemeCacheData> MyParent;
+    //typedef std::vector<ThemeCacheData> MyParent;
     public:
                       // получить тему по названию
     static const ThemeData& GetTheme(const std::string& theme_name);
