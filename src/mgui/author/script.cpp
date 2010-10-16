@@ -245,6 +245,10 @@ static bool ScriptMenu(xmlpp::Element* menus_node, Menu root_menu, Menu mn, int 
     // название меню
     std::string m_dir = MenuAuthorDir(mn, i);
     vob_node->set_attribute("file", AppendPath(m_dir, "MenuSub.mpg"));
+    if( IsMotion(mn) )
+        // повторяем анимационное меню бесконечно
+        pgc_node->add_child("post")->add_child_text("jump cell 1;");
+
     // действия кнопок
     MenuRegion::ArrType& lst = GetMenuRegion(mn).List();
     for( MenuRegion::Itr itr = lst.begin(), end = lst.end(); itr != end; ++itr )

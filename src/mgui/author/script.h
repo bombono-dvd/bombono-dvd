@@ -63,6 +63,8 @@ class CheckAuthorMode
         bool origVal;
 };
 
+bool IsMotion(Menu mn);
+
 } // namespace Project
 
 namespace Author {

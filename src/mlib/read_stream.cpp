@@ -21,7 +21,9 @@
 
 #include "const.h"
 #include "read_stream.h"
-#include "lambda.h"
+//#include "lambda.h"
+#include "bind.h"
+#include "sdk/stream_util.h"
 
 bool ReadStream(ReadFunctor fnr, io::stream& strm, io::pos len)
 {
@@ -40,6 +42,37 @@ bool ReadStream(ReadFunctor fnr, io::stream& strm, io::pos len)
     return is_break;
 }
 
+bool ReadAllStream(ReadFunctor fnr, io::stream& strm)
+{
+    return ReadStream(fnr, strm, StreamSize(strm));
+}
+
+static char* CopyToString(char* buf, int sz, std::string& res)
+{
+    res += std::string(buf, sz);
+    return buf;
+}
+
+static std::string ReadAllStream(io::stream& strm)
+{
+    std::string res;
+    ReadAllStream(bb::bind(&CopyToString, _1, _2, boost::ref(res)), strm);
+
+    return res;
+}
+
+std::string ReadAllStream(const fs::path& path)
+{
+    io::stream strm(path.string().c_str(), iof::in);
+    return ReadAllStream(strm);
+}
+
+void WriteAllStream(const fs::path& path, const std::string& str)
+{
+    io::stream strm(path.string().c_str(), iof::out);
+    strm.write(str.c_str(), str.size());
+}
+
 static char* CopyFilePart(io::stream& dst, char* buf, int len)
 {
     dst.write(buf, len);
@@ -48,7 +81,7 @@ static char* CopyFilePart(io::stream& dst, char* buf, int len)
 
 ReadFunctor MakeWriter(io::stream& dst_strm)
 {
-    return bl::bind(&CopyFilePart, boost::ref(dst_strm), bl::_1, bl::_2);
+    return bb::bind(&CopyFilePart, boost::ref(dst_strm), _1, _2);
 }
 
 static char* ShiftBuf(char* buf, int len)
@@ -59,6 +92,6 @@ static char* ShiftBuf(char* buf, int len)
 
 ReadFunctor MakeBufShifter()
 {
-    return bl::bind(&ShiftBuf, bl::_1, bl::_2);
+    return bb::bind(&ShiftBuf, _1, _2);
 }
 

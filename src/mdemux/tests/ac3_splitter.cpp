@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
 
     strm.clear();
     strm.seekg(0, iof::beg);
-    ReadStream(fnr, strm, StreamSize(strm));
+    ReadAllStream(fnr, strm);
 
     return 0;
 }

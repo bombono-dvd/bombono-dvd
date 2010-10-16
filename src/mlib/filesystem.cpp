@@ -33,6 +33,11 @@ bool is_empty_directory(const path & dir_path)
     return directory_iterator(dir_path) == end_itr;
 }
 
+std::string operator / (const path& f, to_string_enum /*to_str*/)
+{
+    return f.string();
+}
+
 } } // namepspace filesystem, boost
 
 std::string get_basename(const fs::path& pth)

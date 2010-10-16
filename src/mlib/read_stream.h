@@ -22,14 +22,21 @@
 #ifndef __MLIB_READ_STREAM_H__
 #define __MLIB_READ_STREAM_H__
 
-#include <boost/function.hpp>
-
 #include "stream.h"
+#include "filesystem.h"
+
+#include <boost/function.hpp>
 
 typedef boost::function<char*(char* buf, int buf_len)> ReadFunctor;
 // чтение порциями по STRM_BUF_SZ
 // fnr должен возвращать либо buf, либо 0 (если хотим прекратить чтение)
 bool ReadStream(ReadFunctor fnr, io::stream& strm, io::pos len);
+// указатель чтения должен быть в начале потока
+bool ReadAllStream(ReadFunctor fnr, io::stream& strm);
+std::string ReadAllStream(const fs::path& path);
+
+// записать в fname содержимое str
+void WriteAllStream(const fs::path& path, const std::string& str);
 
 // Пример: скопировать n байт из одного потока в другой
 //     ReadStream(MakeWriter(dst_strm), src_strm, n);

@@ -2,4 +2,4 @@
 # coding: utf-8
 
 Import('MakeADVDMenu')
-MakeADVDMenu(DefaultEnvironment())
+MakeADVDMenu(DefaultEnvironment(), %1%)

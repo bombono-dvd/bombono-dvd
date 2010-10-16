@@ -4,21 +4,22 @@
 import SConsTwin
 import ASettings
 
-def MakeMenu(env):
-    # 1 - m2v
-    # '-a' - аспект: (1 - 1:1) 2 - 4:3, 3 - 16:9 (4 - 2.21:1)
-    aspect = '2'
-    if not ASettings.Is4_3:
-        aspect = '3'
-    # возможные опции оптимизации: -b <kbps>, -q <num>, -H
-    # однако отображение в totem все равно гораздо хуже, чем снимок того же кадра, сделанного в totem! 
-    options = "-f 8"
-    # 'n -1' sucks: need to generate two frames (n -2) 
-    # for much better encoding quality with mpeg2enc (thanks to stagediverr)
-    env.Command('Menu.m2v', 'Menu.png', "png2yuv -n 2 -I p -f 25 -j $SOURCE | mpeg2enc -a " + aspect + " " + options + " -o $TARGET")
-    
-    # 2 - mpg
-    env.Command('Menu.mpg', ['Menu.m2v', '#Silent.mp2'], "mplex -f 8 -o $TARGET $SOURCES")
+def MakeMenu(env, is_moving):
+    if not is_moving:
+        # 1 - m2v
+        # '-a' - аспект: (1 - 1:1) 2 - 4:3, 3 - 16:9 (4 - 2.21:1)
+        aspect = '2'
+        if not ASettings.Is4_3:
+            aspect = '3'
+        # возможные опции оптимизации: -b <kbps>, -q <num>, -H
+        # однако отображение в totem все равно гораздо хуже, чем снимок того же кадра, сделанного в totem! 
+        options = "-f 8"
+        # 'n -1' sucks: need to generate two frames (n -2) 
+        # for much better encoding quality with mpeg2enc (thanks to stagediverr)
+        env.Command('Menu.m2v', 'Menu.png', "png2yuv -n 2 -I p -f 25 -j $SOURCE | mpeg2enc -a " + aspect + " " + options + " -o $TARGET")
+        
+        # 2 - mpg
+        env.Command('Menu.mpg', ['Menu.m2v', '#Silent.mp2'], "mplex -f 8 -o $TARGET $SOURCES")
     
     # 3 - menu subpictures
     import SCons.Action

@@ -151,7 +151,6 @@ BOOST_AUTO_TEST_CASE( TestFilesystem )
         pth = "/ttt";
         BOOST_CHECK( Project::MakeRelativeToDir(pth, dir) && (pth == fs::path("../../ttt")) );
     }
-
      
     //BOOST_CHECK( !fs::exists("/root/.config") );
 #ifdef NDEBUG
@@ -165,6 +164,11 @@ BOOST_AUTO_TEST_CASE( TestFilesystem )
     }
     catch(const fs::filesystem_error&) {}
 #endif
+
+    // вместо (path).string() используем
+    //        path/fs::to_str 
+    std::string abc = fs::path("abc") / fs::to_str;
+    BOOST_CHECK_EQUAL( abc.c_str(), "abc" );
 }
 
 BOOST_AUTO_TEST_CASE( TestStringstream )

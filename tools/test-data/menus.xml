@@ -29,7 +29,7 @@
       <Params Aspect="2">
         <Resolution x="720" y="576"/>
       </Params>
-      <MotionData IsMotion="1" Duration="1" AudioRef=""/>
+      <MotionData IsMotion="1" Duration="1" AudioRef="Media.0"/>
       <MenuItems>
         <MenuItem Name="" Frame="ogradient" Poster="Media.1" Type="Frame Item" Ref="Menu.2">
           <Placement lft="371" top="73" rgt="621" btm="223"/>

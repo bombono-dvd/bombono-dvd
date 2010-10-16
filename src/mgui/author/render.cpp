@@ -35,6 +35,7 @@
 
 #include <mlib/filesystem.h>
 #include <mlib/string.h>
+#include <mlib/read_stream.h> // ReadAllStream()
 #include <mlib/sdk/system.h> // GetClockTime()
 
 #include <boost/lexical_cast.hpp>
@@ -323,7 +324,12 @@ bool RenderSubPictures(const std::string& out_dir, Menu mn, int i,
     SaveMenuPicture(mn_dir, "MenuSelect.png", cnv_pix);
 
     // * остальное
-    fs::copy_file(SConsAuxDir()/"menu_SConscript", fs::path(mn_dir)/"SConscript");
+    //fs::copy_file(SConsAuxDir()/"menu_SConscript", fs::path(mn_dir)/"SConscript");
+    std::string str = ReadAllStream(SConsAuxDir()/"menu_SConscript");
+    bool is_motion  = mn->MtnData().isMotion;
+    str = boost::format(str) % (is_motion ? "True" : "False") % bf::stop;
+    WriteAllStream(fs::path(mn_dir)/"SConscript", str);
+
     // для последующего рендеринга
     SetCBDirty(cnv_buf);
 
@@ -532,6 +538,11 @@ static void RGBOpen(Mpeg::FwdPlayer& plyr, const std::string& fname = std::strin
     }
 }
 
+static std::string GetFilename(VideoStart vs)
+{
+    return GetFilename(*vs.first);
+}
+
 void MotionMenuRVis::RenderBackground()
 {
     Menu mn = GetOwnerMenu(menuRgn);
@@ -544,7 +555,7 @@ void MotionMenuRVis::RenderBackground()
         VideoStart vs = GetVideoStart(bg_ref);
         Mpeg::FwdPlayer& plyr = mn->GetData<Mpeg::FwdPlayer>(MOTION_MENU_TAG);
         if( mt.IsFirst() )
-            RGBOpen(plyr, GetFilename(*vs.first));
+            RGBOpen(plyr, GetFilename(vs));
 
         double tm = vs.second + mt.Time();
         // явно отображаем кадр в стиле монитора (DAMonitor),
@@ -582,7 +593,7 @@ void MotionMenuRVis::Visit(FrameThemeObj& fto)
         VideoStart vs = GetVideoStart(mi);
         Mpeg::FwdPlayer& plyr = fto.GetData<Mpeg::FwdPlayer>(MOTION_MENU_TAG);
         if( mt.IsFirst() )
-            RGBOpen(plyr, GetFilename(*vs.first));
+            RGBOpen(plyr, GetFilename(vs));
         double tm = vs.second + mt.Time();
 
         // напрямую делаем то же, что FTOData::CompositeFTO(),
@@ -600,6 +611,11 @@ void MotionMenuRVis::Visit(FrameThemeObj& fto)
         RenderStatic(fto);
 }
 
+bool IsMotion(Menu mn)
+{
+    return mn->MtnData().isMotion;
+}
+
 bool IsMenuToBe4_3();
 
 bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
@@ -607,10 +623,10 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
     Author::Info((str::stream() << "Rendering menu \"" << mn->mdName << "\" ...").str());
     const std::string mn_dir = MakeMenuPath(out_dir, mn, i);
 
-    MotionData& mtn_dat = mn->MtnData();
-    if( mtn_dat.isMotion )
+    if( IsMotion(mn) )
     {
-        MenuRegion& m_rgn = GetMenuRegion(mn);
+        MotionData& mtn_dat = mn->MtnData();
+        MenuRegion& m_rgn   = GetMenuRegion(mn);
         PixCanvasBuf& mtn_buf = GetTaggedPCB(mn, MOTION_MENU_TAG);
 
         // 0 подготовка
@@ -645,11 +661,20 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
         bool is_4_3 = IsMenuToBe4_3();
         std::string out_fname = AppendPath(mn_dir, "Menu.mpg");
 
+        std::string a_fname;
+        double a_shift = 0.;
+        if( mtn_dat.audioRef )
+        {
+            VideoStart vs = GetVideoStart(mtn_dat.audioRef);
+            a_fname = GetFilename(vs);
+            a_shift = vs.second;
+        }
+
         // 1. Ставим частоту fps впереди -i pipe, чтобы она воспринималась для входного потока
         // (а для выходного сработает -target)
         // 2. И наоборот, для выходные параметры (-aspect, ...) ставим после всех входных файлов
         std::string ffmpeg_cmd = boost::format("ffmpeg -r %1% -f image2pipe -vcodec ppm -i pipe: %2%")
-            % MotionTimer::fps % FFmpegPostArgs(out_fname, is_4_3, AData().PalTvSystem()) % bf::stop;
+            % MotionTimer::fps % FFmpegPostArgs(out_fname, is_4_3, AData().PalTvSystem(), a_fname, a_shift) % bf::stop;
 
         int in_fd = NO_HNDL;
         GPid pid = Spawn(0, ffmpeg_cmd.c_str(), 0, false, &in_fd);

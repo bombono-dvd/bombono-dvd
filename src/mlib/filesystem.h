@@ -31,8 +31,14 @@ namespace boost { namespace filesystem {
 
 bool is_empty_directory(const path & dir_path);
 
+// вместо (path).string() используем
+//        path/fs::to_str 
+enum to_string_enum { to_str };
+std::string operator / (const path& f, to_string_enum /*to_str*/);
+
 } } // namepspace filesystem, boost
 namespace fs = boost::filesystem;
+
 
 std::string get_basename(const fs::path& pth);
 std::string get_extension(const fs::path& pth);
