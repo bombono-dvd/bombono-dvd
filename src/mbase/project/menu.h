@@ -34,13 +34,15 @@ class MenuItemMD;
 typedef boost::intrusive_ptr<MenuMD> Menu;
 typedef boost::intrusive_ptr<MenuItemMD> MenuItem;
 
+typedef ptr::weak_intrusive<Media> WMediaItem;
+
 const double DEF_MOTION_DURATION = 15; // секунд
 
 struct MotionData
 {
       bool  isMotion; // меню будет анимационным
     double  duration; // длительность в секундах
- MediaItem  audioRef; // отсюда берем аудио (видео или глава!)
+WMediaItem  audioRef; // отсюда берем аудио (видео или глава!)
       bool  isStillPicture; // "неподвижное видео"
 
     MotionData(): isMotion(false), duration(DEF_MOTION_DURATION), isStillPicture(false) {}
@@ -146,8 +148,12 @@ class TextItemMD: public PSO<TextItemMD, MenuItemMD>// от MenuItemMD
 std::string Media2Ref(MediaItem mi);
 MediaItem Ref2Media(const std::string& ref);
 
-// при загрузке устанавливаем ссылки в конце, когда все объекты уже загружены
-typedef std::vector<std::pair<MediaItem*, std::string> > MediaRefArr;
+template<class T>
+struct MITypes
+{
+    // при загрузке устанавливаем ссылки в конце, когда все объекты уже загружены
+    typedef std::vector<std::pair<T*, std::string> > RefArr;
+};
 
 } // namespace Project
 

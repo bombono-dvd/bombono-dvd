@@ -55,17 +55,35 @@ NameValueT<MenuItemMD> LoadMenuItem(Archieve& ar, MenuMD* mn)
     return NameValue("MenuItem", *mi);
 }
 
+template<class T>
+void LoadRef(Archieve& ar, const char* attr_name, T& mi)
+{
+    std::string ref;
+    ar >> NameValue(attr_name, ref);
+    //mi = Ref2Media(ref);
+    typedef typename MITypes<T>::RefArr RefArr;
+    AData().GetData<RefArr>().push_back(std::make_pair(&mi, ref));
+}
+
+void SaveRef(Archieve& ar, const char* attr_name, MediaItem mi)
+{
+    ar << NameValue(attr_name, Media2Ref(mi));
+}
+
 void SerializeReference(Archieve& ar, const char* attr_name, MediaItem& mi)
 {
     if( ar.IsLoad() )
-    {
-        std::string ref;
-        ar >> NameValue(attr_name, ref);
-        //mi = Ref2Media(ref);
-        AData().GetData<MediaRefArr>().push_back(std::make_pair(&mi, ref));
-    }
+        LoadRef(ar, attr_name, mi);
     else
-        ar << NameValue(attr_name, Media2Ref(mi));
+        SaveRef(ar, attr_name, mi);
+}
+
+void SerializeReference(Archieve& ar, const char* attr_name, WMediaItem& wi)
+{
+    if( ar.IsLoad() )
+        LoadRef(ar, attr_name, wi);
+    else
+        SaveRef(ar, attr_name, wi.lock());
 }
 
 static void Serialize(Archieve& ar, MotionData& mtn_data)

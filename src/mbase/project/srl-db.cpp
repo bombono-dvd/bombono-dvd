@@ -54,38 +54,40 @@ static void Load(Archieve& ar, MenuList& ml)
 
 APROJECT_SRL_SPLIT_FREE(MenuList)
 
+template<class Item>
 class DelayedRefLoading
 {
+    typedef typename MITypes<Item>::RefArr RefArr;
     public:
 
-    DelayedRefLoading(): arr(AData().GetData<MediaRefArr>())
+    DelayedRefLoading(): arr(AData().GetData<RefArr>())
     {
         arr.clear();
     }
 
    ~DelayedRefLoading()
     {
-        if( std::uncaught_exception() )
-            arr.clear();
-
-        if( !arr.empty() ) // только в случае загрузки будет непустым
+        if( !std::uncaught_exception() )
         {
-            for( MediaRefArr::iterator itr = arr.begin(), end = arr.end(); itr != end; ++itr )
+            typedef typename RefArr::iterator iterator; 
+            // только в случае загрузки будет непустым
+            for( iterator itr = arr.begin(), end = arr.end(); itr != end; ++itr )
             {
-                MediaItem& mi = *(itr->first);
+                Item& mi = *(itr->first);
                 mi = Ref2Media(itr->second);
             }
-            arr.clear();
         }
+        arr.clear();
     }
 
     protected:
-        MediaRefArr& arr;
+        RefArr& arr;
 };
 
 void DbSerializeProjectImpl(Archieve& ar)
 {
-    DelayedRefLoading drl;
+    DelayedRefLoading<MediaItem>  drl;
+    DelayedRefLoading<WMediaItem> wdrl;
 
     // секция "Globals"
     {

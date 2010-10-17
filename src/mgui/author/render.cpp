@@ -633,9 +633,10 @@ static std::string MakeFFmpegPostArgs(const std::string& mn_dir, Menu mn)
 
     std::string a_fname;
     double a_shift = 0.;
-    if( mtn_dat.audioRef )
+    MediaItem a_ref = mtn_dat.audioRef.lock();
+    if( a_ref )
     {
-        VideoStart vs = GetVideoStart(mtn_dat.audioRef);
+        VideoStart vs = GetVideoStart(a_ref);
         a_fname = GetFilename(vs);
         a_shift = vs.second;
     }
