@@ -445,7 +445,7 @@ static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix)
 
     char tmp[20];
     snprintf(tmp, ARR_SIZE(tmp), "P6\n%d %d\n255\n", wdh, hgt);
-    write(fd, tmp, strlen(tmp));
+    checked_writeall(fd, tmp, strlen(tmp));
 
     for( int row = 0; row < hgt; row++, pixels += stride )
     {
@@ -456,7 +456,7 @@ static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix)
             tmp[1] = p[1];
             tmp[2] = p[2];
 
-            write(fd, tmp, 3);
+            checked_writeall(fd, tmp, 3);
         }
     }
 }

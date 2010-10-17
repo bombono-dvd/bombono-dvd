@@ -77,6 +77,13 @@ inline off_t tell(int fd) { return lseek(fd, 0, SEEK_CUR); }
 
 // открыть файл: только для чтения (is_read) или только для записи
 int OpenFileAsArg(const char* fpath, bool is_read);
+// вызов write(int) не такой простой как кажется (см. "Advanced Unix Programming"),
+// особенно при запись в канал (возможно прерывание EINTR); данная функция призвана
+// надежно обернуть write() в этом плане и вернет false в случае действительной ошибки
+// Замечание: только для блокируемых fd, для неблокируемых может быть еще EAGAIN
+bool writeall(int fd, const void* buf, size_t nbyte);
+// writeall() + ASSERT_RTL()
+void checked_writeall(int fd, const void* buf, size_t nbyte);
 
 #endif // #ifndef __MLIB_SDK_STREAM_UTIL_H__
 

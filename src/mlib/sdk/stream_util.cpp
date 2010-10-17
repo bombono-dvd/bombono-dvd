@@ -26,6 +26,8 @@
 
 #include <sys/stat.h> // S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH
 #include <fcntl.h>
+#include <string.h> // strcmp()
+#include <errno.h>
 
 void CleanEof(io::stream& strm)
 {
@@ -64,5 +66,38 @@ int OpenFileAsArg(const char* fpath, bool is_read)
         Error("Cant open one of files!");
 
     return fd;
+}
+
+bool writeall(int fd, const void* buf, size_t nbyte)
+{
+    bool res = true;
+
+    ssize_t cnt = 0;
+    for( ssize_t n; cnt < (ssize_t)nbyte; )
+    {
+        n = write(fd, (const char*)buf+cnt, nbyte-cnt);
+        if( n == -1 )
+        {
+            if( errno != EINTR )
+            {
+                // все плохо, и даже уже записанное не может
+                // нас интересовать
+                res = false;
+                break;
+            }
+        }
+        else
+            cnt += n;
+    }
+
+    // не было ошибок и записали сколько требовалось
+    return res && (cnt == (ssize_t)nbyte);
+}
+
+// writeall() + ASSERT_RTL()
+void checked_writeall(int fd, const void* buf, size_t nbyte)
+{
+    bool res = writeall(fd, buf, nbyte);
+    ASSERT_RTL( res );
 }
 
