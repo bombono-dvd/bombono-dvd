@@ -62,13 +62,12 @@ static std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, boo
 BOOST_AUTO_TEST_CASE( TestRenderTranscoding )
 {
     return;
-    Mpeg::FwdPlayer plyr;
-    SetOutputFormat(plyr, fofRGB);
-
     std::string fname   = "/home/ilya/opt/programming/atom-project/Autumn.mpg";
     std::string a_fname = "/home/ilya/opt/programming/atom-project/transition.mpg";
-    bool is_open = plyr.Open(fname.c_str());
-    ASSERT_OR_UNUSED( is_open );
+
+    Mpeg::FwdPlayer plyr;
+    RGBOpen(plyr, fname);
+
     bool is_pal = plyr.MInfo().vidSeq.hgt == 576;
 
     int fps = 30;

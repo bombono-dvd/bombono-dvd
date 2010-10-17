@@ -331,5 +331,12 @@ void FwdPlayer::Next()
     SetPosByPos(new_pos, new_pos->pts);
 }
 
+} // namespace Mpeg
+
+void CheckOpen(Mpeg::Player& plyr, const std::string& fname)
+{
+    bool is_open = plyr.Open(fname.c_str());
+    ASSERT_OR_UNUSED( is_open );
 }
+
 

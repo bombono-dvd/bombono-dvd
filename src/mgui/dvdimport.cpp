@@ -70,8 +70,8 @@ ImportData::ImportData(): srcChooser(Gtk::FILE_CHOOSER_ACTION_OPEN),
     // value, lower, upper, step_increment = 1, page_increment = 10, page_size = 0
     previewAdj(0., 0., 0.)
 {
-    SetOutputFormat(thumbPlyr,   fofRGB);
-    SetOutputFormat(previewPlyr, fofRGB);
+    RGBOpen(thumbPlyr);
+    RGBOpen(previewPlyr);
 }
 
 static std::string PageTitle(int pg_num)

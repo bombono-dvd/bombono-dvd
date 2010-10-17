@@ -147,6 +147,7 @@ inline Point GetAspectRatio(Player& plyr)
 
 } // namespace Mpeg
 
+void CheckOpen(Mpeg::Player& plyr, const std::string& fname);
 
 #endif // __MDEMUX_PLAYER_H__
 

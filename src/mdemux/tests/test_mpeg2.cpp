@@ -584,9 +584,8 @@ void ShowImage(Mpeg::Player& plyr)
 void PlayerViewTestImpl(const char* fname)
 {
     Mpeg::FwdPlayer plyr;
-    bool is_open = plyr.Open(fname);
+    CheckOpen(plyr, fname);
 
-    BOOST_REQUIRE( is_open );
     Mpeg::MediaInfo inf = plyr.MInfo();
     int n = inf.FramesCount();
 
@@ -689,8 +688,7 @@ BOOST_AUTO_TEST_CASE( PlayerOpenClose )
     Mpeg::FwdPlayer plyr;
     BOOST_CHECK( !plyr.IsOpened() );
 
-    plyr.Open(fname);
-    BOOST_CHECK( plyr.IsOpened() );
+    CheckOpen(plyr, fname);
 
     plyr.Close();
     BOOST_CHECK( !plyr.IsOpened() );

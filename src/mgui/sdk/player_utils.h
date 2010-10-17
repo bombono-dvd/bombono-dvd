@@ -28,6 +28,7 @@
 
 // установить до первого применения
 void SetOutputFormat(Mpeg::FwdPlayer& plyr, FrameOutputFrmt fof);
+void RGBOpen(Mpeg::FwdPlayer& plyr, const std::string& fname = std::string());
 
 // вернуть кадр только на чтение (если не смог перейти, то вернет ноль)
 RefPtr<Gdk::Pixbuf> GetRawFrame(double time, Mpeg::FwdPlayer& plyr);

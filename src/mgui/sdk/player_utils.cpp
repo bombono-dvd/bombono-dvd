@@ -32,6 +32,13 @@ void SetOutputFormat(Mpeg::FwdPlayer& plyr, FrameOutputFrmt fof)
     plyr.VLine().GetParseContext().m2d.SetOutputFormat(fof);
 }
 
+void RGBOpen(Mpeg::FwdPlayer& plyr, const std::string& fname)
+{
+    SetOutputFormat(plyr, fofRGB);
+    if( !fname.empty() )
+        CheckOpen(plyr, fname);
+}
+
 static RefPtr<Gdk::Pixbuf> GetRawFrame(Mpeg::Player& plyr)
 {
     RefPtr<Gdk::Pixbuf> res_pix;

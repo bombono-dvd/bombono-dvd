@@ -52,7 +52,7 @@ struct BrowserCache
         ptr::weak_intrusive<VideoMD> curVI;
                     Mpeg::FwdPlayer  player;
 
-        BrowserCache() { SetOutputFormat(player, fofRGB); }
+        BrowserCache() { RGBOpen(player); }
 };
 
 static Mpeg::FwdPlayer& OpenCachePlayer(VideoItem vmd)
@@ -61,8 +61,7 @@ static Mpeg::FwdPlayer& OpenCachePlayer(VideoItem vmd)
     if( (cache.curVI.lock() != vmd) || !cache.player.IsOpened() )
     {
         cache.curVI = vmd;
-        bool is_open = cache.player.Open(GetFilename(*vmd).c_str());
-        ASSERT_OR_UNUSED(is_open);
+        CheckOpen(cache.player, GetFilename(*vmd));
     }
     return cache.player;
 }

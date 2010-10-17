@@ -433,7 +433,7 @@ static Rect RealPosition(Comp::MediaObj& obj, const Planed::Transition& trans)
     return AbsToRel(trans, obj.Placement());
 }
 
-// :REFACTOR: убрать копипаст
+// :REFACTOR: убрать копипаст (test_render.cpp)
 
 static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix)
 {
@@ -527,20 +527,21 @@ static MotionTimer& GetMotionTimer(Menu mn)
     return mn->GetData<MotionTimer>(MOTION_MENU_TAG);
 }
 
-// :REFACTOR:
-static void RGBOpen(Mpeg::FwdPlayer& plyr, const std::string& fname = std::string())
-{
-    SetOutputFormat(plyr, fofRGB);
-    if( !fname.empty() )
-    {
-        bool is_open = plyr.Open(fname.c_str());
-        ASSERT_OR_UNUSED( is_open );
-    }
-}
-
 static std::string GetFilename(VideoStart vs)
 {
     return GetFilename(*vs.first);
+}
+
+static void LoadMotionFrame(RefPtr<Gdk::Pixbuf>& pix, MediaItem ref, DataWare& src,
+                            MotionTimer& mt)
+{
+    VideoStart vs = GetVideoStart(ref);
+    Mpeg::FwdPlayer& plyr = src.GetData<Mpeg::FwdPlayer>(MOTION_MENU_TAG);
+    if( mt.IsFirst() )
+        RGBOpen(plyr, GetFilename(vs));
+
+    double tm = vs.second + mt.Time();
+    GetFrame(pix, tm, plyr);
 }
 
 void MotionMenuRVis::RenderBackground()
@@ -552,18 +553,12 @@ void MotionMenuRVis::RenderBackground()
 
     if( IsToBeMoving(bg_ref) )
     {
-        VideoStart vs = GetVideoStart(bg_ref);
-        Mpeg::FwdPlayer& plyr = mn->GetData<Mpeg::FwdPlayer>(MOTION_MENU_TAG);
-        if( mt.IsFirst() )
-            RGBOpen(plyr, GetFilename(vs));
-
-        double tm = vs.second + mt.Time();
         // явно отображаем кадр в стиле монитора (DAMonitor),
         // а не редактора, потому что:
         // - область и так всю перерисовывать
         // - самый быстрый вариант (без каких-либо посредников)
         //drw->ScalePixbuf(pix, cnvBuf->FrameRect());
-        GetFrame(menu_pix, tm, plyr);
+        LoadMotionFrame(menu_pix, bg_ref, *mn, mt);
     }
     else
     {
@@ -586,22 +581,12 @@ void MotionMenuRVis::Visit(FrameThemeObj& fto)
     MediaItem mi = MIToDraw(fto);
     if( IsToBeMoving(mi) )
     {
-        Menu mn = GetOwnerMenu(&fto);
-        MotionTimer& mt = GetMotionTimer(mn);
-
-        // :REFACTOR:
-        VideoStart vs = GetVideoStart(mi);
-        Mpeg::FwdPlayer& plyr = fto.GetData<Mpeg::FwdPlayer>(MOTION_MENU_TAG);
-        if( mt.IsFirst() )
-            RGBOpen(plyr, GetFilename(vs));
-        double tm = vs.second + mt.Time();
-
         // напрямую делаем то же, что FTOData::CompositeFTO(),
         // чтобы явно видеть затраты
         const Editor::ThemeData& td = Editor::ThemeCache::GetTheme(fto.Theme());
         // нужен оригинал в размере vFrameImg
         RefPtr<Gdk::Pixbuf> obj_pix = td.vFrameImg->copy();
-        GetFrame(obj_pix, tm, plyr);
+        LoadMotionFrame(obj_pix, mi, fto, GetMotionTimer(GetOwnerMenu(&fto)));
 
         RefPtr<Gdk::Pixbuf> pix = CompositeWithFrame(obj_pix, td);
 

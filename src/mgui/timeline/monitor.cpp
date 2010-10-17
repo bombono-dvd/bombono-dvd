@@ -41,8 +41,9 @@ Monitor::Monitor(): curPos(-1)
 DAMonitor::DAMonitor(): VideoArea(false)
 {
     //SetOutputFormat(fofYCBCR);
-    SetOutputFormat(plyr, fofRGB);
     //SetOutputFormat(fofRGBA);
+    //SetOutputFormat(plyr, fofRGB);
+    RGBOpen(plyr);
 }
 
 Point DAMonitor::GetAspectRadio()
