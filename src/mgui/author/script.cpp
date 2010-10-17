@@ -450,16 +450,21 @@ void GenerateDVDAuthorScript(const std::string& out_dir)
     doc.write_to_file_formatted(AppendPath(out_dir, "DVDAuthor.xml"));
 }
 
-static bool AuthorClearVideo(VideoItem vi, int)
+static bool AuthorClearVideo(VideoItem vi)
 {
     vi->Clear(AUTHOR_TAG);
     return true;
 }
 
-static bool AuthorClearMenu(Menu mn, int)
+void ClearTaggedData(Menu mn, const char* tag)
 {
-    mn->Clear(AUTHOR_TAG);
-    Editor::ClearLocalData(GetMenuRegion(mn), AUTHOR_TAG);
+    mn->Clear(tag);
+    Editor::ClearLocalData(GetMenuRegion(mn), tag);
+}
+
+static bool AuthorClearMenu(Menu mn)
+{
+    ClearTaggedData(mn, AUTHOR_TAG);
     return true;
 }
 
@@ -577,8 +582,8 @@ bool AuthorDVD(const std::string& out_dir)
 
     // очищаем все авторинговые данные
     using namespace boost;
-    ForeachVideo(lambda::bind(&AuthorClearVideo, lambda::_1, lambda::_2));
-    ForeachMenu(lambda::bind(&AuthorClearMenu, lambda::_1, lambda::_2));
+    ForeachVideo(lambda::bind(&AuthorClearVideo, lambda::_1));
+    ForeachMenu(lambda::bind(&AuthorClearMenu, lambda::_1));
 
     if( res )
         AuthorSectionInfo("Authoring is successfully done.");

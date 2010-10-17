@@ -64,6 +64,7 @@ class CheckAuthorMode
 };
 
 bool IsMotion(Menu mn);
+void ClearTaggedData(Menu mn, const char* tag);
 
 } // namespace Project
 

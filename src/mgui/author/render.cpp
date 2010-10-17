@@ -677,6 +677,9 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
             SaveStillMenuMpg(mn_dir, mn);
         else
         {
+            // пока рендеринг всех меню идет независимо удаляем данные сразу по окончанию
+            DtorAction clear_motion_data(bb::bind(&ClearTaggedData, mn, MOTION_MENU_TAG));
+
             MenuRegion& m_rgn     = GetMenuRegion(mn);
             PixCanvasBuf& mtn_buf = GetTaggedPCB(mn, MOTION_MENU_TAG);
 
