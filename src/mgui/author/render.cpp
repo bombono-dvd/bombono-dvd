@@ -436,6 +436,9 @@ static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix, TrackBuf& buf)
     int channels   = pix->get_n_channels();
     guint8* pixels = pix->get_pixels();
 
+    // операция записи в канал очень дорогая, поэтому собираем PPM
+    // в буфер и за раз все записываем
+
     // не пользуемся TrackBuf::End(), TrackBuf::Append(), ...
     buf.Reserve(30); // для заголовка
     snprintf(buf.Beg(), 30, "P6\n%d %d\n255\n", wdh, hgt);
@@ -451,6 +454,9 @@ static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix, TrackBuf& buf)
         guint8* p = pixels;
         for( int col = 0; col < wdh; col++, p += channels, cur += 3 )
         {
+            // еще оптимизации:
+            // - memcpy(, 3)
+            // - запись внахлест memcpy(, 4) (неясно, быстрее ли)
             cur[0] = p[0];
             cur[1] = p[1];
             cur[2] = p[2];
