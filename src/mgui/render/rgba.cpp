@@ -26,18 +26,34 @@
 namespace RGBA
 {
 
+void CopyArea(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, 
+              const Rect& plc, const Rect& drw_rgn)
+{
+    src->copy_area(drw_rgn.lft-plc.lft, drw_rgn.top-plc.top, drw_rgn.Width(), drw_rgn.Height(), 
+                   dst, drw_rgn.lft, drw_rgn.top);
+}
+
 // plc - местоположение, куда отображаем картинку
 // drw_rgn - та часть plc, которую хотим отобразить/отрисовать (не затрагивая остальное) 
 void ScalePixbuf(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src,
             const Rect& plc, const Rect& drw_rgn)
 {
     Point sz = plc.Size();
-    Point drw_sz = drw_rgn.Size();
-
-    src->scale(dst, drw_rgn.lft, drw_rgn.top, drw_sz.x, drw_sz.y, plc.lft, plc.top,
-                 (double)sz.x/src->get_width(),
-                 (double)sz.y/src->get_height(),
-                 Gdk::INTERP_BILINEAR);
+    if( sz == PixbufSize(src) )
+    {
+        // gdk_pixbuf_scale() недостаточно умен, чтобы самостоятельно заменить скалирование
+        // копированием в этом случае
+        CopyArea(dst, src, plc, drw_rgn);
+    }
+    else
+    {
+        Point drw_sz = drw_rgn.Size();
+    
+        src->scale(dst, drw_rgn.lft, drw_rgn.top, drw_sz.x, drw_sz.y, plc.lft, plc.top,
+                     (double)sz.x/src->get_width(),
+                     (double)sz.y/src->get_height(),
+                     Gdk::INTERP_BILINEAR);
+    }
 }
 
 void AlphaCompositePixbuf(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src,
@@ -55,6 +71,22 @@ void AlphaCompositePixbuf(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src,
 void Scale(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, const Rect& plc)
 {
     ScalePixbuf(dst, src, plc, plc);
+}
+
+void Scale(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src)
+{
+    Scale(dst, src, PixbufBounds(dst));
+}
+
+void CopyOrScale(RefPtr<Gdk::Pixbuf>& pix, RefPtr<Gdk::Pixbuf> src)
+{
+    // ScalePixbuf() умеет сам распознавать, когда достаточно скопировать
+    //Point sz = PixbufSize(src);
+    //if( sz == PixbufSize(pix) )
+    //    src->copy_area(0, 0, sz.x, sz.y, pix, 0, 0);
+    //else
+    //    Scale(pix, src);
+    Scale(pix, src);
 }
 
 void AlphaComposite(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, const Rect& plc)

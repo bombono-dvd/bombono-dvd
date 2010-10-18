@@ -99,7 +99,8 @@ bool TryGetFrame(RefPtr<Gdk::Pixbuf>& pix, double time, Mpeg::FwdPlayer& plyr)
         res = true;
         // заполняем кадр
         if( pix )
-            RGBA::Scale(pix, img_pix);
+            //RGBA::Scale(pix, img_pix);
+            RGBA::CopyOrScale(pix, img_pix);
         else
             pix = img_pix->copy();
     }

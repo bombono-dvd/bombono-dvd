@@ -208,13 +208,6 @@ void SPRenderVis::Visit(TextObj& t_obj)
     }
 }
 
-static void CopyArea(RefPtr<Gdk::Pixbuf> canv_pix, RefPtr<Gdk::Pixbuf> obj_pix, 
-                     const Rect& plc, const Rect& drw_rgn)
-{
-    obj_pix->copy_area(drw_rgn.lft-plc.lft, drw_rgn.top-plc.top, drw_rgn.Width(), drw_rgn.Height(), 
-                       canv_pix, drw_rgn.lft, drw_rgn.top);
-}
-
 void SPRenderVis::Visit(FrameThemeObj& fto)
 {
     std::string targ_str;    
@@ -237,7 +230,7 @@ void SPRenderVis::Visit(FrameThemeObj& fto)
         DiscreteByAlpha(obj_pix, clr);
 
         //drw->CompositePixbuf(obj_pix, plc);
-        RGBA::RgnPixelDrawer::DrwFunctor drw_fnr = bb::bind(&CopyArea, drw->Canvas(), obj_pix, plc, _1);
+        RGBA::RgnPixelDrawer::DrwFunctor drw_fnr = bb::bind(&RGBA::CopyArea, drw->Canvas(), obj_pix, plc, _1);
         drw->DrawWithFunctor(plc, drw_fnr);
 
         ScriptButton(spuNode, isSelect, plc);

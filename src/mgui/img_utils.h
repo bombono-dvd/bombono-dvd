@@ -205,10 +205,9 @@ Pixel& GetPixel(RefPtr<Gdk::Pixbuf> pix, const Point& pnt);
 void PutPixel(RefPtr<Gdk::Pixbuf> pix, const Point& pnt, const Pixel& pxl);
 
 void Scale(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, const Rect& plc);
-inline void Scale(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src)
-{
-    Scale(dst, src, PixbufBounds(dst));
-}
+void Scale(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src);
+
+void CopyOrScale(RefPtr<Gdk::Pixbuf>& pix, RefPtr<Gdk::Pixbuf> src);
 
 void AlphaComposite(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, const Rect& plc);
 void CopyAlphaComposite(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, bool mult = false);

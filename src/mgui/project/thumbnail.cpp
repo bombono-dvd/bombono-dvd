@@ -329,13 +329,7 @@ static PixbufSource FormPixbufSource(const Point& sz, RefPtr<Gdk::Pixbuf> src, b
 static void FillPixbuf(RefPtr<Gdk::Pixbuf>& pix, RefPtr<Gdk::Pixbuf> src, bool read_only)
 {
     if( pix )
-    {
-        Point sz = PixbufSize(src);
-        if( sz == PixbufSize(pix) )
-            src->copy_area(0, 0, sz.x, sz.y, pix, 0, 0);
-        else    
-            RGBA::Scale(pix, src);
-    }
+        RGBA::CopyOrScale(pix, src);
     else
         pix = PixbufSource(src, read_only).RWPixbuf();
 }

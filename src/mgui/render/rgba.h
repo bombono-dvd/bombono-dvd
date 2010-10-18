@@ -142,6 +142,9 @@ void ScalePixbuf(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src,
 void AlphaCompositePixbuf(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src,
             const Rect& plc, const Rect& drw_rgn);
 
+void CopyArea(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, 
+              const Rect& plc, const Rect& drw_rgn);
+
 } // namespace RGBA
 
 // нарисовать рамку (для объекта с координатами plc_rct)
