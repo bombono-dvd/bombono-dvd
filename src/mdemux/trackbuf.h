@@ -57,13 +57,15 @@ class TrackBuf
 //                 // отрезать с позиции
 //           void  CutEnd(const char* pos);
 
-          void  Reserve(int sz) { Extend(sz, false); }
+          void  Reserve(int sz) { Extend(sz, false);  }
+          void  SetUnlimited()  { isUnlimited = true; }
 
     protected:
 
                     char* begDat; // начало и конец данных
                     char* endDat; //
-                     int  bufSz;  //
+                     int  bufSz;  // размер выделенного буфера
+                    bool  isUnlimited;
 
           void  Extend(int new_sz, bool is_add);
 };

@@ -435,7 +435,7 @@ static Rect RealPosition(Comp::MediaObj& obj, const Planed::Transition& trans)
 
 // :REFACTOR: убрать копипаст (test_render.cpp)
 
-static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix)
+static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix, TrackBuf& buf)
 {
     int wdh = pix->get_width();
     int hgt = pix->get_height();
@@ -443,22 +443,29 @@ static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix)
     int channels   = pix->get_n_channels();
     guint8* pixels = pix->get_pixels();
 
-    char tmp[20];
-    snprintf(tmp, ARR_SIZE(tmp), "P6\n%d %d\n255\n", wdh, hgt);
-    checked_writeall(fd, tmp, strlen(tmp));
+    // не пользуемся TrackBuf::End(), TrackBuf::Append(), ...
+    buf.Reserve(30); // для заголовка
+    snprintf(buf.Beg(), 30, "P6\n%d %d\n255\n", wdh, hgt);
+    // длина данных PPM: заголовок + все пикселы * 3 байта
+    int h_sz = strlen(buf.Beg());
+    int sz   = h_sz + 3 * wdh * hgt;
+    buf.Reserve(sz);
 
+    char* beg = buf.Beg();
+    char* cur = beg + h_sz;
     for( int row = 0; row < hgt; row++, pixels += stride )
     {
         guint8* p = pixels;
-        for( int col = 0; col < wdh; col++, p += channels )
+        for( int col = 0; col < wdh; col++, p += channels, cur += 3 )
         {
-            tmp[0] = p[0];
-            tmp[1] = p[1];
-            tmp[2] = p[2];
-
-            checked_writeall(fd, tmp, 3);
+            cur[0] = p[0];
+            cur[1] = p[1];
+            cur[2] = p[2];
         }
     }
+
+    ASSERT( cur - beg == sz );
+    checked_writeall(fd, beg, sz);
 }
 
 static std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pal, 
@@ -707,6 +714,8 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
                 ASSERT( img );
                 MotionTimer& mt = GetMotionTimer(mn);
 
+                TrackBuf pipe_buf;
+                pipe_buf.SetUnlimited();
                 double duration = MenuDuration(mn);
                 ASSERT( mt.IsFirst() );
                 for( ; mt.Time() < duration; mt.idx++ )
@@ -716,7 +725,7 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
 
                     //std::string fpath = "/dev/null"; //boost::format("../dvd_out/ppms/%1%.ppm") % i % bf::stop;
                     //int fd = OpenFileAsArg(fpath.c_str(), false);
-                    WriteAsPPM(in_fd, img);
+                    WriteAsPPM(in_fd, img, pipe_buf);
                     //close(fd);
                 }
                 close(in_fd);

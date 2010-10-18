@@ -38,7 +38,8 @@ char* Extend(char* data, int& sz, int new_sz, const int min_sz)
     return (old_sz != sz) ? (char*)realloc(data, sz) : data ;
 }
 
-TrackBuf::TrackBuf() : begDat(0), endDat(0), bufSz(0)
+TrackBuf::TrackBuf() : begDat(0), endDat(0), bufSz(0),
+    isUnlimited(false)
 {
     // начальный размер
     Reserve(optimalSize);
@@ -56,7 +57,7 @@ void TrackBuf::Extend(int new_sz, bool is_add)
     if( is_add )
         new_sz += dat_sz;
 
-    if( new_sz>MAX_STRM_BUF_SZ )
+    if( !isUnlimited && (new_sz > MAX_STRM_BUF_SZ) )
         Error("TrackBuf: Attempt to set too big buffer size");
 
     begDat = ::Extend(begDat, bufSz, new_sz, optimalSize);
