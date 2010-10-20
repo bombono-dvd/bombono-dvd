@@ -58,6 +58,7 @@ void Stop(GPid& pid);
 } // namespace Exection
 
 typedef boost::function<void(const char*, int, bool)> ReadReadyFnr;
+ReadReadyFnr TextViewAppender(Gtk::TextView& txt_view);
 
 struct ExitData
 {
@@ -73,9 +74,10 @@ struct ExitData
 };
 // результат system() интерпретировать так
 ExitData StatusToExitData(int status);
+ExitData WaitForExit(GPid pid);
 
 // line_up - вывод по строкам, а не по мере поступления данных
-ExitData ExecuteAsync(const char* dir, const char* cmd, ReadReadyFnr& fnr, 
+ExitData ExecuteAsync(const char* dir, const char* cmd, const ReadReadyFnr& fnr, 
                       GPid* pid = 0, bool line_up = true);
 
 std::string ExitDescription(const ExitData& ed);
@@ -92,6 +94,8 @@ std::string ExitDescription(const ExitData& ed);
 // или иной форме родителю нужно вызывать waitpid(),- в том числе и для удаления этой информации из таблицы процессов
 // (неосвобожденный таким образом закончивший работу процесс называют зомби); если нет, то инфо
 // о статусе не сохранится по завершению процесса, и waitpid() вызывать не надо
+//
+// Если происходит ошибка создания процесса, то выкинется исключение std::runtime_error
 GPid Spawn(const char* dir, const char *commandline, 
            int out_err[2] = 0, bool need_wait = false, int* in_fd = 0);
 

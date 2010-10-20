@@ -31,6 +31,7 @@
 #include <mgui/redivide.h>
 #include <mgui/sdk/browser.h>   // VideoStart
 #include <mgui/sdk/ioblock.h>
+#include <mgui/sdk/textview.h>  // AppendCommandText()
 
 #include <mbase/project/table.h>
 
@@ -262,6 +263,13 @@ void InitAuthorData(Menu mn)
     InitTextForTaggedPCB(mn, AUTHOR_TAG);
 }
 
+static void IterateAuthoringEvents()
+{
+    IteratePendingEvents();
+    if( Author::GetES().eDat.userAbort )
+        throw std::runtime_error("User Abortion"); // строка реально не нужна - сработает userAbort
+}
+
 static int WorkCnt = 0;
 static int DoneCnt = 0;
 static void PulseRenderProgress()
@@ -273,9 +281,7 @@ static void PulseRenderProgress()
     ASSERT( WorkCnt && (DoneCnt <= WorkCnt) );
     Author::SetStageProgress( DoneCnt/(double)WorkCnt * 100.);
 
-    IteratePendingEvents();
-    if( Author::GetES().eDat.userAbort )
-        throw std::runtime_error("User Abortion"); // строка реально не нужна - сработает userAbort
+    IterateAuthoringEvents();
 }
 
 bool RenderSubPictures(const std::string& out_dir, Menu mn, int i, 
@@ -660,21 +666,68 @@ static void SaveStillMenuMpg(const std::string& mn_dir, Menu mn)
     ASSERT( ed.IsGood() );
 }
 
-static ExitData WaitForExit(GPid pid)
-{
-    int status;
-    while( waitpid(pid, &status, 0) == -1 ) 
-        ASSERT_RTL( errno == EINTR );
-
-    // :REFACTOR:
-    g_spawn_close_pid(pid);
-    return StatusToExitData(status);
-}
-
 void ErrorByED(const char* msg, const ExitData& ed)
 {
     // :REFACTOR:
     throw std::runtime_error(boost::format(msg) % ExitDescription(ed) % bf::stop);
+}
+
+struct FFmpegCloser
+{
+                GPid  pid;
+                 int  inFd;
+            ExitData& ed;
+ptr::one<OutErrBlock> oeb;
+
+     FFmpegCloser(ExitData& ed_): pid(NO_HNDL), inFd(NO_HNDL), ed(ed_) {}
+
+    ~FFmpegCloser()
+     {
+         // варианты остановить транскодирование сразу после окончания видео, см. ffmpeg.c:av_encode():
+         // - через сигнал (SIGINT, SIGTERM, SIGQUIT)
+         // - по достижению размера или времени (см. соответ. опции вроде -t); но тут возможна проблема
+         //   блокировки/закрытия раньше, чем мы закончим посылку всех данных; да и время высчитывать тоже придется
+         // - в момент окончания первого из источников, -shortest; не подходит, если аудио существенно длинней
+         //   чем мы хотим записать
+         Execution::Stop(pid);
+
+         // дождаться выхода и проверить статус
+         ed = WaitForExit(pid);
+
+         ASSERT( inFd != NO_HNDL );
+         close(inFd);
+     }
+};
+
+static void PipeVideo(Menu mn, int in_fd)
+{
+    // :REFACTOR:
+    MenuRegion& m_rgn       = GetMenuRegion(mn);
+    PixCanvasBuf& mtn_buf   = GetTaggedPCB(mn, MOTION_MENU_TAG);
+    RefPtr<Gdk::Pixbuf> img = mtn_buf.FramePixbuf();
+    ASSERT( img );
+
+    TrackBuf pipe_buf;
+    pipe_buf.SetUnlimited();
+
+    double duration = MenuDuration(mn);
+
+    MotionTimer& mt = GetMotionTimer(mn);
+    ASSERT( mt.IsFirst() );
+    for( ; mt.Time() < duration; mt.idx++ )
+    {
+        MotionMenuRVis r_vis(mtn_buf.RenderList());
+        m_rgn.Accept(r_vis);
+
+        //std::string fpath = "/dev/null"; //boost::format("../dvd_out/ppms/%1%.ppm") % i % bf::stop;
+        //int fd = OpenFileAsArg(fpath.c_str(), false);
+        WriteAsPPM(in_fd, img, pipe_buf);
+        //close(fd);
+
+        if( !CheckAuthorMode::Flag )
+            // вывод от ffmpeg
+            IterateAuthoringEvents();
+    }
 }
 
 bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
@@ -721,52 +774,40 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
                 std::string ffmpeg_cmd = boost::format("ffmpeg -r %1% -f image2pipe -vcodec ppm -i pipe: %2%")
                     % MotionTimer::fps % MakeFFmpegPostArgs(mn_dir, mn) % bf::stop;
 
-                int in_fd = NO_HNDL;
-                GPid pid = Spawn(0, ffmpeg_cmd.c_str(), 0, true, &in_fd);
-                ASSERT( pid >= 0 );
-                ASSERT( in_fd != NO_HNDL );
-
-                // :TEMP:
-                double all_time = GetClockTime();
-
-                RefPtr<Gdk::Pixbuf> img = mtn_buf.FramePixbuf();
-                ASSERT( img );
-                MotionTimer& mt = GetMotionTimer(mn);
-
-                TrackBuf pipe_buf;
-                pipe_buf.SetUnlimited();
-                double duration = MenuDuration(mn);
-                ASSERT( mt.IsFirst() );
-                for( ; mt.Time() < duration; mt.idx++ )
+                ExitData ed;
                 {
-                    MotionMenuRVis r_vis(rlr);
-                    m_rgn.Accept(r_vis);
+                    FFmpegCloser pc(ed);
+                    int out_err[2];
+                    pc.pid = Spawn(0, ffmpeg_cmd.c_str(), CheckAuthorMode::Flag ? 0 : out_err, true, &pc.inFd);
+    
+                    if( CheckAuthorMode::Flag )
+                    {
+                        double all_time = GetClockTime();
 
-                    //std::string fpath = "/dev/null"; //boost::format("../dvd_out/ppms/%1%.ppm") % i % bf::stop;
-                    //int fd = OpenFileAsArg(fpath.c_str(), false);
-                    WriteAsPPM(in_fd, img, pipe_buf);
-                    //close(fd);
+                        PipeVideo(mn, pc.inFd);
+
+                        all_time = GetClockTime() - all_time;
+                        io::cout << "Time to run: " << all_time << io::endl;
+                        io::cout << "FPS: " << GetMotionTimer(mn).idx / all_time << io::endl;
+                    }
+                    else
+                    {
+                        Gtk::TextView& tv = Author::GetES().detailsView;
+                        AppendCommandText(tv, ffmpeg_cmd);
+                        // закрываем выходы после окончания работы ffmpeg, иначе тот грохнется
+                        // по SIGPIPE
+                        //OutErrBlock oeb(out_err, TextViewAppender(tv));
+                        pc.oeb = new OutErrBlock(out_err, TextViewAppender(tv));
+
+                        PipeVideo(mn, pc.inFd);
+                    }
+    
                 }
-                close(in_fd);
-                // варианты остановить транскодирование сразу после окончания видео, см. ffmpeg.c:av_encode():
-                // - через сигнал (SIGINT, SIGTERM, SIGQUIT)
-                // - по достижению размера или времени (см. соответ. опции вроде -t); но тут возможна проблема
-                //   блокировки/закрытия раньше, чем мы закончим посылку всех данных; да и время высчитывать тоже придется
-                // - в момент окончания первого из источников, -shortest; не подходит, если аудио существенно длинней
-                //   чем мы хотим записать
-                Execution::Stop(pid);
 
-                // дождаться выхода и проверить статус
-                ExitData ed = WaitForExit(pid);
                 if( !ed.IsGood() )
                     // ffmpeg завершает с кодом 255 при посылке сигнала, ffmpeg.c:av_exit(int ret)
                     if( !ed.normExit || (ed.code != 255) )
                         ErrorByED(_("ffmpeg failure: %1%"), ed);
-
-                // :TEMP:
-                all_time = GetClockTime() - all_time;
-                io::cout << "Time to run: " << all_time << io::endl;
-                io::cout << "FPS: " << mt.idx / all_time << io::endl;
             }
             else
                 SaveStillMenuMpg(mn_dir, mn);

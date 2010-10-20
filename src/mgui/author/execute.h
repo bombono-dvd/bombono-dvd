@@ -140,7 +140,5 @@ void RenewPtr(RefPtrT<T>& p)
 #define RG_NUM "([0-9]+)"     // число
 #define RG_CMD_BEG RG_BW // "^"RG_SPS  // начало команды
 
-ExitData ExecuteAsync(const char* dir, const char* cmd, Author::OutputFilter& of, GPid* pid);
-
 #endif // #ifndef __MGUI_AUTHOR_EXECUTE_H__
 

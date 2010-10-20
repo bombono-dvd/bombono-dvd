@@ -222,11 +222,3 @@ void BuildDvdOF::SetProgress(double percent)
 
 } // namespace Author
 
-ExitData ExecuteAsync(const char* dir, const char* cmd, Author::OutputFilter& of, GPid* pid)
-{
-    using namespace boost;
-    ReadReadyFnr fnr = lambda::bind(&Author::OutputFilter::OnGetLine, &of,
-                                    lambda::_1, lambda::_2, lambda::_3);
-    return ExecuteAsync(dir, cmd, fnr, pid);
-}
-

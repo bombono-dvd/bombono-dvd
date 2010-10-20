@@ -25,6 +25,9 @@
 #include "dialog.h"
 #include "gettext.h"
 
+// :REFACTOR: CheckAuthorMode -> ConsoleMode
+#include <mgui/author/script.h>
+
 #include <mgui/sdk/ioblock.h>
 
 #include <mlib/tech.h>
@@ -79,7 +82,6 @@ Pulse::~Pulse()
 void SimpleSpawn(const char *commandline, const char* dir)
 {
     GPid p = Spawn(dir, commandline);
-    ASSERT_RTL( p > 0 );
     g_spawn_close_pid(p);
 }
 
@@ -303,7 +305,32 @@ OutErrBlock::~OutErrBlock()
     ReadPendingData(po, false);
 }
 
-ExitData ExecuteAsync(const char* dir, const char* cmd, ReadReadyFnr& fnr,
+static ExitData GUIWaitForExit(GPid pid)
+{
+    ExitData ed;
+    Glib::signal_child_watch().connect(bb::bind(&WaitExitCode, boost::ref(ed), _1, _2), pid);
+    Gtk::Main::run();
+    
+    return ed;
+}
+
+static ExitData ConsoleWaitForExit(GPid pid)
+{
+    int status;
+    while( waitpid(pid, &status, 0) == -1 ) 
+        ASSERT_RTL( errno == EINTR );
+
+    // :REFACTOR:
+    g_spawn_close_pid(pid);
+    return StatusToExitData(status);
+}
+
+ExitData WaitForExit(GPid pid)
+{
+    return Project::CheckAuthorMode::Flag ? ConsoleWaitForExit(pid) : GUIWaitForExit(pid) ;
+}
+
+ExitData ExecuteAsync(const char* dir, const char* cmd, const ReadReadyFnr& fnr,
                       GPid* pid, bool line_up)
 {
     LogExecuteAsync("Begin");
@@ -312,14 +339,12 @@ ExitData ExecuteAsync(const char* dir, const char* cmd, ReadReadyFnr& fnr,
     {
         int out_err[2];
         GPid p = Spawn(dir, cmd, out_err, true);
-        ASSERT_RTL( p > 0 );
         if( pid )
             *pid = p;
 
         OutErrBlock oeb(out_err, fnr, line_up);
 
-        Glib::signal_child_watch().connect(bb::bind(&WaitExitCode, boost::ref(ed), _1, _2), p);
-        Gtk::Main::run();
+        ed = GUIWaitForExit(p);
     }
 
     LogExecuteAsync("End");
@@ -369,6 +394,9 @@ GPid Spawn(const char* dir, const char *commandline, int out_err[2], bool need_w
 
     if( !res )
         ThrowGError(std::string("while spawning: ") + argv[0], error);
+    // считаем, что проверка выше включает действительность pid
+    ASSERT_RTL( pid > 0 );
+
     return pid;
 }
 

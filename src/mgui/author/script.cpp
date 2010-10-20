@@ -569,7 +569,6 @@ bool AuthorDVD(const std::string& out_dir)
         {
             ////int pid = gnome_execute_shell(out_dir.c_str(), "scons totem");
             //int pid = Spawn(out_dir.c_str(), "scons totem");
-            //ASSERT(pid > 0);
         }
     }
     catch (const std::exception& err)
@@ -671,6 +670,14 @@ void FillSconsOptions(str::stream& scons_options, bool fill_def)
     if( fill_def )
         AddSconsOptions(GetES().settings, false, def_dvd_label, def_drive, def_speed);
     AddSconsOptions(scons_options, true, def_dvd_label, def_drive, def_speed);
+}
+
+ExitData ExecuteAsync(const char* dir, const char* cmd, OutputFilter& of, GPid* pid)
+{
+    using namespace boost;
+    ReadReadyFnr fnr = lambda::bind(&Author::OutputFilter::OnGetLine, &of,
+                                    lambda::_1, lambda::_2, lambda::_3);
+    return ::ExecuteAsync(dir, cmd, fnr, pid);
 }
 
 ExitData ExecuteSconsCmd(const std::string& out_dir, OutputFilter& of, 

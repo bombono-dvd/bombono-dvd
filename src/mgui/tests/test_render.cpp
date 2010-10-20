@@ -82,7 +82,6 @@ BOOST_AUTO_TEST_CASE( TestRenderTranscoding )
 
     int in_fd = NO_HNDL;
     GPid pid = Spawn(0, ffmpeg_cmd.c_str(), 0, false, &in_fd);
-    ASSERT( pid >= 0 );
     ASSERT( in_fd != NO_HNDL );
 
     double all_time = GetClockTime();

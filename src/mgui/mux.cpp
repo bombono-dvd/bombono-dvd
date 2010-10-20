@@ -41,6 +41,11 @@ static void OnNewText(Gtk::TextView& txt_view, const char* dat, int sz, bool is_
     AppendNewText(txt_view, std::string(dat, sz), is_out);
 }
 
+ReadReadyFnr TextViewAppender(Gtk::TextView& txt_view)
+{
+    return bb::bind(&OnNewText, boost::ref(txt_view), _1, _2, _3);
+}
+
 static void OnResponse(Execution::Data& edat, int resp)
 {
     if( resp == Gtk::RESPONSE_CANCEL)
@@ -90,10 +95,9 @@ static bool RunMuxing(const std::string& dest_path, const std::string& args)
     ExitData ed;
     {
         Execution::Pulse pls(prg_bar);
-        ReadReadyFnr fnr = bl::bind(&OnNewText, boost::ref(txt_view), bl::_1, bl::_2, bl::_3);
         std::string cmd = boost::format("mplex -f 8 -o %1% %2%") % dest_path % args % bf::stop;
         AppendCommandText(txt_view, cmd);
-        ed = ExecuteAsync(0, cmd.c_str(), fnr, &edat.pid);
+        ed = ExecuteAsync(0, cmd.c_str(), TextViewAppender(txt_view), &edat.pid);
     }
 
     if( !ed.IsGood() && !edat.userAbort )

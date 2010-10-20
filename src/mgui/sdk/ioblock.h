@@ -1,6 +1,8 @@
 #ifndef __MGUI_SDK_IOBLOCK_H__
 #define __MGUI_SDK_IOBLOCK_H__
 
+#include <mgui/execution.h> // ReadReadyFnr
+
 #include <mlib/function.h>
 
 struct ExecOutput
@@ -41,7 +43,7 @@ class OutErrBlock
 {
     public:
 
-        OutErrBlock(int out_err[2], const ReadReadyFnr& fnr, bool line_up);
+        OutErrBlock(int out_err[2], const ReadReadyFnr& fnr, bool line_up = true);
        ~OutErrBlock();
 
     protected:

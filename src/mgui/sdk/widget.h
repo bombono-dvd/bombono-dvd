@@ -26,7 +26,7 @@
 
 void SetPercent(Gtk::ProgressBar& bar, double percent);
 
-// "прокрутить" очередь сообщений (по сути Muzzle'овский CheckBreak())
+// "прокрутить" очередь сообщений
 void IteratePendingEvents();
 
 inline void SetScaleSecondary(Gtk::HScale& scl)
