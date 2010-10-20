@@ -221,6 +221,7 @@
 			<F N="../src/mgui/img_utils.h"/>
 			<F N="../src/mgui/author/indicator.h"/>
 			<F N="../src/mgui/init.h"/>
+			<F N="../src/mgui/sdk/ioblock.h"/>
 			<F N="../src/mgui/key.h"/>
 			<F N="../src/mgui/editor/kit.h"/>
 			<F N="../src/mgui/timeline/layout.h"/>

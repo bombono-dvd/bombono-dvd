@@ -25,6 +25,8 @@
 #include "dialog.h"
 #include "gettext.h"
 
+#include <mgui/sdk/ioblock.h>
+
 #include <mlib/tech.h>
 #include <mlib/sigc.h>
 
@@ -83,33 +85,48 @@ void SimpleSpawn(const char *commandline, const char* dir)
 
 } // namespace Execution
 
-struct ExecOutput
+static bool IsFDOpen(int fd)
 {
-          sigc::connection  outConn;
-    RefPtr<Glib::IOChannel> outChnl;
+    bool res = true;
 
-        ~ExecOutput() { outConn.disconnect(); }
-};
+    errno = 0; // чистим
+    io::tell(fd);
+    if( errno )
+    {
+        // нет такого открытого fd
+        ASSERT( errno == EBADF );
+        res = false;
+    }
+    return res;
+}
 
-class ReadDest
+//static void TestFdState(int fd, bool be_open)
+//{
+//    ASSERT( IsFDOpen(fd) == be_open );
+//}
+
+ExecOutput::~ExecOutput() 
 {
-    public:
-    virtual       ~ReadDest() {}
+    if( outChnl )
+    {
+        outConn.disconnect();
 
-    virtual  void  PutData(const char* dat, int sz) = 0;
-    virtual  void  OnEnd() = 0;
-};
+        // хочется точно знать, что дескриптор закрыли
+        int fd = g_io_channel_unix_get_fd(outChnl->gobj());
+        outChnl.reset();
 
-struct ProgramOutput
+        ASSERT( !IsFDOpen(fd) );
+    }
+}
+
+void ExecOutput::Watch(int fd, const Functor& fnr, Glib::IOCondition cond)
 {
-    ExecOutput  outEO;
-    ExecOutput  errEO;
+    outConn = Glib::signal_io().connect(wrap_return<bool>(fnr), fd, cond);
 
-      ReadDest& outRd; 
-      ReadDest& errRd;
-
-      ProgramOutput(ReadDest& o_rd, ReadDest& e_rd): outRd(o_rd), errRd(e_rd) {}
-};
+    outChnl = Glib::IOChannel::create_from_fd(fd);
+    outChnl->set_close_on_unref(true);
+    outChnl->set_flags(Glib::IO_FLAG_NONBLOCK);
+}
 
 static ExecOutput& GetEO(ProgramOutput& po, bool is_out)
 {
@@ -160,24 +177,18 @@ static bool OnStreamReadReady(ProgramOutput& po, bool is_out, Glib::IOCondition 
 static void SetupEO(ProgramOutput& po, int fd, bool is_out)
 {
     ExecOutput& eo = GetEO(po, is_out);
-    using namespace boost;
-    function<bool(Glib::IOCondition)> fnr = lambda::bind(&OnStreamReadReady, boost::ref(po), is_out, lambda::_1);
-    eo.outConn = Glib::signal_io().connect(wrap_return<bool>(fnr), fd, StreamConditionMask);
-
-    eo.outChnl = Glib::IOChannel::create_from_fd(fd);
-    eo.outChnl->set_close_on_unref(true);
-    eo.outChnl->set_flags(Glib::IO_FLAG_NONBLOCK);
+    eo.Watch(fd, bb::bind(&OnStreamReadReady, boost::ref(po), is_out, _1), StreamConditionMask);
 }
 
 ExitData StatusToExitData(int status)
 {
     ExitData ed;
     if( WIFEXITED(status) )
-        ed.retCode = WEXITSTATUS(status);
+        ed.code = WEXITSTATUS(status);
     else if( WIFSIGNALED(status) )
     {
         ed.normExit = false;
-        ed.retCode  = WTERMSIG(status);
+        ed.code  = WTERMSIG(status);
     }
     else
         ASSERT_RTL(0);
@@ -193,52 +204,11 @@ static void WaitExitCode(ExitData& ed, GPid pid, int status)
     Gtk::Main::quit();
 }
 
-static void TestFdState(int fd, bool be_open)
-{
-    // ожидаемое значение
-    int need_errno = be_open ? 0 : EBADF; // нет такого открытого fd
-
-    errno = 0; // чистим
-    io::tell(fd);
-    ASSERT_OR_UNUSED_VAR( errno == need_errno, need_errno );
-}
-
 static void LogExecuteAsync(const std::string& str)
 {
     LOG_INF << io::endl;
     LOG_INF << "ExecuteAsync(): " << str << io::endl;
     LOG_INF << io::endl;
-}
-
-static ExitData ExecuteAsyncImpl(const char* dir, const char* cmd, ReadDest& out_rd, ReadDest& err_rd,
-                                 GPid* pid)
-{
-    LogExecuteAsync("Begin");
-    ExitData ed;
-    int out_err[2];
-    {
-        GPid p = Spawn(dir, cmd, out_err, true);
-        ASSERT_RTL( p > 0 );
-        if( pid )
-            *pid = p;
-
-        using namespace boost;
-        Glib::signal_child_watch().connect(lambda::bind(&WaitExitCode, boost::ref(ed), lambda::_1, lambda::_2), p);
-        ProgramOutput po(out_rd, err_rd);
-        SetupEO(po, out_err[0], true);
-        SetupEO(po, out_err[1], false);
-    
-        Gtk::Main::run();
-
-        ReadPendingData(po, true);
-        ReadPendingData(po, false);
-    }
-    // должны быть закрыты ExecOutput::outStrm
-    TestFdState(out_err[0], false);
-    TestFdState(out_err[1], false);
-
-    LogExecuteAsync("End");
-    return ed;
 }
 
 class RawRD: public ReadDest
@@ -257,7 +227,7 @@ class RawRD: public ReadDest
               void  Put(const char* dat, int sz) { fnr(dat, sz, isOut); }
 };
 
-class LinedRD: public RawRD
+ class LinedRD: public RawRD
 {
     typedef RawRD MyParent;
     public:
@@ -317,12 +287,43 @@ static ReadDest* CreateReadDest(const ReadReadyFnr& fnr, bool is_out, bool line_
     return line_up ? new LinedRD(is_out, fnr) : new RawRD(is_out, fnr);
 }
 
+OutErrBlock::OutErrBlock(int out_err[2], const ReadReadyFnr& fnr,
+                               bool line_up):
+    outRd(CreateReadDest(fnr, true,  line_up)),
+    errRd(CreateReadDest(fnr, false, line_up)),
+    po(*outRd, *errRd)
+{
+    SetupEO(po, out_err[0], true);
+    SetupEO(po, out_err[1], false);
+}
+
+OutErrBlock::~OutErrBlock()
+{
+    ReadPendingData(po, true);
+    ReadPendingData(po, false);
+}
+
 ExitData ExecuteAsync(const char* dir, const char* cmd, ReadReadyFnr& fnr,
                       GPid* pid, bool line_up)
 {
-    ptr::one<ReadDest> o_rd(CreateReadDest(fnr, true,  line_up));
-    ptr::one<ReadDest> e_rd(CreateReadDest(fnr, false, line_up));
-    return ExecuteAsyncImpl(dir, cmd, *o_rd, *e_rd, pid);
+    LogExecuteAsync("Begin");
+    ExitData ed;
+
+    {
+        int out_err[2];
+        GPid p = Spawn(dir, cmd, out_err, true);
+        ASSERT_RTL( p > 0 );
+        if( pid )
+            *pid = p;
+
+        OutErrBlock oeb(out_err, fnr, line_up);
+
+        Glib::signal_child_watch().connect(bb::bind(&WaitExitCode, boost::ref(ed), _1, _2), p);
+        Gtk::Main::run();
+    }
+
+    LogExecuteAsync("End");
+    return ed;
 }
 
 static void ThrowGError(const std::string& dsc, GError* err)
@@ -332,7 +333,7 @@ static void ThrowGError(const std::string& dsc, GError* err)
     throw std::runtime_error(str);
 }
 
-GPid Spawn(const char* dir, const char *commandline, int out_err[2], bool need_watch,
+GPid Spawn(const char* dir, const char *commandline, int out_err[2], bool need_wait,
            int* in_fd)
 {
     LOG_INF << "Spawn(" << commandline << ")" << io::endl;
@@ -357,7 +358,7 @@ GPid Spawn(const char* dir, const char *commandline, int out_err[2], bool need_w
     GSpawnFlags flags = G_SPAWN_SEARCH_PATH;
     // чтобы exec() проходил после первого fork() и можно было использовать waitpid(),
     // см. описание waitpid()
-    if( need_watch ) 
+    if( need_wait ) 
       flags = GSpawnFlags(flags | G_SPAWN_DO_NOT_REAP_CHILD);
 
     GPid pid;
@@ -416,9 +417,9 @@ std::string ExitDescription(const ExitData& ed)
     if( ed.IsGood() )
         end_str = "normal completion";
     else if( ed.normExit )
-        end_str = BF_("exit code = %1%") % ed.retCode % bf::stop;
+        end_str = BF_("exit code = %1%") % ed.code % bf::stop;
     else
-        end_str = BF_("broken by signal %1%") % SignalToString(ed.retCode) % bf::stop;
+        end_str = BF_("broken by signal %1%") % SignalToString(ed.code) % bf::stop;
 
     return end_str;
 }

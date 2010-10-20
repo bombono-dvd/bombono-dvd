@@ -62,14 +62,14 @@ typedef boost::function<void(const char*, int, bool)> ReadReadyFnr;
 struct ExitData
 {
     bool  normExit; // нет в случае ненормального выхода (по сигналу, например)
-     int  retCode;  // если !normExit, то это номер сигнала
+     int  code;  // если !normExit, то это номер сигнала
 
      // вроде как больше 127 не может быть
      static const int impossibleRetCode = 128;
 
-           ExitData(): normExit(true), retCode(impossibleRetCode) {}
+           ExitData(): normExit(true), code(impossibleRetCode) {}
 
-      bool IsGood() const { return normExit && (retCode == 0); }
+      bool IsGood() const { return normExit && (code == 0); }
 };
 // результат system() интерпретировать так
 ExitData StatusToExitData(int status);
@@ -88,10 +88,12 @@ std::string ExitDescription(const ExitData& ed);
 // (подправленный gnome_execute_shell()), но из-за устаревания gnome_executeXXX
 // перешел на g_spawnXXX 
 // 
-// need_watch - из-за специфики Unix (waitpid()) требуется явно указывать,
-// будем ли наблюдать за запущенным процессом
+// need_wait - хотим ли знать/ждать статус окончания работы процесса; если да, то в той
+// или иной форме родителю нужно вызывать waitpid(),- в том числе и для удаления этой информации из таблицы процессов
+// (неосвобожденный таким образом закончивший работу процесс называют зомби); если нет, то инфо
+// о статусе не сохранится по завершению процесса, и waitpid() вызывать не надо
 GPid Spawn(const char* dir, const char *commandline, 
-           int out_err[2] = 0, bool need_watch = false, int* in_fd = 0);
+           int out_err[2] = 0, bool need_wait = false, int* in_fd = 0);
 
 #endif // #ifndef __MGUI_EXECUTION_H__
 

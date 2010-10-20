@@ -30,6 +30,7 @@
 #include <mgui/editor/bind.h>   // MBind::TextRendering
 #include <mgui/redivide.h>
 #include <mgui/sdk/browser.h>   // VideoStart
+#include <mgui/sdk/ioblock.h>
 
 #include <mbase/project/table.h>
 
@@ -37,8 +38,10 @@
 #include <mlib/string.h>
 #include <mlib/read_stream.h> // ReadAllStream()
 #include <mlib/sdk/system.h> // GetClockTime()
+#include <mlib/gettext.h>
 
 #include <boost/lexical_cast.hpp>
+#include <sys/wait.h>
 
 void IteratePendingEvents()
 {
@@ -657,6 +660,23 @@ static void SaveStillMenuMpg(const std::string& mn_dir, Menu mn)
     ASSERT( ed.IsGood() );
 }
 
+static ExitData WaitForExit(GPid pid)
+{
+    int status;
+    while( waitpid(pid, &status, 0) == -1 ) 
+        ASSERT_RTL( errno == EINTR );
+
+    // :REFACTOR:
+    g_spawn_close_pid(pid);
+    return StatusToExitData(status);
+}
+
+void ErrorByED(const char* msg, const ExitData& ed)
+{
+    // :REFACTOR:
+    throw std::runtime_error(boost::format(msg) % ExitDescription(ed) % bf::stop);
+}
+
 bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
 {
     Author::Info((str::stream() << "Rendering menu \"" << mn->mdName << "\" ...").str());
@@ -702,7 +722,7 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
                     % MotionTimer::fps % MakeFFmpegPostArgs(mn_dir, mn) % bf::stop;
 
                 int in_fd = NO_HNDL;
-                GPid pid = Spawn(0, ffmpeg_cmd.c_str(), 0, false, &in_fd);
+                GPid pid = Spawn(0, ffmpeg_cmd.c_str(), 0, true, &in_fd);
                 ASSERT( pid >= 0 );
                 ASSERT( in_fd != NO_HNDL );
 
@@ -735,7 +755,13 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
                 // - в момент окончания первого из источников, -shortest; не подходит, если аудио существенно длинней
                 //   чем мы хотим записать
                 Execution::Stop(pid);
-                g_spawn_close_pid(pid);
+
+                // дождаться выхода и проверить статус
+                ExitData ed = WaitForExit(pid);
+                if( !ed.IsGood() )
+                    // ffmpeg завершает с кодом 255 при посылке сигнала, ffmpeg.c:av_exit(int ret)
+                    if( !ed.normExit || (ed.code != 255) )
+                        ErrorByED(_("ffmpeg failure: %1%"), ed);
 
                 // :TEMP:
                 all_time = GetClockTime() - all_time;
