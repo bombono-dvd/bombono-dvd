@@ -669,10 +669,20 @@ static bool CheckDVDBlankForBurning()
     return res;
 }
 
-static void PostBuildOperation(bool res, const std::string& dir_str)
+static void BurnImpl(const std::string& dir_str)
+{
+    str::stream scons_options;
+    FillSconsOptions(scons_options, false);
+
+    BurningStateSetter bss(GetES());
+    ConsoleOF of;
+    ExecuteSconsCmd(dir_str, of, modBURN, scons_options);
+}
+
+static void PostBuildOperation(const std::string& res, const std::string& dir_str)
 {
     ExecState& es = GetES();
-    if( res )
+    if( IsGood(res) )
     {
         std::string status = OperationCompleted(es);
         std::string desc_str = MakeDescForOutput(es.mode, dir_str);
@@ -703,22 +713,14 @@ static void PostBuildOperation(bool res, const std::string& dir_str)
                     break;
 
                 // * прожиг
-                str::stream scons_options;
-                FillSconsOptions(scons_options, false);
-                ExitData ed;
-                {
-                    BurningStateSetter bss(es);
-
-                    ConsoleOF of;
-                    ed = ExecuteSconsCmd(dir_str, of, modBURN, scons_options);
-                }
-                if( ed.IsGood() )
+                std::string res = SafeCall(bb::bind(&BurnImpl, dir_str));
+                if( IsGood(res) )
                 {
                     SetFinalStatus(OperationCompleted(es), true);
                 }
                 else
                 {    
-                    FailureMessageBox(es, ExitDescription(ed));
+                    FailureMessageBox(es, res);
                     break;
                 }
 
@@ -729,7 +731,7 @@ static void PostBuildOperation(bool res, const std::string& dir_str)
         }
     }
     else
-        FailureMessageBox(es, es.exitDesc);
+        FailureMessageBox(es, res);
 }
 
 void OnDVDBuild(Gtk::FileChooserButton& ch_btn)
@@ -741,7 +743,7 @@ void OnDVDBuild(Gtk::FileChooserButton& ch_btn)
 
         if( CanUseForAuthoring(dir_str) && CheckDVDBlankForBurning() )
         {
-            bool res = true;
+            std::string res;
             {
                 ExecStateSetter ess(es);
                 res = Project::AuthorDVD(dir_str);

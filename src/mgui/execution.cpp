@@ -25,9 +25,6 @@
 #include "dialog.h"
 #include "gettext.h"
 
-// :REFACTOR: CheckAuthorMode -> ConsoleMode
-#include <mgui/author/script.h>
-
 #include <mgui/sdk/ioblock.h>
 
 #include <mlib/tech.h>
@@ -50,6 +47,8 @@ void Stop(GPid& pid)
     kill(pid, SIGTERM);
 }
 
+Data::Data(): pid(NO_HNDL), userAbort(false) {}
+
 void Data::StopExecution(const std::string& what)
 {
     // COPY_N_PASTE - тупо сделал содержимое сообщений как у "TSNAMI-MPEG DVD Author"
@@ -58,9 +57,15 @@ void Data::StopExecution(const std::string& what)
                                             % bf::stop, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO) )
     {
         userAbort = true;
-        if( pid != NO_HNDL ) // во время выполнения внешней команды
+        if( IsAsyncCall() )
             Stop(pid);
     }
+}
+
+void Data::Init()
+{
+    ASSERT( !IsAsyncCall() );
+    userAbort = false;
 }
 
 static bool PulseProgress(Gtk::ProgressBar& prg_bar)
@@ -84,6 +89,13 @@ void SimpleSpawn(const char *commandline, const char* dir)
     GPid p = Spawn(dir, commandline);
     g_spawn_close_pid(p);
 }
+
+bool ConsoleMode::Flag = false;
+
+ConsoleMode::ConsoleMode(bool turn_on): origVal(Flag) 
+{ Flag = turn_on; }
+ConsoleMode::~ConsoleMode()
+{ Flag = origVal; }
 
 } // namespace Execution
 
@@ -198,15 +210,25 @@ ExitData StatusToExitData(int status)
     return ed;
 }
 
+static ExitData CloseProcData(GPid pid, int status)
+{
+    ExitData ed = StatusToExitData(status);
+    g_spawn_close_pid(pid);
+    return ed;
+}
+
+ExitData System(const std::string& cmd)
+{
+    return StatusToExitData( system(cmd.c_str()) );
+}
+
 static void WaitExitCode(ExitData& ed, GPid pid, int status)
 {
-    ed = StatusToExitData(status);
-    g_spawn_close_pid(pid);
-
+    ed = CloseProcData(pid, status);
     Gtk::Main::quit();
 }
 
-static void LogExecuteAsync(const std::string& str)
+static void LogEA(const std::string& str)
 {
     LOG_INF << io::endl;
     LOG_INF << "ExecuteAsync(): " << str << io::endl;
@@ -320,34 +342,38 @@ static ExitData ConsoleWaitForExit(GPid pid)
     while( waitpid(pid, &status, 0) == -1 ) 
         ASSERT_RTL( errno == EINTR );
 
-    // :REFACTOR:
-    g_spawn_close_pid(pid);
-    return StatusToExitData(status);
+    return CloseProcData(pid, status);
 }
 
 ExitData WaitForExit(GPid pid)
 {
-    return Project::CheckAuthorMode::Flag ? ConsoleWaitForExit(pid) : GUIWaitForExit(pid) ;
+    return Execution::ConsoleMode::Flag ? ConsoleWaitForExit(pid) : GUIWaitForExit(pid) ;
 }
 
 ExitData ExecuteAsync(const char* dir, const char* cmd, const ReadReadyFnr& fnr,
                       GPid* pid, bool line_up)
 {
-    LogExecuteAsync("Begin");
+    LogEA("Begin");
     ExitData ed;
 
     {
         int out_err[2];
         GPid p = Spawn(dir, cmd, out_err, true);
         if( pid )
+        {
+            ASSERT( *pid == NO_HNDL );
             *pid = p;
+        }
 
         OutErrBlock oeb(out_err, fnr, line_up);
 
         ed = GUIWaitForExit(p);
+
+        if( pid )
+            *pid = NO_HNDL;
     }
 
-    LogExecuteAsync("End");
+    LogEA("End");
     return ed;
 }
 

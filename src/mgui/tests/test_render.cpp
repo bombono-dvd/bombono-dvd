@@ -124,6 +124,6 @@ BOOST_AUTO_TEST_CASE( TestStillTranscoding )
  
     io::cout << ffmpeg_cmd << io::endl;
     //Execution::SimpleSpawn(ffmpeg_cmd.c_str());
-    ExitData ed = StatusToExitData( system(ffmpeg_cmd.c_str()) );
+    ExitData ed = System(ffmpeg_cmd);
     BOOST_CHECK( ed.IsGood() );
 }

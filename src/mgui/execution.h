@@ -22,7 +22,7 @@
 #ifndef __MGUI_EXECUTION_H__
 #define __MGUI_EXECUTION_H__
 
-#include <mlib/const.h>
+#include <mlib/const.h>    // NO_HNDL
 #include <mgui/timer.h>
 
 namespace Execution {
@@ -32,13 +32,13 @@ struct Data
     GPid  pid;
     bool  userAbort; // пользователь сам отменил
 
-            Data() { Init(); }
+            Data();
 
-      void  Init() 
-      {
-          pid = NO_HNDL;
-          userAbort = false;
-      }
+            // в процессе выполнения внешней команды
+            // установивший pid в конце должен его обнулить снова
+      bool  IsAsyncCall() { return pid != NO_HNDL; }
+
+      void  Init();
       void  StopExecution(const std::string& what);
 };
 
@@ -54,6 +54,17 @@ class Pulse
 
 void SimpleSpawn(const char *commandline, const char* dir = 0);
 void Stop(GPid& pid);
+
+class ConsoleMode
+{
+    public:
+        static bool Flag; // спец. режим для тестов (доп. проверки)
+
+        ConsoleMode(bool turn_on = true);
+       ~ConsoleMode();
+    protected:
+        bool origVal;
+};
 
 } // namespace Exection
 
@@ -75,6 +86,7 @@ struct ExitData
 // результат system() интерпретировать так
 ExitData StatusToExitData(int status);
 ExitData WaitForExit(GPid pid);
+ExitData System(const std::string& cmd);
 
 // line_up - вывод по строкам, а не по мере поступления данных
 ExitData ExecuteAsync(const char* dir, const char* cmd, const ReadReadyFnr& fnr, 

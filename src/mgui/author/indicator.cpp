@@ -21,7 +21,7 @@
 
 #include <mgui/_pc_.h>
 
-#include "script.h"  // CheckAuthorMode
+#include "script.h"  // ConsoleMode
 
 #include <mgui/img_utils.h> // Round()
 #include <mgui/gettext.h>
@@ -100,7 +100,7 @@ void ExecState::SetIndicator(double percent)
 
 void SetStageProgress(double percent)
 {
-    if( Project::CheckAuthorMode::Flag )
+    if( Execution::ConsoleMode::Flag )
         return;
 
     double sum = 0;
@@ -134,7 +134,7 @@ std::string StageToStr(Stage st)
 
 void SetStage(Stage st)
 {
-    if( Project::CheckAuthorMode::Flag )
+    if( Execution::ConsoleMode::Flag )
         return;
 
     GetES().SetStatus(StageToStr(st));

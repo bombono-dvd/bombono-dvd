@@ -28,7 +28,6 @@
 #include <mgui/execution.h>
 
 #include <mlib/patterns.h> // Singleton<>
-#include <mlib/const.h>    // NO_HNDL
 #include <mlib/ptr.h>
 #include <mlib/string.h>
 
@@ -48,7 +47,6 @@ ptr::shared<Gtk::Button> execBtn;
               Mode  mode;
 
        std::string  operationName;
-       std::string  exitDesc;  // описание причины неудачного авторинга
 
        str::stream  settings; // = ASettings.py
 

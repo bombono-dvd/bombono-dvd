@@ -43,7 +43,7 @@ void ForeachMenu(MenuFnr fnr);
 
 void AuthorMenus(const std::string& out_dir);
 // run_all - включая запуск внешшней команды сборки
-bool AuthorDVD(const std::string& out_dir);
+std::string AuthorDVD(const std::string& out_dir);
 
 #define AUTHOR_TAG "Authoring"
 
@@ -51,17 +51,6 @@ std::string MenuAuthorDir(Menu mn, int i, bool cnv_from_utf8 = true);
 fs::path SConsAuxDir();
 
 bool HasButtonLink(Comp::MediaObj& m_obj, std::string& targ_str);
-
-class CheckAuthorMode
-{
-    public:
-        static bool Flag; // спец. режим для тестов (доп. проверки)
-
-        CheckAuthorMode(bool turn_on = true);
-       ~CheckAuthorMode();
-    protected:
-        bool origVal;
-};
 
 bool IsMotion(Menu mn);
 void ClearTaggedData(Menu mn, const char* tag);
@@ -75,10 +64,23 @@ void Info(const std::string& str, bool add_info_sign = true);
 void Error(const std::string& str);
 
 void FillSconsOptions(str::stream& scons_options, bool fill_def);
-ExitData ExecuteSconsCmd(const std::string& out_dir, OutputFilter& of, 
-                         Mode mod, const str::stream& scons_options);
+void ExecuteSconsCmd(const std::string& out_dir, OutputFilter& of, 
+                     Mode mod, const str::stream& scons_options);
+// вызов внешней команды в процессе авторинга
+// устанавливает GetES().eDat.pid на время работы, потому нельзя выполнять 
+// одновременно более одной команды (а если потребуется, то придется держать
+// список идентификаторов процессов)
+ExitData AsyncCall(const char* dir, const char* cmd, const ReadReadyFnr& fnr);
 
 io::pos VideoSizeSum();
+
+// функтор сообщает об ошибках через исключение, которое преобразуется
+// в строку => признак ошибки - непустой результат
+std::string SafeCall(const ActionFunctor& fnr);
+inline bool IsGood(const std::string& res) { return res.empty(); }
+
+void ErrorByED(const char* msg, const ExitData& ed);
+void CheckAbortByUser();
 
 } // namespace Author
 

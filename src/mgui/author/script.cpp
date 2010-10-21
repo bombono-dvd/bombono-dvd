@@ -65,13 +65,6 @@ TSBegEnd BeginEnd(RefPtr<Gtk::TreeStore> store)
     return std::make_pair(children.begin(), children.end());
 }
 
-bool CheckAuthorMode::Flag = false;
-
-CheckAuthorMode::CheckAuthorMode(bool turn_on): origVal(Flag) 
-{ Flag = turn_on; }
-CheckAuthorMode::~CheckAuthorMode()
-{ Flag = origVal; }
-
 // из-за того, что все медиа в одном браузере (включая картинки="не видео"),
 // нельзя использовать естественную нумерацию для авторинга 
 static int& GetAuthorNumber(VideoMD& obj)
@@ -512,12 +505,54 @@ struct RestrictGetCanvasBuf
     void Do(bool is_on)
     {
         using namespace boost;
-        if( CheckAuthorMode::Flag )
+        if( Execution::ConsoleMode::Flag )
             ForeachMenu(lambda::bind(&RestrictGetCanvasBufMenu, lambda::_1, is_on));
     }
 };
 
-bool AuthorDVD(const std::string& out_dir)
+static void AuthorImpl(const std::string& out_dir)
+{
+    AuthorSectionInfo((str::stream() << "Build DVD-Video in folder: " << out_dir).str());
+    IteratePendingEvents();
+
+    Author::ExecState& es = Author::GetES();
+    str::stream& settings = es.settings;
+    settings.str("# coding: utf-8\n\n");
+    // * рендерим меню и их скрипты
+    AuthorMenus(out_dir);
+
+    // *
+    GenerateDVDAuthorScript(out_dir);
+
+    // * вспомогательные файлы
+    const char* fnames[] = { "SConstruct", "ADVD.py", "SConsTwin.py", "README" };
+    for( int i=0; i<(int)ARR_SIZE(fnames); i++ )
+        CopyRootFile(fnames[i], out_dir);
+    // опции
+    str::stream scons_options;
+    Author::FillSconsOptions(scons_options, true);
+    // ASettings.py
+    io::stream settings_strm(AppendPath(out_dir, "ASettings.py").c_str(), iof::out);
+    settings_strm << settings.rdbuf();
+    settings_strm.close();
+
+    // *
+    if( !Execution::ConsoleMode::Flag )
+    {
+        if( es.mode != Author::modRENDERING )
+        {
+            Author::BuildDvdOF of;
+            Author::ExecuteSconsCmd(out_dir, of, es.mode, scons_options);
+        }
+    }
+    else
+    {
+        ////int pid = gnome_execute_shell(out_dir.c_str(), "scons totem");
+        //int pid = Spawn(out_dir.c_str(), "scons totem");
+    }
+}
+
+std::string AuthorDVD(const std::string& out_dir)
 {
     ASSERT( fs::is_directory(out_dir) );
     ASSERT( fs::is_empty_directory(out_dir) );
@@ -526,66 +561,20 @@ bool AuthorDVD(const std::string& out_dir)
     // для тестов авторинга - не даем пользоваться GetCanvasBuf(),
     // так как он для интерактива
     RestrictGetCanvasBuf rgcb;
-    bool res = true;
-    try
-    {
-        AuthorSectionInfo((str::stream() << "Build DVD-Video in folder: " << out_dir).str());
-        IteratePendingEvents();
-
-        Author::ExecState& es = Author::GetES();
-        str::stream& settings = es.settings;
-        settings.str("# coding: utf-8\n\n");
-        // * рендерим меню и их скрипты
-        AuthorMenus(out_dir);
-
-        // *
-        GenerateDVDAuthorScript(out_dir);
-
-        // * вспомогательные файлы
-        const char* fnames[] = { "SConstruct", "ADVD.py", "SConsTwin.py", "README" };
-        for( int i=0; i<(int)ARR_SIZE(fnames); i++ )
-            CopyRootFile(fnames[i], out_dir);
-        // опции
-        str::stream scons_options;
-        Author::FillSconsOptions(scons_options, true);
-        // ASettings.py
-        io::stream settings_strm(AppendPath(out_dir, "ASettings.py").c_str(), iof::out);
-        settings_strm << settings.rdbuf();
-        settings_strm.close();
-
-        // *
-        if( !CheckAuthorMode::Flag )
-        {
-            if( es.mode != Author::modRENDERING )
-            {
-                Author::BuildDvdOF of;
-                ExitData ed = Author::ExecuteSconsCmd(out_dir, of, es.mode, scons_options);
-    
-                if( !ed.IsGood() )
-                    throw std::runtime_error(BF_("external command failure: %1%") % ExitDescription(ed) % bf::stop);
-            }
-        }
-        else
-        {
-            ////int pid = gnome_execute_shell(out_dir.c_str(), "scons totem");
-            //int pid = Spawn(out_dir.c_str(), "scons totem");
-        }
-    }
-    catch (const std::exception& err)
-    {
-        Author::GetES().exitDesc = err.what();
-        Author::Info(std::string("ERR: ") + err.what(), false);
-        Author::Info("Stop authoring!\n", false);
-        res = false;
-    }
+    std::string res = Author::SafeCall(bb::bind(&AuthorImpl, out_dir));
 
     // очищаем все авторинговые данные
     using namespace boost;
     ForeachVideo(lambda::bind(&AuthorClearVideo, lambda::_1));
     ForeachMenu(lambda::bind(&AuthorClearMenu, lambda::_1));
 
-    if( res )
+    if( Author::IsGood(res) )
         AuthorSectionInfo("Authoring is successfully done.");
+    else
+    {
+        Author::Info(std::string("ERR: ") + res, false);
+        Author::Info("Stop authoring!\n", false);
+    }
     return res;
 }
 
@@ -595,7 +584,7 @@ namespace Author {
 
 static void AppendToLog(const std::string& txt)
 {
-    if( Project::CheckAuthorMode::Flag )
+    if( Execution::ConsoleMode::Flag )
         LOG_INF << txt << io::endl;
     else
         AppendText(GetES().detailsView, txt + "\n");
@@ -660,7 +649,7 @@ void FillSconsOptions(str::stream& scons_options, bool fill_def)
 {
     std::string def_dvd_label, def_drive;
     double def_speed = 0;
-    if( !Project::CheckAuthorMode::Flag )
+    if( !Execution::ConsoleMode::Flag )
     {     
         BurnData& bd = GetBD();
         def_dvd_label = bd.Label().get_text();
@@ -672,19 +661,52 @@ void FillSconsOptions(str::stream& scons_options, bool fill_def)
     AddSconsOptions(scons_options, true, def_dvd_label, def_drive, def_speed);
 }
 
-ExitData ExecuteAsync(const char* dir, const char* cmd, OutputFilter& of, GPid* pid)
+void CheckAbortByUser()
 {
-    using namespace boost;
-    ReadReadyFnr fnr = lambda::bind(&Author::OutputFilter::OnGetLine, &of,
-                                    lambda::_1, lambda::_2, lambda::_3);
-    return ::ExecuteAsync(dir, cmd, fnr, pid);
+    if( Author::GetES().eDat.userAbort )
+        throw std::runtime_error("User Abortion"); // строка реально не нужна - сработает userAbort
 }
 
-ExitData ExecuteSconsCmd(const std::string& out_dir, OutputFilter& of, 
-                         Mode mod, const str::stream& scons_options)
+ExitData AsyncCall(const char* dir, const char* cmd, const ReadReadyFnr& fnr)
+{
+    ExitData ed = ExecuteAsync(dir, cmd, fnr, &GetES().eDat.pid);
+    CheckAbortByUser();
+
+    return ed;
+}
+
+ReadReadyFnr OF2RRF(OutputFilter& of)
+{
+    return bb::bind(&Author::OutputFilter::OnGetLine, &of, _1, _2, _3);
+}
+
+void ErrorByED(const char* msg, const ExitData& ed)
+{
+    throw std::runtime_error(boost::format(msg) % ExitDescription(ed) % bf::stop);
+}
+
+void ExecuteSconsCmd(const std::string& out_dir, OutputFilter& of, 
+                     Mode mod, const str::stream& scons_options)
 {
     std::string cmd = "scons" + scons_options.str() + " " + SconsTarget(mod);
-    return ExecuteAsync(out_dir.c_str(), cmd.c_str(), of, &GetES().eDat.pid);
+    ExitData ed = AsyncCall(out_dir.c_str(), cmd.c_str(), OF2RRF(of));
+    if( !ed.IsGood() )
+        ErrorByED(_("external command failure: %1%"), ed);
+}
+
+std::string SafeCall(const ActionFunctor& fnr)
+{
+    std::string result;
+    try
+    {
+        fnr();
+    }
+    catch (const std::exception& err)
+    {
+        result = err.what();
+        ASSERT( !result.empty() );
+    }
+    return result;
 }
 
 } // namespace Author

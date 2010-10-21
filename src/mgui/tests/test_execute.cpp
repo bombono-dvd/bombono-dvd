@@ -137,6 +137,8 @@ class ConsoleSetter
     ExecState& es;
 };
 
+ReadReadyFnr OF2RRF(OutputFilter& of);
+
 static void OnExecuteCommand(Gtk::ComboBoxEntryText& cmd_ent, 
                              Gtk::FileChooserButton& ch_btn)
 {
@@ -158,7 +160,7 @@ static void OnExecuteCommand(Gtk::ComboBoxEntryText& cmd_ent,
             AppendCommandText(txt_view, "Execute Command: '" + cmd + "'");
 
             ConsoleOF cof;
-            ExitData ed = ExecuteAsync(ch_btn.get_filename().c_str(), cmd.c_str(), cof, &edat.pid);
+            ExitData ed = ExecuteAsync(ch_btn.get_filename().c_str(), cmd.c_str(), OF2RRF(cof), &edat.pid);
 
 
             std::string exit_str = ExitDescription(ed);

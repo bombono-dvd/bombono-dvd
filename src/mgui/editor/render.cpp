@@ -28,7 +28,7 @@
 #include <mlib/lambda.h>
 #include <mgui/render/menu.h>
 #include <mgui/project/thumbnail.h>
-#include <mgui/author/script.h>    // CheckAuthorMode::Flag
+#include <mgui/author/script.h>    // ConsoleMode::Flag
 
 
 /////////////////////////////////////////////////////
@@ -111,7 +111,7 @@ void RenderVis::Visit(FrameThemeObj& fto)
 EdtTextRenderer& FindTextRenderer(TextObj& t_obj, CanvasBuf& cnv_buf)
 {
     const std::string& tag = cnv_buf.DataTag();
-    ASSERT( !(Project::CheckAuthorMode::Flag && tag.empty()) );
+    ASSERT( !(Execution::ConsoleMode::Flag && tag.empty()) );
     return tag.empty() ? t_obj.GetData<EdtTextRenderer>() : t_obj.GetData<EdtTextRenderer>(tag.c_str()) ;
 }
 

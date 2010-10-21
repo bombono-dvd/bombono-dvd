@@ -38,7 +38,7 @@ bool AuthorDVDTest(const std::string& dir)
     std::string err_str;
     BOOST_CHECK( ClearAllFiles(dir, err_str) );
 
-    return AuthorDVD(dir);
+    return Author::IsGood(AuthorDVD(dir));
 }
 
 
@@ -47,7 +47,7 @@ static void TestAuthoringEx(const std::string& prj_fname, const std::string& out
     GtkmmDBInit gd_init;
     InitAndLoadPrj(prj_fname);
 
-    CheckAuthorMode cam;
+    Execution::ConsoleMode cam;
     BOOST_CHECK( AuthorDVDTest(out_dir) );
 }
 

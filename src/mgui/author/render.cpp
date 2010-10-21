@@ -42,7 +42,6 @@
 #include <mlib/gettext.h>
 
 #include <boost/lexical_cast.hpp>
-#include <sys/wait.h>
 
 void IteratePendingEvents()
 {
@@ -266,15 +265,15 @@ void InitAuthorData(Menu mn)
 static void IterateAuthoringEvents()
 {
     IteratePendingEvents();
-    if( Author::GetES().eDat.userAbort )
-        throw std::runtime_error("User Abortion"); // строка реально не нужна - сработает userAbort
+
+    Author::CheckAbortByUser();
 }
 
 static int WorkCnt = 0;
 static int DoneCnt = 0;
 static void PulseRenderProgress()
 {
-    if( Project::CheckAuthorMode::Flag )
+    if( Execution::ConsoleMode::Flag )
         return;
 
     DoneCnt++;
@@ -652,6 +651,18 @@ static double MenuDuration(Menu mn)
     return duration;
 }
 
+static void FFmpegError(const ExitData& ed)
+{
+    Author::ErrorByED(_("ffmpeg failure: %1%"), ed);
+}
+
+static Gtk::TextView& PrintCmdToDetails(const std::string& cmd)
+{
+    Gtk::TextView& tv = Author::GetES().detailsView;
+    AppendCommandText(tv, cmd);
+    return tv;
+}
+
 static void SaveStillMenuMpg(const std::string& mn_dir, Menu mn)
 {
     // сохраняем Menu.png и рендерим из нее
@@ -661,15 +672,17 @@ static void SaveStillMenuMpg(const std::string& mn_dir, Menu mn)
     std::string ffmpeg_cmd = boost::format("ffmpeg -t %3$.2f -loop_input -i \"%1%\" %2%") 
         % img_fname % MakeFFmpegPostArgs(mn_dir, mn) % MenuDuration(mn) % bf::stop;
 
-    // :TODO: визуализация через ExecuteAsync()
-    ExitData ed = StatusToExitData( system(ffmpeg_cmd.c_str()) );
-    ASSERT( ed.IsGood() );
-}
+    ExitData ed;
+    if( Execution::ConsoleMode::Flag )
+        ed = System(ffmpeg_cmd);
+    else
+    {
+        Gtk::TextView& tv = PrintCmdToDetails(ffmpeg_cmd);
+        ed = Author::AsyncCall(0, ffmpeg_cmd.c_str(), TextViewAppender(tv));
+    }
 
-void ErrorByED(const char* msg, const ExitData& ed)
-{
-    // :REFACTOR:
-    throw std::runtime_error(boost::format(msg) % ExitDescription(ed) % bf::stop);
+    if( !ed.IsGood() )
+        FFmpegError(ed);
 }
 
 struct FFmpegCloser
@@ -683,6 +696,12 @@ ptr::one<OutErrBlock> oeb;
 
     ~FFmpegCloser()
      {
+         // 1 закрываем вход, чтобы разблокировать ffmpeg (несколько раз происходила взаимная 
+         // блокировка с прекращением деятельности с обоих сторон,- судя по всему ffmpeg игнорировал
+         // прерывание по EINTR и снова блокировался на чтении)
+         ASSERT( inFd != NO_HNDL );
+         close(inFd);
+
          // варианты остановить транскодирование сразу после окончания видео, см. ffmpeg.c:av_encode():
          // - через сигнал (SIGINT, SIGTERM, SIGQUIT)
          // - по достижению размера или времени (см. соответ. опции вроде -t); но тут возможна проблема
@@ -691,19 +710,20 @@ ptr::one<OutErrBlock> oeb;
          //   чем мы хотим записать
          Execution::Stop(pid);
 
-         // дождаться выхода и проверить статус
+         // 2 дождаться выхода и проверить статус (и только после этого закрываем выходы)
          ed = WaitForExit(pid);
-
-         ASSERT( inFd != NO_HNDL );
-         close(inFd);
      }
 };
 
+static PixCanvasBuf& GetMotionPCB(Menu mn)
+{
+    return GetTaggedPCB(mn, MOTION_MENU_TAG);
+}
+
 static void PipeVideo(Menu mn, int in_fd)
 {
-    // :REFACTOR:
     MenuRegion& m_rgn       = GetMenuRegion(mn);
-    PixCanvasBuf& mtn_buf   = GetTaggedPCB(mn, MOTION_MENU_TAG);
+    PixCanvasBuf& mtn_buf   = GetMotionPCB(mn);
     RefPtr<Gdk::Pixbuf> img = mtn_buf.FramePixbuf();
     ASSERT( img );
 
@@ -724,7 +744,7 @@ static void PipeVideo(Menu mn, int in_fd)
         WriteAsPPM(in_fd, img, pipe_buf);
         //close(fd);
 
-        if( !CheckAuthorMode::Flag )
+        if( !Execution::ConsoleMode::Flag )
             // вывод от ffmpeg
             IterateAuthoringEvents();
     }
@@ -745,7 +765,7 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
             DtorAction clear_motion_data(bb::bind(&ClearTaggedData, mn, MOTION_MENU_TAG));
 
             MenuRegion& m_rgn     = GetMenuRegion(mn);
-            PixCanvasBuf& mtn_buf = GetTaggedPCB(mn, MOTION_MENU_TAG);
+            PixCanvasBuf& mtn_buf = GetMotionPCB(mn);
 
             // 1 определяем область перерисовки на итерацию
             RectListRgn& rlr = mtn_buf.RenderList();
@@ -778,9 +798,9 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
                 {
                     FFmpegCloser pc(ed);
                     int out_err[2];
-                    pc.pid = Spawn(0, ffmpeg_cmd.c_str(), CheckAuthorMode::Flag ? 0 : out_err, true, &pc.inFd);
+                    pc.pid = Spawn(0, ffmpeg_cmd.c_str(), Execution::ConsoleMode::Flag ? 0 : out_err, true, &pc.inFd);
     
-                    if( CheckAuthorMode::Flag )
+                    if( Execution::ConsoleMode::Flag )
                     {
                         double all_time = GetClockTime();
 
@@ -792,8 +812,7 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
                     }
                     else
                     {
-                        Gtk::TextView& tv = Author::GetES().detailsView;
-                        AppendCommandText(tv, ffmpeg_cmd);
+                        Gtk::TextView& tv = PrintCmdToDetails(ffmpeg_cmd);
                         // закрываем выходы после окончания работы ffmpeg, иначе тот грохнется
                         // по SIGPIPE
                         //OutErrBlock oeb(out_err, TextViewAppender(tv));
@@ -807,7 +826,7 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
                 if( !ed.IsGood() )
                     // ffmpeg завершает с кодом 255 при посылке сигнала, ffmpeg.c:av_exit(int ret)
                     if( !ed.normExit || (ed.code != 255) )
-                        ErrorByED(_("ffmpeg failure: %1%"), ed);
+                        FFmpegError(ed);
             }
             else
                 SaveStillMenuMpg(mn_dir, mn);
