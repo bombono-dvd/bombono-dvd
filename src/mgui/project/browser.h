@@ -122,6 +122,9 @@ inline void ValidatePath(Gtk::TreePath& pth)
         pth = Gtk::TreePath();
 }
 
+typedef boost::function<void(ObjectBrowser&, MediaItem, GdkEventButton*)> RightButtonFunctor;
+void SetOnRightButton(ObjectBrowser& brw, const RightButtonFunctor& fnr);
+
 } // namespace Project
 
 #endif // #ifndef __MGUI_PROJECT_BROWSER_H__

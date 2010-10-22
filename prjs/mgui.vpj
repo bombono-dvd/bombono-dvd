@@ -314,6 +314,7 @@
 			<F N="../src/mgui/project/menu-browser.cpp"/>
 			<F N="../src/mgui/project/menu-render.cpp"/>
 			<F N="../src/mgui/menu-rgn.cpp"/>
+			<F N="../src/mgui/sdk/menu.cpp"/>
 			<F N="../src/mgui/timeline/monitor.cpp"/>
 			<F N="../src/mgui/mux.cpp"/>
 			<F N="../src/mgui/timeline/mviewer-main.cpp"/>

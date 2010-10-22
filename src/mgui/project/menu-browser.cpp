@@ -30,7 +30,9 @@
 #include <mgui/render/menu.h>
 #include <mgui/sdk/packing.h>
 #include <mgui/sdk/widget.h>
+#include <mgui/sdk/window.h>
 #include <mgui/sdk/menu.h>
+#include <mgui/dialog.h>
 #include <mgui/gettext.h>
 #include <mgui/init.h>
 #include <mgui/win_utils.h>
@@ -53,6 +55,47 @@ MediaItem MenuStore::GetMedia(const Gtk::TreeIter& itr) const
 bool MenuStore::row_drop_possible_vfunc(const TreeModel::Path& dest, const Gtk::SelectionData& /*data*/) const
 {
     return dest.get_depth() == 1;
+}
+
+// :TODO!!!:
+static void MenuSettings(Menu mn, Gtk::Window* win)
+{
+    Gtk::Dialog dlg(_("Menu Settings"), true);
+    if( win )
+        dlg.set_transient_for(*win);
+
+    //Gtk::SpinButton*  btn  = 0;
+    //Gtk::CheckButton* cbtn = 0;
+    //{
+    //    Gtk::VBox& vbox = AddHIGedVBox(add_dlg);
+    //    Gtk::HBox& hbox = PackStart(vbox, NewManaged<Gtk::HBox>());
+    //    Add(PackStart(hbox, NewPaddingAlg(0, 0, 0, 40)), NewManaged<Gtk::Label>(_("Interval between Chapters:")));
+    //    btn = &PackStart(hbox, NewManaged<Gtk::SpinButton>());
+    //    // по мотивам gtk_spin_button_new_with_range()
+    //    int step = 1;
+    //    btn->configure(*Gtk::manage(new Gtk::Adjustment(5, 1, 1000, step, 10*step, 0)), step, 0);
+    //    btn->set_numeric(true);
+    //
+    //    Gtk::Label& lbl = PackStart(hbox, NewManaged<Gtk::Label>(_("min.")));
+    //    lbl.set_padding(2, 0);
+    //
+    //    cbtn = &PackStart(vbox, NewManaged<Gtk::CheckButton>(_("Remove Existing Chapters")));
+    //}
+    CompleteDialog(dlg);
+
+    if( Gtk::RESPONSE_OK == dlg.run() )
+    {
+    }
+}
+
+static void OnRightButton(ObjectBrowser& brw, MediaItem mi, GdkEventButton* event)
+{
+    Menu mn = IsMenu(mi);
+    ASSERT(mn);
+
+    Gtk::Menu& gmn = NewPopupMenu();
+    AddEnabledItem(gmn, _("Menu Settings"), bb::bind(&MenuSettings, mn, GetTopWindow(brw)));
+    Popup(gmn, event, true);
 }
 
 MenuBrowser::MenuBrowser(RefPtr<MenuStore> ms)
@@ -78,6 +121,8 @@ MenuBrowser::MenuBrowser(RefPtr<MenuStore> ms)
 
         append_column(name_cln);
     }
+
+    SetOnRightButton(*this, bb::bind(&OnRightButton, _1, _2, _3));
 }
 
 void DeleteMenuFromBrowser(MenuBrowser& brw)

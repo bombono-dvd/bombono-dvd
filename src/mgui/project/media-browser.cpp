@@ -150,7 +150,7 @@ void EndActionMenuBld::AddConstantChoice(Gtk::Menu& lnk_list)
     AddConstantItem(lnk_list, _("Next Video"), patNEXT_TITLE);
 }
 
-static bool OnMBButtonPress(MediaBrowser& brw, GdkEventButton* event)
+static bool OnOBButtonPress(ObjectBrowser& brw, const RightButtonFunctor& fnr, GdkEventButton* event)
 {
     // :TRICKY: переопределением on_button_press_event() было бы все проще;
     // но пусть будет - как пример Gtk::Widget::event()
@@ -174,18 +174,26 @@ static bool OnMBButtonPress(MediaBrowser& brw, GdkEventButton* event)
 
     if( IsRightButton(event) )
         if( MediaItem mi = GetCurMedia(brw) )
-        {
-            Gtk::Menu& mn  = NewPopupMenu(); 
-            Gtk::MenuItem& ea_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("End Action")));
-            // пока только видео (позже - постдействие для интерактивных меню)
-            VideoItem vi = IsVideo(mi);
-            ea_itm.set_sensitive(vi);
-            if( vi )
-                ea_itm.set_submenu(EndActionMenuBld(vi->PAction()).Create());
-            Popup(mn, event, true);
-        }
+            fnr(brw, mi, event);
 
     return true;
+}
+
+static void OnMBButtonPress(MediaItem mi, GdkEventButton* event)
+{
+    Gtk::Menu& mn  = NewPopupMenu(); 
+    Gtk::MenuItem& ea_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("End Action")));
+    // пока только видео (позже - постдействие для интерактивных меню)
+    VideoItem vi = IsVideo(mi);
+    ea_itm.set_sensitive(vi);
+    if( vi )
+        ea_itm.set_submenu(EndActionMenuBld(vi->PAction()).Create());
+    Popup(mn, event, true);
+}
+
+void SetOnRightButton(ObjectBrowser& brw, const RightButtonFunctor& fnr)
+{
+    sig::connect(brw.signal_button_press_event(), bb::bind(&OnOBButtonPress, boost::ref(brw), fnr, _1), false);
 }
 
 MediaBrowser::MediaBrowser(RefPtr<MediaStore> a_lst)
@@ -193,8 +201,8 @@ MediaBrowser::MediaBrowser(RefPtr<MediaStore> a_lst)
     set_model(a_lst);
     BuildStructure();
 
-    SetupURIDrop(*this, bl::bind(&OnURIsDrop, boost::ref(*this), bl::_1, bl::_2));
-    sig::connect(signal_button_press_event(), bb::bind(&OnMBButtonPress, boost::ref(*this), _1), false);
+    SetupURIDrop(*this, bb::bind(&OnURIsDrop, boost::ref(*this), _1, _2));
+    SetOnRightButton(*this, bb::bind(&OnMBButtonPress, _2, _3));
 }
 
 // Названия типов для i18n

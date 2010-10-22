@@ -69,6 +69,7 @@ lib_src_files = [
                  #'sdk/magick_pixbuf.cpp',
                  'sdk/cairo_utils.cpp',
                  'sdk/clearlooks.cpp',
+                 'sdk/menu.cpp',
                  'sdk/player_utils.cpp',
                  'sdk/textview.cpp',
                  #'sdk/libgnome/gnome-exec.c',

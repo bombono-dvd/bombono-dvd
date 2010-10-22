@@ -551,13 +551,6 @@ static void DistributeImpl(bool is_hz)
     RenderForRegion(edt_area, new_rlr);
 }
 
-static void AddEnabledItem(Gtk::Menu& menu, const char* name, bool is_enabled, const ActionFunctor& fnr)
-{
-    Gtk::MenuItem& itm = MakeAppendMI(menu, name);
-    itm.set_sensitive(is_enabled);
-    itm.signal_activate().connect(fnr);
-}
-
 static void SetBgColor();
 
 void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
@@ -647,13 +640,13 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
                 //allow horizontal or vertical distribute if three or more objects selected
                 bool can_distribute = ( sel_arr.size() > 2 );
                 AppendSeparator(menu);
-                AddEnabledItem(menu, _("Distribute Horizontally"), can_distribute, bb::bind(&DistributeImpl, true));
-                AddEnabledItem(menu, _("Distribute Vertically"),   can_distribute, bb::bind(&DistributeImpl, false));
+                AddEnabledItem(menu, _("Distribute Horizontally"), bb::bind(&DistributeImpl, true), can_distribute);
+                AddEnabledItem(menu, _("Distribute Vertically"),  bb::bind(&DistributeImpl, false), can_distribute);
             }
         }
 
         // Set Background Color
-        AddEnabledItem(mn, _("Set Background Color..."), is_background, &SetBgColor);
+        AddEnabledItem(mn, _("Set Background Color..."), &SetBgColor, is_background);
 
         //mn.accelerate(edt_area);
         Popup(mn, event, true);
