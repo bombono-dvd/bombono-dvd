@@ -385,15 +385,10 @@ void StampFPEmblem(MediaItem mi, RefPtr<Gdk::Pixbuf> pix)
     if( AData().FirstPlayItem() != mi )
         return;
     bool is_menu = IsMenu(mi);
-    RefPtr<Gdk::Pixbuf> emblem = GetFactoryImage(is_menu ? "copy-n-paste/HelixPlayer_Activity-watch-listen/28.png" 
-                                                         : "copy-n-paste/HelixPlayer_Activity-watch-listen/16.png");
-    CheckEmblem(pix, emblem);
-
-    // местоположение
-    Point e_sz(PixbufSize(emblem));
-    Point p_sz(PixbufSize(pix));
-    Rect plc = RectASz(Point(2, is_menu ? (p_sz.y-e_sz.y)/2 : 2), e_sz);
-    RGBA::AlphaComposite(pix, emblem, plc);
+    RefPtr<Gdk::Pixbuf> emblem = GetCheckEmblem(pix, is_menu 
+                                                ? "copy-n-paste/HelixPlayer_Activity-watch-listen/28.png" 
+                                                : "copy-n-paste/HelixPlayer_Activity-watch-listen/16.png");
+    RGBA::AlphaComposite(pix, emblem, Point(2, is_menu ? (pix->get_height() - emblem->get_height())/2 : 2));
 }
 
 } // namespace Project

@@ -94,6 +94,11 @@ void AlphaComposite(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, const Rect
     AlphaCompositePixbuf(dst, src, plc, plc);
 }
 
+void AlphaComposite(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, const Point& a)
+{
+    AlphaComposite(dst, src, RectASz(a, PixbufSize(src)));
+}
+
 ///////////////////////////////////////////////////////////
 // RGBA::Drawer
 

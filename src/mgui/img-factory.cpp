@@ -45,22 +45,25 @@ RefPtr<Gdk::Pixbuf> GetFactoryImage(const std::string& img_str)
     return itr->second;
 }
 
-void CheckEmblem(RefPtr<Gdk::Pixbuf> pix, RefPtr<Gdk::Pixbuf> emblem)
+static void CheckEmblem(RefPtr<Gdk::Pixbuf> pix, RefPtr<Gdk::Pixbuf> emblem)
 {
     Point e_sz(PixbufSize(emblem));
     Point p_sz(PixbufSize(pix));
     ASSERT( (e_sz.x <= p_sz.x) && (e_sz.y <= p_sz.y) );
 }
 
-void StampEmblem(RefPtr<Gdk::Pixbuf> pix, const std::string& emblem_str)
+RefPtr<Gdk::Pixbuf> GetCheckEmblem(RefPtr<Gdk::Pixbuf> pix, const std::string& emblem_str)
 {
     RefPtr<Gdk::Pixbuf> emblem = GetFactoryImage(emblem_str);
     CheckEmblem(pix, emblem);
+    return emblem;
+}
 
+void StampEmblem(RefPtr<Gdk::Pixbuf> pix, const std::string& emblem_str)
+{
+    RefPtr<Gdk::Pixbuf> emblem = GetCheckEmblem(pix, emblem_str);
     // левый нижний угол
-    Point e_sz(PixbufSize(emblem));
-    Point p_sz(PixbufSize(pix));
-    RGBA::AlphaComposite(pix, emblem, RectASz(Point(0, p_sz.y-e_sz.y), e_sz));
+    RGBA::AlphaComposite(pix, emblem, Point(0, pix->get_height() - emblem->get_height()));
 }
 
 

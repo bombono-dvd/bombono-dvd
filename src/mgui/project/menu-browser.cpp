@@ -278,6 +278,10 @@ void MenuSettings(Menu mn, Gtk::Window* win)
         mtn_dat.isIntAudio   = prj_choice->get_active();
         mtn_dat.audioRef     = a_btn.GetMI();
         mtn_dat.audioExtPath = a_ext_btn.get_filename();
+
+        // факт изменения отобразить
+        void RedrawThumbnail(MediaItem mi);
+        RedrawThumbnail(mn);
     }
 }
 

@@ -28,6 +28,9 @@
 #include <mgui/editor/text.h>
 #include <mgui/editor/kit.h>
 
+#include <mgui/author/script.h> // IsMotion()
+#include <mgui/img-factory.h>
+
 #include <mbase/project/theme.h> // ThemeOrDef()
 #include <mlib/sdk/logger.h>
 #include <mdemux/util.h>         // Mpeg::set_hms
@@ -145,6 +148,7 @@ namespace { bool MakeUnion(Rect& union_rect, RectListRgn& lst, const Rect& plc)
 static void RenderThumbnail(MenuPack& mn_pack, RefPtr<Gdk::Pixbuf> src_pix, 
                             const Rect& plc, const Rect& union_rect)
 {
+    RefPtr<Gdk::Pixbuf> thumb = mn_pack.thumbPix;
     // *
     //RGBA::Scale(mnPack.thumbPix, src_pix);
     // *
@@ -153,9 +157,17 @@ static void RenderThumbnail(MenuPack& mn_pack, RefPtr<Gdk::Pixbuf> src_pix,
     //RGBA::RgnPixelDrawer drw(mnPack.thumbPix, &one_lst);
     //drw.ScalePixbuf(src_pix, plc);
     // * - самый быстрый вариант
-    RGBA::ScalePixbuf(mn_pack.thumbPix, src_pix, plc, union_rect);
+    RGBA::ScalePixbuf(thumb, src_pix, plc, union_rect);
 
-    StampFPEmblem(mn_pack.Owner(), mn_pack.thumbPix);
+    Menu mn = mn_pack.Owner();
+    StampFPEmblem(mn, thumb);
+
+    // эмблема как признак анимационности
+    if( IsMotion(mn) )
+    {
+        RefPtr<Gdk::Pixbuf> emblem = GetCheckEmblem(thumb, "emblems/tmp/applications-multimedia.png");
+        RGBA::AlphaComposite(thumb, emblem, Point(thumb->get_width()-emblem->get_width()-2, 2));
+    }
 }
 
 void RenderThumbnail(MenuPack& mn_pack)

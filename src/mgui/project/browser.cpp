@@ -203,7 +203,7 @@ void RedrawThumbnailVis::Visit(MenuMD& obj)
     FillThumbnail(ms->get_iter(LocalPath(&obj)), ms, true);
 }
 
-static void RedrawThumbnail(MediaItem mi)
+void RedrawThumbnail(MediaItem mi)
 {
     if( mi )
     {

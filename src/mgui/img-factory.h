@@ -30,7 +30,9 @@
 RefPtr<Gdk::Pixbuf> GetFactoryImage(const std::string& img_str);
 // наложить изображение emblem_str на pix, в левом нижнем углу
 void StampEmblem(RefPtr<Gdk::Pixbuf> pix, const std::string& emblem_str);
-void CheckEmblem(RefPtr<Gdk::Pixbuf> pix, RefPtr<Gdk::Pixbuf> emblem);
+
+//void CheckEmblem(RefPtr<Gdk::Pixbuf> pix, RefPtr<Gdk::Pixbuf> emblem);
+RefPtr<Gdk::Pixbuf> GetCheckEmblem(RefPtr<Gdk::Pixbuf> pix, const std::string& emblem_str);
 
 #endif // #ifndef __MGUI_IMG_FACTORY_H__
 

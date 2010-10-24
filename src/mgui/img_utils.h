@@ -210,6 +210,8 @@ void Scale(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src);
 void CopyOrScale(RefPtr<Gdk::Pixbuf>& pix, RefPtr<Gdk::Pixbuf> src);
 
 void AlphaComposite(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, const Rect& plc);
+void AlphaComposite(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, const Point& a);
+
 void CopyAlphaComposite(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, bool mult = false);
 // добавляет альфа-канал, если не 4
 void AddAlpha(RefPtr<Gdk::Pixbuf>& pix);
