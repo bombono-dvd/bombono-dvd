@@ -172,13 +172,11 @@ static void InsertChapters(TrackLayout& trk_lay)
     Gtk::CheckButton* cbtn = 0;
     {
         Gtk::VBox& vbox = AddHIGedVBox(add_dlg);
+
         Gtk::HBox& hbox = PackStart(vbox, NewManaged<Gtk::HBox>());
         Add(PackStart(hbox, NewPaddingAlg(0, 0, 0, 40)), NewManaged<Gtk::Label>(_("Interval between Chapters:")));
         btn = &PackStart(hbox, NewManaged<Gtk::SpinButton>());
-        // по мотивам gtk_spin_button_new_with_range()
-        int step = 1;
-        btn->configure(*Gtk::manage(new Gtk::Adjustment(5, 1, 1000, step, 10*step, 0)), step, 0);
-        btn->set_numeric(true);
+        ConfigureSpin(*btn, 5, 1000); // 5 мин. по умолчанию
 
         Gtk::Label& lbl = PackStart(hbox, NewManaged<Gtk::Label>(_("min.")));
         lbl.set_padding(2, 0);

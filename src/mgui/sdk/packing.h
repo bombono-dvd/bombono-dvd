@@ -96,6 +96,13 @@ GtkObj& Add(Gtk::Container& container, GtkObj& wdg)
     return wdg;
 }
 
+template<class GtkObj>
+GtkObj& AddWidget(Glib::RefPtr<Gtk::SizeGroup> wdg_sg, GtkObj& wdg)
+{
+    wdg_sg->add_widget(wdg);
+    return wdg;
+}
+
 // Разное
 
 void PackHSeparator(Gtk::VBox& vbox);

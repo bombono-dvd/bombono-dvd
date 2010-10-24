@@ -7,12 +7,14 @@
 #include <mgui/sdk/player_utils.h>
 #include <mgui/sdk/packing.h>
 #include <mgui/sdk/widget.h>
+#include <mgui/sdk/menu.h>
 
+#include <mgui/editor/toolbar.h>
 #include <mgui/execution.h>
 #include <mgui/dialog.h>
 #include <mgui/init.h>
 
-//#include <mbase/project/menu.h>
+#include <mbase/obj_bind.h> // MediaItem2String()
 
 #include <mlib/format.h>
 #include <mlib/sdk/stream_util.h>
@@ -141,63 +143,15 @@ BOOST_AUTO_TEST_CASE( TestStillTranscoding )
 
 namespace Project {
 
-// :REFACTOR:
-static void MenuSettings(Menu mn, Gtk::Window* win)
-{
-    Gtk::Dialog dlg(_("Menu Settings"), true);
-    if( win )
-        dlg.set_transient_for(*win);
-
-    MotionData& mtn_dat = mn->MtnData();
-
-    Gtk::CheckButton& mtn_btn = NewManaged<Gtk::CheckButton>(_("_Motion Menu"), true);
-    Gtk::SpinButton&  dur_btn = NewManaged<Gtk::SpinButton>();
-    Gtk::CheckButton& sp_btn  = NewManaged<Gtk::CheckButton>(_("_Still Picture"), true);
-    {
-        Gtk::VBox& vbox = AddHIGedVBox(dlg);
-
-        mtn_btn.set_active(mtn_dat.isMotion);
-        PackStart(vbox, mtn_btn);
-
-        Gtk::HBox& hbox = PackStart(vbox, NewManaged<Gtk::HBox>());
-        Gtk::Label& dur_lbl = Add(PackStart(hbox, NewPaddingAlg(0, 0, 0, 60)), NewManaged<Gtk::Label>(_("_Duration (in seconds):"), true));
-        dur_lbl.set_mnemonic_widget(dur_btn);
-        PackStart(hbox, dur_btn);
-        // по мотивам gtk_spin_button_new_with_range()
-        int step = 1;
-        //int def = 20;
-        int max = 10*60;
-        dur_btn.configure(*Gtk::manage(new Gtk::Adjustment(mtn_dat.duration, 1, max, step, 10*step, 0)), step, 0);
-        dur_btn.set_numeric(true);
-
-        //Gtk::Label& lbl = PackStart(hbox, NewManaged<Gtk::Label>(_("seconds")));
-        //lbl.set_padding(2, 0);
-
-        // Still Picture
-        sp_btn.set_active(mtn_dat.isStillPicture);
-        PackStart(vbox, sp_btn);
-
-	// аудио
-	
-	// :TEMP:
-	Gtk::FileChooserButton& ch_btn = NewManaged<Gtk::FileChooserButton>("Select output folder", 
-	    Gtk::FILE_CHOOSER_ACTION_OPEN);
-	PackStart(vbox, ch_btn);
-    }
-    CompleteDialog(dlg);
-
-    if( Gtk::RESPONSE_OK == dlg.run() )
-    {
-    }
-}
-
 BOOST_AUTO_TEST_CASE( TestMenuSettings )
 {
+    //return;
     GtkmmDBInit gd_init;
     RefPtr<MenuStore> ms = InitAndLoadPrj(TestProjectPath()).mnStore;
     ASSERT( Size(ms) );
 
     Menu mn = GetMenu(ms, ms->children().begin());
+    void MenuSettings(Menu mn, Gtk::Window* win);
     MenuSettings(mn, 0);
 }
 

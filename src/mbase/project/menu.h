@@ -36,16 +36,21 @@ typedef boost::intrusive_ptr<MenuItemMD> MenuItem;
 
 typedef ptr::weak_intrusive<Media> WMediaItem;
 
-const double DEF_MOTION_DURATION = 15; // секунд
+const double DEF_MOTION_DURATION = 20;    // 20 секунд
+const double MAX_MOTION_DURATION = 10*60; // 10 минут
 
 struct MotionData
 {
-      bool  isMotion; // меню будет анимационным
-    double  duration; // длительность в секундах
-WMediaItem  audioRef; // отсюда берем аудио (видео или глава!)
-      bool  isStillPicture; // "неподвижное видео"
+          bool  isMotion; // меню будет анимационным
+        double  duration; // длительность в секундах
+          bool  isStillPicture; // "неподвижное видео"
+    
+          bool  isIntAudio;
+    WMediaItem  audioRef; // отсюда берем аудио (видео или глава!)
+   std::string  audioExtPath;
 
-    MotionData(): isMotion(false), duration(DEF_MOTION_DURATION), isStillPicture(false) {}
+    MotionData(): isMotion(false), duration(DEF_MOTION_DURATION), isStillPicture(false),
+        isIntAudio(true) {}
 };
 
 // меню

@@ -73,11 +73,17 @@ struct DialogVBox: public Gtk::VBox
 };
 
 DialogVBox& AddHIGedVBox(Gtk::Dialog& dlg);
+DialogVBox& PackDialogVBox(Gtk::Box& box);
 
-void AppendWithLabel(DialogVBox& vbox, Gtk::Widget& wdg, const char* label);
+void AppendWithLabel(DialogVBox& vbox, Gtk::Widget& wdg, const char* label,
+                     Gtk::PackOptions opt = Gtk::PACK_EXPAND_WIDGET);
+void PackNamedWidget(Gtk::VBox& vbox, Gtk::Widget& name_wdg, Gtk::Widget& wdg,
+                     RefPtr<Gtk::SizeGroup> sg, Gtk::PackOptions opt);
+
 // close_style - вариант для настроек (без OK)
 void CompleteDialog(Gtk::Dialog& dlg, bool close_style = false);
 
+void SetDialogStrict(Gtk::Dialog& dlg, int min_wdh, int min_hgt, bool set_resizable = false);
 
 #endif // #ifndef __MGUI_DIALOG_H__
 

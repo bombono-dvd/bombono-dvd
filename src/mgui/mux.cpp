@@ -56,9 +56,9 @@ static void OnResponse(Execution::Data& edat, int resp)
     }
 }
 
-void SetDialogStrict(Gtk::Dialog& dlg, int min_wdh, int min_hgt)
+void SetDialogStrict(Gtk::Dialog& dlg, int min_wdh, int min_hgt, bool set_resizable)
 {
-    dlg.set_resizable(false); // чтоб при закрытии экспандера диалог уменьшался
+    dlg.set_resizable(set_resizable); // чтоб при закрытии экспандера диалог уменьшался
     // размер окна пошире
     GdkGeometry geom;
     geom.min_width  = min_wdh;

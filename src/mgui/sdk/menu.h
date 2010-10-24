@@ -42,6 +42,8 @@ void AppendSeparator(Gtk::MenuShell& ms);
 Gtk::Menu& NewPopupMenu();
 void Popup(Gtk::Menu& mn, GdkEventButton* event, bool show_all = false);
 
+void SetDeleteOnDone(Gtk::Menu& menu);
+
 void AddEnabledItem(Gtk::Menu& menu, const char* name, const ActionFunctor& fnr, bool is_enabled = true);
 
 #endif // __MGUI_SDK_MENU_H__

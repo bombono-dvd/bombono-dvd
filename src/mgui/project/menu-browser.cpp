@@ -36,8 +36,10 @@
 #include <mgui/gettext.h>
 #include <mgui/init.h>
 #include <mgui/win_utils.h>
+#include <mgui/key.h>
 
 #include <mlib/sdk/logger.h>
+#include <mlib/sigc.h>
 
 namespace Project
 {
@@ -57,36 +59,229 @@ bool MenuStore::row_drop_possible_vfunc(const TreeModel::Path& dest, const Gtk::
     return dest.get_depth() == 1;
 }
 
-// :TODO!!!:
-static void MenuSettings(Menu mn, Gtk::Window* win)
+///////////////////////////////
+// Настройки меню
+
+static Gtk::RadioButton& AddAudioChoice(const char* label, Gtk::VBox& vbox, Gtk::RadioButtonGroup& grp,
+                                        Gtk::Widget& wdg, RefPtr<Gtk::SizeGroup> sg)
+{
+    Gtk::RadioButton& r_btn = *Gtk::manage(new Gtk::RadioButton(grp, label, true));
+    PackNamedWidget(vbox, r_btn, wdg, sg, Gtk::PACK_EXPAND_WIDGET);
+    return r_btn;
+}
+
+static Gtk::Label& NewBoldLabel(const std::string& label)
+{
+    return NewMarkupLabel("<span weight=\"bold\">" + label + "</span>", true);
+}
+
+static void OnMotionChoice(Gtk::CheckButton& mtn_btn, Gtk::VBox& vbox)
+{
+    vbox.set_sensitive(mtn_btn.get_active());
+}
+
+static void OnAudioTypeChoice(Gtk::RadioButton& prj_btn, Gtk::Button& a_btn,
+                              Gtk::FileChooserButton& ext_btn)
+{
+    bool is_project = prj_btn.get_active();
+    a_btn.set_sensitive(is_project);
+    ext_btn.set_sensitive(!is_project);
+}
+
+static void SetMediaLabel(Gtk::Label& lbl, MediaItem mi)
+{
+    std::string text(_("No Link"));
+    if( mi )
+    {
+        text = mi->mdName;
+        if( ChapterItem ci = IsChapter(mi) )
+            // \xc2\xbb \xe2\x80\xa3 \xe2\x80\xba \xe2\x96\xb8
+            text = boost::format("%1% \xe2\x80\xa3 %2%") % ci->owner->mdName % text % bf::stop;
+    }
+
+    lbl.set_text(text);
+}
+
+// выпадающее меню вместо нажатия (потому ToggleButton)
+class AudioButton: public Gtk::ToggleButton
+{
+    public:
+            AudioButton();
+
+ MediaItem  GetMI() { return mItem; }
+      void  SetMI(MediaItem mi);
+
+    protected:
+            MediaItem  mItem;
+           Gtk::Label& label;
+
+bool OnLinkButtonPress(GdkEventButton *event);
+};
+
+void AudioButton::SetMI(MediaItem mi)
+{
+    mItem = mi;
+    SetMediaLabel(label, mItem);
+}
+
+AudioButton::AudioButton(): label(NewManaged<Gtk::Label>())
+{
+    Gtk::Button& a_btn = *this;
+    sig::connect(a_btn.signal_button_press_event(), bb::bind(&AudioButton::OnLinkButtonPress, this, _1), false);
+    Gtk::HBox& box = Add(a_btn, NewManaged<Gtk::HBox>(false, 4));
+
+    //priv->image = gtk_image_new ();
+    //gtk_box_pack_start (GTK_BOX (box), priv->image, FALSE, FALSE, 0);
+    //gtk_widget_show (priv->image);
+
+    SetMediaLabel(label, mItem);
+    Gtk::Label& lbl = PackStart(box, label, Gtk::PACK_EXPAND_WIDGET);
+    lbl.set_ellipsize(Pango::ELLIPSIZE_END);
+    //lbl.set_alignment(0.0, 0.5);
+
+    PackStart(box, NewManaged<Gtk::VSeparator>());
+    //PackStart(box, NewManaged<Gtk::Image>(Gtk::Stock::OPEN, Gtk::ICON_SIZE_MENU));
+    PackStart(box, NewManaged<Gtk::Arrow>(Gtk::ARROW_DOWN, Gtk::SHADOW_NONE));
+}
+
+class AudioMenuBld: public CommonMenuBuilder
+{
+    typedef CommonMenuBuilder MyParent;
+    public:
+                    AudioMenuBld(AudioButton* btn_): 
+                        MyParent(btn_->GetMI(), true, true), aBtn(btn_) {}
+
+    virtual ActionFunctor CreateAction(Project::MediaItem mi)
+    {
+        return bl::bind(&AudioButton::SetMI, aBtn, mi);
+    }
+
+    protected:
+        AudioButton* aBtn;
+};
+
+Rect GetAllocation(Gtk::Widget& wdg);
+
+static void CoordBelow(Gtk::ToggleButton* btn, int& x, int& y, bool& push_in)
+{
+    RefPtr<Gdk::Window> win = btn->get_window();
+    ASSERT( win );
+    Rect plc = GetAllocation(*btn);
+    win->get_root_coords(plc.lft, plc.btm, x, y);
+
+    push_in = true;
+}
+
+// по аналогии с GtkComboBox
+bool AudioButton::OnLinkButtonPress(GdkEventButton *event)
+{
+    if( event->type == GDK_BUTTON_PRESS && IsLeftButton(event) )
+    {
+        //if( focus_on_click && !GTK_WIDGET_HAS_FOCUS(priv->button) )
+        //    gtk_widget_grab_focus (priv->button);
+
+        Gtk::Menu& mn = AudioMenuBld(this).Create();
+        SetDeleteOnDone(mn);
+
+        // интерактив кнопки
+        set_active(true);
+        mn.signal_hide().connect(bb::bind(&Gtk::ToggleButton::set_active, this, false));
+
+        //Popup(mn, event, true);
+    	mn.show_all();
+    	mn.popup(bb::bind(&CoordBelow, this, _1, _2, _3), event->button, event->time);
+
+        return true;
+    }
+    return false;
+}
+
+// установка пустой строки в Gtk::FileChooser почему-то устанавливает
+// текущий путь в него (в режиме открытия файла); и далее, последующий
+// get_filename() выдает текущий путь вместо "пусто"
+bool SetFilename(Gtk::FileChooser& fc, const std::string& fpath)
+{
+    bool not_empty = !fpath.empty();
+    if( not_empty )
+        fc.set_filename(fpath);
+
+    return not_empty;
+}
+
+void MenuSettings(Menu mn, Gtk::Window* win)
 {
     Gtk::Dialog dlg(_("Menu Settings"), true);
     if( win )
         dlg.set_transient_for(*win);
+    SetDialogStrict(dlg, 350, -1, true);
 
-    //Gtk::SpinButton*  btn  = 0;
-    //Gtk::CheckButton* cbtn = 0;
-    //{
-    //    Gtk::VBox& vbox = AddHIGedVBox(add_dlg);
-    //    Gtk::HBox& hbox = PackStart(vbox, NewManaged<Gtk::HBox>());
-    //    Add(PackStart(hbox, NewPaddingAlg(0, 0, 0, 40)), NewManaged<Gtk::Label>(_("Interval between Chapters:")));
-    //    btn = &PackStart(hbox, NewManaged<Gtk::SpinButton>());
-    //    // по мотивам gtk_spin_button_new_with_range()
-    //    int step = 1;
-    //    btn->configure(*Gtk::manage(new Gtk::Adjustment(5, 1, 1000, step, 10*step, 0)), step, 0);
-    //    btn->set_numeric(true);
-    //
-    //    Gtk::Label& lbl = PackStart(hbox, NewManaged<Gtk::Label>(_("min.")));
-    //    lbl.set_padding(2, 0);
-    //
-    //    cbtn = &PackStart(vbox, NewManaged<Gtk::CheckButton>(_("Remove Existing Chapters")));
-    //}
+    MotionData& mtn_dat = mn->MtnData();
+
+    Gtk::CheckButton& mtn_btn = NewManaged<Gtk::CheckButton>();
+    Gtk::SpinButton&  dur_btn = NewManaged<Gtk::SpinButton>();
+    Gtk::CheckButton& sp_btn  = NewManaged<Gtk::CheckButton>(_("_Still picture"), true);
+    
+    Gtk::RadioButton* prj_choice = 0;
+    AudioButton& a_btn = NewManaged<AudioButton>();
+    Gtk::FileChooserButton& a_ext_btn = NewManaged<Gtk::FileChooserButton>(
+        _("Select external audio file"), Gtk::FILE_CHOOSER_ACTION_OPEN);
+    {
+        DialogVBox& vbox_all = AddHIGedVBox(dlg);
+
+        Add(mtn_btn, NewBoldLabel(_("_Motion menu")));
+        mtn_btn.set_active(mtn_dat.isMotion);
+        PackStart(vbox_all, mtn_btn);
+
+        // вроде и без отступа хорошо
+        DialogVBox& vbox = PackDialogVBox(vbox_all);
+        OnMotionChoice(mtn_btn, vbox);
+        mtn_btn.signal_toggled().connect(bb::bind(&OnMotionChoice, boost::ref(mtn_btn), boost::ref(vbox)));
+
+        AppendWithLabel(vbox, dur_btn, SMCLN_("_Duration (in seconds)"), Gtk::PACK_SHRINK);
+        ConfigureSpin(dur_btn, mtn_dat.duration, MAX_MOTION_DURATION);
+
+        // Still Picture
+        sp_btn.set_active(mtn_dat.isStillPicture);
+        SetTip(sp_btn, _("Still menu with audio in the background"));
+        PackStart(vbox, sp_btn);
+
+    	// аудио
+        Gtk::VBox& a_box = PackStart(vbox, NewManaged<Gtk::VBox>(false));
+        {
+            Gtk::Label& a_lbl = PackStart(a_box, NewBoldLabel(_("Audio")));
+            SetAlign(a_lbl);
+            Gtk::RadioButtonGroup grp;
+
+            a_btn.SetMI(mtn_dat.audioRef.lock());
+            prj_choice = &AddAudioChoice(SMCLN_("_From the project"), a_box, grp, a_btn, vbox.labelSg);
+
+            SetFilename(a_ext_btn, mtn_dat.audioExtPath);
+            Gtk::RadioButton& ext_choice = AddAudioChoice(
+                SMCLN_("_External audio"), a_box, grp, a_ext_btn, vbox.labelSg);
+            if( !mtn_dat.isIntAudio )
+                ext_choice.set_active(true);
+
+            OnAudioTypeChoice(*prj_choice, a_btn, a_ext_btn);
+            prj_choice->signal_toggled().connect(
+                bb::bind(&OnAudioTypeChoice, boost::ref(*prj_choice), boost::ref(a_btn), 
+                         boost::ref(a_ext_btn)));
+        }
+    }
     CompleteDialog(dlg);
 
     if( Gtk::RESPONSE_OK == dlg.run() )
     {
+        mtn_dat.isMotion = mtn_btn.get_active();
+        mtn_dat.duration = dur_btn.get_value();
+        mtn_dat.isStillPicture = sp_btn.get_active();
+
+        mtn_dat.isIntAudio   = prj_choice->get_active();
+        mtn_dat.audioRef     = a_btn.GetMI();
+        mtn_dat.audioExtPath = a_ext_btn.get_filename();
     }
 }
+
+///////////////////////////////
 
 static void OnRightButton(ObjectBrowser& brw, MediaItem mi, GdkEventButton* event)
 {
@@ -259,8 +454,8 @@ void AppendRadioItem(Gtk::RadioMenuItem& itm, bool is_active, const ActionFuncto
     lnk_list.append(itm);
 }
 
-CommonMenuBuilder::CommonMenuBuilder(MediaItem cur_itm, bool for_poster): 
-   curItm(cur_itm), forPoster(for_poster), resMenu(NewManaged<Gtk::Menu>()) {}
+CommonMenuBuilder::CommonMenuBuilder(MediaItem cur_itm, bool for_poster, bool only_with_audio): 
+   curItm(cur_itm), forPoster(for_poster), resMenu(NewManaged<Gtk::Menu>()), onlyWithAudio(only_with_audio) {}
 
 
 Gtk::RadioMenuItem& 
@@ -335,7 +530,10 @@ Gtk::Menu& CommonMenuBuilder::Create()
                     AddMediaItemChoice(lnk_list, mi);
             }
             else if( ptr::dynamic_pointer_cast<StillImageMD>(mi) )
-                AddMediaItemChoice(lnk_list, mi).set_sensitive(forPoster);
+            {
+                bool is_sensitive = forPoster && !onlyWithAudio;
+                AddMediaItemChoice(lnk_list, mi).set_sensitive(is_sensitive);
+            }
         }
     }
     else

@@ -270,15 +270,20 @@ void AddCancelDoButtons(Gtk::Dialog& dialog, Gtk::BuiltinStockID do_id)
     dialog.set_default_response(Gtk::RESPONSE_OK);
 }
 
-static void OnMenuSelectionDone(Gtk::Menu& mn)
+static void OnMenuSelectionDone(Gtk::Menu* mn)
 {
-    delete &mn;
+    delete mn;
+}
+
+void SetDeleteOnDone(Gtk::Menu& menu)
+{
+    menu.signal_selection_done().connect(boost::lambda::bind(OnMenuSelectionDone, &menu));
 }
 
 Gtk::Menu& NewPopupMenu()
 {
     Gtk::Menu& menu = NewManaged<Gtk::Menu>();
-    menu.signal_selection_done().connect(boost::lambda::bind(OnMenuSelectionDone, boost::ref(menu)));
+    SetDeleteOnDone(menu);
     return menu;
 }
 

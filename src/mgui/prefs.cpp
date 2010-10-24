@@ -39,11 +39,9 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/convenience.hpp> // fs::create_directories()
 
-template<class GtkObj>
-GtkObj& AddWidget(RefPtr<Gtk::SizeGroup> wdg_sg, GtkObj& wdg)
+DialogVBox& PackDialogVBox(Gtk::Box& box)
 {
-    wdg_sg->add_widget(wdg);
-    return wdg;
+    return PackStart(box, NewManaged<DialogVBox>(false, 10), Gtk::PACK_EXPAND_WIDGET);
 }
 
 DialogVBox& AddHIGedVBox(Gtk::Dialog& dlg)
@@ -53,23 +51,28 @@ DialogVBox& AddHIGedVBox(Gtk::Dialog& dlg)
     Gtk::VBox& box = *dlg.get_vbox();
 
     //return Add(PackStart(box, NewPaddingAlg(10, 10, 10, 10), Gtk::PACK_EXPAND_WIDGET), NewManaged<Gtk::VBox>(false, 10));
-    DialogVBox& vbox = PackStart(box, NewManaged<DialogVBox>(false, 10), Gtk::PACK_EXPAND_WIDGET);
+    DialogVBox& vbox = PackDialogVBox(box);
     vbox.set_border_width(10);
     return vbox;
 }
 
-void AppendWithLabel(DialogVBox& vbox, Gtk::Widget& wdg, const char* label)
+void PackNamedWidget(Gtk::VBox& vbox, Gtk::Widget& name_wdg, Gtk::Widget& wdg,
+                     RefPtr<Gtk::SizeGroup> sg, Gtk::PackOptions opt)
 {
     Gtk::HBox& hbox = PackStart(vbox, NewManaged<Gtk::HBox>());
+
+    Add(PackStart(hbox, NewPaddingAlg(0, 0, 0, 5)), AddWidget(sg, name_wdg));
+    PackStart(hbox, wdg, opt);
+}
+
+void AppendWithLabel(DialogVBox& vbox, Gtk::Widget& wdg, const char* label, Gtk::PackOptions opt)
+{
     Gtk::Label& lbl = NewManaged<Gtk::Label>(label, true);
     SetAlign(lbl);
     lbl.set_mnemonic_widget(wdg);
-    Add(PackStart(hbox, NewPaddingAlg(0, 0, 0, 5)), AddWidget(vbox.labelSg, lbl));
 
-    PackStart(hbox, wdg, Gtk::PACK_EXPAND_WIDGET);
+    PackNamedWidget(vbox, lbl, wdg, vbox.labelSg, opt);
 }
-
-void SetDialogStrict(Gtk::Dialog& dlg, int min_wdh, int min_hgt);
 
 void Preferences::Init()
 {

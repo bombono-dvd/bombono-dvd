@@ -39,5 +39,7 @@ void ForeachWithPoster(Project::MediaItem mi, Composition::FOFunctor fnr);
 // затем по пунктам меню), однако могут быть проблемы при удалении меню/пунктов в процессе
 // перебора
 
+std::string MediaItem2String(Project::MediaItem mi);
+
 #endif // #ifndef __MBASE_OBJ_BIND_H__
 

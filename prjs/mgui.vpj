@@ -342,6 +342,7 @@
 			<F N="../src/mgui/editor/tool.cpp"/>
 			<F N="../src/mgui/editor/toolbar.cpp"/>
 			<F N="../src/mgui/editor/txtool.cpp"/>
+			<F N="../src/mgui/sdk/widget.cpp"/>
 			<F N="../src/mgui/win_utils.cpp"/>
 		</Folder>
 		<F N="../po/SConscript"/>

@@ -29,11 +29,7 @@ void SetPercent(Gtk::ProgressBar& bar, double percent);
 // "прокрутить" очередь сообщений
 void IteratePendingEvents();
 
-inline void SetScaleSecondary(Gtk::HScale& scl)
-{
-    scl.property_draw_value() = false;
-    scl.property_can_focus()  = false;
-}
+void SetScaleSecondary(Gtk::HScale& scl);
 
 inline void SetAlign(Gtk::Label& lbl, bool is_left = true)
 {
@@ -83,6 +79,8 @@ void SetForRadioToggle(RadioItem& itm, const ActionFunctor& fnr)
     //itm.signal_toggled().connect(bl::bind(&OnRadioToggled<RadioItem>, boost::ref(itm), fnr));
     itm.signal_toggled().connect(RadioToggleCaller<RadioItem>(itm, fnr));
 }
+
+void ConfigureSpin(Gtk::SpinButton& btn, double val, double max);
 
 #endif // #ifndef __MGUI_SDK_WIDGET_H__
 

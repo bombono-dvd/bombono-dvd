@@ -61,7 +61,6 @@ namespace Author {
 
 void Warning(const std::string& str);
 void Info(const std::string& str, bool add_info_sign = true);
-void Error(const std::string& str);
 
 void FillSconsOptions(str::stream& scons_options, bool fill_def);
 void ExecuteSconsCmd(const std::string& out_dir, OutputFilter& of, 
@@ -79,7 +78,9 @@ io::pos VideoSizeSum();
 std::string SafeCall(const ActionFunctor& fnr);
 inline bool IsGood(const std::string& res) { return res.empty(); }
 
-void ErrorByED(const char* msg, const ExitData& ed);
+void Error(const std::string& str);
+void Error(const std::string& msg, const std::string& reason);
+void ErrorByED(const std::string& msg, const ExitData& ed);
 void CheckAbortByUser();
 
 } // namespace Author

@@ -105,7 +105,7 @@ AStores& InitAStores()
     return as;
 }
 
-static Rect GetAllocation(Gtk::Widget& wdg)
+Rect GetAllocation(Gtk::Widget& wdg)
 {
     return MakeRect(*wdg.get_allocation().gobj());
 }

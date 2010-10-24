@@ -600,11 +600,6 @@ void Info(const std::string& str, bool add_info_sign)
     AppendToLog((add_info_sign ? "INFO: " : "") + str);
 }
 
-void Error(const std::string& str)
-{
-    throw std::runtime_error(str);
-}
-
 std::string SconsTarget(Mode mode)
 {
     std::string res;
@@ -680,9 +675,19 @@ ReadReadyFnr OF2RRF(OutputFilter& of)
     return bb::bind(&Author::OutputFilter::OnGetLine, &of, _1, _2, _3);
 }
 
-void ErrorByED(const char* msg, const ExitData& ed)
+void Error(const std::string& str)
 {
-    throw std::runtime_error(boost::format(msg) % ExitDescription(ed) % bf::stop);
+    throw std::runtime_error(str);
+}
+
+void Error(const std::string& msg, const std::string& reason)
+{
+    Error(boost::format(msg) % reason % bf::stop);
+}
+
+void ErrorByED(const std::string& msg, const ExitData& ed)
+{
+    Error(msg, ExitDescription(ed));
 }
 
 void ExecuteSconsCmd(const std::string& out_dir, OutputFilter& of, 

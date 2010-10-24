@@ -93,7 +93,7 @@ namespace Project {
 class CommonMenuBuilder
 {
     public:
-                           CommonMenuBuilder(MediaItem cur_itm, bool for_poster);
+                           CommonMenuBuilder(MediaItem cur_itm, bool for_poster, bool only_with_audio = false);
     virtual               ~CommonMenuBuilder() {}
 
     virtual ActionFunctor  CreateAction(MediaItem mi) = 0;
@@ -103,7 +103,10 @@ class CommonMenuBuilder
 
     protected:
               MediaItem  curItm; // текущая ссылка
-                   bool  forPoster; // визуальная ссылка или для переходов (может быть меню, не может быть рисунком)
+                         // визуальная ссылка (=> только "первичка") 
+                         // для переходов (может быть меню, не может быть рисунком)
+                   bool  forPoster;
+                   bool  onlyWithAudio; // картинки запрещены
 
               Gtk::Menu& resMenu;  // результирующее меню; обязательно должно быть присоединено после Creat(),
                                    // иначе утечка

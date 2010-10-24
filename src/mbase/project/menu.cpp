@@ -86,12 +86,17 @@ void SerializeReference(Archieve& ar, const char* attr_name, WMediaItem& wi)
         SaveRef(ar, attr_name, wi.lock());
 }
 
+void SerializePath(Archieve& ar, const char* tag_name, std::string& fpath);
+
 static void Serialize(Archieve& ar, MotionData& mtn_data)
 {
-    ar( "IsMotion", mtn_data.isMotion )
-      ( "Duration", mtn_data.duration );
+    ar( "IsMotion",        mtn_data.isMotion )
+      ( "Duration",        mtn_data.duration )
+      ( "IsStillPicture",  mtn_data.isStillPicture )
+      ( "IsInternalAudio", mtn_data.isIntAudio     );
+
     SerializeReference(ar, "AudioRef", mtn_data.audioRef);
-    ar( "IsStillPicture", mtn_data.isStillPicture );
+    SerializePath(ar, "ExtAudio", mtn_data.audioExtPath);
 }
 
 void MenuMD::SerializeImpl(Archieve& ar)

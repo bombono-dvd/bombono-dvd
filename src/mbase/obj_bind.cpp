@@ -227,13 +227,39 @@ void ForeachWithPoster(Project::MediaItem mi, Composition::FOFunctor fnr)
     ForeachLinked(PosterLinks(), mi, bl::bind(&PosterFunctorImpl, bl::_1, boost::ref(fnr)));
 }
 
+std::string MediaItem2String(Project::MediaItem mi)
+{
+    std::string res("0(Null)");
+    if( mi )
+        res = mi->mdName + "(" + mi->TypeString() + ")";
+    return res;
+}
+
+void PrintAbandonedLinks(MILinkList& links)
+{
+    io::cout << "###############" << io::endl;
+    io::cout << "Abandoned Links" << io::endl;
+    io::cout << "###############" << io::endl;
+    boost_foreach( const MILink& lnk, links )
+        io::cout << MediaItem2String(lnk.ref) << io::endl;
+    io::cout << "###############" << io::endl;
+}
+
 // удостовериться, что все связей нет
 void CheckObjectLinksEmpty()
 {
     // видеопереходы
-    ASSERT( MenuLinks().empty() );
+    if( !MenuLinks().empty() )
+    {
+        PrintAbandonedLinks(MenuLinks());
+        ASSERT( 0 );
+    }
     // постеры для кнопок
-    ASSERT( PosterLinks().empty() );
+    if( !PosterLinks().empty() )
+    {
+        PrintAbandonedLinks(PosterLinks());
+        ASSERT( 0 );
+    }
 }
 
 

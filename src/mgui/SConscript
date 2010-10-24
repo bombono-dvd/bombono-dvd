@@ -72,6 +72,7 @@ lib_src_files = [
                  'sdk/menu.cpp',
                  'sdk/player_utils.cpp',
                  'sdk/textview.cpp',
+                 'sdk/widget.cpp',
                  #'sdk/libgnome/gnome-exec.c',
                  'sdk/libgnome/gnome-util.c',
 

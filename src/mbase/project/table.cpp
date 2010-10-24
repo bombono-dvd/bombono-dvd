@@ -150,25 +150,59 @@ NameValueT<Media> LoadMedia(Archieve& ar, MediaList& md_list)
     return NameValue("Media", *md);
 }
 
-void StorageMD::SerializeImpl(Archieve& ar)
+// либо пусто, либо полный путь
+void SerializePath(Archieve& ar, const char* tag_name, std::string& fpath)
 {
     //ar & NameValue("Path", mdPath);
     fs::path rel_to_dir = fs::path(AData().GetProjectFName()).branch_path();
     if( ar.IsLoad() )
     {
-        ar >> NameValue("Path", mdPath);
+        ar >> NameValue(tag_name, fpath);
 
-        fs::path pth(mdPath);
-        if( !pth.is_complete() )
-            mdPath = (rel_to_dir/mdPath).string();
+        if( !fpath.empty() )
+        {
+            fs::path pth(fpath);
+            if( !pth.is_complete() )
+                fpath = (rel_to_dir/fpath).string();
+        }
     }
     else // IsSave
     {
-        fs::path pth(mdPath);
-        MakeRelativeToDir(pth, rel_to_dir);
+        std::string res;
+        if( !fpath.empty() )
+        {
+    
+            fs::path pth(fpath);
+            MakeRelativeToDir(pth, rel_to_dir);
+            res = pth.string();
+        }
 
-        ar << NameValue("Path", pth.string());
+        ar << NameValue(tag_name, res);
     }
+}
+
+void StorageMD::SerializeImpl(Archieve& ar)
+{
+    ////ar & NameValue("Path", mdPath);
+    //fs::path rel_to_dir = fs::path(AData().GetProjectFName()).branch_path();
+    //if( ar.IsLoad() )
+    //{
+    //    ar >> NameValue("Path", mdPath);
+    //
+    //    fs::path pth(mdPath);
+    //    if( !pth.is_complete() )
+    //        mdPath = (rel_to_dir/mdPath).string();
+    //}
+    //else // IsSave
+    //{
+    //    fs::path pth(mdPath);
+    //    MakeRelativeToDir(pth, rel_to_dir);
+    //
+    //    ar << NameValue("Path", pth.string());
+    //}
+    if( ar.IsSave() )
+        ASSERT( !mdPath.empty() );
+    SerializePath(ar, "Path", mdPath);
 }
 
 void StillImageMD::SerializeImpl(Archieve& ar)

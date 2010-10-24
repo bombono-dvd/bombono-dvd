@@ -436,6 +436,11 @@ static Rect RealPosition(Comp::MediaObj& obj, const Planed::Transition& trans)
 
 // :REFACTOR: убрать копипаст (test_render.cpp)
 
+static const char* FFmpegErrorTemplate()
+{
+    return _("ffmpeg failure: %1%");
+}
+
 static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix, TrackBuf& buf)
 {
     int wdh = pix->get_width();
@@ -472,7 +477,12 @@ static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix, TrackBuf& buf)
     }
 
     ASSERT( cur - beg == sz );
-    checked_writeall(fd, beg, sz);
+    //checked_writeall(fd, beg, sz);
+    if( !writeall(fd, beg, sz) )
+    {
+        namespace bs = boost::system;
+        Author::Error(FFmpegErrorTemplate(), bs::error_code(errno, bs::system_category()).message());
+    }
 }
 
 static std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pal, 
@@ -632,20 +642,24 @@ static std::string MakeFFmpegPostArgs(const std::string& mn_dir, Menu mn)
 
     std::string a_fname;
     double a_shift = 0.;
-    MediaItem a_ref = mtn_dat.audioRef.lock();
-    if( a_ref )
+    if( mtn_dat.isIntAudio )
     {
-        VideoStart vs = GetVideoStart(a_ref);
-        a_fname = GetFilename(vs);
-        a_shift = vs.second;
+        if( MediaItem a_ref = mtn_dat.audioRef.lock() )
+        {
+            VideoStart vs = GetVideoStart(a_ref);
+            a_fname = GetFilename(vs);
+            a_shift = vs.second;
+        }
     }
+    else
+        a_fname = mtn_dat.audioExtPath;
     return FFmpegPostArgs(out_fname, is_4_3, AData().PalTvSystem(), a_fname, a_shift);
 }
 
 static double MenuDuration(Menu mn)
 {
     double duration = mn->MtnData().duration;
-    const int MAX_MOTION_DUR = 60 * 5; // 5 минут максимум?
+    const int MAX_MOTION_DUR = 60 * 60; // адекватный теорет. максимум
     ASSERT_RTL( duration > 0 && duration <= MAX_MOTION_DUR );
 
     return duration;
@@ -653,7 +667,7 @@ static double MenuDuration(Menu mn)
 
 static void FFmpegError(const ExitData& ed)
 {
-    Author::ErrorByED(_("ffmpeg failure: %1%"), ed);
+    Author::ErrorByED(FFmpegErrorTemplate(), ed);
 }
 
 static Gtk::TextView& PrintCmdToDetails(const std::string& cmd)
