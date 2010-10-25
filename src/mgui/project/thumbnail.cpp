@@ -277,8 +277,7 @@ RefPtr<Gdk::Pixbuf> GetCalcedShotImpl(MediaItem mi)
 
 RefPtr<Gdk::Pixbuf> GetCalcedShot(MediaItem mi)
 {
-    using namespace boost;
-    return GetInteractiveLRS( lambda::bind(&GetCalcedShotImpl, mi) );
+    return GetInteractiveLRS( bb::bind(&GetCalcedShotImpl, mi) );
 }
 
 void SetDirtyCacheShot(MediaItem mi)

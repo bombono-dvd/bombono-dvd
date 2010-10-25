@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( TestNormArray )
     {
         Archieve ar(root_node, true);
         ArchieveFunctor<TestData> fnr =
-            MakeArchieveFunctor<TestData>( boost::lambda::bind(&LoadTestData, boost::ref(arr2)) );
+            MakeArchieveFunctor<TestData>( bb::bind(&LoadTestData, boost::ref(arr2)) );
         LoadArray(ar, fnr);
     }
 

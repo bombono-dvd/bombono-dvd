@@ -123,7 +123,7 @@ class EndActionMenuBld: public CommonMenuBuilder
 
     virtual ActionFunctor  CreateAction(Project::MediaItem mi)
     {
-        return bl::bind(&SetEALink, boost::ref(pAct), mi);
+        return bb::bind(&SetEALink, boost::ref(pAct), mi);
     }
 
     virtual          void  AddConstantChoice(Gtk::Menu& lnk_list);
@@ -138,7 +138,7 @@ void EndActionMenuBld::AddConstantItem(Gtk::Menu& lnk_list, const std::string& l
 {
     Gtk::RadioMenuItem& itm = NewManaged<Gtk::RadioMenuItem>(radioGrp);
     SetAlign(Add(itm, NewMarkupLabel("<span weight=\"bold\" style=\"italic\">" + label + "</span>")));
-    AppendRadioItem(itm, typ == pAct.paTyp, bl::bind(&SetConstEALink, boost::ref(pAct), typ), lnk_list);
+    AppendRadioItem(itm, typ == pAct.paTyp, bb::bind(&SetConstEALink, boost::ref(pAct), typ), lnk_list);
 }
 
 int MenusCnt();
@@ -277,9 +277,7 @@ void ConfirmDeleteBrowserMedia(MediaItem md, Gtk::TreeIter& itr,
 
 void DeleteMediaFromBrowser(MediaBrowser& mb)
 {
-    using namespace boost;
-    ExecuteForMedia(mb, lambda::bind(&ConfirmDeleteBrowserMedia, lambda::_1, lambda::_2, 
-                                     mb.GetMediaStore()));
+    ExecuteForMedia(mb, bb::bind(&ConfirmDeleteBrowserMedia, _1, _2, mb.GetMediaStore()));
 }
 
 void MediaBrowser::DeleteMedia()
@@ -321,7 +319,7 @@ void OnMBChangeCursor(MediaBrowser& brw, Gtk::Button* edit_btn)
 static void SetDefaultButtonOnEveryMap(Gtk::Button& btn)
 {
     // при смене вкладки, например, теряется фокус по умолчанию
-    btn.signal_map().connect(boost::lambda::bind(&SetDefaultButton, boost::ref(btn)));
+    btn.signal_map().connect(bb::bind(&SetDefaultButton, boost::ref(btn)));
 }
 
 void PackMediaBrowserAll(Gtk::Container& contr, MediaBrowser& brw, ActionFunctor add_media_fnr, 
@@ -365,7 +363,7 @@ void PackMediaBrowserAll(Gtk::Container& contr, MediaBrowser& brw, ActionFunctor
             // управление состоянием кнопки
             edit_btn->set_sensitive(false);
             brw.signal_cursor_changed().connect( 
-                boost::lambda::bind(&OnMBChangeCursor, boost::ref(brw), edit_btn) );
+                bb::bind(&OnMBChangeCursor, boost::ref(brw), edit_btn) );
         }
     }
 }

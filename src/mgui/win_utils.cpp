@@ -277,7 +277,7 @@ static void OnMenuSelectionDone(Gtk::Menu* mn)
 
 void SetDeleteOnDone(Gtk::Menu& menu)
 {
-    menu.signal_selection_done().connect(boost::lambda::bind(OnMenuSelectionDone, &menu));
+    menu.signal_selection_done().connect(bb::bind(OnMenuSelectionDone, &menu));
 }
 
 Gtk::Menu& NewPopupMenu()
@@ -390,7 +390,7 @@ void SetWeblinkCallback(Gtk::MessageDialog& mdlg)
     // на основе Gtk::Dialog; при этом придется копировать стандартный функционал MessageDialog
     //
     int label_num = 0;
-    ForAllWidgets(static_cast<Gtk::Widget&>(mdlg).gobj(), bl::bind(&ActivateLinksFor2Label, bl::_1, boost::ref(label_num)));
+    ForAllWidgets(static_cast<Gtk::Widget&>(mdlg).gobj(), bb::bind(&ActivateLinksFor2Label, _1, boost::ref(label_num)));
 }
 
 Gtk::Alignment& NewPaddingAlg(int top, int btm, int lft, int rgt)

@@ -111,7 +111,7 @@ bool IndexForAuthoring(VideoItem vi, int idx)
 
 static int IndexVideosForAuthoring()
 {
-    return ForeachVideo(bl::bind(&IndexForAuthoring, bl::_1, bl::_2));
+    return ForeachVideo(bb::bind(&IndexForAuthoring, _1, _2));
 }
 
 static std::string MakeFPTarget(MediaItem mi)
@@ -329,7 +329,7 @@ static Menu GetFirstMenu()
 VideoItem GetFirstVideo()
 {
     VideoItem first_vi;
-    ForeachVideo(bl::bind(&_GetFirstVideo, boost::ref(first_vi), bl::_1, bl::_2));
+    ForeachVideo(bb::bind(&_GetFirstVideo, boost::ref(first_vi), _1, _2));
     return first_vi;
 }
 
@@ -433,12 +433,12 @@ void GenerateDVDAuthorScript(const std::string& out_dir)
         // * меню
         xmlpp::Element* menus_node = tts_node->add_child("menus");
         AddVideoTag(menus_node, IsMenuToBe4_3());
-        ForeachMenu(bl::bind(&ScriptMenu, menus_node, root_menu, bl::_1, bl::_2));
+        ForeachMenu(bb::bind(&ScriptMenu, menus_node, root_menu, _1, _2));
         // * список разделов (titles)
         xmlpp::Element* ts_node = tts_node->add_child("titles");
         AddVideoTag(ts_node, Is4_3(first_vi));
 
-        ForeachVideo(bl::bind(&ScriptTitle, ts_node, bl::_1, titles_cnt));
+        ForeachVideo(bb::bind(&ScriptTitle, ts_node, _1, titles_cnt));
     }
     doc.write_to_file_formatted(AppendPath(out_dir, "DVDAuthor.xml"));
 }
@@ -504,9 +504,8 @@ struct RestrictGetCanvasBuf
 
     void Do(bool is_on)
     {
-        using namespace boost;
         if( Execution::ConsoleMode::Flag )
-            ForeachMenu(lambda::bind(&RestrictGetCanvasBufMenu, lambda::_1, is_on));
+            ForeachMenu(bb::bind(&RestrictGetCanvasBufMenu, _1, is_on));
     }
 };
 
@@ -564,9 +563,8 @@ std::string AuthorDVD(const std::string& out_dir)
     std::string res = Author::SafeCall(bb::bind(&AuthorImpl, out_dir));
 
     // очищаем все авторинговые данные
-    using namespace boost;
-    ForeachVideo(lambda::bind(&AuthorClearVideo, lambda::_1));
-    ForeachMenu(lambda::bind(&AuthorClearMenu, lambda::_1));
+    ForeachVideo(bb::bind(&AuthorClearVideo, _1));
+    ForeachMenu(bb::bind(&AuthorClearMenu, _1));
 
     if( Author::IsGood(res) )
         AuthorSectionInfo("Authoring is successfully done.");

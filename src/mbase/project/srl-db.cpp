@@ -46,9 +46,8 @@ NameValueT<MenuMD> LoadMenu(MenuList& ml)
 
 static void Load(Archieve& ar, MenuList& ml)
 {
-    using namespace boost;
     ArchieveFunctor<MenuMD> fnr =
-        MakeArchieveFunctor<MenuMD>( lambda::bind(&LoadMenu, boost::ref(ml)) );
+        MakeArchieveFunctor<MenuMD>( bb::bind(&LoadMenu, boost::ref(ml)) );
     LoadArray(ar, fnr);
 }
 

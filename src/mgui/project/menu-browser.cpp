@@ -153,7 +153,7 @@ class AudioMenuBld: public CommonMenuBuilder
 
     virtual ActionFunctor CreateAction(Project::MediaItem mi)
     {
-        return bl::bind(&AudioButton::SetMI, aBtn, mi);
+        return bb::bind(&AudioButton::SetMI, aBtn, mi);
     }
 
     protected:
@@ -447,7 +447,7 @@ class LinkMenuBuilder: public EditorMenuBuilder
 
 ActionFunctor LinkMenuBuilder::CreateAction(MediaItem mi)
 {
-    return bl::bind(SetSelObjectsLinks, mi, forPoster);
+    return bb::bind(SetSelObjectsLinks, mi, forPoster);
 }
 
 void AppendRadioItem(Gtk::RadioMenuItem& itm, bool is_active, const ActionFunctor& fnr, Gtk::Menu& lnk_list)
@@ -596,24 +596,23 @@ void PackMenusWindow(Gtk::Container& contr, RefPtr<MenuStore> ms, RefPtr<MediaSt
         //Gtk::HBox& hb = *Gtk::manage(new Gtk::HBox(true, 4));
         Gtk::HButtonBox& hb = Add(alg, CreateMListButtonBox());
         {
-            using namespace boost;
             Gtk::Button* add_btn = CreateButtonWithIcon("", Gtk::Stock::ADD,
                                                         _("Add Menu"));
             hb.pack_start(*add_btn);
-            add_btn->signal_clicked().connect(lambda::bind(&InsertMenuIntoBrowser, boost::ref(menu_brw)));
+            add_btn->signal_clicked().connect(bb::bind(&InsertMenuIntoBrowser, boost::ref(menu_brw)));
 
             Gtk::Button* rm_btn = CreateButtonWithIcon("", Gtk::Stock::REMOVE,
                                                        _("Remove Menu"));
             hb.pack_start(*rm_btn);
-            rm_btn->signal_clicked().connect(lambda::bind(&DeleteMenuFromBrowser, boost::ref(menu_brw)));
+            rm_btn->signal_clicked().connect(bb::bind(&DeleteMenuFromBrowser, boost::ref(menu_brw)));
             //const char* edit_text = C_("MenuBrowser", "Edit");
             const char* edit_text = "";
             Gtk::Button* edit_btn = CreateButtonWithIcon(edit_text, Gtk::Stock::YES, _("Edit Menu"));
             hb.pack_start(*edit_btn);
             ActionFunctor edit_fnr =
-                lambda::bind(&EditMenu, boost::ref(menu_brw), boost::ref(meditor), boost::ref(title_lbl));
+                bb::bind(&EditMenu, boost::ref(menu_brw), boost::ref(meditor), boost::ref(title_lbl));
             edit_btn->signal_clicked().connect(edit_fnr);
-            menu_brw.signal_row_activated().connect( lambda::bind(&OnMenuBrowserRowActivated, edit_fnr) );
+            menu_brw.signal_row_activated().connect( bb::bind(&OnMenuBrowserRowActivated, edit_fnr) );
         }
 
         // *

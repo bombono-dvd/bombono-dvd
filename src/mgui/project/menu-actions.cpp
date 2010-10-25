@@ -193,11 +193,10 @@ void UpdateMenuRegionObject(Comp::Object* obj, const Point& menu_sz, RectListRgn
 
 void EraseLinkedMenus(MenuPack& mp)
 {
-    using namespace boost;
     CanvasBuf& cb = mp.thRgn.GetCanvasBuf();
-    ForeachLinked(mp.Owner(), lambda::bind(&UpdateMenuRegionObject, 
-                                           boost::lambda::_1, boost::cref(cb.Size()), 
-                                           boost::ref(cb.RenderList())));
+    ForeachLinked(mp.Owner(), bb::bind(&UpdateMenuRegionObject, 
+                                       _1, boost::cref(cb.Size()), 
+                                       boost::ref(cb.RenderList())));
 }
 
 void RegionEraserVis::ProcessImpl(bool exceed)
@@ -220,9 +219,8 @@ void RegionEraserVis::ProcessImpl(bool exceed)
 
 void RegionEraserVis::Process()
 {
-    using namespace boost;
     static int RecurseDepth = 0;
-    LimitedRecursiveCall<void>( lambda::bind(&RegionEraserVis::ProcessImpl, this, lambda::_1), RecurseDepth );
+    LimitedRecursiveCall<void>( bb::bind(&RegionEraserVis::ProcessImpl, this, _1), RecurseDepth );
 }
 
 void MenuRegionEraserVis::CalcSubRegions(RectListRgn& lst)
@@ -279,8 +277,8 @@ static void UpdateFTO(FrameThemeObj& fto, bool del_link)
 
 static void UpdateMenusFor(MediaItem mi, bool del_link)
 {
-    ForeachLinked(mi, bl::bind(&UpdateMenuObject, bl::_1, del_link, false));
-    ForeachWithPoster(mi, bl::bind(&UpdateFTO, bl::_1, del_link));
+    ForeachLinked(mi, bb::bind(&UpdateMenuObject, _1, del_link, false));
+    ForeachWithPoster(mi, bb::bind(&UpdateFTO, _1, del_link));
 }
 
 static void UpdateRedrawMenusFor(MediaItem mi, bool del_link, RefPtr<MenuStore> mn_store)

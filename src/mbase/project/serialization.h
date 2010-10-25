@@ -108,7 +108,7 @@ std::string MakeString<std::string>(const std::string& str)
 template<typename T>
 ToStringConverter GetConverter(const T& t)
 {
-    return boost::lambda::bind(&MakeString<T>, t);
+    return bb::bind(&MakeString<T>, t);
 }
 
 } // namespace ToString
@@ -137,8 +137,7 @@ void MakeType<std::string>(std::string& t_str, const std::string& str)
 template<typename T>
 FromStringConverter GetConverter(const T& t)
 {
-    using namespace boost;
-    return lambda::bind(&MakeType<T>, boost::ref(const_cast<T&>(t)), lambda::_1);
+    return bb::bind(&MakeType<T>, boost::ref(const_cast<T&>(t)), _1);
 }
 
 } // namespace FromString
@@ -195,11 +194,23 @@ struct DoEnumType
 template<class T>
 struct DoStringType
 {
+    struct saver
+    {
+        const char* str;
+        saver(const char* s): str(s) {}
+        std::string operator()() const { return str; }
+    };
+
     template<class Archiever>
     static void Invoke(SaverFnr<Archiever>& ar, const T& t)
     {
         //io::cout << "This is char*-variant, " << t << io::endl;
-        ar.SerializeStringable(ToString::GetConverter(t));
+        
+        // при замене B.L. -> B.B. оказалось, что последний не дружит
+        // с MakeString<T>() при T = const char[N]; потому заменяем
+        // (заодно упрощаем)
+        //ar.SerializeStringable(ToString::GetConverter(t));
+        ar.SerializeStringable(saver(t));
     }
 
     template<class Archiever>

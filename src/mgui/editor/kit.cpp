@@ -63,9 +63,8 @@ Kit::Kit(): standAlone(true)
 
     // по умолчанию
     ChangeToSelectTool(*this);
-    using namespace boost;
     toolbar.selTool.signal_toggled().connect( 
-        lambda::bind(&EditorToolToggled, boost::ref(toolbar.selTool), boost::ref(*this)) );
+        bb::bind(&EditorToolToggled, boost::ref(toolbar.selTool), boost::ref(*this)) );
 
     LoadMenu(0);
 
@@ -240,12 +239,11 @@ void ClearDataWareTag(DataWare& dw, const char* tag) { dw.Clear(tag); }
 
 void ClearLocalData(MenuRegion& m_rgn, const std::string& tag)
 {
-    using namespace boost;
-    function<void(DataWare&)> clear_fnr;
+    boost::function<void(DataWare&)> clear_fnr;
     if( tag.empty() )
-        clear_fnr = lambda::bind(&ClearDataWare, lambda::_1);
+        clear_fnr = bb::bind(&ClearDataWare, _1);
     else
-        clear_fnr = lambda::bind(&ClearDataWareTag, lambda::_1, tag.c_str());
+        clear_fnr = bb::bind(&ClearDataWareTag, _1, tag.c_str());
 
     clear_fnr(m_rgn);
     for( Comp::ListObj::Itr itr = m_rgn.List().begin(), end = m_rgn.List().end(); 

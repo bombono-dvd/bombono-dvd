@@ -83,9 +83,8 @@ static void TestAR(bool line_up)
     std::string ho_str, he_str;
     std::string cmd_str = SetupHelloCommand(ho_str, he_str);
 
-    using namespace boost;
     std::string out_str, err_str;
-    ReadReadyFnr fnr = lambda::bind(&AppendToStrings, lambda::_1, lambda::_2, lambda::_3, 
+    ReadReadyFnr fnr = bb::bind(&AppendToStrings, _1, _2, _3, 
                                     boost::ref(out_str), boost::ref(err_str));
     ExitData ed = ExecuteAsync(0, cmd_str.c_str(), fnr, 0, line_up);
 
@@ -183,11 +182,10 @@ BOOST_AUTO_TEST_CASE( TestInteractiveExecute )
     ExecState& es = GetInitedES();
     Gtk::TextView& txt_view = es.detailsView; //NewManaged<Gtk::TextView>();
 
-    using namespace boost;
     Gtk::ComboBoxEntryText& cmd_ent = NewManaged<Gtk::ComboBoxEntryText>();
     Gtk::Entry& ent = *cmd_ent.get_entry();
     ent.set_activates_default(true);
-    cmd_ent.signal_changed().connect(lambda::bind(&GrabFocus, boost::ref(ent)));
+    cmd_ent.signal_changed().connect(bb::bind(&GrabFocus, boost::ref(ent)));
     Gtk::FileChooserButton& ch_btn = NewManaged<Gtk::FileChooserButton>("Select folder for execution", 
                                                                         Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
     //ch_btn.set_filename(Project::MakeAbsolutePath("../t").string());
@@ -205,7 +203,7 @@ BOOST_AUTO_TEST_CASE( TestInteractiveExecute )
 
     Gtk::Button& btn = es.ExecButton();
     SetConsoleState(es, false);
-    btn.signal_clicked().connect(lambda::bind(&OnExecuteCommand, boost::ref(cmd_ent), boost::ref(ch_btn)));
+    btn.signal_clicked().connect(bb::bind(&OnExecuteCommand, boost::ref(cmd_ent), boost::ref(ch_btn)));
     PackStart(vbox, btn);
     SetDefaultButton(btn);
 

@@ -18,6 +18,7 @@
 #include <mbase/project/table.h>
 #include <mbase/resources.h>
 
+#include <mlib/lambda.h> // bl::var
 #include <mlib/filesystem.h>
 
 namespace Project

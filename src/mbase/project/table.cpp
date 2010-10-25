@@ -237,9 +237,8 @@ void VideoMD::SerializeImpl(Archieve& ar)
         ArchieveStackFrame asf(ar, "Parts");
         if( ar.IsLoad() )
         {
-            using namespace boost;
             ArchieveFunctor<VideoChapterMD> fnr =
-                MakeArchieveFunctor<VideoChapterMD>( lambda::bind(&LoadChapter, this) );
+                MakeArchieveFunctor<VideoChapterMD>( bb::bind(&LoadChapter, this) );
             LoadArray(ar, fnr);
         }
         else // IsSave
@@ -266,10 +265,8 @@ void Save(Archieve& ar, MediaList& md_list)
 
 void Load(Archieve& ar, MediaList& md_list)
 {
-    using namespace boost;
-
     ArchieveFunctor<Media> fnr =
-        MakeArchieveFunctor<Media>( lambda::bind(&LoadMedia, boost::ref(ar), boost::ref(md_list)) );
+        MakeArchieveFunctor<Media>( bb::bind(&LoadMedia, boost::ref(ar), boost::ref(md_list)) );
     LoadArray(ar, fnr);
 }
 

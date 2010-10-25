@@ -86,7 +86,7 @@ static bool RunMuxing(const std::string& dest_path, const std::string& args)
 
         dlg.get_action_area()->set_layout(Gtk::BUTTONBOX_CENTER);
         dlg.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
-        dlg.signal_response().connect(bl::bind(&OnResponse, boost::ref(edat), bl::_1));
+        dlg.signal_response().connect(bb::bind(&OnResponse, boost::ref(edat), _1));
 
         dlg.show_all();
     }
@@ -194,7 +194,7 @@ bool MuxStreams(std::string& dest_fname, const std::string& src_fname)
         CompleteDialog(dlg);
     }
 
-    v_btn.signal_selection_changed().connect(bl::bind(&OnVideoSelected, boost::ref(v_btn), boost::ref(a_btn), boost::ref(sc)));
+    v_btn.signal_selection_changed().connect(bb::bind(&OnVideoSelected, boost::ref(v_btn), boost::ref(a_btn), boost::ref(sc)));
     if( !src_fname.empty() )
     {
         if( get_extension(src_fname) == "m2v" )

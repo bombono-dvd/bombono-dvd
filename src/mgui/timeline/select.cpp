@@ -143,7 +143,7 @@ static void SaveFrame(DAMonitor& mon)
     Gtk::CheckButton& add_btn = NewManaged<Gtk::CheckButton>(_("A_dd to project"), true);
     RefPtr<Gtk::CheckButton> add_ref(MakeRefPtr(&add_btn)); 
 
-    if( ChooseFileSaveTo(fnam, _("Save Frame..."), mon, bl::bind(&OnSaveFrameDialog, bl::_1, boost::ref(add_btn))) )
+    if( ChooseFileSaveTo(fnam, _("Save Frame..."), mon, bb::bind(&OnSaveFrameDialog, _1, boost::ref(add_btn))) )
     {
         // находим расширение и по нему сохраняем
         int i = fnam.rfind('.');
@@ -209,10 +209,9 @@ void ContextMenuHook::AtScale()
 {
     popupActions = Gtk::ActionGroup::create("Actions");
 
-    using namespace boost;
     // Add
     popupActions->add( Gtk::Action::create("Add Chapter", _("Add Chapter Point")),
-                       lambda::bind(&InsertDVDMark, boost::ref(trkLay)) );
+                       bb::bind(&InsertDVDMark, boost::ref(trkLay)) );
     // Delete
     RefPtr<Gtk::Action> act = Gtk::Action::create("Delete Chapter", _("Delete Chapter Point"));
     act->set_sensitive(false);
@@ -221,21 +220,21 @@ void ContextMenuHook::AtScale()
     act = Gtk::Action::create("Delete All", _("Delete All Chapter Points"));
     if( DVDMarks().size() == 0 )
         act->set_sensitive(false);
-    popupActions->add( act, lambda::bind(&DeleteAllDVDMarks, boost::ref(trkLay)) );
+    popupActions->add( act, bb::bind(&DeleteAllDVDMarks, boost::ref(trkLay)) );
     // Add at Intervals
     popupActions->add( Gtk::Action::create("Add at Intervals", DOTS_("Add Chapter Points at Intervals")),
-                       bl::bind(&InsertChapters, boost::ref(trkLay)) );
+                       bb::bind(&InsertChapters, boost::ref(trkLay)) );
 
     // Save
-    ActionFunctor save_fnr = lambda::constant(0); // если не mon, то пустой
+    ActionFunctor save_fnr = boost::function_identity; // bl::constant(0); // если не mon, то пустой
     DAMonitor* mon = dynamic_cast<DAMonitor*>(&trkLay.GetMonitor());
     if( mon )
-        save_fnr = lambda::bind(&SaveFrame, boost::ref(*mon));
+        save_fnr = bb::bind(&SaveFrame, boost::ref(*mon));
     popupActions->add( Gtk::Action::create("Save Frame", Gtk::Stock::SAVE, DOTS_("Save Current Frame")),
                        save_fnr );
     popupActions->add( Gtk::Action::create("Play in Totem", Gtk::Stock::MEDIA_PLAY, 
                                            BF_("_Play in %1%") % "Totem" % bf::stop),
-                       bl::bind(&PlayInTotem, boost::ref(trkLay)) );
+                       bb::bind(&PlayInTotem, boost::ref(trkLay)) );
 }
 
 void ContextMenuHook::AtDVDMark(int idx)
@@ -246,7 +245,7 @@ void ContextMenuHook::AtDVDMark(int idx)
 
     act = popupActions->get_action("Delete Chapter");
     act->set_sensitive(true);
-    act->signal_activate().connect( boost::lambda::bind(&DeleteDVDMark, boost::ref(trkLay), idx) );
+    act->signal_activate().connect( bb::bind(&DeleteDVDMark, boost::ref(trkLay), idx) );
 }
 
 void ContextMenuHook::Process()
@@ -736,12 +735,11 @@ void EditBigLabelTL::BeginState(TrackLayout& trk)
     ent.set_alignment(Gtk::ALIGN_CENTER);
 
     // сигналы
-    using namespace boost;
-    ent.signal_activate().connect( lambda::bind(&EditBigLabelTL::EndState, this, boost::ref(trk), true) );
+    ent.signal_activate().connect( bb::bind(&EditBigLabelTL::EndState, this, boost::ref(trk), true) );
     ent.signal_focus_out_event().connect( 
-        wrap_return<bool>(lambda::bind(&OnFocusOutBigLabel, boost::ref(trk))) );
+        wrap_return<bool>(bb::bind(&OnFocusOutBigLabel, boost::ref(trk))) );
     ent.signal_key_press_event().connect(
-        wrap_return<bool>(lambda::bind(&OnKeyPressBigLabel, boost::ref(trk), lambda::_1)) );
+        wrap_return<bool>(bb::bind(&OnKeyPressBigLabel, boost::ref(trk), _1)) );
     LimitTextInput(ent, AllowedChars);
 
     sz = FindAForCenteredRect(sz, lct);

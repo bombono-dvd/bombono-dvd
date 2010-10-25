@@ -481,25 +481,25 @@ Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box)
     // хочется отрабатывать изменения в управляющих элементах только когда
     // фокус не на редакторе (т.е. когда не сам редактор изменился)
     typedef boost::function<void(ActionFunctor)> ActionActionFunctor;
-    ActionActionFunctor otc = bl::bind(&OnToolbarControlled, boost::ref(editor), bl::_1);
+    ActionActionFunctor otc = bb::bind(&OnToolbarControlled, boost::ref(editor), _1);
 
     // * выбор темы объекта
     {
         Gtk::ComboBox& combo = edt_tbar.frame_combo;
         AppendToToolbar(tbar, combo);
         combo.signal_changed().connect(
-            bl::bind(otc, ActionFunctor(bl::bind(&FrameTypeChanged, boost::ref(editor)))));
+            bb::bind(otc, ActionFunctor(bb::bind(&FrameTypeChanged, boost::ref(editor)))));
 
         // * кнопка
         Gtk::ToolButton& add_btn = NewManaged<Gtk::ToolButton>(Gtk::StockID(Gtk::Stock::ADD));
         add_btn.set_tooltip(TooltipFactory(), _("Add Item"));
         tbar.append(add_btn);
-        add_btn.signal_clicked().connect( bl::bind(&AddObjectClicked, boost::ref(editor)) );
+        add_btn.signal_clicked().connect( bb::bind(&AddObjectClicked, boost::ref(editor)) );
     }
     AppendTSeparator(tbar);
 
     // * управление шрифтами
-    ActionFunctor on_font_change = bl::bind(otc, ActionFunctor(bl::bind(&FontNameChanged, boost::ref(editor), false)));
+    ActionFunctor on_font_change = bb::bind(otc, ActionFunctor(bb::bind(&FontNameChanged, boost::ref(editor), false)));
     {
         std::string def_font = tbar.get_style()->get_font().get_family().raw();
         // * семейства
@@ -550,7 +550,7 @@ Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box)
         clr_btn.set_focus_on_click(false);
         SetTip(clr_btn, _("Text Color"));
 
-        clr_btn.signal_color_set().connect(bl::bind(&FontNameChanged, boost::ref(editor), true));
+        clr_btn.signal_color_set().connect(bb::bind(&FontNameChanged, boost::ref(editor), true));
         AppendToToolbar(tbar, clr_btn);
 
     }
@@ -562,7 +562,7 @@ Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box)
     frm_btn.add(GetFactoryGtkImage("copy-n-paste/lpetool_show_bbox.png"));
     SetTip(frm_btn, _("Show Safe Area"));
     // обвязка otc здесь используется для проверки, что в редакторе есть меню (и не валится при его отстутствии)
-    frm_btn.signal_toggled().connect(bl::bind(otc, ActionFunctor(bl::bind(&ToggleSafeArea, boost::ref(editor)))));
+    frm_btn.signal_toggled().connect(bb::bind(otc, ActionFunctor(bb::bind(&ToggleSafeArea, boost::ref(editor)))));
 
     return tbar;
 }

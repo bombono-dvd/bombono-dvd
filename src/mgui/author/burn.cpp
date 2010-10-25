@@ -157,7 +157,7 @@ double GetBurnerSpeed()
 
 bool TestDvdDisc(const std::string& dev_path, std::string& str)
 {
-    ReadReadyFnr fnr = boost::lambda::bind(&ConcatToStr, boost::lambda::_1, boost::lambda::_2, boost::ref(str));
+    ReadReadyFnr fnr = bb::bind(&ConcatToStr, _1, _2, boost::ref(str));
     ExitData ed = ExecuteAsync(0, ("dvd+rw-mediainfo " + dev_path).c_str(), fnr);
 
     return ed.IsGood();

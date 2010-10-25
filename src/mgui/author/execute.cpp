@@ -200,7 +200,7 @@ static bool GetSize(Project::VideoItem vi, io::pos& sz)
 io::pos VideoSizeSum()
 {
     io::pos sz = 0;
-    Project::ForeachVideo(boost::lambda::bind(&GetSize, boost::lambda::_1, boost::ref(sz)));
+    Project::ForeachVideo(bb::bind(&GetSize, _1, boost::ref(sz)));
     return sz;
 }
 

@@ -26,6 +26,10 @@
 
 typedef boost::function<void()> ActionFunctor;
 
+namespace boost {
+inline void function_identity() {}
+}
+
 // Выполнить действие в конце блока
 // 
 // Замечание: удобнее использовать при быстрой разработке

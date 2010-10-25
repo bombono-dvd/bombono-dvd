@@ -536,13 +536,12 @@ void TextRenderer::RenderWithFunctor(DrwFunctor drw_fnr, const Rect& drw_rct,
 
 void TextRenderer::RenderByRegion(const Rect& drw_rct)
 {
-    using namespace boost;
     // 1 отрисовка текста
-    RenderWithFunctor( lambda::bind(&TextRenderer::RenderText, this), drw_rct,
+    RenderWithFunctor( bb::bind(&TextRenderer::RenderText, this), drw_rct,
                        CalcTextPlc() );
 
     // 2 отрисовка курсора
-    RenderWithFunctor( lambda::bind(&TextRenderer::RenderCursor, this), drw_rct,
+    RenderWithFunctor( bb::bind(&TextRenderer::RenderCursor, this), drw_rct,
                        CalcCursorPlc() );
 }
 
@@ -590,7 +589,7 @@ static void CopyClipboard(TextRenderer* rndr, bool with_cut)
 
 static void PasteClipboard(TextRenderer* rndr)
 {
-    GetCb(*rndr)->request_text(bl::bind(InsertUText, rndr, bl::_1));
+    GetCb(*rndr)->request_text(bb::bind(InsertUText, rndr, _1));
 }
 
 void FillHotKeyMap(HK<TextRenderer>::Map& map, GdkKeymap* keymap)
@@ -598,15 +597,15 @@ void FillHotKeyMap(HK<TextRenderer>::Map& map, GdkKeymap* keymap)
     typedef HK<TextRenderer>::Functor Functor;
 
     // Copy Clipboard
-    Functor copy_cb_fnr = bl::bind(&CopyClipboard, bl::_1, false);
+    Functor copy_cb_fnr = bb::bind(&CopyClipboard, _1, false);
     AppendHK(map, GDK_c,      GDK_CONTROL_MASK, copy_cb_fnr, keymap);
     AppendHK(map, GDK_Insert, GDK_CONTROL_MASK, copy_cb_fnr, keymap);
     // Cut Clipboard
-    Functor cut_cb_fnr = bl::bind(&CopyClipboard, bl::_1, true);
+    Functor cut_cb_fnr = bb::bind(&CopyClipboard, _1, true);
     AppendHK(map, GDK_x,      GDK_CONTROL_MASK, cut_cb_fnr, keymap);
     AppendHK(map, GDK_Delete, GDK_SHIFT_MASK,   cut_cb_fnr, keymap);
     // Paste Clipboard
-    Functor paste_cb_fnr = bl::bind(&PasteClipboard, bl::_1);
+    Functor paste_cb_fnr = bb::bind(&PasteClipboard, _1);
     AppendHK(map, GDK_v,      GDK_CONTROL_MASK, paste_cb_fnr, keymap);
     AppendHK(map, GDK_Insert, GDK_SHIFT_MASK,   paste_cb_fnr, keymap);
 }
@@ -830,8 +829,7 @@ void BlinkCursor::SetTimer(TextRenderer& txt_rndr)
 //     dat.timer =
 //         Glib::signal_timeout().connect(to_slot, GetBlinkTime(dat.toShow, txt_rndr.CursBlinkTime()) );
 
-    using namespace boost;
-    BoolFnr fnr = lambda::bind(&BlinkCursor::OnTimeout, this, &txt_rndr);
+    BoolFnr fnr = bb::bind(&BlinkCursor::OnTimeout, this, &txt_rndr);
     dat.timer.Connect( fnr, GetBlinkTime(dat.toShow, txt_rndr.CursBlinkTime()) );
 }
 
@@ -868,8 +866,7 @@ void PendingCursor::SetTimer(TextRenderer& txt_rndr)
 {
     Data& dat = (Data&)txt_rndr;
 
-    using namespace boost;
-    BoolFnr fnr = lambda::bind(&PendingCursor::OnTimeout, this, &txt_rndr);
+    BoolFnr fnr = bb::bind(&PendingCursor::OnTimeout, this, &txt_rndr);
     dat.timer.Connect( fnr, int(CURSOR_PEND_PART*txt_rndr.CursBlinkTime()) );
 }
 

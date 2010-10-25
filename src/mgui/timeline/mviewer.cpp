@@ -251,7 +251,7 @@ ActionFunctor PackFileChooserWidget(Gtk::Container& contr, OpenFileFnr fnr, bool
     // 1 окно выбора файлов
     Gtk::FileChooserWidget& fcw = *Gtk::manage(new Gtk::FileChooserWidget(Gtk::FILE_CHOOSER_ACTION_OPEN));
     vbox.pack_start(fcw, true, true, 0);
-    ActionFunctor open_fnr = boost::lambda::bind(&OpenFile, boost::ref(fcw), fnr);
+    ActionFunctor open_fnr = bb::bind(&OpenFile, boost::ref(fcw), fnr);
 
     fcw.set_local_only(true);
     // для добавления множества файлов в проект
@@ -287,7 +287,7 @@ ActionFunctor PackFileChooserWidget(Gtk::Container& contr, OpenFileFnr fnr, bool
         SetFilter(fcw, fftALL_FORMATS);
 
         combo.signal_changed().connect( 
-            boost::lambda::bind(&OnChangeFCWFilter, boost::ref(combo), boost::ref(fcw)) );
+            bb::bind(&OnChangeFCWFilter, boost::ref(combo), boost::ref(fcw)) );
         vbox.pack_start(combo, Gtk::PACK_SHRINK);
     }
 
@@ -381,14 +381,13 @@ void PackTrackWindow(Gtk::Container& contr, TWFunctor tw_fnr)
     gtk_container_child_set(vpaned.Gtk::Container::gobj(), 
                             vpaned.get_child2()->gobj(), "resize", FALSE, NULL);
 
-    vpaned.signal_realize().connect(boost::lambda::bind(&SetGarmonicHeightForTrk, boost::ref(vpaned)));
+    vpaned.signal_realize().connect(bb::bind(&SetGarmonicHeightForTrk, boost::ref(vpaned)));
 }
 
 void PackMonitor(Gtk::HPaned& hpaned, Timeline::DAMonitor& mon, TrackLayout& layout)
 {
     // 1 окно выбора файлов
-    using namespace boost;
-    PackFileChooserWidget(hpaned, lambda::bind(&OpenFileWithTrackLayout, boost::ref(layout), lambda::_1),
+    PackFileChooserWidget(hpaned, bb::bind(&OpenFileWithTrackLayout, boost::ref(layout), _1),
                           true);
 
     // 1.1 монитор
@@ -401,8 +400,7 @@ void RunMViewer()
     win.set_title("MViewer");
 
     win.set_default_size(800, 600);
-    using namespace boost;
-    PackTrackWindow(win, lambda::bind(&PackMonitor, lambda::_1, lambda::_2, lambda::_3));
+    PackTrackWindow(win, bb::bind(&PackMonitor, _1, _2, _3));
 
     RunWindow(win);
 }

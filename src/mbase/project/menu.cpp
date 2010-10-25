@@ -112,9 +112,8 @@ void MenuMD::SerializeImpl(Archieve& ar)
         ArchieveStackFrame asf(ar, "MenuItems");
         if( ar.IsLoad() )
         {
-            using namespace boost;
             ArchieveFunctor<MenuItemMD> fnr =
-                MakeArchieveFunctor<MenuItemMD>( lambda::bind(&LoadMenuItem, boost::ref(ar), this) );
+                MakeArchieveFunctor<MenuItemMD>( bb::bind(&LoadMenuItem, boost::ref(ar), this) );
             LoadArray(ar, fnr);
         }
         else

@@ -224,7 +224,7 @@ void Editor::Kit::RecalcForDndFrame(RGBA::Drawer* lst_drawer, const Rect& dnd_rc
 void Editor::Kit::SetDndFrame(const Rect& dnd_rct)
 {
     if( dndSelFrame != dnd_rct ) // нужна перерисовка
-        CalcRgnForRedraw(*this, bl::bind(&Editor::Kit::RecalcForDndFrame, this, bl::_1, dnd_rct));
+        CalcRgnForRedraw(*this, bb::bind(&Editor::Kit::RecalcForDndFrame, this, _1, dnd_rct));
 }
 
 void Editor::Kit::on_drag_leave(const RefPtr<Gdk::DragContext>& context, guint time)
@@ -265,6 +265,6 @@ bool Editor::Kit::on_drag_motion(const RefPtr<Gdk::DragContext>& context, int x,
 
 void ToggleSafeArea(MEditorArea& edt_area)
 {
-    CalcRgnForRedraw(edt_area, bl::bind(&DrawSafeArea, bl::_1, boost::ref(edt_area)));
+    CalcRgnForRedraw(edt_area, bb::bind(&DrawSafeArea, _1, boost::ref(edt_area)));
 }
 

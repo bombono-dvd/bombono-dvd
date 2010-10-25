@@ -133,7 +133,7 @@ static bool CheckVobSelect(Gtk::TreeIter& itr, bool& has_check)
 static void OnSelVob(ImportData& id)
 {
     bool res = false;
-    ForeachVob(id, bl::bind(&CheckVobSelect, bl::_1, boost::ref(res)));
+    ForeachVob(id, bb::bind(&CheckVobSelect, _1, boost::ref(res)));
     CompleteSelection(id, res);    
 }
 
@@ -215,7 +215,7 @@ static void OnPreparePage(ImportData& id)
         }
         
         ASSERT( id.curPage != ipSELECT_VOBS );
-        id.thumbIdler.ConnectIdle(bl::bind(&OnSelectIdle, boost::ref(id)));
+        id.thumbIdler.ConnectIdle(bb::bind(&OnSelectIdle, boost::ref(id)));
     }
     else
         id.CloseIdlers();
@@ -290,7 +290,7 @@ bool SetVobSel(Gtk::TreeIter& itr, bool select_all)
 
 static void OnSelectionButton(ImportData& id, bool select_all)
 {
-    ForeachVob(id, bl::bind(SetVobSel, bl::_1, select_all));
+    ForeachVob(id, bb::bind(SetVobSel, _1, select_all));
     CompleteSelection(id, select_all);
 }
 
@@ -331,7 +331,7 @@ static bool UpdatePreview(ImportData& id)
 static void OnPreviewValueChanged(ImportData& id)
 {
     id.previewIdler.Disconnect();
-    id.previewIdler.ConnectIdle(bl::bind(&UpdatePreview, boost::ref(id)));
+    id.previewIdler.ConnectIdle(bb::bind(&UpdatePreview, boost::ref(id)));
 }
 
 static void OnVobActivate(const Gtk::TreePath& pth, ImportData& id)
@@ -390,7 +390,7 @@ static void PackSelectionButton(Gtk::HBox& hbox, RefPtr<Gtk::SizeGroup> sg, bool
     Gtk::Button& btn = PackStart(hbox, NewManaged<Gtk::Button>(text));
     sg->add_widget(btn);
 
-    btn.signal_clicked().connect(bl::bind(&OnSelectionButton, boost::ref(id), select_all));
+    btn.signal_clicked().connect(bb::bind(&OnSelectionButton, boost::ref(id), select_all));
 }
 
 static double ToPercent(uint32_t written_cnt, uint32_t sector_cnt)
@@ -480,8 +480,8 @@ static void OnApply(ImportData& id)
                     {
                         io::stream out_strm(fname.c_str(), iof::out);
                         uint32_t written_cnt = sec_arr[i];
-                        ReadFunctor fnr = bl::bind(&CopyFilePartWithProgress, boost::ref(out_strm), 
-                                                   bl::_1, bl::_2, 
+                        ReadFunctor fnr = bb::bind(&CopyFilePartWithProgress, boost::ref(out_strm), 
+                                                   _1, _2,
                                                    boost::ref(written_cnt), sector_cnt, 
                                                    boost::ref(id));
                         //ReadFunctor fnr = MakeWriter(out_strm);
@@ -548,8 +548,8 @@ void ConstructImporter(ImportData& id)
     ast.signal_close().connect(&Gtk::Main::quit);
 
     boost::reference_wrapper<ImportData> ref_id(id);
-    ast.signal_prepare().connect(bl::bind(&OnPreparePage, ref_id));
-    ast.signal_apply().connect(bl::bind(&OnApply, ref_id));
+    ast.signal_prepare().connect(bb::bind(&OnPreparePage, ref_id));
+    ast.signal_apply().connect(bb::bind(&OnApply, ref_id));
 
     for( int i=0; i<ipPAGE_NUM; i++ )
     {
@@ -565,7 +565,7 @@ void ConstructImporter(ImportData& id)
 
                 Gtk::FileChooserWidget& fcw = id.srcChooser;
                 PackFCWPage(vbox, fcw, _("Choose DVD disc, DVD folder or iso image file."));
-                fcw.signal_selection_changed().connect(bl::bind(&OnSelectSource, ref_id));
+                fcw.signal_selection_changed().connect(bb::bind(&OnSelectSource, ref_id));
 
                 // 
                 // От установки фильтра отказался, потому что бывают диски DVD, не открывающиеся на
@@ -599,11 +599,11 @@ void ConstructImporter(ImportData& id)
                 vob_list = Gtk::ListStore::create(GetColumnRecord<VobFields>());
 
                 Gtk::TreeView& view = NewManaged<Gtk::TreeView>(vob_list);
-                view.signal_row_activated().connect(bl::bind(&OnVobActivate, bl::_1, ref_id));
+                view.signal_row_activated().connect(bb::bind(&OnVobActivate, _1, ref_id));
                 // нужно/нет
                 Gtk::CellRendererToggle& sel_rndr = *dynamic_cast<Gtk::CellRendererToggle*>(
                     view.get_column(view.append_column_editable("", VF().selState) - 1)->get_first_cell_renderer());
-                sel_rndr.signal_toggled().connect(bl::bind(&OnSelVob, ref_id));
+                sel_rndr.signal_toggled().connect(bb::bind(&OnSelVob, ref_id));
 
                 // имя
                 Gtk::TreeView::Column& name_cln = NewManaged<Gtk::TreeView::Column>(_("Name"));
@@ -638,7 +638,7 @@ void ConstructImporter(ImportData& id)
                     Gtk::HScale& scl = PackStart(vbox, NewManaged<Gtk::HScale>(id.previewAdj));
                     SetScaleSecondary(scl);
                     id.previewAdj.signal_value_changed().connect(
-                        bl::bind(&OnPreviewValueChanged, ref_id));
+                        bb::bind(&OnPreviewValueChanged, ref_id));
                 }
 
                 // кнопки выбора
@@ -654,7 +654,7 @@ void ConstructImporter(ImportData& id)
                     PackSelectionButton(hbox, sg, false, id);
 
                     ast.signal_prepare().connect(
-                        bl::bind(&OnPrepareSelect, boost::ref(alg), boost::ref(ast)));
+                        bb::bind(&OnPrepareSelect, boost::ref(alg), boost::ref(ast)));
                     alg.show_all();
                 }
             }
@@ -668,7 +668,7 @@ void ConstructImporter(ImportData& id)
                 PackFCWPage(vbox, fcw, _("It is desirable the destination folder to be empty."));
 
                 fcw.signal_selection_changed().connect(
-                    bl::bind(&OnSelectDest, boost::ref(fcw), ref_id));
+                    bb::bind(&OnSelectDest, boost::ref(fcw), ref_id));
             }
             break;
         case ipIMPORT_PROC: 
@@ -688,7 +688,7 @@ void ConstructImporter(ImportData& id)
                 // кнопка отмены
                 Gtk::Alignment& btn_alg = PackStart(vbox, NewManaged<Gtk::Alignment>(1.0, 0.5, 0.1, 1.0));
                 Gtk::Button& btn = Add(btn_alg, *Gtk::manage(new Gtk::Button(Gtk::Stock::STOP)));
-                btn.signal_clicked().connect(bl::bind(&OnImportStop, ref_id));
+                btn.signal_clicked().connect(bb::bind(&OnImportStop, ref_id));
             }
             break;
         case ipEND:

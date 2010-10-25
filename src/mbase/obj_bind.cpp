@@ -224,7 +224,7 @@ static void PosterFunctorImpl(Comp::Object* obj, const Composition::FOFunctor& f
 
 void ForeachWithPoster(Project::MediaItem mi, Composition::FOFunctor fnr)
 {
-    ForeachLinked(PosterLinks(), mi, bl::bind(&PosterFunctorImpl, bl::_1, boost::ref(fnr)));
+    ForeachLinked(PosterLinks(), mi, bb::bind(&PosterFunctorImpl, _1, boost::ref(fnr)));
 }
 
 std::string MediaItem2String(Project::MediaItem mi)

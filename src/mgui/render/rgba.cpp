@@ -315,14 +315,12 @@ void RgnPixelDrawer::LineToImplRect(const RgnType& cut_rct, bool is_horiz)
                          !is_horiz ? cut_rct.btm : cut_rct.top );
 }
 
-using namespace boost;
-
 void RgnPixelDrawer::LineToImpl(int to_x, int to_y)
 {
     bool is_horiz = curY == to_y;
     Rect lin_rct(curX, curY, is_horiz ? to_x : to_x+1, !is_horiz ? to_y : to_y+1);
 
-    DrwFunctor drw_fnr = lambda::bind(&RgnPixelDrawer::LineToImplRect, this, lambda::_1, is_horiz);
+    DrwFunctor drw_fnr = bb::bind(&RgnPixelDrawer::LineToImplRect, this, _1, is_horiz);
     DrawWithFunctor(lin_rct, drw_fnr);
 }
 
@@ -337,20 +335,20 @@ void RgnPixelDrawer::RectToImpl(int to_x, int to_y)
 {
     Rect rct(curX, curY, to_x, to_y);
 
-    DrwFunctor drw_fnr = lambda::bind(&RgnPixelDrawer::RectToImplRect, this, lambda::_1);
+    DrwFunctor drw_fnr = bb::bind(&RgnPixelDrawer::RectToImplRect, this, _1);
     DrawWithFunctor(rct, drw_fnr);
 }
 
 void RgnPixelDrawer::ScalePixbuf(RefPtr<Gdk::Pixbuf> pix, const RgnType& plc)
 {
     //DrwFunctor drw_fnr = bind(&Scale1, canvPix, pix, plc, _1);
-    DrwFunctor drw_fnr = lambda::bind(&RGBA::ScalePixbuf, canvPix, pix, plc, lambda::_1);
+    DrwFunctor drw_fnr = bb::bind(&RGBA::ScalePixbuf, canvPix, pix, plc, _1);
     DrawWithFunctor(plc, drw_fnr);
 }
 
 void RgnPixelDrawer::CompositePixbuf(RefPtr<Gdk::Pixbuf> pix, const RgnType& plc)
 {
-    DrwFunctor drw_fnr = lambda::bind(&RGBA::AlphaCompositePixbuf, canvPix, pix, plc, lambda::_1);
+    DrwFunctor drw_fnr = bb::bind(&RGBA::AlphaCompositePixbuf, canvPix, pix, plc, _1);
     DrawWithFunctor(plc, drw_fnr);
 }
 

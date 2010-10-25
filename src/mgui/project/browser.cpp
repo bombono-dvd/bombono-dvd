@@ -325,9 +325,7 @@ static void RenderField(Gtk::CellRenderer* rndr, RefPtr<ObjectStore> os,
 void SetRendererFnr(Gtk::TreeView::Column& name_cln, Gtk::CellRendererText& rndr, 
                     RefPtr<ObjectStore> os, RFFunctor fnr)
 {
-    using namespace boost;
-    name_cln.set_cell_data_func(
-        rndr, lambda::bind(&RenderField, lambda::_1, os, lambda::_2, fnr));
+    name_cln.set_cell_data_func(rndr, bb::bind(&RenderField, _1, os, _2, fnr));
 }
 
 void RenderMediaName(Gtk::CellRendererText* rndr, MediaItem mi)
@@ -348,8 +346,7 @@ void SetupNameRenderer(Gtk::TreeView::Column& name_cln, Gtk::CellRendererText& r
 {
     name_cln.pack_start(rndr);
     rndr.property_editable() = true;
-    using namespace boost;
-    rndr.signal_edited().connect( lambda::bind(&OnTitleEdited, os, lambda::_1, lambda::_2) );
+    rndr.signal_edited().connect( bb::bind(&OnTitleEdited, os, _1, _2) );
     SetRendererFnr(name_cln, rndr, os, &RenderMediaName);
 }
 

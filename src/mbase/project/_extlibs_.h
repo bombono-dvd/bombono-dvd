@@ -40,7 +40,7 @@
 //#ifndef EXT_BOOST
 //#include <mlib/lambda.h>
 //#endif // EXT_BOOST
-#include <mlib/lambda.h>
+//#include <mlib/lambda.h>
 #include <mlib/bind.h>
 
 //

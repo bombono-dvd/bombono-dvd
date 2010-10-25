@@ -374,10 +374,9 @@ Gtk::Button* CreateScaleButton(TrackLayout& trk_lay, bool is_plus)
     Gtk::Button* btn = Gtk::manage(new SquareButton);
     SetNonActiveButton(*btn, "ScaleTrackButton");
 
-    using namespace boost;
     int add = is_plus ? 1 : -1 ;
     btn->signal_clicked().connect( 
-        wrap_return<void>(lambda::bind(&MoveAdj, boost::ref(trk_lay.TrkScale()), add, true)) );
+        wrap_return<void>(bb::bind(&MoveAdj, boost::ref(trk_lay.TrkScale()), add, true)) );
 
     return btn;
 }
@@ -524,7 +523,7 @@ void PackTrackLayout(Gtk::Container& contr, TrackLayout& layout)
         Gtk::Button* dvd_btn = Gtk::manage(new Gtk::Button);
         SetNonActiveButton(*dvd_btn, "DVDLabelButton");
         SetTip(*dvd_btn, _("Add Chapter Point"));
-        dvd_btn->signal_clicked().connect( boost::lambda::bind(&InsertDVDMark, boost::ref(layout)) );
+        dvd_btn->signal_clicked().connect( bb::bind(&InsertDVDMark, boost::ref(layout)) );
 
         Gtk::Image* dvd_img = Gtk::manage(new Gtk::Image(GetFactoryImage("dvdmark.png")));
         dvd_btn->add(*dvd_img);

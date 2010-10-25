@@ -92,7 +92,7 @@ static Gtk::RadioButton& AddAuthoringMode(Gtk::Box& box, Gtk::RadioButtonGroup& 
 {
     Gtk::RadioButton& btn = NewManaged<Gtk::RadioButton>(grp, name);
     btn.set_use_underline(true);
-    SetForRadioToggle(btn, bl::bind(&SetAuthorMode, mode));
+    SetForRadioToggle(btn, bb::bind(&SetAuthorMode, mode));
     PackStart(box, btn);
 
     // ручками устанавливаем режим вначале
@@ -237,8 +237,7 @@ ActionFunctor PackOutput(ConstructorApp& app, const std::string& /*prj_fname*/)
         Gtk::Button& build_btn = Add(PackStart(vbox, MakeNullAlg()), es.ExecButton());
         FillBuildButton(build_btn, true, DVDOperation);
 
-        using namespace boost;
-        build_btn.signal_clicked().connect( lambda::bind(&Author::OnDVDBuild, boost::ref(ch_btn)) );
+        build_btn.signal_clicked().connect( bb::bind(&Author::OnDVDBuild, boost::ref(ch_btn)) );
     }
 
     // :BUG: связка GtkComboBox(включая производные классы, содержащие его - GtkFileChooserButton) в GtkNotebook
@@ -253,7 +252,7 @@ ActionFunctor PackOutput(ConstructorApp& app, const std::string& /*prj_fname*/)
     // Выход: заранее скрываем закладку с проблемным GtkComboBox (альтернатива - сделать комбобокс невыбираемым)
     //
     //nbook.get_nth_page(nbook.get_n_pages()-1)->hide();
-    return bl::bind(&Gtk::Widget::hide, nbook.get_nth_page(nbook.get_n_pages()-1));
+    return bb::bind(&Gtk::Widget::hide, nbook.get_nth_page(nbook.get_n_pages()-1));
 }
 
 } // namespace Project
@@ -296,10 +295,10 @@ struct DiscSpinning
             imgList.push_back(Gdk::Pixbuf::create_from_file(img_path));
         }
          
-        ForAllWidgets(static_cast<Gtk::Widget&>(es.ExecButton()).gobj(), bl::bind(&FindBurnImage, bl::_1, &imgWdg));
+        ForAllWidgets(static_cast<Gtk::Widget&>(es.ExecButton()).gobj(), bb::bind(&FindBurnImage, _1, &imgWdg));
         ASSERT( imgWdg );
 
-        tm.Connect(bl::bind(&DiscSpinning::Turn, this), 150); 
+        tm.Connect(bb::bind(&DiscSpinning::Turn, this), 150); 
     }
    ~DiscSpinning() 
     {   
@@ -705,8 +704,7 @@ static void PostBuildOperation(const std::string& res, const std::string& dir_st
             dlg.add_button(Gtk::Stock::OK,   Gtk::RESPONSE_OK);
             dlg.set_default_response(Gtk::RESPONSE_OK);
 
-            using namespace boost;
-            while( Run(dlg, false, lambda::bind(&NotForPlay, lambda::_1, dir_str)) == RESPONSE_BURN )
+            while( Run(dlg, false, bb::bind(&NotForPlay, _1, dir_str)) == RESPONSE_BURN )
             {
                 dlg.hide();
                 if( !CheckDVDBlank() )
