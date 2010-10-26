@@ -379,8 +379,9 @@ void AddFTOItem(MEditorArea& editor, const Point& center, Project::MediaItem mi)
     AddFTOItem(editor, lct, mi);
 }
 
-static void AddObjectClicked(MEditorArea& editor)
+static void AddObjectClicked()
 {
+    MEditorArea& editor = MenuEditor();
     if( Project::Menu mn = editor.CurMenu() )
     {
         // * находим положение
@@ -405,11 +406,11 @@ static bool ReframeFTO(RectListRgn& r_lst, FrameThemeObj* obj, MenuRegion& mn_rg
     return true;
 }
 
-static void FrameTypeChanged(MEditorArea& editor)
+static void FrameTypeChanged()
 {
     RectListRgn r_lst;
-    ForAllSelectedFTO( bb::bind(&ReframeFTO, boost::ref(r_lst), _1, _2));
-    RenderForRegion(editor, r_lst);
+    ForAllSelectedFTO( bb::bind(&ReframeFTO, boost::ref(r_lst), _1, _2) );
+    RenderForRegion(MenuEditor(), r_lst);
 }
 
 static void EntryChanged(Gtk::Entry& ent, bool is_activate, ActionFunctor fnr)
@@ -428,21 +429,6 @@ void ConnectOnActivate(Gtk::Entry& ent, ActionFunctor fnr)
 static void FontNameChanged(MEditorArea& editor, bool only_clr)
 {
     SetSelObjectsTStyle(editor, editor.Toolbar().GetFontDesc(), only_clr);
-}
-
-static void OnToolbarControlled(MEditorArea& editor, ActionFunctor fnr)
-{
-//     if( Gtk::Widget* wdg = GetFocusWidget(editor) )
-//         PrintWidgetPath(*wdg);
-//     else
-//         io::cout << "Focus not on the window?" << io::endl;
-
-    if( !editor.has_focus() && editor.CurMenu() )
-    {
-        fnr();
-        // *
-        GrabFocus(editor);
-    }
 }
 
 static void SetupStyleBtn(Gtk::ToggleButton& btn, Gtk::Toolbar& tbar,
@@ -464,6 +450,29 @@ static void SetupStyleBtn(Gtk::ToggleButton& btn, Gtk::Toolbar& tbar,
     btn.signal_toggled().connect(fnr);
 }
 
+// хочется отрабатывать изменения в управляющих элементах только когда
+// фокус не на редакторе (т.е. когда не сам редактор изменился)
+static void OnToolbarControlled(const ActionFunctor& fnr)
+{
+    MEditorArea& editor = MenuEditor();
+//     if( Gtk::Widget* wdg = GetFocusWidget(editor) )
+//         PrintWidgetPath(*wdg);
+//     else
+//         io::cout << "Focus not on the window?" << io::endl;
+
+    if( !editor.has_focus() && editor.CurMenu() )
+    {
+        fnr();
+        // *
+        GrabFocus(editor);
+    }
+}
+
+static ActionFunctor MakeToolbarFunctor(const ActionFunctor& fnr)
+{
+    return bb::bind(&OnToolbarControlled, fnr);
+}
+
 Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box)
 {
     Editor::Toolbar& edt_tbar = editor.Toolbar();
@@ -478,28 +487,22 @@ Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box)
     tbar.append(edt_tbar.txtTool);
     AppendTSeparator(tbar);
 
-    // хочется отрабатывать изменения в управляющих элементах только когда
-    // фокус не на редакторе (т.е. когда не сам редактор изменился)
-    typedef boost::function<void(ActionFunctor)> ActionActionFunctor;
-    ActionActionFunctor otc = bb::bind(&OnToolbarControlled, boost::ref(editor), _1);
-
     // * выбор темы объекта
     {
         Gtk::ComboBox& combo = edt_tbar.frame_combo;
         AppendToToolbar(tbar, combo);
-        combo.signal_changed().connect(
-            bb::bind(otc, ActionFunctor(bb::bind(&FrameTypeChanged, boost::ref(editor)))));
+        combo.signal_changed().connect(MakeToolbarFunctor(&FrameTypeChanged));
 
         // * кнопка
         Gtk::ToolButton& add_btn = NewManaged<Gtk::ToolButton>(Gtk::StockID(Gtk::Stock::ADD));
         add_btn.set_tooltip(TooltipFactory(), _("Add Item"));
         tbar.append(add_btn);
-        add_btn.signal_clicked().connect( bb::bind(&AddObjectClicked, boost::ref(editor)) );
+        add_btn.signal_clicked().connect(&AddObjectClicked);
     }
     AppendTSeparator(tbar);
 
     // * управление шрифтами
-    ActionFunctor on_font_change = bb::bind(otc, ActionFunctor(bb::bind(&FontNameChanged, boost::ref(editor), false)));
+    ActionFunctor on_font_change = MakeToolbarFunctor(bb::bind(&FontNameChanged, boost::ref(editor), false));
     {
         std::string def_font = tbar.get_style()->get_font().get_family().raw();
         // * семейства
@@ -550,7 +553,7 @@ Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box)
         clr_btn.set_focus_on_click(false);
         SetTip(clr_btn, _("Text Color"));
 
-        clr_btn.signal_color_set().connect(bb::bind(&FontNameChanged, boost::ref(editor), true));
+        clr_btn.signal_color_set().connect(MakeToolbarFunctor(bb::bind(&FontNameChanged, boost::ref(editor), true)));
         AppendToToolbar(tbar, clr_btn);
 
     }
@@ -561,8 +564,8 @@ Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box)
     frm_btn.set_relief(Gtk::RELIEF_NONE);
     frm_btn.add(GetFactoryGtkImage("copy-n-paste/lpetool_show_bbox.png"));
     SetTip(frm_btn, _("Show Safe Area"));
-    // обвязка otc здесь используется для проверки, что в редакторе есть меню (и не валится при его отстутствии)
-    frm_btn.signal_toggled().connect(bb::bind(otc, ActionFunctor(bb::bind(&ToggleSafeArea, boost::ref(editor)))));
+    // обвязка здесь используется для проверки, что в редакторе есть меню (и не валится при его отстутствии)
+    frm_btn.signal_toggled().connect(MakeToolbarFunctor(&ToggleSafeArea));
 
     return tbar;
 }

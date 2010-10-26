@@ -263,8 +263,9 @@ bool Editor::Kit::on_drag_motion(const RefPtr<Gdk::DragContext>& context, int x,
     return MyParent::on_drag_motion(context, x, y, time);
 }
 
-void ToggleSafeArea(MEditorArea& edt_area)
+void ToggleSafeArea()
 {
+    MEditorArea& edt_area = MenuEditor();
     CalcRgnForRedraw(edt_area, bb::bind(&DrawSafeArea, _1, boost::ref(edt_area)));
 }
 
