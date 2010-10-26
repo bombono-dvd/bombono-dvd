@@ -81,7 +81,8 @@ struct ExitData
 
            ExitData(): normExit(true), code(impossibleRetCode) {}
 
-      bool IsGood() const { return normExit && (code == 0); }
+      bool IsGood() const { return IsCode(0); }
+      bool IsCode(int c) const;
 };
 // результат system() интерпретировать так
 ExitData StatusToExitData(int status);
@@ -91,6 +92,9 @@ ExitData System(const std::string& cmd);
 // line_up - вывод по строкам, а не по мере поступления данных
 ExitData ExecuteAsync(const char* dir, const char* cmd, const ReadReadyFnr& fnr, 
                       GPid* pid = 0, bool line_up = true);
+
+// записать в output весь (и out, и err!) вывод команды cmd
+ExitData PipeOutput(const std::string& cmd, std::string& output);
 
 std::string ExitDescription(const ExitData& ed);
 

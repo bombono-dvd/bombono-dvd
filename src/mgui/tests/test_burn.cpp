@@ -27,6 +27,12 @@
 #include <mgui/sdk/window.h>
 #include <mgui/sdk/packing.h>
 
+std::string GetTestFNameContents(const std::string& fname)
+{
+    std::string path = GetTestFileName(fname.c_str());
+    return Glib::file_get_contents(path);
+}
+
 namespace Author
 {
 
@@ -47,8 +53,7 @@ BOOST_AUTO_TEST_CASE( TestProbeDevices )
 
 static DVDInfo ParseDVDInfoExample(bool is_good, const std::string& fname)
 {
-    std::string path = GetTestFileName(("dvd+rw-mediainfo/" + fname).c_str());
-    return ParseDVDInfo(is_good, Glib::file_get_contents(path));
+    return ParseDVDInfo(is_good, GetTestFNameContents("dvd+rw-mediainfo/" + fname));
 }
 
 static DVDType ParseDVDTypeExample(bool is_good, const std::string& fname)

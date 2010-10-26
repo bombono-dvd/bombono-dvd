@@ -99,6 +99,11 @@ ConsoleMode::~ConsoleMode()
 
 } // namespace Execution
 
+bool ExitData::IsCode(int c) const
+{ 
+    return normExit && (code == c); 
+}
+
 static bool IsFDOpen(int fd)
 {
     bool res = true;
@@ -476,5 +481,17 @@ std::string ExitDescription(const ExitData& ed)
         end_str = BF_("broken by signal %1%") % SignalToString(ed.code) % bf::stop;
 
     return end_str;
+}
+
+static void ConcatToStr(const char* buf, int sz, std::string& str)
+{
+    str += std::string(buf, sz);
+}
+
+// записать в output весь (и out, и err!) вывод команды cmd
+ExitData PipeOutput(const std::string& cmd, std::string& output)
+{
+    ReadReadyFnr fnr = bb::bind(&ConcatToStr, _1, _2, boost::ref(output));
+    return ExecuteAsync(0, cmd.c_str(), fnr);
 }
 

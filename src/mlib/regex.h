@@ -161,5 +161,11 @@ bool search(const std::string& s,
 
 } // namespace re
 
+#define RG_BW "\\<"           // начало слова
+#define RG_EW "\\>"           // конец  слова
+#define RG_SPS "[[:space:]]*" // пробелы
+#define RG_NUM "([0-9]+)"     // число
+#define RG_CMD_BEG RG_BW // "^"RG_SPS  // начало команды
+
 #endif // #ifndef __MLIB_REGEX_H__
 

@@ -40,6 +40,7 @@
 #include <mlib/read_stream.h> // ReadAllStream()
 #include <mlib/sdk/system.h> // GetClockTime()
 #include <mlib/gettext.h>
+#include <mlib/regex.h>
 
 #include <boost/lexical_cast.hpp>
 
@@ -441,6 +442,16 @@ static const char* FFmpegErrorTemplate()
     return _("ffmpeg failure: %1%");
 }
 
+static void FFmpegError(const ExitData& ed)
+{
+    Author::ErrorByED(FFmpegErrorTemplate(), ed);
+}
+
+static void FFmpegError(const std::string& msg)
+{
+    Author::Error(FFmpegErrorTemplate(), msg);
+}
+
 static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix, TrackBuf& buf)
 {
     int wdh = pix->get_width();
@@ -481,7 +492,7 @@ static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix, TrackBuf& buf)
     if( !writeall(fd, beg, sz) )
     {
         namespace bs = boost::system;
-        Author::Error(FFmpegErrorTemplate(), bs::error_code(errno, bs::system_category()).message());
+        FFmpegError(bs::error_code(errno, bs::system_category()).message());
     }
 }
 
@@ -665,11 +676,6 @@ static double MenuDuration(Menu mn)
     return duration;
 }
 
-static void FFmpegError(const ExitData& ed)
-{
-    Author::ErrorByED(FFmpegErrorTemplate(), ed);
-}
-
 static Gtk::TextView& PrintCmdToDetails(const std::string& cmd)
 {
     Gtk::TextView& tv = Author::GetES().detailsView;
@@ -764,6 +770,32 @@ static void PipeVideo(Menu mn, int in_fd)
     }
 }
 
+static void CheckStrippedFFmpeg(const re::pattern& pat, const std::string& conts, 
+                                const char* function)
+{
+    if( !re::search(conts, pat) )
+    {
+        // похоже в Ubuntu не собирают урезанную версию ffmpeg (по крайней мере с Karmic),
+        // потому пока считаем редкой ошибкой -> не переводим
+        FFmpegError(boost::format("stripped ffmpeg version is detected; please install full version (with %1%)")
+                    % function % bf::stop);
+    }
+}
+
+// conts - вывод ffmpeg -formats
+void TestFFmpegForDVDEncoding(const std::string& conts)
+{
+    static re::pattern dvd_format("^ .E dvd"RG_EW);
+    CheckStrippedFFmpeg(dvd_format, conts, "dvd format");
+
+    static re::pattern mpeg2video_codec("^ .EV... mpeg2video"RG_EW);
+    CheckStrippedFFmpeg(mpeg2video_codec, conts, "mpeg2 video encoder");
+
+    // по факту ffmpeg всегда использует ac3, однако mp2 тоже возможен
+    static re::pattern ac3_codec("^ .EA... ac3"RG_EW);
+    CheckStrippedFFmpeg(ac3_codec, conts, "ac3 audio encoder");
+}
+
 bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
 {
     Author::Info((str::stream() << "Rendering menu \"" << mn->mdName << "\" ...").str());
@@ -771,6 +803,17 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
 
     if( IsMotion(mn) )
     {
+        // наличие полного ffmpeg
+        std::string ff_formats;
+        ExitData ed = PipeOutput("ffmpeg -formats", ff_formats);
+        if( !ed.IsGood() )
+        {
+            const char* msg = ed.IsCode(127) ? _("command not found") : "unknown error" ;
+            FFmpegError(msg);
+        }
+        else
+            TestFFmpegForDVDEncoding(ff_formats);
+
         if( mn->MtnData().isStillPicture )
             SaveStillMenuMpg(mn_dir, mn);
         else
@@ -839,7 +882,7 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
 
                 if( !ed.IsGood() )
                     // ffmpeg завершает с кодом 255 при посылке сигнала, ffmpeg.c:av_exit(int ret)
-                    if( !ed.normExit || (ed.code != 255) )
+                    if( !ed.IsCode(255) )
                         FFmpegError(ed);
             }
             else

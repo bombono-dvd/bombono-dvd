@@ -74,5 +74,7 @@ void SetData(Gtk::SelectionData& selection_data, void* dat, int dat_sz);
 
 } // namespace DND
 
+std::string GetTestFNameContents(const std::string& fname);
+
 #endif // __MGUI_MGUI_TEST_H__
 

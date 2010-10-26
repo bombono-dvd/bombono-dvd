@@ -85,11 +85,6 @@ BurnData& GetInitedBD()
     return bd;
 }
 
-static void ConcatToStr(const char* buf, int sz, std::string& str)
-{
-    str += std::string(buf, sz);
-}
-
 re::pattern WriteSpeed_RE("Write Speed #"RG_NUM":"RG_SPS RG_NUM"\\."RG_NUM "x1385"); 
 
 RefPtr<Gtk::ListStore> sp_store;
@@ -157,9 +152,7 @@ double GetBurnerSpeed()
 
 bool TestDvdDisc(const std::string& dev_path, std::string& str)
 {
-    ReadReadyFnr fnr = bb::bind(&ConcatToStr, _1, _2, boost::ref(str));
-    ExitData ed = ExecuteAsync(0, ("dvd+rw-mediainfo " + dev_path).c_str(), fnr);
-
+    ExitData ed = PipeOutput("dvd+rw-mediainfo " + dev_path, str);
     return ed.IsGood();
 }
 

@@ -155,5 +155,16 @@ BOOST_AUTO_TEST_CASE( TestMenuSettings )
     MenuSettings(mn, 0);
 }
 
+BOOST_AUTO_TEST_CASE( TestCheckFFmpeg )
+{
+    std::string conts = GetTestFNameContents("ffmpeg05_valid_dvd_encoders.txt");
+    //std::string conts = Glib::file_get_contents("/home/ilya/opt/programming/atom-project/hardy_formats_.txt");
+    //std::string conts = Glib::file_get_contents("/home/ilya/opt/programming/atom-project/lucid_formats.txt");
+
+    void TestFFmpegForDVDEncoding(const std::string& conts);
+    TestFFmpegForDVDEncoding(conts);
+}
+
 } // namespace Project
+
 
