@@ -166,7 +166,7 @@ template<class Iterator>
 static void check_range(Iterator& run, Iterator& end)
 {
     //std::cout << *run << "\n";
-    //std::cout << "!!!" << print_range_to_str(run, end) << "!!!" << std::endl;
+    //std::cout << "!?" << print_range_to_str(run, end) << "!?" << std::endl;
     BOOST_CHECK_EQUAL( print_range_to_str(run, end), "42 43 44;43 44;44;" );
 }
 

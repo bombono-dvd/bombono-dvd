@@ -212,6 +212,7 @@
 			<F N="../src/mgui/author/execute.h"/>
 			<F N="../src/mgui/execution.h"/>
 			<F N="../src/mgui/editor/fe-select.h"/>
+			<F N="../src/mgui/author/ffmpeg.h"/>
 			<F N="../src/mgui/author/gb_devices.h"/>
 			<F N="../src/mgui/gettext.h"/>
 			<F N="../src/mgui/sdk/libgnome/gnome-exec.h"/>

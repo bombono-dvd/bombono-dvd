@@ -22,6 +22,7 @@
 #include <mgui/_pc_.h>
 
 #include "script.h"
+#include "ffmpeg.h"
 
 #include <mgui/render/editor.h> // CommonRenderVis
 #include <mgui/project/menu-render.h>
@@ -435,8 +436,6 @@ static Rect RealPosition(Comp::MediaObj& obj, const Planed::Transition& trans)
     return AbsToRel(trans, obj.Placement());
 }
 
-// :REFACTOR: убрать копипаст (test_render.cpp)
-
 static const char* FFmpegErrorTemplate()
 {
     return _("ffmpeg failure: %1%");
@@ -496,8 +495,8 @@ static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix, TrackBuf& buf)
     }
 }
 
-static std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pal, 
-                                  const std::string& a_fname = std::string(), double a_shift = 0.)
+std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pal, 
+                           const std::string& a_fname, double a_shift)
 {
     std::string a_input = "-an"; // без аудио
     if( !a_fname.empty() )
@@ -705,39 +704,39 @@ static void SaveStillMenuMpg(const std::string& mn_dir, Menu mn)
         FFmpegError(ed);
 }
 
-struct FFmpegCloser
+FFmpegCloser::~FFmpegCloser()
 {
-                GPid  pid;
-                 int  inFd;
-            ExitData& ed;
-ptr::one<OutErrBlock> oeb;
-
-     FFmpegCloser(ExitData& ed_): pid(NO_HNDL), inFd(NO_HNDL), ed(ed_) {}
-
-    ~FFmpegCloser()
-     {
-         // 1 закрываем вход, чтобы разблокировать ffmpeg (несколько раз происходила взаимная 
-         // блокировка с прекращением деятельности с обоих сторон,- судя по всему ffmpeg игнорировал
-         // прерывание по EINTR и снова блокировался на чтении)
-         ASSERT( inFd != NO_HNDL );
-         close(inFd);
-
-         // варианты остановить транскодирование сразу после окончания видео, см. ffmpeg.c:av_encode():
-         // - через сигнал (SIGINT, SIGTERM, SIGQUIT)
-         // - по достижению размера или времени (см. соответ. опции вроде -t); но тут возможна проблема
-         //   блокировки/закрытия раньше, чем мы закончим посылку всех данных; да и время высчитывать тоже придется
-         // - в момент окончания первого из источников, -shortest; не подходит, если аудио существенно длинней
-         //   чем мы хотим записать
-         Execution::Stop(pid);
-
-         // 2 дождаться выхода и проверить статус (и только после этого закрываем выходы)
-         ed = WaitForExit(pid);
-     }
-};
+    // 1 закрываем вход, чтобы разблокировать ffmpeg (несколько раз происходила взаимная 
+    // блокировка с прекращением деятельности с обоих сторон,- судя по всему ffmpeg игнорировал
+    // прерывание по EINTR и снова блокировался на чтении)
+    ASSERT( inFd != NO_HNDL );
+    close(inFd);
+    
+    // варианты остановить транскодирование сразу после окончания видео, см. ffmpeg.c:av_encode():
+    // - через сигнал (SIGINT, SIGTERM, SIGQUIT)
+    // - по достижению размера или времени (см. соответ. опции вроде -t); но тут возможна проблема
+    //   блокировки/закрытия раньше, чем мы закончим посылку всех данных; да и время высчитывать тоже придется
+    // - в момент окончания первого из источников, -shortest; не подходит, если аудио существенно длинней
+    //   чем мы хотим записать
+    Execution::Stop(pid);
+    
+    // 2 дождаться выхода и проверить статус (и только после этого закрываем выходы)
+    ed = WaitForExit(pid);
+}
 
 static PixCanvasBuf& GetMotionPCB(Menu mn)
 {
     return GetTaggedPCB(mn, MOTION_MENU_TAG);
+}
+
+PPMWriter::PPMWriter(int in_fd): inFd(in_fd) 
+{ 
+    pipeBuf.SetUnlimited(); 
+}
+
+void PPMWriter::Write(RefPtr<Gdk::Pixbuf> img)
+{
+    WriteAsPPM(inFd, img, pipeBuf);
 }
 
 static void PipeVideo(Menu mn, int in_fd)
@@ -747,9 +746,7 @@ static void PipeVideo(Menu mn, int in_fd)
     RefPtr<Gdk::Pixbuf> img = mtn_buf.FramePixbuf();
     ASSERT( img );
 
-    TrackBuf pipe_buf;
-    pipe_buf.SetUnlimited();
-
+    PPMWriter ppm_writer(in_fd);
     double duration = MenuDuration(mn);
 
     MotionTimer& mt = GetMotionTimer(mn);
@@ -761,7 +758,7 @@ static void PipeVideo(Menu mn, int in_fd)
 
         //std::string fpath = "/dev/null"; //boost::format("../dvd_out/ppms/%1%.ppm") % i % bf::stop;
         //int fd = OpenFileAsArg(fpath.c_str(), false);
-        WriteAsPPM(in_fd, img, pipe_buf);
+        ppm_writer.Write(img);
         //close(fd);
 
         if( !Execution::ConsoleMode::Flag )
