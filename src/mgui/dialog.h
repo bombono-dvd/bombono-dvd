@@ -77,8 +77,9 @@ DialogVBox& PackDialogVBox(Gtk::Box& box);
 
 void AppendWithLabel(DialogVBox& vbox, Gtk::Widget& wdg, const char* label,
                      Gtk::PackOptions opt = Gtk::PACK_EXPAND_WIDGET);
-void PackNamedWidget(Gtk::VBox& vbox, Gtk::Widget& name_wdg, Gtk::Widget& wdg,
-                     RefPtr<Gtk::SizeGroup> sg, Gtk::PackOptions opt);
+Gtk::HBox&  PackNamedWidget(Gtk::VBox& vbox, Gtk::Widget& name_wdg, Gtk::Widget& wdg,
+                            RefPtr<Gtk::SizeGroup> sg, Gtk::PackOptions opt);
+Gtk::Label& LabelForWidget(const char* label, Gtk::Widget& wdg);
 
 // close_style - вариант для настроек (без OK)
 void CompleteDialog(Gtk::Dialog& dlg, bool close_style = false);

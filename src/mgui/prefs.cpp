@@ -56,22 +56,27 @@ DialogVBox& AddHIGedVBox(Gtk::Dialog& dlg)
     return vbox;
 }
 
-void PackNamedWidget(Gtk::VBox& vbox, Gtk::Widget& name_wdg, Gtk::Widget& wdg,
-                     RefPtr<Gtk::SizeGroup> sg, Gtk::PackOptions opt)
+Gtk::HBox& PackNamedWidget(Gtk::VBox& vbox, Gtk::Widget& name_wdg, Gtk::Widget& wdg,
+                           RefPtr<Gtk::SizeGroup> sg, Gtk::PackOptions opt)
 {
     Gtk::HBox& hbox = PackStart(vbox, NewManaged<Gtk::HBox>());
 
     Add(PackStart(hbox, NewPaddingAlg(0, 0, 0, 5)), AddWidget(sg, name_wdg));
     PackStart(hbox, wdg, opt);
+    return hbox;
 }
 
-void AppendWithLabel(DialogVBox& vbox, Gtk::Widget& wdg, const char* label, Gtk::PackOptions opt)
+Gtk::Label& LabelForWidget(const char* label, Gtk::Widget& wdg)
 {
     Gtk::Label& lbl = NewManaged<Gtk::Label>(label, true);
     SetAlign(lbl);
     lbl.set_mnemonic_widget(wdg);
+    return lbl;
+}
 
-    PackNamedWidget(vbox, lbl, wdg, vbox.labelSg, opt);
+void AppendWithLabel(DialogVBox& vbox, Gtk::Widget& wdg, const char* label, Gtk::PackOptions opt)
+{
+    PackNamedWidget(vbox, LabelForWidget(label, wdg), wdg, vbox.labelSg, opt);
 }
 
 void Preferences::Init()

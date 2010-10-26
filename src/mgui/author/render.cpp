@@ -667,7 +667,7 @@ static std::string MakeFFmpegPostArgs(const std::string& mn_dir, Menu mn)
     return FFmpegPostArgs(out_fname, is_4_3, AData().PalTvSystem(), a_fname, a_shift);
 }
 
-static double MenuDuration(Menu mn)
+double MenuDuration(Menu mn)
 {
     double duration = mn->MtnData().duration;
     const int MAX_MOTION_DUR = 60 * 60; // адекватный теорет. максимум

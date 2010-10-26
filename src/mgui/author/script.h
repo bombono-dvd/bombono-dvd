@@ -53,6 +53,9 @@ fs::path SConsAuxDir();
 bool HasButtonLink(Comp::MediaObj& m_obj, std::string& targ_str);
 
 bool IsMotion(Menu mn);
+guint64 MenuSize(Menu mn);
+double MenuDuration(Menu mn);
+
 void ClearTaggedData(Menu mn, const char* tag);
 
 } // namespace Project
@@ -71,7 +74,7 @@ void ExecuteSconsCmd(const std::string& out_dir, OutputFilter& of,
 // список идентификаторов процессов)
 ExitData AsyncCall(const char* dir, const char* cmd, const ReadReadyFnr& fnr);
 
-io::pos VideoSizeSum();
+io::pos ProjectSizeSum();
 
 // функтор сообщает об ошибках через исключение, которое преобразуется
 // в строку => признак ошибки - непустой результат

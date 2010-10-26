@@ -34,6 +34,8 @@
 #include <boost/lexical_cast.hpp>
 #include <mlib/regex.h>
 
+guint64 FFmpegSizeForDVD(double sec);
+
 namespace Author
 {
 
@@ -197,16 +199,24 @@ static bool GetSize(Project::VideoItem vi, io::pos& sz)
     return true;
 }
 
-io::pos VideoSizeSum()
+bool MenuSize(Project::Menu mn, io::pos& sz)
+{
+    if( Project::IsMotion(mn) )
+        sz += FFmpegSizeForDVD(Project::MenuDuration(mn));
+    return true;
+}
+
+io::pos ProjectSizeSum()
 {
     io::pos sz = 0;
-    Project::ForeachVideo(bb::bind(&GetSize, _1, boost::ref(sz)));
+    Project::ForeachVideo(bb::bind(&GetSize, _1, b::ref(sz)));
+    Project::ForeachMenu(bb::bind(&MenuSize, _1, b::ref(sz)));
     return sz;
 }
 
 int BuildDvdOF::GetDVDSize()
 {
-    return Round(VideoSizeSum() / (double)(1024*1024));
+    return Round(ProjectSizeSum() / (double)(1024*1024));
 }
 
 void BuildDvdOF::SetProgress(double percent)

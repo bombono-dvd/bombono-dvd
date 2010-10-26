@@ -41,6 +41,12 @@
 #include <mlib/sdk/logger.h>
 #include <mlib/sigc.h>
 
+guint64 FFmpegSizeForDVD(double sec)
+{
+    int brate = 6000000; // bit/s, умолчание в ffmpeg для -target *-dvd
+    return brate/8 * (gint64)sec;
+}
+
 namespace Project
 {
 
@@ -208,6 +214,13 @@ bool SetFilename(Gtk::FileChooser& fc, const std::string& fpath)
     return not_empty;
 }
 
+static void OnDurationChanged(Gtk::SpinButton& dur_btn, Gtk::Label& sz_lbl)
+{
+    std::string ToSizeString(gint64 size, bool round);
+    std::string str = ToSizeString(FFmpegSizeForDVD(dur_btn.get_value()), false);
+    sz_lbl.set_label(str);
+}
+
 void MenuSettings(Menu mn, Gtk::Window* win)
 {
     Gtk::Dialog dlg(_("Menu Settings"), true);
@@ -237,7 +250,17 @@ void MenuSettings(Menu mn, Gtk::Window* win)
         OnMotionChoice(mtn_btn, vbox);
         mtn_btn.signal_toggled().connect(bb::bind(&OnMotionChoice, boost::ref(mtn_btn), boost::ref(vbox)));
 
-        AppendWithLabel(vbox, dur_btn, SMCLN_("_Duration (in seconds)"), Gtk::PACK_SHRINK);
+        // длительность
+        {
+            Gtk::HBox& hbox = PackNamedWidget(vbox, LabelForWidget(SMCLN_("_Duration (in seconds)"), dur_btn), 
+                                              dur_btn, vbox.labelSg, Gtk::PACK_SHRINK);
+            Gtk::Label& sz_lbl = NewManaged<Gtk::Label>();
+            sz_lbl.set_padding(5, 0);
+            PackStart(hbox, sz_lbl, Gtk::PACK_SHRINK);
+
+            OnDurationChanged(dur_btn, sz_lbl);
+            dur_btn.signal_value_changed().connect(bb::bind(&OnDurationChanged, b::ref(dur_btn), b::ref(sz_lbl)));
+        }
         ConfigureSpin(dur_btn, mtn_dat.duration, MAX_MOTION_DURATION);
 
         // Still Picture
@@ -282,6 +305,8 @@ void MenuSettings(Menu mn, Gtk::Window* win)
         // факт изменения отобразить
         void RedrawThumbnail(MediaItem mi);
         RedrawThumbnail(mn);
+        void UpdateDVDSize();
+        UpdateDVDSize();
     }
 }
 

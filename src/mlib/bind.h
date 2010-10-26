@@ -8,5 +8,9 @@ namespace bb {
 using boost::bind;
 }
 
+namespace b {
+using boost::ref;
+}
+
 #endif // __MLIB_BIND_H__
 
