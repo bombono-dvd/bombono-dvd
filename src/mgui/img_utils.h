@@ -22,11 +22,10 @@
 #ifndef __MGUI_IMG_UTILS_H__
 #define __MGUI_IMG_UTILS_H__
 
-#include <mlib/geom2d.h>
-
 #include "mguiconst.h"
 
-inline int Round(double val) { return int(round(val)); }
+#include <mbase/pixel.h>
+#include <mlib/geom2d.h>
 
 // Вспомогательные функции для работы с Pixbuf и Cairo
 
@@ -164,36 +163,8 @@ Rect FitIntoRect(const Point& win_sz, const Point& obj_sz);
 namespace RGBA
 {
 
-#include PACK_ON
-struct Pixel
-{
-    typedef unsigned char ClrType;
-    static const ClrType MinClr = 0;
-    static const ClrType MaxClr = 255;
-
-    ClrType  red;
-    ClrType  green;
-    ClrType  blue;
-    ClrType  alpha;
-
-             Pixel(): red(MinClr), green(MinClr), blue(MinClr), alpha(MaxClr) {}
-             Pixel(ClrType r, ClrType g, ClrType b, ClrType a = MaxClr):
-                 red(r), green(g), blue(b), alpha(a) {}
-             Pixel(const unsigned int rgba);
-             Pixel(const Gdk::Color& clr);
-
-      Pixel& FromUint(const unsigned int rgba);
-unsigned int ToUint();
-
-    static  double  FromQuant(ClrType c) { return (double)c/MaxClr; }
-    static ClrType  ToQuant(double c)    { return ClrType( Round(c*MaxClr) ); }
-};
-#include PACK_OFF
-
-inline unsigned int ToUint(const Gdk::Color& clr)
-{
-    return Pixel(clr).ToUint();
-}
+Pixel ColorToPixel(const Gdk::Color& clr);
+unsigned int ToUint(const Gdk::Color& clr);
 
 // перевод в GdkColor
 Gdk::Color PixelToColor(const Pixel& pxl);

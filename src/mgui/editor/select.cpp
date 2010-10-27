@@ -36,6 +36,7 @@
 #include <mgui/key.h>
 #include <mgui/project/handler.h>
 #include <mgui/sdk/menu.h>  // Popup()
+#include <mgui/sdk/widget.h>  // SetColor()
 #include <mgui/gettext.h>
 
 //typedef boost::function<bool(Comp::MediaObj*)> CMFunctor;
@@ -208,9 +209,7 @@ static bool SetupCurFont(TextObj* obj, MenuRegion&)
     tbar.itaBtn.set_active(dsc.get_style() == Pango::STYLE_ITALIC);
     tbar.undBtn.set_active(obj->Style().isUnderlined);
     // *
-    RGBA::Pixel pxl = obj->Color();
-    tbar.clrBtn.set_color(RGBA::PixelToColor(pxl));
-    tbar.clrBtn.set_alpha(RGBA::ToGdkComponent(pxl.alpha));
+    SetColor(tbar.clrBtn, obj->Color());
     return false;
 }
 
@@ -905,7 +904,7 @@ static void SetBgColor()
     sel.set_current_color(PixelToColor(bg_clr));
     if( dlg.run() == Gtk::RESPONSE_OK )
     {
-        bg_clr = RGBA::Pixel(sel.get_current_color());
+        bg_clr = RGBA::ColorToPixel(sel.get_current_color());
         SetBackgroundLink(Project::MediaItem()); // очистка + перерисовка
     }
 }

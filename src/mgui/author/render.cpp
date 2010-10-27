@@ -111,11 +111,6 @@ class SPRenderVis: public CommonMenuRVis
   xmlpp::Element* spuNode;
 };
 
-// используем "родной" прозрачный цвет в png
-//const uint BLACK2_CLR = 0x010101ff; // заменяется на прозрачный spumux'ом
-const uint HIGH_CLR   = 0xfff00080;   // прозрачность = 50%
-const uint SELECT_CLR = 0xff006c80;
-
 void SPRenderVis::RenderBackground()
 {
     //drw->SetForegroundColor(BLACK2_CLR);
@@ -195,12 +190,19 @@ void DiscreteByAlpha(RefPtr<Gdk::Pixbuf> pix, const RGBA::Pixel& main_clr) //, i
     }
 }
 
+static RGBA::Pixel GetSPColor(Comp::MediaObj& obj, bool activated_clr)
+{
+    //return activated_clr ? SELECT_CLR : HIGH_CLR;
+    SubpicturePalette& pal = GetOwnerMenu(&obj)->subPal;
+    return activated_clr ? pal.actClr : pal.selClr ;
+}
+
 void SPRenderVis::Visit(TextObj& t_obj)
 {
     std::string targ_str;    
     if( HasButtonLink(t_obj, targ_str) )
     {
-        RGBA::Pixel clr = isSelect ? SELECT_CLR : HIGH_CLR;
+        RGBA::Pixel clr = GetSPColor(t_obj, isSelect);
         // меняем на лету цвет и др. параметры
         SubtitleWrapper sw(t_obj, clr, FindTextRenderer(t_obj, *cnvBuf));
         Make(t_obj).Render();
@@ -225,7 +227,7 @@ void SPRenderVis::Visit(FrameThemeObj& fto)
         Rect plc = CalcRelPlacement(fto.Placement());
         Point sz(plc.Size());
         RefPtr<Gdk::Pixbuf> obj_pix = CreatePixbuf(sz); //PixbufSize(td.vFrameImg));
-        uint clr = isSelect ? SELECT_CLR : HIGH_CLR;
+        uint clr = GetSPColor(fto, isSelect).ToUint();
         obj_pix->fill(clr);
 
         RefPtr<Gdk::Pixbuf> vf_pix = CreatePixbuf(sz);

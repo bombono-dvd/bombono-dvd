@@ -10,6 +10,7 @@ lib_src_files = [
                  'composite/component.cpp',
                  'instantiate.cpp',
                  'obj_bind.cpp',
+                 'pixel.cpp',
                  #'resources.cpp',
 
                  'project/archieve.cpp',

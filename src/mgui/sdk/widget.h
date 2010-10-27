@@ -22,6 +22,8 @@
 #ifndef __MGUI_SDK_WIDGET_H__
 #define __MGUI_SDK_WIDGET_H__
 
+#include <mbase/pixel.h>
+
 #include <mlib/function.h>
 
 void SetPercent(Gtk::ProgressBar& bar, double percent);
@@ -81,6 +83,10 @@ void SetForRadioToggle(RadioItem& itm, const ActionFunctor& fnr)
 }
 
 void ConfigureSpin(Gtk::SpinButton& btn, double val, double max);
+
+RGBA::Pixel GetColor(const Gtk::ColorButton& btn);
+void SetColor(Gtk::ColorButton& btn, const RGBA::Pixel& pxl);
+void ConfigureRGBAButton(Gtk::ColorButton& btn, const RGBA::Pixel& pxl);
 
 #endif // #ifndef __MGUI_SDK_WIDGET_H__
 

@@ -192,6 +192,7 @@
 			<F N="../src/mbase/project/media.cpp"/>
 			<F N="../src/mbase/project/menu.cpp"/>
 			<F N="../src/mbase/obj_bind.cpp"/>
+			<F N="../src/mbase/pixel.cpp"/>
 			<F N="../src/mbase/resources.cpp"/>
 			<F N="../src/mbase/project/srl-common.cpp"/>
 			<F N="../src/mbase/project/srl-db.cpp"/>
@@ -216,6 +217,7 @@
 			<F N="../src/mbase/project/menu.h"/>
 			<F N="../src/mbase/obj_bind.h"/>
 			<F N="../src/mbase/project/object.h"/>
+			<F N="../src/mbase/pixel.h"/>
 			<F N="../src/mbase/resources.h"/>
 			<F N="../src/mbase/project/serialization.h"/>
 			<F N="../src/mbase/project/srl-common.h"/>

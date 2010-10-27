@@ -427,29 +427,20 @@ bool DisplayArea::on_configure_event(GdkEventConfigure* event)
 namespace RGBA
 {
 
-Pixel::Pixel(const unsigned int rgba)
+//Pixel::Pixel(const Gdk::Color& clr):
+//    red(FromGdkComponent(clr.get_red())), green(FromGdkComponent(clr.get_green())),
+//    blue(FromGdkComponent(clr.get_blue())), alpha(MaxClr)
+//{}
+
+Pixel ColorToPixel(const Gdk::Color& clr)
 {
-    FromUint(rgba);
+    return Pixel(FromGdkComponent(clr.get_red()), FromGdkComponent(clr.get_green()),
+                 FromGdkComponent(clr.get_blue()), Pixel::MaxClr);
 }
 
-Pixel::Pixel(const Gdk::Color& clr): 
-    red(FromGdkComponent(clr.get_red())), green(FromGdkComponent(clr.get_green())), 
-    blue(FromGdkComponent(clr.get_blue())), alpha(MaxClr) 
-{}
-
-Pixel& Pixel::FromUint(const unsigned int rgba)
+unsigned int ToUint(const Gdk::Color& clr)
 {
-    red   =  rgba >> 24;
-    green = (rgba & 0x00ff0000) >> 16;
-    blue  = (rgba & 0x0000ff00) >> 8;
-    alpha = (rgba & 0x000000ff);
-
-    return *this;
-}
-
-unsigned int Pixel::ToUint()
-{
-    return (red << 24) | (green << 16) | (blue << 8) | alpha;
+    return ColorToPixel(clr).ToUint();
 }
 
 gushort ToGdkComponent(unsigned char n)

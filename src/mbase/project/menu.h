@@ -22,8 +22,11 @@
 #ifndef __MBASE_PROJECT_MENU_H__
 #define __MBASE_PROJECT_MENU_H__
 
-#include <mlib/sdk/misc.h> // MenuParams
 #include "media.h"
+
+#include <mbase/pixel.h>
+
+#include <mlib/sdk/misc.h> // MenuParams
 
 namespace Project
 {
@@ -53,6 +56,19 @@ struct MotionData
         isIntAudio(true) {}
 };
 
+// используем "родной" прозрачный цвет в png
+//const uint BLACK2_CLR = 0x010101ff; // заменяется на прозрачный spumux'ом
+const uint HIGH_CLR   = 0xfff00080;   // прозрачность = 50%
+const uint SELECT_CLR = 0xff006c80;
+
+struct SubpicturePalette
+{
+    RGBA::Pixel selClr; // технически это "highlight"
+    RGBA::Pixel actClr; // "select"
+
+    SubpicturePalette();
+};
+
 // меню
 class MenuMD: public PSO<MenuMD, Media> // от Media
 {
@@ -68,6 +84,8 @@ class MenuMD: public PSO<MenuMD, Media> // от Media
                 MediaItem& BgRef()  { return bgRef; }
               std::string& Color()  { return color; }
                MotionData& MtnData(){ return mtnData; }
+
+        SubpicturePalette  subPal;
 
 
     virtual   std::string  TypeString() { return "Menu"; }

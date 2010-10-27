@@ -30,6 +30,7 @@
         <Resolution x="720" y="576"/>
       </Params>
       <MotionData IsMotion="1" Duration="1" AudioRef="Media.0" IsStillPicture="0" IsInternalAudio="1" ExtAudio=""/>
+      <SubpicturePalette Selected="#fff00080" Activated="#ff006c80"/>
       <MenuItems>
         <MenuItem Name="" Frame="ogradient" Poster="Media.1" Type="Frame Item" Ref="Menu.2">
           <Placement lft="371" top="73" rgt="621" btm="223"/>
@@ -50,6 +51,7 @@
         <Resolution x="720" y="576"/>
       </Params>
       <MotionData IsMotion="0" Duration="15" AudioRef="" IsStillPicture="0" IsInternalAudio="1" ExtAudio=""/>
+      <SubpicturePalette Selected="#fff00080" Activated="#ff006c80"/>
       <MenuItems>
         <MenuItem Name="" Frame="roundrect" Poster="" Type="Frame Item" Ref="Media.0.0">
           <Placement lft="150" top="100" rgt="550" btm="450"/>
@@ -61,6 +63,7 @@
         <Resolution x="720" y="576"/>
       </Params>
       <MotionData IsMotion="0" Duration="15" AudioRef="" IsStillPicture="0" IsInternalAudio="1" ExtAudio=""/>
+      <SubpicturePalette Selected="#ff006c80" Activated="#fff000e6"/>
       <MenuItems>
         <MenuItem Name="" Frame="cell" Poster="" Type="Frame Item" Ref="Media.1.0">
           <Placement lft="427" top="135" rgt="656" btm="275"/>

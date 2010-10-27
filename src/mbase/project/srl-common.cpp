@@ -22,6 +22,7 @@
 #include <mbase/_pc_.h>
 
 #include "srl-common.h"
+#include <mdemux/util.h>
 
 namespace Project
 {
@@ -32,6 +33,54 @@ void Serialize(Archieve& ar, MenuParams& mp)
     ar & NameValue("Aspect",  mp.GetAF());
 }
 
+std::string ToString(const RGBA::Pixel& pxl)
+{
+    using Mpeg::set_hms;
+    return (str::stream("#") << std::hex 
+            << set_hms() << (int)pxl.red 
+            << set_hms() << (int)pxl.green 
+            << set_hms() << (int)pxl.blue << (int)pxl.alpha).str();
+}
+
+// как pango_color_parse()
+static bool ParseHex2(const char* src, unsigned char& c)
+{
+    bool res = true;
+    int len = 2;
+    for( const char* end = src + len; src != end; src++ )
+        if( g_ascii_isxdigit(*src) )
+            c = (c << 4) | g_ascii_xdigit_value(*src);
+        else
+        {
+            res = false;
+            break;
+        }
+    return res;
+}
+
+bool ParseColor(RGBA::Pixel& pxl, const std::string& clr_str)
+{
+    bool res = false;
+    if( (clr_str.size() == 1+8) && (clr_str[0] == '#') )
+    {
+        if( ParseHex2(clr_str.c_str()+1, pxl.red)   &&
+            ParseHex2(clr_str.c_str()+3, pxl.green) &&
+            ParseHex2(clr_str.c_str()+5, pxl.blue)  &&
+            ParseHex2(clr_str.c_str()+7, pxl.alpha) )
+            res = true;
+    }
+
+    if( !res )
+        pxl = RGBA::Pixel(); // черный если ошибки
+    return res;
+}
+
+RGBA::Pixel MakeColor(const std::string& clr_str)
+{
+    RGBA::Pixel clr;
+    ParseColor(clr, clr_str);
+    return clr;
+}
 
 } // namespace Project
 

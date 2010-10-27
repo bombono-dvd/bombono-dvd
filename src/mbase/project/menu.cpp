@@ -31,6 +31,9 @@
 namespace Project
 {
 
+SubpicturePalette::SubpicturePalette(): selClr(HIGH_CLR), actClr(SELECT_CLR)
+{}
+
 Menu IsMenu(MediaItem mi)
 {
     return ptr::dynamic_pointer_cast<MenuMD>(mi);
@@ -99,6 +102,18 @@ static void Serialize(Archieve& ar, MotionData& mtn_data)
     SerializePath(ar, "ExtAudio", mtn_data.audioExtPath);
 }
 
+static void SerializeColor(Archieve& ar, const char* tag_name, RGBA::Pixel& clr)
+{
+    if( ar.IsLoad() )
+    {
+        std::string tmp;
+        ar >> NameValue(tag_name, tmp);
+        clr = MakeColor(tmp);
+    }
+    else // IsSave
+        ar << NameValue(tag_name, ToString(clr));
+}
+
 void MenuMD::SerializeImpl(Archieve& ar)
 {
     // * параметры
@@ -106,6 +121,13 @@ void MenuMD::SerializeImpl(Archieve& ar)
       ( "Color",      color   );
     SerializeReference(ar, "BGRef", bgRef);
     ar( "MotionData", mtnData );
+
+    // * цвета субкартинок
+    {
+        ArchieveStackFrame asf(ar, "SubpicturePalette");
+        SerializeColor(ar, "Selected",  subPal.selClr);
+        SerializeColor(ar, "Activated", subPal.actClr);
+    }
 
     // * пункты меню
     {

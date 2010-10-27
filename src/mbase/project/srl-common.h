@@ -24,6 +24,7 @@
 
 #include "media.h"
 #include "archieve.h"
+#include <mbase/pixel.h>
 
 namespace Project
 {
@@ -53,6 +54,9 @@ inline void Serialize(Archieve& ar, RectT<T>& rct)
 
 void Serialize(Archieve& ar, MenuParams& mp);
 void SerializeReference(Archieve& ar, const char* attr_name, MediaItem& mi);
+
+std::string ToString(const RGBA::Pixel& pxl);
+RGBA::Pixel MakeColor(const std::string& clr_str);
 
 } // namespace Project
 

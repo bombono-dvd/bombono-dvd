@@ -33,6 +33,7 @@
 #include <mgui/sdk/gnc-gtk-utils.h>
 #include <mgui/sdk/entry.h>
 #include <mgui/sdk/packing.h>
+#include <mgui/sdk/widget.h>
 
 #include <mgui/render/menu.h>
 #include <mgui/render/editor.h>
@@ -208,9 +209,7 @@ TextStyle Toolbar::GetFontDesc()
     fnt_desc.set_weight(bldBtn.get_active() ? Pango::WEIGHT_BOLD : Pango::WEIGHT_NORMAL);
     fnt_desc.set_style(itaBtn.get_active() ? Pango::STYLE_ITALIC : Pango::STYLE_NORMAL);
 
-    RGBA::Pixel pxl(clrBtn.get_color());
-    pxl.alpha = RGBA::FromGdkComponent(clrBtn.get_alpha());
-    return TextStyle(fnt_desc, undBtn.get_active(), pxl);
+    return TextStyle(fnt_desc, undBtn.get_active(), GetColor(clrBtn));
 }
 
 std::string GetActiveTheme()
@@ -544,10 +543,8 @@ Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box)
 
         // * кнопка цвета текста
         Gtk::ColorButton& clr_btn = edt_tbar.clrBtn;
-        clr_btn.set_use_alpha();
+        ConfigureRGBAButton(clr_btn, RGBA::Pixel(GOLD_CLR));
         clr_btn.set_relief(Gtk::RELIEF_NONE);
-        clr_btn.set_color(RGBA::PixelToColor(GOLD_CLR));
-        clr_btn.set_alpha(0xffff);
 
         clr_btn.set_title(_("Pick a Color for Text"));
         clr_btn.set_focus_on_click(false);

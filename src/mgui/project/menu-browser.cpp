@@ -221,15 +221,40 @@ static void OnDurationChanged(Gtk::SpinButton& dur_btn, Gtk::Label& sz_lbl)
     sz_lbl.set_label(str);
 }
 
+static DialogVBox& AddDialogPage(Gtk::Notebook& nbook, const char* label, bool homogeneous = false)
+{
+    DialogVBox& vbox = NewManaged<DialogVBox>(homogeneous, 10);
+    vbox.set_border_width(5);
+    nbook.append_page(vbox, label, true);
+
+    return vbox;
+}
+
+static void RestoreSPColors(Gtk::ColorButton& sel_btn, Gtk::ColorButton& act_btn)
+{
+    SetColor(sel_btn, RGBA::Pixel(HIGH_CLR));
+    SetColor(act_btn, RGBA::Pixel(SELECT_CLR));
+}
+
+static void PackColorButton(DialogVBox& vbox, Gtk::ColorButton& btn, const RGBA::Pixel& pxl,
+                            const char* label)
+{
+    ConfigureRGBAButton(btn, pxl);
+    AppendWithLabel(vbox, btn, label);
+}
+
 void MenuSettings(Menu mn, Gtk::Window* win)
 {
     Gtk::Dialog dlg(_("Menu Settings"), true);
     if( win )
         dlg.set_transient_for(*win);
-    SetDialogStrict(dlg, 350, -1, true);
+    SetDialogStrict(dlg, 380, -1, true);
+
+    //DialogVBox& vbox_all = AddHIGedVBox(dlg);
+    Gtk::Notebook& nbook = Add(*dlg.get_vbox(), NewManaged<Gtk::Notebook>());
+    nbook.set_border_width(2);
 
     MotionData& mtn_dat = mn->MtnData();
-
     Gtk::CheckButton& mtn_btn = NewManaged<Gtk::CheckButton>();
     Gtk::SpinButton&  dur_btn = NewManaged<Gtk::SpinButton>();
     Gtk::CheckButton& sp_btn  = NewManaged<Gtk::CheckButton>(_("_Still picture"), true);
@@ -239,7 +264,7 @@ void MenuSettings(Menu mn, Gtk::Window* win)
     Gtk::FileChooserButton& a_ext_btn = NewManaged<Gtk::FileChooserButton>(
         _("Select external audio file"), Gtk::FILE_CHOOSER_ACTION_OPEN);
     {
-        DialogVBox& vbox_all = AddHIGedVBox(dlg);
+        Gtk::VBox& vbox_all = AddDialogPage(nbook, _("_Motion menu"));
 
         Add(mtn_btn, NewBoldLabel(_("_Motion menu")));
         mtn_btn.set_active(mtn_dat.isMotion);
@@ -290,6 +315,21 @@ void MenuSettings(Menu mn, Gtk::Window* win)
                          boost::ref(a_ext_btn)));
         }
     }
+
+    // цвета для субкартинок (subpicture)
+    SubpicturePalette& pal = mn->subPal;
+    Gtk::ColorButton& sel_btn = NewManaged<Gtk::ColorButton>();
+    Gtk::ColorButton& act_btn = NewManaged<Gtk::ColorButton>();
+    {
+        DialogVBox& vbox = AddDialogPage(nbook, _("_SubPicture Colors"), true);
+
+        PackColorButton(vbox, sel_btn, pal.selClr, SMCLN_("S_elected item color"));
+        PackColorButton(vbox, act_btn, pal.actClr, SMCLN_("_Activated item color"));
+
+        Gtk::Button& btn = PackStart(vbox, NewManaged<Gtk::Button>(_("_Restore default colors"), true));
+        btn.signal_clicked().connect(bb::bind(&RestoreSPColors, b::ref(sel_btn), b::ref(act_btn)));
+    }
+
     CompleteDialog(dlg);
 
     if( Gtk::RESPONSE_OK == dlg.run() )
@@ -302,9 +342,15 @@ void MenuSettings(Menu mn, Gtk::Window* win)
         mtn_dat.audioRef     = a_btn.GetMI();
         mtn_dat.audioExtPath = a_ext_btn.get_filename();
 
+        pal.selClr = GetColor(sel_btn);
+        pal.actClr = GetColor(act_btn);
+
         // факт изменения отобразить
         void RedrawThumbnail(MediaItem mi);
         RedrawThumbnail(mn);
+        // :TRICKY: рассмотреть вариант обновления через обработчик,
+        // потому как вызов UpdateDVDSize() требует наличия Application()
+        // (и валится в противном случае)
         void UpdateDVDSize();
         UpdateDVDSize();
     }
