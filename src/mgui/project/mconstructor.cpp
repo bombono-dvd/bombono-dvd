@@ -800,13 +800,41 @@ void ConstructorApp::SetTabName(const std::string& name, int pos)
     GetNthGo(*this, pos)->add(NewManaged<Gtk::Label>(name, Gtk::ALIGN_LEFT, Gtk::ALIGN_CENTER, true));
 }
 
+static bool UpdateAppSizes(GdkEventConfigure* event)
+{
+    Gtk::Window& win = Application().win;
+    UnnamedPreferences& up = UnnamedPrefs();
+
+    up.appSz.x = event->width;
+    up.appSz.y = event->height;
+
+    win.get_position(up.appPos.x, up.appPos.y);
+    return false;
+}
+
 ActionFunctor BuildConstructor(ConstructorApp& app, const std::string& prj_file_name)
 {
     // *
     InitAStores();
     // *
     LoadApp(prj_file_name);
-    SetAppWindowSize(app.win, 1000);
+
+    // * установка размеров и положения программы
+    // не смотря на то, что документация повторяет N>5 раз (см., например, 
+    // gtk_window_get_position()), что WM должен устанавливать положение (а лучше и размеры)
+    // окон на экране, в реальности все по-другому (всем по^Wнас^Wвсе равно); в то время, когда
+    // народ жаждет запоминания расположения программ на рабочем столе (http://brainstorm.ubuntu.com/idea/1442/),
+    // разработчики Gnome перекладывают ответственность на разработчиков приложений, последним
+    // угрожают,- "ничего не трогать, это забота WM" (Rhythmbox, Evince сделали вид, плохо слышат); 
+    // а WM-ы ничего не могут и не хотят (без помощи от разработчиков приложений),- эпический провал (c)
+    UnnamedPreferences& up = UnnamedPrefs();
+    // используем мягкую форму вместо gtk_window_resize(), чтобы 
+    // не уродовали наш продукт (два раза ку) уменьшением размеров до нуля
+    app.win.set_default_size(up.appSz.x, up.appSz.y);
+    if( up.isLoaded )
+        app.win.move(up.appPos.x, up.appPos.y);
+    app.win.signal_configure_event().connect(&UpdateAppSizes, false);
+    
     // *
     AStores& as = GetAStores();
     RefPtr<MediaStore> md_store = as.mdStore;
@@ -833,22 +861,26 @@ void RunConstructor(const std::string& prj_file_name, bool ask_save_on_exit)
     LoadPrefs();
     AData().SetPalTvSystem(Prefs().isPAL);
 
-    SingletonStack<ConstructorApp> app_ssi;
-    SingletonStack<MEditorArea> edt_ssi;
-    // *
-    ConstructorApp& app = Application();
-    app.askSaveOnExit = ask_save_on_exit;
-
-    std::list<RefPtr<Gdk::Pixbuf> > pix_lst;
-    static const fs::directory_iterator end_itr;
-    for( fs::directory_iterator itr(fs::path(GetDataDir())/"icons");
-        itr != end_itr; ++itr )
-        pix_lst.push_back(Gdk::Pixbuf::create_from_file(itr->string()));
-    Gtk::Window::set_default_icon_list(pix_lst);
-
-    ActionFunctor after_fnr = BuildConstructor(app, prj_file_name);
-    RunWindow(app.win);
-    after_fnr();
+    {
+        SingletonStack<ConstructorApp> app_ssi;
+        SingletonStack<MEditorArea> edt_ssi;
+        // *
+        ConstructorApp& app = Application();
+        app.askSaveOnExit = ask_save_on_exit;
+    
+        std::list<RefPtr<Gdk::Pixbuf> > pix_lst;
+        static const fs::directory_iterator end_itr;
+        for( fs::directory_iterator itr(fs::path(GetDataDir())/"icons");
+            itr != end_itr; ++itr )
+            pix_lst.push_back(Gdk::Pixbuf::create_from_file(itr->string()));
+        Gtk::Window::set_default_icon_list(pix_lst);
+    
+        ActionFunctor after_fnr = BuildConstructor(app, prj_file_name);
+        RunWindow(app.win);
+        after_fnr();
+    }
+    // сохраняем настройки после закрытия (=> обновления информации) окон
+    SaveUnnamedPrefs();
 }
 
 } // namespace Project

@@ -22,21 +22,15 @@
 #ifndef __MGUI_SDK_WINDOW_H__
 #define __MGUI_SDK_WINDOW_H__
 
-inline void RunWindow(Gtk::Window& win)
-{
-    win.show_all();
-    Gtk::Main::run(win);
-}
+#include <mlib/geom2d.h>
 
-inline Gtk::Window* GetTopWindow(Gtk::Widget& wdg)
-{
-    return dynamic_cast<Gtk::Window*>(wdg.get_toplevel());
-}
+void RunWindow(Gtk::Window& win);
 
-inline void SetAppWindowSize(Gtk::Window& win, int wdh)
-{
-    win.set_default_size(wdh, wdh*3/5);
-}
+Gtk::Window* GetTopWindow(Gtk::Widget& wdg);
+
+Point CalcBeautifulRect(int wdh);
+
+void SetAppWindowSize(Gtk::Window& win, int wdh);
 
 #endif // __MGUI_SDK_WINDOW_H__
 

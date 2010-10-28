@@ -73,6 +73,7 @@ lib_src_files = [
                  'sdk/player_utils.cpp',
                  'sdk/textview.cpp',
                  'sdk/widget.cpp',
+                 'sdk/window.cpp',
                  #'sdk/libgnome/gnome-exec.c',
                  'sdk/libgnome/gnome-util.c',
 

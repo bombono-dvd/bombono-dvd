@@ -29,6 +29,7 @@
 #include <mgui/sdk/packing.h>
 #include <mgui/gettext.h>
 #include <mgui/dialog.h>
+#include <mgui/prefs.h>
 
 #include <mlib/filesystem.h>
 
@@ -363,7 +364,7 @@ void PackTrackWindow(Gtk::Container& contr, TWFunctor tw_fnr)
         vpaned.add1(vbox);
 
         Gtk::HPaned& hpaned = *Gtk::manage(new Gtk::HPaned);
-        hpaned.set_position(BROWSER_WDH);
+        SetUpdatePos(hpaned, UnnamedPrefs().fbWdh);
         vbox.pack_start(hpaned, true, true, 0);
 
         tw_fnr(hpaned, mon, layout);

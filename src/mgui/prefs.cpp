@@ -22,14 +22,18 @@
 #include <mgui/_pc_.h>
 
 #include "prefs.h"
+#include "design.h"
 
 #include <mgui/sdk/packing.h>
 #include <mgui/sdk/widget.h>
+#include <mgui/sdk/window.h>
 #include <mgui/dialog.h>
 #include <mgui/mguiconst.h>
 
 #include <mbase/project/archieve.h>
 #include <mbase/project/archieve-sdk.h>
+#include <mbase/project/srl-common.h> // Serialize(Archieve& ar, Point& pnt)
+
 #include <mbase/resources.h>
 
 #include <mlib/gettext.h>
@@ -79,25 +83,23 @@ void AppendWithLabel(DialogVBox& vbox, Gtk::Widget& wdg, const char* label, Gtk:
     PackNamedWidget(vbox, LabelForWidget(label, wdg), wdg, vbox.labelSg, opt);
 }
 
-void Preferences::Init()
+static std::string PreferencesPath(const char* fname)
 {
-    isPAL  = true;
-    player = paTOTEM;
-    authorPath = (fs::path(Glib::get_user_cache_dir()) / "bombono-dvd-video").string();
+    return GetConfigDir() + "/" + fname;
 }
 
-const int PREFS_VERSION = 2;
-
-void SavePrefs(Project::ArchieveFnr afnr, const std::string& fname)
+void SavePrefs(Project::ArchieveFnr afnr, const char* fname, int version)
 {
     xmlpp::Document doc;
     xmlpp::Element* root_node = doc.create_root_node("BmD");
-    root_node->set_attribute("Version", boost::lexical_cast<std::string>(PREFS_VERSION));
+    root_node->set_attribute("Version", boost::lexical_cast<std::string>(version));
     root_node->add_child_comment("Preferences for Bombono DVD");
 
     Project::DoSaveArchieve(root_node, afnr);
-    doc.write_to_file_formatted(fname);
+    doc.write_to_file_formatted(PreferencesPath(fname));
 }
+
+const int PREFS_VERSION = 2;
 
 void SerializePrefs(Project::Archieve& ar)
 {
@@ -113,23 +115,42 @@ void SerializePrefs(Project::Archieve& ar)
         ar("DefAuthorPath", Prefs().authorPath);
 }
 
-std::string PrefsPath()
+static bool LoadPrefs(const char* fname, const Project::ArchieveFnr& fnr)
 {
-    return GetConfigDir() + "/preferences.xml";
-}
-
-void LoadPrefs()
-{
-    std::string cfg_path = PrefsPath();
+    bool res = false;
+    std::string cfg_path = PreferencesPath(fname);
     try
     {
-        Project::DoLoadArchieve(cfg_path, &SerializePrefs, "BmD");
+        if( fs::exists(cfg_path) )
+        {
+            Project::DoLoadArchieve(cfg_path, fnr, "BmD");
+            res = true;
+        }
     }
     catch (const std::exception& err)
     {
         LOG_WRN << "Couldn't load preferences from " << cfg_path << ": " << err.what() << io::endl;
-        Prefs().Init();
     }
+    return res;
+}
+
+//
+// Preferences
+// 
+
+void Preferences::Init()
+{
+    isPAL  = true;
+    player = paTOTEM;
+    authorPath = (fs::path(Glib::get_user_cache_dir()) / "bombono-dvd-video").string();
+}
+
+const char* PrefsName = "preferences.xml";
+
+void LoadPrefs()
+{
+    if( !LoadPrefs(PrefsName, &SerializePrefs) )
+        Prefs().Init();
 }
 
 void TrySetDirectory(Gtk::FileChooser& fc, const std::string& dir_path)
@@ -182,7 +203,70 @@ void ShowPrefs(Gtk::Window* win)
         Prefs().player = (PlayAuthoring)pl_cmb.get_active_row_number();
         Prefs().authorPath = a_btn.get_filename();
 
-        SavePrefs(&SerializePrefs, PrefsPath());
+        SavePrefs(&SerializePrefs, PrefsName, PREFS_VERSION);
     }
+}
+
+//
+// UnnamedPreferences
+// 
+
+void UnnamedPreferences::Init()
+{
+    isLoaded = false; // appPos неопределен
+
+    appSz    = CalcBeautifulRect(APPLICATION_WDH);
+    fbWdh     = FCW_WDH;
+    mdBrw1Wdh = BROWSER_WDH;
+}
+
+const int UNNAMED_PREFS_VERSION = 1;
+
+void SerializeUnnamedPrefs(Project::Archieve& ar)
+{
+    //int load_ver = UNNAMED_PREFS_VERSION;
+    //if( ar.IsLoad() )
+    //    ar("Version", load_ver);
+    UnnamedPreferences& up = UnnamedPreferences::Instance();
+
+    ar( "AppSizes",         up.appSz  )
+      ( "AppPosition",      up.appPos )
+      ( "FileBrowserWidth", up.fbWdh  )
+      ( "MDBrowserWidth",   up.mdBrw1Wdh );
+}
+
+const char* UnnamedPrefsName = "unnamed_preferences.xml";
+
+UnnamedPreferences& UnnamedPrefs()
+{
+    UnnamedPreferences& up = UnnamedPreferences::Instance();
+
+    static bool first_time = true;
+    if( first_time )
+    {
+        first_time = false;
+        if( LoadPrefs(UnnamedPrefsName, &SerializeUnnamedPrefs) )
+            up.isLoaded = true;
+        else
+            up.Init();
+    }
+
+    return up;
+}
+
+void SaveUnnamedPrefs()
+{
+    SavePrefs(&SerializeUnnamedPrefs, UnnamedPrefsName, UNNAMED_PREFS_VERSION);
+}
+
+static void UpdatePosition(Gtk::HPaned& hpaned, int& saved_pos)
+{
+    saved_pos = hpaned.get_position();
+}
+
+void SetUpdatePos(Gtk::HPaned& hpaned, int& saved_pos)
+{
+    hpaned.set_position(saved_pos);
+    hpaned.signal_hide().connect(bb::bind(&UpdatePosition, b::ref(hpaned), b::ref(saved_pos)));
 }
 

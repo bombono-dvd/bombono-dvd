@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( TestStillTranscoding )
 
 BOOST_AUTO_TEST_CASE( TestMenuSettings )
 {
-    //return;
+    return;
     GtkmmDBInit gd_init;
     RefPtr<MenuStore> ms = InitAndLoadPrj(TestProjectPath()).mnStore;
     ASSERT( Size(ms) );

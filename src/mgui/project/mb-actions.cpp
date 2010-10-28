@@ -31,6 +31,7 @@
 #include <mgui/timeline/mviewer.h>
 #include <mgui/trackwindow.h>
 #include <mgui/img-factory.h>
+#include <mgui/prefs.h>
 
 #include <mbase/project/table.h>
 #include <gtk/gtktreestore.h>
@@ -316,7 +317,7 @@ void PackMBWindow(Gtk::HPaned& fcw_hpaned, Timeline::DAMonitor& mon, TrackLayout
         PackFileChooserWidget(fcw_hpaned, bb::bind(&MediaBrowserAdd, boost::ref(brw), _2), false);
 
     Gtk::HPaned& hpaned = *Gtk::manage(new Gtk::HPaned);
-    hpaned.set_position(BROWSER_WDH);
+    SetUpdatePos(hpaned, UnnamedPrefs().mdBrw1Wdh);
     fcw_hpaned.add2(hpaned);
 
     // *

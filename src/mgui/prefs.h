@@ -62,6 +62,27 @@ inline void TryDefaultAuthorPath(Gtk::FileChooser& fc)
     TrySetDirectory(fc, Prefs().authorPath);
 }
 
+//
+// Восстановление размеров с прошлого запуска
+// 
+
+struct UnnamedPreferences: public Singleton<UnnamedPreferences>
+{
+    bool   isLoaded; // настройки были загружены, а не по умолчанию
+
+    Point  appSz; // размеры и положение приложения
+    Point  appPos; 
+      int  fbWdh; // ширина File Browser
+      int  mdBrw1Wdh; // ширина Media Browser на Sources
+
+        UnnamedPreferences() { Init(); }
+  void  Init();
+};
+
+UnnamedPreferences& UnnamedPrefs();
+void SaveUnnamedPrefs();
+
+void SetUpdatePos(Gtk::HPaned& hpaned, int& saved_pos);
 
 #endif // #ifndef __MGUI_PREFS_H__
 
