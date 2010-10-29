@@ -101,53 +101,58 @@ static void OnURIsDrop(MediaBrowser& brw, const StringList& paths, const Point& 
     TryAddMedias(paths, brw, brw_pth, insert_after);
 }
 
-static void SetConstEALink(PostAction& pa, PostActionType typ)
+static void SetConstEALink(PostAction& pa, PostActionType typ, const ActionFunctor& on_updater)
 {
     ASSERT_RTL( typ != patEXP_LINK );
     pa.paTyp  = typ;
     pa.paLink = 0;
+
+    on_updater();
 }
 
-static void SetEALink(PostAction& pa, MediaItem mi)
+static void SetEALink(PostAction& pa, MediaItem mi, const ActionFunctor& on_updater)
 {
     ASSERT_RTL(mi); // пустая явная ссылка? - нет пути!
     pa.paTyp  = patEXP_LINK;
     pa.paLink = mi;
+
+    on_updater();
 }
 
-class EndActionMenuBld: public CommonMenuBuilder
+EndActionMenuBld::EndActionMenuBld(PostAction& pa, const ActionFunctor& on_updater,
+                                   const Functor& cc_adder)
+: MyParent(pa.paLink, false), pAct(pa), onUpdater(on_updater), ccAdder(cc_adder) 
 {
-    typedef CommonMenuBuilder MyParent;
-    public:
-                    EndActionMenuBld(PostAction& pa): pAct(pa), MyParent(pa.paLink, false) {}
+    ASSERT( onUpdater );
+    ASSERT( ccAdder );
+}
 
-    virtual ActionFunctor  CreateAction(Project::MediaItem mi)
-    {
-        return bb::bind(&SetEALink, boost::ref(pAct), mi);
-    }
-
-    virtual          void  AddConstantChoice(Gtk::Menu& lnk_list);
-
-    protected:
-        PostAction& pAct;
-
-void AddConstantItem(Gtk::Menu& lnk_list, const std::string& label, PostActionType typ);
-};
-
-void EndActionMenuBld::AddConstantItem(Gtk::Menu& lnk_list, const std::string& label, PostActionType typ)
+ActionFunctor EndActionMenuBld::CreateAction(Project::MediaItem mi)
 {
+    return bb::bind(&SetEALink, boost::ref(pAct), mi, onUpdater);
+}
+
+void EndActionMenuBld::AddConstantItem(const std::string& label, PostActionType typ)
+{
+    Gtk::Menu& lnk_list = resMenu;
     Gtk::RadioMenuItem& itm = NewManaged<Gtk::RadioMenuItem>(radioGrp);
-    SetAlign(Add(itm, NewMarkupLabel("<span weight=\"bold\" style=\"italic\">" + label + "</span>")));
-    AppendRadioItem(itm, typ == pAct.paTyp, bb::bind(&SetConstEALink, boost::ref(pAct), typ), lnk_list);
+    SetAlign(Add(itm, NewBoldItalicLabel(label)));
+    AppendRadioItem(itm, typ == pAct.paTyp, 
+                    bb::bind(&SetConstEALink, boost::ref(pAct), typ, onUpdater), lnk_list);
+}
+
+void EndActionMenuBld::AddConstantChoice()
+{
+    ccAdder(*this);
 }
 
 int MenusCnt();
 
-void EndActionMenuBld::AddConstantChoice(Gtk::Menu& lnk_list)
+static void VideoAddConstantChoice(EndActionMenuBld& bld)
 {
     const char* real_cmd = MenusCnt() ? _("Previous Menu") : _("Next Video") ;
-    AddConstantItem(lnk_list, BF_("Auto (%1%)") % real_cmd % bf::stop, patAUTO);
-    AddConstantItem(lnk_list, _("Next Video"), patNEXT_TITLE);
+    bld.AddConstantItem(BF_("Auto (%1%)") % real_cmd % bf::stop, patAUTO);
+    bld.AddConstantItem(_("Next Video"), patNEXT_TITLE);
 }
 
 static bool OnOBButtonPress(ObjectBrowser& brw, const RightButtonFunctor& fnr, GdkEventButton* event)
@@ -187,7 +192,8 @@ static void OnMBButtonPress(MediaItem mi, GdkEventButton* event)
     VideoItem vi = IsVideo(mi);
     ea_itm.set_sensitive(vi);
     if( vi )
-        ea_itm.set_submenu(EndActionMenuBld(vi->PAction()).Create());
+        ea_itm.set_submenu(EndActionMenuBld(vi->PAction(), boost::function_identity,
+                                            VideoAddConstantChoice).Create());
     Popup(mn, event, true);
 }
 

@@ -109,45 +109,114 @@ static void SetMediaLabel(Gtk::Label& lbl, MediaItem mi)
 }
 
 // выпадающее меню вместо нажатия (потому ToggleButton)
-class AudioButton: public Gtk::ToggleButton
+class MenuButton: public Gtk::ToggleButton
 {
     public:
-            AudioButton();
+            MenuButton();
+
+    protected:
+           Gtk::Label& label;
+
+    virtual CommonMenuBuilder* MakeBuilder() = 0;
+
+bool OnLinkButtonPress(GdkEventButton *event);
+};
+
+class AudioButton: public MenuButton
+{
+    typedef MenuButton MyParent;
+    public:
 
  MediaItem  GetMI() { return mItem; }
       void  SetMI(MediaItem mi);
 
     protected:
             MediaItem  mItem;
-           Gtk::Label& label;
 
-bool OnLinkButtonPress(GdkEventButton *event);
+    virtual CommonMenuBuilder* MakeBuilder();
 };
 
-void AudioButton::SetMI(MediaItem mi)
+class MenuPAButton: public MenuButton
 {
-    mItem = mi;
-    SetMediaLabel(label, mItem);
-}
+    typedef MenuButton MyParent;
+    public:
 
-AudioButton::AudioButton(): label(NewManaged<Gtk::Label>())
+   PostAction  PAction() { return pAct; }
+         void  SetPAction(const PostAction& pa)
+         {
+             pAct = pa;
+             Update();
+         }
+
+         void  Update();
+
+    protected:
+            PostAction  pAct;
+
+    virtual CommonMenuBuilder* MakeBuilder();
+};
+
+MenuButton::MenuButton(): label(NewManaged<Gtk::Label>())
 {
     Gtk::Button& a_btn = *this;
-    sig::connect(a_btn.signal_button_press_event(), bb::bind(&AudioButton::OnLinkButtonPress, this, _1), false);
+    sig::connect(a_btn.signal_button_press_event(), bb::bind(&MenuButton::OnLinkButtonPress, this, _1), false);
     Gtk::HBox& box = Add(a_btn, NewManaged<Gtk::HBox>(false, 4));
 
     //priv->image = gtk_image_new ();
     //gtk_box_pack_start (GTK_BOX (box), priv->image, FALSE, FALSE, 0);
     //gtk_widget_show (priv->image);
 
-    SetMediaLabel(label, mItem);
+    //SetMediaLabel(label, mItem);
     Gtk::Label& lbl = PackStart(box, label, Gtk::PACK_EXPAND_WIDGET);
     lbl.set_ellipsize(Pango::ELLIPSIZE_END);
-    //lbl.set_alignment(0.0, 0.5);
+    SetAlign(lbl);
 
     PackStart(box, NewManaged<Gtk::VSeparator>());
     //PackStart(box, NewManaged<Gtk::Image>(Gtk::Stock::OPEN, Gtk::ICON_SIZE_MENU));
     PackStart(box, NewManaged<Gtk::Arrow>(Gtk::ARROW_DOWN, Gtk::SHADOW_NONE));
+}
+
+Rect GetAllocation(Gtk::Widget& wdg);
+
+static void CoordBelow(Gtk::ToggleButton* btn, int& x, int& y, bool& push_in)
+{
+    RefPtr<Gdk::Window> win = btn->get_window();
+    ASSERT( win );
+    Rect plc = GetAllocation(*btn);
+    win->get_root_coords(plc.lft, plc.btm, x, y);
+
+    push_in = true;
+}
+
+// по аналогии с GtkComboBox
+bool MenuButton::OnLinkButtonPress(GdkEventButton *event)
+{
+    if( event->type == GDK_BUTTON_PRESS && IsLeftButton(event) )
+    {
+        //if( focus_on_click && !GTK_WIDGET_HAS_FOCUS(priv->button) )
+        //    gtk_widget_grab_focus (priv->button);
+
+        ptr::one<CommonMenuBuilder> bld(MakeBuilder());
+        Gtk::Menu& mn = bld->Create();
+        SetDeleteOnDone(mn);
+
+        // интерактив кнопки
+        set_active(true);
+        mn.signal_hide().connect(bb::bind(&Gtk::ToggleButton::set_active, this, false));
+
+        //Popup(mn, event, true);
+    	mn.show_all();
+    	mn.popup(bb::bind(&CoordBelow, this, _1, _2, _3), event->button, event->time);
+
+        return true;
+    }
+    return false;
+}
+
+void AudioButton::SetMI(MediaItem mi)
+{
+    mItem = mi;
+    SetMediaLabel(label, mItem);
 }
 
 class AudioMenuBld: public CommonMenuBuilder
@@ -166,40 +235,28 @@ class AudioMenuBld: public CommonMenuBuilder
         AudioButton* aBtn;
 };
 
-Rect GetAllocation(Gtk::Widget& wdg);
+CommonMenuBuilder* AudioButton::MakeBuilder() { return new AudioMenuBld(this); }
 
-static void CoordBelow(Gtk::ToggleButton* btn, int& x, int& y, bool& push_in)
+static void MenuAddConstantChoice(EndActionMenuBld& bld)
 {
-    RefPtr<Gdk::Window> win = btn->get_window();
-    ASSERT( win );
-    Rect plc = GetAllocation(*btn);
-    win->get_root_coords(plc.lft, plc.btm, x, y);
-
-    push_in = true;
+    bld.AddConstantItem(_("Loop"), patAUTO);
 }
 
-// по аналогии с GtkComboBox
-bool AudioButton::OnLinkButtonPress(GdkEventButton *event)
+CommonMenuBuilder* MenuPAButton::MakeBuilder() 
+{ 
+    return new EndActionMenuBld(pAct, bb::bind(&MenuPAButton::Update, this),
+                                &MenuAddConstantChoice); 
+}
+
+void MenuPAButton::Update()
 {
-    if( event->type == GDK_BUTTON_PRESS && IsLeftButton(event) )
+    if( pAct.paTyp == patEXP_LINK )
+        SetMediaLabel(label, pAct.paLink);
+    else
     {
-        //if( focus_on_click && !GTK_WIDGET_HAS_FOCUS(priv->button) )
-        //    gtk_widget_grab_focus (priv->button);
-
-        Gtk::Menu& mn = AudioMenuBld(this).Create();
-        SetDeleteOnDone(mn);
-
-        // интерактив кнопки
-        set_active(true);
-        mn.signal_hide().connect(bb::bind(&Gtk::ToggleButton::set_active, this, false));
-
-        //Popup(mn, event, true);
-    	mn.show_all();
-    	mn.popup(bb::bind(&CoordBelow, this, _1, _2, _3), event->button, event->time);
-
-        return true;
+        ASSERT( pAct.paTyp == patAUTO );
+        label.set_markup(BoldItalicText(_("Loop")));
     }
-    return false;
 }
 
 // установка пустой строки в Gtk::FileChooser почему-то устанавливает
@@ -276,6 +333,7 @@ void MenuSettings(Menu mn, Gtk::Window* win)
     AudioButton& a_btn = NewManaged<AudioButton>();
     Gtk::FileChooserButton& a_ext_btn = NewManaged<Gtk::FileChooserButton>(
         _("Select external audio file"), Gtk::FILE_CHOOSER_ACTION_OPEN);
+    MenuPAButton& pa_btn = NewManaged<MenuPAButton>();
     {
         Gtk::VBox& vbox_all = AddDialogPage(nbook, _("_Motion menu"));
 
@@ -330,7 +388,7 @@ void MenuSettings(Menu mn, Gtk::Window* win)
                          boost::ref(a_ext_btn)));
         }
 
-        AudioButton& pa_btn = NewManaged<AudioButton>();
+        pa_btn.SetPAction(mtn_dat.pAct);
         // постдействие
         {
             Gtk::VBox& pa_box = PackParaBox(vbox, _("End Action"));
@@ -363,6 +421,8 @@ void MenuSettings(Menu mn, Gtk::Window* win)
         mtn_dat.isIntAudio   = prj_choice->get_active();
         mtn_dat.audioRef     = a_btn.GetMI();
         mtn_dat.audioExtPath = a_ext_btn.get_filename();
+
+        mtn_dat.pAct = pa_btn.PAction();
 
         pal.selClr = GetColor(sel_btn);
         pal.actClr = GetColor(act_btn);
@@ -565,10 +625,10 @@ CommonMenuBuilder::AddMediaItemChoice(Gtk::Menu& lnk_list, MediaItem mi, const s
     return itm;
 }
 
-void CommonMenuBuilder::AddConstantChoice(Gtk::Menu& lnk_list)
+void CommonMenuBuilder::AddConstantChoice()
 {
     // No Link
-    AddMediaItemChoice(lnk_list, MediaItem());
+    AddMediaItemChoice(resMenu, MediaItem());
 }
 
 Gtk::Menu& CommonMenuBuilder::Create()
@@ -584,7 +644,7 @@ Gtk::Menu& CommonMenuBuilder::Create()
     // и при вызове set_active() он тоже отработает ("отжали кнопку")
     Gtk::RadioMenuItem empty_itm(grp);
 
-    AddConstantChoice(lnk_list);
+    AddConstantChoice();
     lnk_list.append(NewManaged<Gtk::SeparatorMenuItem>());
     // * Menus
     if( !forPoster )

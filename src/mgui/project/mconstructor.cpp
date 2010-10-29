@@ -73,21 +73,34 @@ AStores& GetAStores()
     return AData().GetData<AStores>();
 }
 
-static bool ClearEndAction(VideoItem vi, MediaItem mi)
+static void ClearPA(PostAction& pa, MediaItem del_mi)
 {
-    PostAction& pa = vi->PAction();
-    if( pa.paLink == mi )
+    if( pa.paLink == del_mi )
     {
         pa.paLink = 0;
         pa.paTyp  = patAUTO;
     }
+}
+
+static bool ClearEndAction(VideoItem vi, MediaItem mi)
+{
+    ClearPA(vi->PAction(), mi);
+    return true;
+}
+
+static bool ClearEndActionM(Menu mn, MediaItem mi)
+{
+    ClearPA(mn->MtnData().pAct, mi);
     return true;
 }
 
 static void OnDeleteEndAction(MediaItem mi, const char* action)
 {
     if( mi && (strcmp("OnDelete", action) == 0) )
+    {
         ForeachVideo(bb::bind(ClearEndAction, _1, mi));
+        ForeachMenu(bb::bind(ClearEndActionM, _1, mi));
+    }
 }
 
 // создать списки медиа и меню
@@ -770,8 +783,7 @@ ConstructorApp::ConstructorApp(): askSaveOnExit(true), isProjectChanged(false)
 
 void SetTabName(Gtk::Notebook& nbook, const std::string& name, int pos)
 {
-    Gtk::Label& lbl = NewMarkupLabel("<span weight = \"bold\" style  = \"italic\">"
-                                     + name + "</span>", true);
+    Gtk::Label& lbl = NewBoldItalicLabel(name, true);
 
     // попытка сделать вертикальные закладки читабельными
     //switch( nbook.get_tab_pos() )

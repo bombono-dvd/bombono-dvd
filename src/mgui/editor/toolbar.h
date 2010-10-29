@@ -99,7 +99,7 @@ class CommonMenuBuilder
     virtual ActionFunctor  CreateAction(MediaItem mi) = 0;
 
                 Gtk::Menu& Create();
-    virtual          void  AddConstantChoice(Gtk::Menu& lnk_list);
+    virtual          void  AddConstantChoice();
 
     protected:
               MediaItem  curItm; // текущая ссылка
@@ -126,6 +126,26 @@ class EditorMenuBuilder: public CommonMenuBuilder
                                MyParent(cur_itm, for_poster), editor(ed) {}
     protected:
             MEditorArea& editor;
+};
+
+class EndActionMenuBld: public CommonMenuBuilder
+{
+    typedef CommonMenuBuilder MyParent;
+    public:
+    typedef boost::function<void(EndActionMenuBld&)> Functor;
+
+                    EndActionMenuBld(PostAction& pa, const ActionFunctor& on_updater,
+                                     const Functor& cc_adder);
+
+                     void  AddConstantItem(const std::string& label, PostActionType typ);
+
+    virtual ActionFunctor  CreateAction(Project::MediaItem mi);
+    virtual          void  AddConstantChoice();
+
+    protected:
+                 PostAction& pAct;
+        const ActionFunctor  onUpdater;
+              const Functor  ccAdder;
 };
 
 } // namespace Project

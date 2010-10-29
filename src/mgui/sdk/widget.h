@@ -53,6 +53,9 @@ Gtk::Frame& PackWidgetInFrame(Gtk::Widget& wdg, Gtk::ShadowType st,
 
 Gtk::Label& NewMarkupLabel(const std::string& label, bool use_underline = false);
 
+std::string BoldItalicText(const std::string& txt);
+Gtk::Label& NewBoldItalicLabel(const std::string& label, bool use_underline = false);
+
 //
 // GtkRadioButton, GtkRadioMenuItem и др. "radio"-виджеты отрабатывают toggled на оба состояния;
 // реально же действие хочется выполнить только на выбор.

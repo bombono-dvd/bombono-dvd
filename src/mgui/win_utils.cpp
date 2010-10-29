@@ -417,3 +417,13 @@ Gtk::Label& NewMarkupLabel(const std::string& label, bool use_underline)
     return lbl;
 }
 
+std::string BoldItalicText(const std::string& txt)
+{
+    return "<span weight=\"bold\" style=\"italic\">" + txt + "</span>";
+}
+
+Gtk::Label& NewBoldItalicLabel(const std::string& label, bool use_underline)
+{
+    return NewMarkupLabel(BoldItalicText(label), use_underline);
+}
+
