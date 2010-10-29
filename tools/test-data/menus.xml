@@ -29,7 +29,9 @@
       <Params Aspect="2">
         <Resolution x="720" y="576"/>
       </Params>
-      <MotionData IsMotion="1" Duration="1" AudioRef="Media.0" IsStillPicture="0" IsInternalAudio="1" ExtAudio=""/>
+      <MotionData IsMotion="1" Duration="1" AudioRef="Media.0" IsStillPicture="0" IsInternalAudio="1" ExtAudio="">
+        <PostAction Type="2" Ref="Media.0"/>
+      </MotionData>
       <SubpicturePalette Selected="#fff00080" Activated="#ff006c80"/>
       <MenuItems>
         <MenuItem Name="" Frame="ogradient" Poster="Media.1" Type="Frame Item" Ref="Menu.2">
@@ -50,7 +52,9 @@
       <Params Aspect="2">
         <Resolution x="720" y="576"/>
       </Params>
-      <MotionData IsMotion="0" Duration="15" AudioRef="" IsStillPicture="0" IsInternalAudio="1" ExtAudio=""/>
+      <MotionData IsMotion="0" Duration="15" AudioRef="" IsStillPicture="0" IsInternalAudio="1" ExtAudio="">
+        <PostAction Type="0" Ref=""/>
+      </MotionData>
       <SubpicturePalette Selected="#fff00080" Activated="#ff006c80"/>
       <MenuItems>
         <MenuItem Name="" Frame="roundrect" Poster="" Type="Frame Item" Ref="Media.0.0">
@@ -62,7 +66,9 @@
       <Params Aspect="2">
         <Resolution x="720" y="576"/>
       </Params>
-      <MotionData IsMotion="0" Duration="15" AudioRef="" IsStillPicture="0" IsInternalAudio="1" ExtAudio=""/>
+      <MotionData IsMotion="0" Duration="15" AudioRef="" IsStillPicture="0" IsInternalAudio="1" ExtAudio="">
+        <PostAction Type="0" Ref=""/>
+      </MotionData>
       <SubpicturePalette Selected="#ff006c80" Activated="#fff000e6"/>
       <MenuItems>
         <MenuItem Name="" Frame="cell" Poster="" Type="Frame Item" Ref="Media.1.0">

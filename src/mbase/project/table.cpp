@@ -226,6 +226,11 @@ void Serialize(Archieve& ar, PostAction& pa)
     SerializeReference(ar, "Ref", pa.paLink);
 }
 
+void SerializePostAction(Archieve& ar, PostAction& pa)
+{
+    ar("PostAction", pa);
+}
+
 void VideoMD::SerializeImpl(Archieve& ar)
 {
     MyParent::SerializeImpl(ar);
@@ -248,7 +253,7 @@ void VideoMD::SerializeImpl(Archieve& ar)
         }
     }
 
-    ar("PostAction", pAct);
+    SerializePostAction(ar, pAct);
 }
 
 void VideoChapterMD::SerializeImpl(Archieve& ar)

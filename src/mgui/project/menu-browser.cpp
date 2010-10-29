@@ -243,6 +243,19 @@ static void PackColorButton(DialogVBox& vbox, Gtk::ColorButton& btn, const RGBA:
     AppendWithLabel(vbox, btn, label);
 }
 
+static Gtk::VBox& PackParaBox(Gtk::VBox& vbox)
+{
+    return PackStart(vbox, NewManaged<Gtk::VBox>(false, 4));
+}
+
+static Gtk::VBox& PackParaBox(Gtk::VBox& vbox, const char* name)
+{
+    Gtk::VBox& box = PackParaBox(vbox);
+    Gtk::Label& a_lbl = PackStart(box, NewBoldLabel(name));
+    SetAlign(a_lbl);
+
+    return box;
+}
 void MenuSettings(Menu mn, Gtk::Window* win)
 {
     Gtk::Dialog dlg(_("Menu Settings"), true);
@@ -275,29 +288,31 @@ void MenuSettings(Menu mn, Gtk::Window* win)
         OnMotionChoice(mtn_btn, vbox);
         mtn_btn.signal_toggled().connect(bb::bind(&OnMotionChoice, boost::ref(mtn_btn), boost::ref(vbox)));
 
-        // длительность
+        // основное
         {
-            Gtk::HBox& hbox = PackNamedWidget(vbox, LabelForWidget(SMCLN_("_Duration (in seconds)"), dur_btn), 
-                                              dur_btn, vbox.labelSg, Gtk::PACK_SHRINK);
-            Gtk::Label& sz_lbl = NewManaged<Gtk::Label>();
-            sz_lbl.set_padding(5, 0);
-            PackStart(hbox, sz_lbl, Gtk::PACK_SHRINK);
+            Gtk::VBox& box = PackParaBox(vbox);
+            // длительность
+            {
+                Gtk::HBox& hbox = PackNamedWidget(box, LabelForWidget(SMCLN_("_Duration (in seconds)"), dur_btn), 
+                                                  dur_btn, vbox.labelSg, Gtk::PACK_SHRINK);
+                Gtk::Label& sz_lbl = NewManaged<Gtk::Label>();
+                sz_lbl.set_padding(5, 0);
+                PackStart(hbox, sz_lbl, Gtk::PACK_SHRINK);
 
-            OnDurationChanged(dur_btn, sz_lbl);
-            dur_btn.signal_value_changed().connect(bb::bind(&OnDurationChanged, b::ref(dur_btn), b::ref(sz_lbl)));
+                OnDurationChanged(dur_btn, sz_lbl);
+                dur_btn.signal_value_changed().connect(bb::bind(&OnDurationChanged, b::ref(dur_btn), b::ref(sz_lbl)));
+            }
+            ConfigureSpin(dur_btn, mtn_dat.duration, MAX_MOTION_DURATION);
+
+            // Still Picture
+            sp_btn.set_active(mtn_dat.isStillPicture);
+            SetTip(sp_btn, _("Still menu with audio in the background"));
+            PackStart(box, sp_btn);
         }
-        ConfigureSpin(dur_btn, mtn_dat.duration, MAX_MOTION_DURATION);
-
-        // Still Picture
-        sp_btn.set_active(mtn_dat.isStillPicture);
-        SetTip(sp_btn, _("Still menu with audio in the background"));
-        PackStart(vbox, sp_btn);
 
     	// аудио
-        Gtk::VBox& a_box = PackStart(vbox, NewManaged<Gtk::VBox>(false));
         {
-            Gtk::Label& a_lbl = PackStart(a_box, NewBoldLabel(_("Audio")));
-            SetAlign(a_lbl);
+            Gtk::VBox& a_box = PackParaBox(vbox, _("Audio"));
             Gtk::RadioButtonGroup grp;
 
             a_btn.SetMI(mtn_dat.audioRef.lock());
@@ -313,6 +328,13 @@ void MenuSettings(Menu mn, Gtk::Window* win)
             prj_choice->signal_toggled().connect(
                 bb::bind(&OnAudioTypeChoice, boost::ref(*prj_choice), boost::ref(a_btn), 
                          boost::ref(a_ext_btn)));
+        }
+
+        AudioButton& pa_btn = NewManaged<AudioButton>();
+        // постдействие
+        {
+            Gtk::VBox& pa_box = PackParaBox(vbox, _("End Action"));
+            PackNamedWidget(pa_box, NewManaged<Gtk::Label>(), pa_btn, vbox.labelSg, Gtk::PACK_EXPAND_WIDGET);
         }
     }
 

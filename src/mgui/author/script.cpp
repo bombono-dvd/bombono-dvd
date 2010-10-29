@@ -220,6 +220,69 @@ int MenusCnt()
     return Size(GetAStores().mnStore);
 }
 
+// :KLUDGE: число видео на время авторинга
+int TitlesCount = 0;
+
+static std::string JumpNextTitle(VideoItem vi)
+{
+    int cur_num = GetAuthorNumber(*vi);
+    ASSERT( (cur_num > 0) && (cur_num <= TitlesCount) );
+
+    int next_num = (cur_num == TitlesCount) ? 1 : cur_num + 1;
+    return "jump title " + boost::lexical_cast<std::string>(next_num) + ";";
+}
+
+static std::string AutoPostCmd(const std::string& jnt_cmd)
+{
+    return MenusCnt() ? std::string("call menu entry root;") : jnt_cmd ;
+}
+
+static void AddPostCmd(xmlpp::Element* pgc_node, MediaItem mi)
+{
+    VideoItem vi = IsVideo(mi);
+    Menu mn      = IsMenu(mi);
+
+    ASSERT_RTL( vi || mn );
+    // VTS domain
+    bool is_video = vi;
+    const PostAction& pa = is_video ? vi->PAction() : mn->MtnData().pAct ;
+
+    std::string jnt_cmd;
+    // авто-команда
+    std::string auto_cmd;
+    if( is_video )
+    {
+        jnt_cmd = JumpNextTitle(vi);
+        // чаще всего будет эта команда
+        auto_cmd = AutoPostCmd(jnt_cmd);
+    }
+    else
+        auto_cmd = "jump cell 1;"; // Loop
+
+    std::string post_cmd;
+    switch( pa.paTyp )
+    {
+    case patAUTO:
+        post_cmd = auto_cmd;
+        break;
+    case patNEXT_TITLE:
+        ASSERT( is_video );
+        post_cmd = jnt_cmd;
+        break;
+    case patEXP_LINK:
+        if( pa.paLink )
+            post_cmd = MakeButtonJump(pa.paLink, is_video);
+        break;
+    default:
+        //ASSERT_RTL(0);
+        break; // не вылетаем на плохих проектах
+    }
+    if( post_cmd.empty() ) // пока "Stop" нет, и непонятно, как лучше его сделать
+        post_cmd = auto_cmd;
+
+    pgc_node->add_child("post")->add_child_text(post_cmd);
+}
+
 static bool ScriptMenu(xmlpp::Element* menus_node, Menu root_menu, Menu mn, int i)
 {
     xmlpp::Element* pgc_node = menus_node->add_child("pgc");
@@ -239,8 +302,7 @@ static bool ScriptMenu(xmlpp::Element* menus_node, Menu root_menu, Menu mn, int 
     std::string m_dir = MenuAuthorDir(mn, i);
     vob_node->set_attribute("file", AppendPath(m_dir, "MenuSub.mpg"));
     if( IsMotion(mn) )
-        // повторяем анимационное меню бесконечно
-        pgc_node->add_child("post")->add_child_text("jump cell 1;");
+        AddPostCmd(pgc_node, mn);
 
     // действия кнопок
     MenuRegion::ArrType& lst = GetMenuRegion(mn).List();
@@ -257,23 +319,7 @@ static bool ScriptMenu(xmlpp::Element* menus_node, Menu root_menu, Menu mn, int 
     return true;
 }
 
-typedef boost::function<std::string(VideoItem)> TitlePostCommand;
-
-static std::string JumpNextTitle(VideoItem vi, int titles_cnt)
-{
-    int cur_num = GetAuthorNumber(*vi);
-    ASSERT( (cur_num > 0) && (cur_num <= titles_cnt) );
-
-    int next_num = (cur_num == titles_cnt) ? 1 : cur_num + 1;
-    return "jump title " + boost::lexical_cast<std::string>(next_num) + ";";
-}
-
-static std::string AutoPostCmd(const std::string& jnt_cmd)
-{
-    return MenusCnt() ? std::string("call menu entry root;") : jnt_cmd ;
-}
-
-static bool ScriptTitle(xmlpp::Element* ts_node, VideoItem vi, int titles_cnt)
+static bool ScriptTitle(xmlpp::Element* ts_node, VideoItem vi)
 {
     xmlpp::Element* pgc_node = ts_node->add_child("pgc");
     xmlpp::Element* vob_node = pgc_node->add_child("vob");
@@ -293,29 +339,7 @@ static bool ScriptTitle(xmlpp::Element* ts_node, VideoItem vi, int titles_cnt)
     if( !is_empty )
         vob_node->set_attribute("chapters", chapters);
 
-    xmlpp::Element* post_node = pgc_node->add_child("post");
-
-    std::string jnt_cmd = JumpNextTitle(vi, titles_cnt);
-    // чаще всего будет эта команда
-    std::string post_cmd = AutoPostCmd(jnt_cmd);
-    PostAction& pa = vi->PAction();
-    switch( pa.paTyp )
-    {
-    case patAUTO:
-        break;
-    case patNEXT_TITLE:
-        post_cmd = jnt_cmd;
-        break;
-    case patEXP_LINK:
-        if( pa.paLink )
-            post_cmd = MakeButtonJump(pa.paLink, true);
-        break;
-    default:
-        //ASSERT_RTL(0);
-        break; // не вылетаем на плохих проектах
-    }
-    post_node->add_child_text(post_cmd);
-
+    AddPostCmd(pgc_node, vi);
     return true;
 }
 
@@ -363,7 +387,7 @@ bool IsMenuToBe4_3()
 
 void GenerateDVDAuthorScript(const std::string& out_dir)
 {
-    int titles_cnt = IndexVideosForAuthoring();
+    TitlesCount = IndexVideosForAuthoring();
     ADatabase& db = AData();
     AStores&   as = GetAStores();
 
@@ -438,7 +462,7 @@ void GenerateDVDAuthorScript(const std::string& out_dir)
         xmlpp::Element* ts_node = tts_node->add_child("titles");
         AddVideoTag(ts_node, Is4_3(first_vi));
 
-        ForeachVideo(bb::bind(&ScriptTitle, ts_node, _1, titles_cnt));
+        ForeachVideo(bb::bind(&ScriptTitle, ts_node, _1));
     }
     doc.write_to_file_formatted(AppendPath(out_dir, "DVDAuthor.xml"));
 }

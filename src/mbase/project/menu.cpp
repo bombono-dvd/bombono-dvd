@@ -100,6 +100,7 @@ static void Serialize(Archieve& ar, MotionData& mtn_data)
 
     SerializeReference(ar, "AudioRef", mtn_data.audioRef);
     SerializePath(ar, "ExtAudio", mtn_data.audioExtPath);
+    SerializePostAction(ar, mtn_data.pAct);
 }
 
 static void SerializeColor(Archieve& ar, const char* tag_name, RGBA::Pixel& clr)

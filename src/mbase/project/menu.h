@@ -52,6 +52,8 @@ struct MotionData
     WMediaItem  audioRef; // отсюда берем аудио (видео или глава!)
    std::string  audioExtPath;
 
+    PostAction  pAct;
+
     MotionData(): isMotion(false), duration(DEF_MOTION_DURATION), isStillPicture(false),
         isIntAudio(true) {}
 };
@@ -86,7 +88,6 @@ class MenuMD: public PSO<MenuMD, Media> // от Media
                MotionData& MtnData(){ return mtnData; }
 
         SubpicturePalette  subPal;
-
 
     virtual   std::string  TypeString() { return "Menu"; }
     virtual          void  SerializeImpl(Archieve& /*ar*/);

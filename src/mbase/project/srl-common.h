@@ -58,6 +58,8 @@ void SerializeReference(Archieve& ar, const char* attr_name, MediaItem& mi);
 std::string ToString(const RGBA::Pixel& pxl);
 RGBA::Pixel MakeColor(const std::string& clr_str);
 
+void SerializePostAction(Archieve& ar, PostAction& pa);
+
 } // namespace Project
 
 #endif // #ifndef __MBASE_PROJECT_TABLE_SRL_H__
