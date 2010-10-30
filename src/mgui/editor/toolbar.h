@@ -47,16 +47,16 @@ namespace Project
 FrameThemeObj* AddFTOItem(MenuRegion& menu_rgn, const std::string& theme, const Rect& lct, MediaItem mi);
 void AddMenuItem(MenuRegion& menu_rgn, Comp::Object* obj);
 
-// вспомогательная структура для передачи меню ссылок
-// от браузеров к редактору
-struct SetLinkMenu
-{
-                  bool  isForBack; // нужны ссылки для фона
-    ptr::one<Gtk::Menu> linkMenu;
-             MediaItem  newLink;
-
-    SetLinkMenu(): isForBack(false) {}
-};
+//// вспомогательная структура для передачи меню ссылок
+//// от браузеров к редактору
+//struct SetLinkMenu
+//{
+//                  bool  isForBack; // нужны ссылки для фона
+//    ptr::one<Gtk::Menu> linkMenu;
+//             MediaItem  newLink;
+//
+//    SetLinkMenu(): isForBack(false) {}
+//};
 
 } // namespace Project
 
@@ -80,7 +80,6 @@ void AddFTOItem(MEditorArea& editor, const Point& center, Project::MediaItem mi)
 
 } // namespace Editor
 
-void SetSelObjectsLinks(Project::MediaItem mi, bool is_background);
 void SetSelObjectsTStyle(MEditorArea& edt_area, const Editor::TextStyle& ts, bool only_clr);
 
 void SetBackgroundLink(Project::MediaItem mi);

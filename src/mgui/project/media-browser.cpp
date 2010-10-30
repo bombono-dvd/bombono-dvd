@@ -190,8 +190,7 @@ static void OnMBButtonPress(MediaItem mi, GdkEventButton* event)
     Gtk::MenuItem& ea_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("End Action")));
     // пока только видео (позже - постдействие для интерактивных меню)
     VideoItem vi = IsVideo(mi);
-    ea_itm.set_sensitive(vi);
-    if( vi )
+    if( SetEnabled(ea_itm, vi) )
         ea_itm.set_submenu(EndActionMenuBld(vi->PAction(), boost::function_identity,
                                             VideoAddConstantChoice).Create());
     Popup(mn, event, true);

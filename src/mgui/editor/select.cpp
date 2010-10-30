@@ -179,7 +179,7 @@ static bool SetupCurFrame(FrameThemeObj* obj, MenuRegion&)
     const std::string& theme = obj->Theme();
     if( theme != Editor::GetActiveTheme() )
     {
-	Gtk::ComboBox& combo = MenuToolbar().frame_combo;
+        Gtk::ComboBox& combo = MenuToolbar().frame_combo;
         //Gtk::TreeModel::Children children = combo.get_model()->children();
         //for( Gtk::TreeModel::iterator itr = children.begin(), end = children.end();
         //     itr != end; ++itr )
@@ -278,25 +278,22 @@ void MovePress::OnPressUp(MEditorArea& edt_area, NormalSelect::Data& dat)
 
 static void DeleteSelObjects();
 
-//static bool GetFirstMILink(Comp::MediaObj* obj, Project::MediaItem& res_mi)
-//{
-//    res_mi = obj->MediaItem();
-//    return true;
-//}
-
-static Project::MediaItem GetCurObjectLink(bool is_background)
+static Project::MediaItem GetCurObjectLink()
 {
     Project::MediaItem res_mi;
-    if( is_background )
-        res_mi = CurMenuRegion().BgRef();
-    else
-        //ForeachSelectedCM(edt_area, bb::bind(&GetFirstMILink, _1, boost::ref(res_mi))); 
-        boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs() )
-        {
-            res_mi = obj->MediaItem();
-            break;
-        }
-
+    //if( is_background )
+    //    res_mi = CurMenuRegion().BgRef();
+    //else
+    //    boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs() )
+    //    {
+    //        res_mi = obj->MediaItem();
+    //        break;
+    //    }
+    boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs() )
+    {
+        res_mi = obj->MediaItem();
+        break;
+    }
     return res_mi;
 }
 
@@ -359,18 +356,52 @@ static void SetObjectsLinks(Project::MediaItem mi, bool for_poster)
     SetObjectsLinksEx(edt_area, mi, edt_area.SelArr(), for_poster);
 }
 
+static void SetActionLink(Project::MediaItem mi)
+{
+    SetObjectsLinks(mi, false);
+}
+
+class LinkMenuBuilder: public Project::EditorMenuBuilder
+{
+    typedef Project::EditorMenuBuilder MyParent;
+    public:
+                    LinkMenuBuilder(Project::MediaItem cur_itm)
+                        :MyParent(cur_itm, MenuEditor(), false) {}
+
+    virtual ActionFunctor  CreateAction(Project::MediaItem mi);
+};
+
+ActionFunctor LinkMenuBuilder::CreateAction(Project::MediaItem mi)
+{
+    return bb::bind(&SetActionLink, mi);
+}
+
 class PosterMenuBuilder: public Project::EditorMenuBuilder
 {
     typedef Project::EditorMenuBuilder MyParent;
     public:
-                    PosterMenuBuilder(Project::MediaItem cur_itm, MEditorArea& ed)
-                        :MyParent(cur_itm, ed, true) {}
+    PosterMenuBuilder(Project::MediaItem cur_itm, MEditorArea& ed, bool is_back)
+        :MyParent(cur_itm, ed, true), isBack(is_back) {}
 
-    virtual ActionFunctor CreateAction(Project::MediaItem mi)
-    {
-        return bb::bind(&SetObjectsLinks, mi, true);
-    }
+    virtual ActionFunctor CreateAction(Project::MediaItem mi);
+
+    protected:
+        bool  isBack;
 };
+
+static void OnPosterChoice(Project::MediaItem mi, bool is_back)
+{
+    if( is_back )
+        SetBackgroundLink(mi);
+    else
+        SetObjectsLinks(mi, true);
+}
+
+ActionFunctor PosterMenuBuilder::CreateAction(Project::MediaItem mi)
+{
+    // ко времени выбора "builder" меню уже не существует
+    return bb::bind(&OnPosterChoice, mi, isBack);
+}
 
 typedef boost::function<void(Comp::MediaObj*)> CMFunctor2;
 
@@ -552,6 +583,12 @@ static void DistributeImpl(bool is_hz)
 
 static void SetBgColor();
 
+bool SetEnabled(Gtk::Widget& wdg, bool is_enabled)
+{
+    wdg.set_sensitive(is_enabled);
+    return is_enabled;
+}
+
 void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
 {
     int sel_pos;
@@ -585,44 +622,49 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
 
         using namespace Gtk::Menu_Helpers;
         const int_array& sel_arr = edt_area.SelArr();
-        bool is_background = sel_arr.empty();
-        Gtk::Menu& mn      = NewPopupMenu(); 
+        bool has_selected = !sel_arr.empty();
+        Gtk::Menu& mn     = NewPopupMenu(); 
 
-        mn.items().push_back(MenuElem(_("Delete"), &DeleteSelObjects));
-        if( is_background )
-            mn.items().back().set_sensitive(false);
-        mn.items().push_back(SeparatorElem());
+        AddEnabledItem(mn, _("Delete"), &DeleteSelObjects, has_selected);
+        AppendSeparator(mn);
 
-        // Set Link
-        Project::Menu      cur_mn = edt_area.CurMenu();
-        Project::SetLinkMenu& slm = cur_mn->GetData<Project::SetLinkMenu>();
-        slm.isForBack = is_background;
-        slm.newLink   = GetCurObjectLink(is_background);
-
-        InvokeOn(cur_mn, "SetLinkMenu");
-        if( slm.linkMenu )
-        {
-            mn.items().push_back(MenuElem(_("Link")));
-            mn.items().back().set_submenu(*slm.linkMenu.release());
-        }
-        mn.items().push_back(
-            MenuElem(_("Remove Link"), bb::bind(&SetSelObjectsLinks, 
-                                                Project::MediaItem(), is_background)));
+        // Link
+        //bool is_background = !has_selected;
+        //Project::Menu cur_mn = edt_area.CurMenu();
+        //Project::SetLinkMenu& slm = cur_mn->GetData<Project::SetLinkMenu>();
+        //slm.isForBack = is_background;
+        //slm.newLink   = GetCurObjectLink(is_background);
+        //
+        //InvokeOn(cur_mn, "SetLinkMenu");
+        //if( slm.linkMenu )
+        //{
+        //    mn.items().push_back(MenuElem(_("Link")));
+        //    mn.items().back().set_submenu(*slm.linkMenu.release());
+        //}
+        //mn.items().push_back(
+        //    MenuElem(_("Remove Link"), bb::bind(&SetSelObjectsLinks,
+        //                                        Project::MediaItem(), is_background)));
+        Gtk::MenuItem& link_itm = MakeAppendMI(mn, _("Link"));
+        if( SetEnabled(link_itm, has_selected) )
+            link_itm.set_submenu(LinkMenuBuilder(GetCurObjectLink()).Create());
+        AddEnabledItem(mn, _("Remove Link"), bb::bind(&SetActionLink, Project::MediaItem()),
+                       has_selected);
 
         // Poster Link
         Gtk::MenuItem& poster_itm = MakeAppendMI(mn, _("Set Poster"));
-        bool can_set_poster;
-        Project::MediaItem cur_pstr = GetCurPosterLink(can_set_poster);
-        poster_itm.set_sensitive(can_set_poster);
-        if( can_set_poster )
-            poster_itm.set_submenu(PosterMenuBuilder(cur_pstr, edt_area).Create());
+        Project::MediaItem cur_pstr;
+        bool can_set_poster = true;
+        if( has_selected )
+            cur_pstr = GetCurPosterLink(can_set_poster);
+        else
+            cur_pstr = CurMenuRegion().BgRef();
+        if( SetEnabled(poster_itm, can_set_poster) )
+            poster_itm.set_submenu(PosterMenuBuilder(cur_pstr, edt_area, !has_selected).Create());
 
         // Align
         {
             Gtk::MenuItem& align_itm = MakeAppendMI(mn, _("Align"));
-            bool can_align = !is_background;
-            align_itm.set_sensitive(can_align);
-            if( can_align )
+            if( SetEnabled(align_itm, has_selected) )
             {
                 Gtk::Menu& menu = NewManaged<Gtk::Menu>();
                 align_itm.set_submenu(menu);
@@ -645,7 +687,7 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
         }
 
         // Set Background Color
-        AddEnabledItem(mn, _("Set Background Color..."), &SetBgColor, is_background);
+        AddEnabledItem(mn, _("Set Background Color..."), &SetBgColor, !has_selected);
 
         //mn.accelerate(edt_area);
         Popup(mn, event, true);
@@ -887,13 +929,13 @@ void SetBackgroundLink(Project::MediaItem mi)
     RenderForRegion(edt_area, Rect0Sz(edt_area.FramePlacement().Size()));
 }
 
-void SetSelObjectsLinks(Project::MediaItem mi, bool is_background)
-{
-    if( is_background )
-        SetBackgroundLink(mi);
-    else
-        SetObjectsLinks(mi, false);
-}
+//void SetSelObjectsLinks(Project::MediaItem mi, bool is_background)
+//{
+//    if( is_background )
+//        SetBackgroundLink(mi);
+//    else
+//        SetObjectsLinks(mi, false);
+//}
 
 static void SetBgColor()
 {

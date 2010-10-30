@@ -563,19 +563,6 @@ static void OnMenuBrowserRowActivated(ActionFunctor edit_fnr)
     edit_fnr();
 }
 
-class SetLinkMenuVis: public ObjVisitor
-{
-    public:
-                SetLinkMenuVis(RefPtr<MenuStore> mn_store, RefPtr<MediaStore> md_store)
-                    :mnStore(mn_store), mdStore(md_store) {}
-
- virtual  void  Visit(MenuMD& obj);
-
-    protected:
-        RefPtr<MenuStore> mnStore;
-       RefPtr<MediaStore> mdStore;
-};
-
 static void AddNoStaffItem(Gtk::Menu& lnk_list, const std::string& label)
 {
     Gtk::MenuItem& mn_itm = NewManaged<Gtk::MenuItem>(Glib::ustring(label));
@@ -586,21 +573,6 @@ static void AddNoStaffItem(Gtk::Menu& lnk_list, const std::string& label)
 static std::string MakeMediaItemNameForMenu(MediaItem mi)
 {
     return mi ? mi->mdName + " (" + gettext(mi->TypeString().c_str()) + ")" : _("No Link") ;
-}
-
-class LinkMenuBuilder: public EditorMenuBuilder
-{
-    typedef EditorMenuBuilder MyParent;
-    public:
-                    LinkMenuBuilder(SetLinkMenu& slm, MEditorArea& ed)
-                        :MyParent(slm.newLink, ed, slm.isForBack) {}
-
-    virtual ActionFunctor  CreateAction(MediaItem mi);
-};
-
-ActionFunctor LinkMenuBuilder::CreateAction(MediaItem mi)
-{
-    return bb::bind(SetSelObjectsLinks, mi, forPoster);
 }
 
 void AppendRadioItem(Gtk::RadioMenuItem& itm, bool is_active, const ActionFunctor& fnr, Gtk::Menu& lnk_list)
@@ -699,18 +671,31 @@ Gtk::Menu& CommonMenuBuilder::Create()
     return lnk_list;
 }
 
-void SetLinkMenuVis::Visit(MenuMD& obj)
-{
-    SetLinkMenu& slm = obj.GetData<SetLinkMenu>();
-
-    MenuPack& mp = obj.GetData<MenuPack>();
-    if( !mp.editor )
-    {
-        LOG_ERR << "SetLinkMenuVis::Visit: where is editor?" << io::endl;
-        return;
-    }
-    slm.linkMenu = &LinkMenuBuilder(slm, *mp.editor).Create();
-}
+//class SetLinkMenuVis: public ObjVisitor
+//{
+//    public:
+//                SetLinkMenuVis(RefPtr<MenuStore> mn_store, RefPtr<MediaStore> md_store)
+//                    :mnStore(mn_store), mdStore(md_store) {}
+//
+// virtual  void  Visit(MenuMD& obj);
+//
+//    protected:
+//        RefPtr<MenuStore> mnStore;
+//       RefPtr<MediaStore> mdStore;
+//};
+//
+//void SetLinkMenuVis::Visit(MenuMD& obj)
+//{
+//    SetLinkMenu& slm = obj.GetData<SetLinkMenu>();
+//
+//    MenuPack& mp = obj.GetData<MenuPack>();
+//    if( !mp.editor )
+//    {
+//        LOG_ERR << "SetLinkMenuVis::Visit: where is editor?" << io::endl;
+//        return;
+//    }
+//    slm.linkMenu = &LinkMenuBuilder(slm, *mp.editor).Create();
+//}
 
 void PackMenusWindow(Gtk::Container& contr, RefPtr<MenuStore> ms, RefPtr<MediaStore> md_store)
 {
@@ -722,7 +707,7 @@ void PackMenusWindow(Gtk::Container& contr, RefPtr<MenuStore> ms, RefPtr<MediaSt
     meditor.StandAlone() = false;
     RegisterOnChangeName(new EdtOnChangeNameVis(meditor, title_lbl));
     RegisterOnDelete(new EdtOnDeleteVis(meditor, title_lbl));
-    RegisterHandler(new SetLinkMenuVis(ms, md_store), "SetLinkMenu");
+    //RegisterHandler(new SetLinkMenuVis(ms, md_store), "SetLinkMenu");
 
     Gtk::HPaned& hp = NewManaged<Gtk::HPaned>();
     // :TRICKY:

@@ -91,5 +91,7 @@ RGBA::Pixel GetColor(const Gtk::ColorButton& btn);
 void SetColor(Gtk::ColorButton& btn, const RGBA::Pixel& pxl);
 void ConfigureRGBAButton(Gtk::ColorButton& btn, const RGBA::Pixel& pxl);
 
+bool SetEnabled(Gtk::Widget& wdg, bool is_enabled);
+
 #endif // #ifndef __MGUI_SDK_WIDGET_H__
 
