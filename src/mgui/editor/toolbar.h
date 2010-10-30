@@ -89,9 +89,18 @@ void ToggleSafeArea();
 
 namespace Project {
 
-class CommonMenuBuilder
+struct CommonMenuBuilder
 {
-    public:
+            MediaItem  curItm; // текущая ссылка
+                       // визуальная ссылка (=> только "первичка") 
+                       // для переходов (может быть меню, не может быть рисунком)
+                 bool  forPoster;
+                 bool  onlyWithAudio; // картинки запрещены
+
+            Gtk::Menu& resMenu;  // результирующее меню; обязательно должно быть присоединено после Create(),
+                                 // иначе утечка
+Gtk::RadioButtonGroup  radioGrp;
+
                            CommonMenuBuilder(MediaItem cur_itm, bool for_poster, bool only_with_audio = false);
     virtual               ~CommonMenuBuilder() {}
 
@@ -100,22 +109,12 @@ class CommonMenuBuilder
                 Gtk::Menu& Create();
     virtual          void  AddConstantChoice();
 
-    protected:
-              MediaItem  curItm; // текущая ссылка
-                         // визуальная ссылка (=> только "первичка") 
-                         // для переходов (может быть меню, не может быть рисунком)
-                   bool  forPoster;
-                   bool  onlyWithAudio; // картинки запрещены
-
-              Gtk::Menu& resMenu;  // результирующее меню; обязательно должно быть присоединено после Creat(),
-                                   // иначе утечка
-  Gtk::RadioButtonGroup  radioGrp;
-
-Gtk::RadioMenuItem& 
-AddMediaItemChoice(Gtk::Menu& lnk_list, MediaItem mi, const std::string& name = std::string());
+Gtk::RadioMenuItem& AddMediaItemChoice(Gtk::Menu& lnk_list, MediaItem mi, const std::string& name = std::string());
+void AddPredefinedItem(const std::string& label, bool is_active, const ActionFunctor& fnr);
 };
 
 void AppendRadioItem(Gtk::RadioMenuItem& itm, bool is_active, const ActionFunctor& fnr, Gtk::Menu& lnk_list);
+void AddNoLinkItem(CommonMenuBuilder& mb, bool exp_link);
 
 class EditorMenuBuilder: public CommonMenuBuilder
 {

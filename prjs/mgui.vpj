@@ -267,6 +267,7 @@
 			<F N="../src/mgui/editor/tool.h"/>
 			<F N="../src/mgui/editor/toolbar.h"/>
 			<F N="../src/mgui/trackwindow.h"/>
+			<F N="../src/mgui/sdk/treemodel.h"/>
 			<F N="../src/mgui/editor/txtool.h"/>
 			<F N="../src/mgui/editor/visitors.h"/>
 			<F N="../src/mgui/sdk/widget.h"/>

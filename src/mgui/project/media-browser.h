@@ -24,6 +24,8 @@
 
 #include "browser.h"
 
+#include <mgui/sdk/treemodel.h>
+
 namespace Project
 {
 
@@ -32,22 +34,25 @@ class MediaStore: public ObjectStore
     typedef ObjectStore MyParent;
     public:
 
-            struct TrackFields : public Gtk::TreeModelColumnRecord
+            struct TrackFields
             {
                 //Gtk::TreeModelColumn<Glib::ustring>        title;
                 Gtk::TreeModelColumn<RefPtr<Gdk::Pixbuf> > thumbnail;
                 Gtk::TreeModelColumn<MediaItem>   media;
     
-                TrackFields() 
+                TrackFields(Gtk::TreeModelColumnRecord& rec) 
                 { 
                     //add(title); 
-                    add(thumbnail);
-                    add(media);
+                    rec.add(thumbnail);
+                    rec.add(media);
                 }
             };
-            const TrackFields  columns;
+            //const TrackFields  columns;
 
-                             MediaStore() { set_column_types(columns); }
+                             MediaStore();
+
+      static    TrackFields& Fields();
+      static      MediaItem  Get(const Gtk::TreeRow& row);
 
       virtual     MediaItem  GetMedia(const Gtk::TreeIter& itr) const;
 

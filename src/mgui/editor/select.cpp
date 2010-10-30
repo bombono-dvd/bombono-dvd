@@ -278,9 +278,9 @@ void MovePress::OnPressUp(MEditorArea& edt_area, NormalSelect::Data& dat)
 
 static void DeleteSelObjects();
 
-static Project::MediaItem GetCurObjectLink()
+static Comp::MediaObj* GetCurMO()
 {
-    Project::MediaItem res_mi;
+    //Project::MediaItem res_mi;
     //if( is_background )
     //    res_mi = CurMenuRegion().BgRef();
     //else
@@ -289,12 +289,13 @@ static Project::MediaItem GetCurObjectLink()
     //        res_mi = obj->MediaItem();
     //        break;
     //    }
+    Comp::MediaObj* res = 0;
     boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs() )
     {
-        res_mi = obj->MediaItem();
+        res = obj;
         break;
     }
-    return res_mi;
+    return res;
 }
 
 // sel_pos - над каким элементом находимся
@@ -356,24 +357,57 @@ static void SetObjectsLinks(Project::MediaItem mi, bool for_poster)
     SetObjectsLinksEx(edt_area, mi, edt_area.SelArr(), for_poster);
 }
 
-static void SetActionLink(Project::MediaItem mi)
+static void SetPlayAllFlag(bool is_on)
+{
+    boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs() )
+        obj->PlayAll() = is_on;
+}
+
+static void SetActionLinkImpl(Project::MediaItem mi)
 {
     SetObjectsLinks(mi, false);
+}
+
+static void SetActionLink(Project::MediaItem mi)
+{
+    SetActionLinkImpl(mi);
+    SetPlayAllFlag(false);
+}
+
+static void SetPlayAll()
+{
+    SetActionLinkImpl(Project::MediaItem());
+    SetPlayAllFlag(true);
 }
 
 class LinkMenuBuilder: public Project::EditorMenuBuilder
 {
     typedef Project::EditorMenuBuilder MyParent;
     public:
-                    LinkMenuBuilder(Project::MediaItem cur_itm)
-                        :MyParent(cur_itm, MenuEditor(), false) {}
+                    LinkMenuBuilder(Comp::MediaObj* obj)
+                        :MyParent(obj->MediaItem(), MenuEditor(), false), playAll(obj->PlayAll()) {}
 
     virtual ActionFunctor  CreateAction(Project::MediaItem mi);
+    virtual          void  AddConstantChoice();
+
+    protected:
+        bool  playAll;
 };
+
+ActionFunctor MakeActionLinker(Project::MediaItem mi)
+{
+    return bb::bind(&SetActionLink, mi);
+}
 
 ActionFunctor LinkMenuBuilder::CreateAction(Project::MediaItem mi)
 {
-    return bb::bind(&SetActionLink, mi);
+    return MakeActionLinker(mi);
+}
+
+void LinkMenuBuilder::AddConstantChoice()
+{
+    AddNoLinkItem(*this, !playAll);
+    AddPredefinedItem(_("Play All"), playAll, SetPlayAll);
 }
 
 class PosterMenuBuilder: public Project::EditorMenuBuilder
@@ -646,8 +680,8 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
         //                                        Project::MediaItem(), is_background)));
         Gtk::MenuItem& link_itm = MakeAppendMI(mn, _("Link"));
         if( SetEnabled(link_itm, has_selected) )
-            link_itm.set_submenu(LinkMenuBuilder(GetCurObjectLink()).Create());
-        AddEnabledItem(mn, _("Remove Link"), bb::bind(&SetActionLink, Project::MediaItem()),
+            link_itm.set_submenu(LinkMenuBuilder(GetCurMO()).Create());
+        AddEnabledItem(mn, _("Remove Link"), MakeActionLinker(Project::MediaItem()),
                        has_selected);
 
         // Poster Link

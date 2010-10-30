@@ -66,10 +66,11 @@ static void CheckMediaPaths(RefPtr<MediaStore> ms, int have_cnt = -1)
     }
 }
 
-static void CopyRow(Gtk::TreeRow& dst, Gtk::TreeRow& src, RefPtr<MediaStore> ms)
+static void CopyRow(Gtk::TreeRow& dst, Gtk::TreeRow& src)
 {
-    dst.set_value(ms->columns.media,     src.get_value(ms->columns.media));
-    dst.set_value(ms->columns.thumbnail, src.get_value(ms->columns.thumbnail));
+    MediaStore::TrackFields& columns = MediaStore::Fields();
+    dst.set_value(columns.media,     src.get_value(columns.media));
+    dst.set_value(columns.thumbnail, src.get_value(columns.thumbnail));
 }
 
 // (переносим только картинку => главы переносить не надо)
@@ -78,7 +79,7 @@ void CheckEmulateDrag(int from_pos, int to_pos, RefPtr<MediaStore> ms)
     int cnt = GetMediasSize(ms);
     Gtk::TreeRow row = ms->children()[from_pos];
     Gtk::TreeRow new_row = *ms->insert(ms->children()[to_pos]);
-    CopyRow(new_row, row, ms);
+    CopyRow(new_row, row);
     if( from_pos < to_pos )
         SyncOnDragReceived(ms->get_path(new_row), ms->get_path(row), ms);
     else

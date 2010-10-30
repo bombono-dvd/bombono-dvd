@@ -89,18 +89,20 @@ namespace Composition {
 class MediaObj: public Object
 {
     public:
-                      MediaObj(): mdItem(this) {}
+                      MediaObj(): mdItem(this), playAll(false) {}
 
                       // положение на холсте
           const Rect& Placement() const { return mdPlc; }
   virtual       void  SetPlacement(const Rect& rct) { mdPlc = rct; }
 
            MediaLink& MediaItem() { return mdItem; }
+	        bool& PlayAll() { return playAll; }
 
     protected:
 
                 Rect  mdPlc;
            MediaLink  mdItem;
+	        bool  playAll; // альтернатива явному mdItem
 };
 
 // // шаблон для объектов, порожденных от MediaStrategy

@@ -41,8 +41,6 @@
 #include <mlib/string.h>
 #include <mlib/sdk/logger.h>
 
-#include <boost/lexical_cast.hpp>
-
 namespace Project 
 {
 
@@ -67,10 +65,10 @@ TSBegEnd BeginEnd(RefPtr<Gtk::TreeStore> store)
 
 // из-за того, что все медиа в одном браузере (включая картинки="не видео"),
 // нельзя использовать естественную нумерацию для авторинга 
-static int& GetAuthorNumber(VideoMD& obj)
+static int& GetAuthorNumber(VideoItem vi)
 {
     //return GetBrowserPath(&obj)[0]+1;
-    return obj.GetData<int>(AUTHOR_TAG);
+    return vi->GetData<int>(AUTHOR_TAG);
 }
 
 int ForeachVideo(VideoFnr fnr)
@@ -86,6 +84,22 @@ int ForeachVideo(VideoFnr fnr)
             i++;
         }
     return i;
+}
+
+static VideoItem ToVITransform(const Gtk::TreeRow& row) 
+{
+    return IsVideo( MediaStore::Get(row) );
+}
+
+static bool IsNotNull(const VideoItem& vi)
+{
+    return bool(vi);
+}
+
+fe::range<VideoItem> AllVideos()
+{
+    RefPtr<MediaStore> md_store = GetAStores().mdStore;
+    return fe::make_any( md_store->children() | fe::transformed(ToVITransform) | fe::filtered(IsNotNull) );
 }
 
 typedef boost::function<bool(Menu, int)> MenuFnr;
@@ -105,7 +119,7 @@ void ForeachMenu(MenuFnr fnr)
 
 bool IndexForAuthoring(VideoItem vi, int idx)
 {
-    GetAuthorNumber(*vi) = idx+1; // индекс от 1
+    GetAuthorNumber(vi) = idx+1; // индекс от 1
     return true;
 }
 
@@ -129,7 +143,7 @@ static std::string MakeFPTarget(MediaItem mi)
     {
         VideoItem vi = IsVideo(mi);
         ASSERT( vi );
-        str = (str::stream() << "title " << GetAuthorNumber(*vi)).str();
+        str = (str::stream() << "title " << GetAuthorNumber(vi)).str();
     }
     return str;
 }
@@ -158,14 +172,19 @@ void TargetCommandVis::Visit(MenuMD& obj)
     res = boost::format("g1 = %1%; %2% menu entry root;") % GetMenuANum(&obj) % (vtsDomain ? "call" : "jump") % bf::stop; 
 }
 
+static std::string JumpTitleCmd(int num)
+{
+    return boost::format("jump title %1%;") % num % bf::stop; 
+}
+
 void TargetCommandVis::Visit(VideoMD& obj)
 {
-    res = (str::stream() << "jump title " << GetAuthorNumber(obj) << ";").str(); 
+    res = JumpTitleCmd(GetAuthorNumber(&obj)); 
 }
 
 void TargetCommandVis::Visit(VideoChapterMD& obj) 
 {
-    int v_num = GetAuthorNumber(*obj.owner);
+    int v_num = GetAuthorNumber(obj.owner);
     // :TODO: title 1 всегда равно title 1 chapter 1; при этом dvdauthor не воспринимает 
     // главы "вблизи нуля" (<0.27секунд; задание - посмотреть точно), поэтому нужна предварительная
     // перенумерация, как с видео
@@ -204,14 +223,28 @@ std::string MenuAuthorDir(Menu mn, int idx, bool cnv_from_utf8)
     return cnv_from_utf8 ? ConvertPathFromUtf8(fname) : fname ;
 }
 
+int TitlesCount()
+{
+    return boost::distance(AllVideos());
+}
+
 bool HasButtonLink(Comp::MediaObj& m_obj, std::string& targ_str)
 {
-    bool res = false;
-    if( MediaItem btn_target = m_obj.MediaItem() )
+    bool res = true;
+
+    if( m_obj.PlayAll() )
+    {
+        if( TitlesCount() == 0 )
+            Author::Error("There is no video for \"Play All\" function.");
+        targ_str = boost::format("g2 = 1; %1%") % JumpTitleCmd(1) % bf::stop;
+    }
+    else if( MediaItem btn_target = m_obj.MediaItem() )
     {
         targ_str = MakeButtonJump(btn_target, false);
         res = !targ_str.empty();
     }
+    else
+        res = false;
     return res;
 }
 
@@ -220,16 +253,18 @@ int MenusCnt()
     return Size(GetAStores().mnStore);
 }
 
-// :KLUDGE: число видео на время авторинга
-int TitlesCount = 0;
+static bool IsEndVideo(int cur_num)
+{
+    return cur_num == TitlesCount();
+}
 
 static std::string JumpNextTitle(VideoItem vi)
 {
-    int cur_num = GetAuthorNumber(*vi);
-    ASSERT( (cur_num > 0) && (cur_num <= TitlesCount) );
+    int cur_num = GetAuthorNumber(vi);
+    ASSERT( (cur_num > 0) && (cur_num <= TitlesCount()) );
 
-    int next_num = (cur_num == TitlesCount) ? 1 : cur_num + 1;
-    return "jump title " + boost::lexical_cast<std::string>(next_num) + ";";
+    int next_num = IsEndVideo(cur_num) ? 1 : cur_num + 1;
+    return JumpTitleCmd(next_num);
 }
 
 static std::string AutoPostCmd(const std::string& jnt_cmd)
@@ -279,6 +314,16 @@ static void AddPostCmd(xmlpp::Element* pgc_node, MediaItem mi)
     }
     if( post_cmd.empty() ) // пока "Stop" нет, и непонятно, как лучше его сделать
         post_cmd = auto_cmd;
+
+    if( is_video )
+    {
+        // реализация Play All
+        std::string prefix("g2 = 0;");
+        if( !IsEndVideo(GetAuthorNumber(vi)) )
+            prefix = boost::format("if(g2 == 1) {%1%}") % jnt_cmd % bf::stop;
+
+        post_cmd = prefix + " " + post_cmd;
+    }
 
     pgc_node->add_child("post")->add_child_text(post_cmd);
 }
@@ -387,7 +432,7 @@ bool IsMenuToBe4_3()
 
 void GenerateDVDAuthorScript(const std::string& out_dir)
 {
-    TitlesCount = IndexVideosForAuthoring();
+    IndexVideosForAuthoring();
     ADatabase& db = AData();
     AStores&   as = GetAStores();
 
@@ -445,7 +490,9 @@ void GenerateDVDAuthorScript(const std::string& out_dir)
         // кнопка "Title" = кнопка "Menu"
         xmlpp::Element* title_entry = node->add_child("pgc");
         title_entry->set_attribute("entry", "title");
-        std::string init_cmd = "jump " + MakeFPTarget(fp) + ";";
+        // g1 - номер текущего меню
+        // g2 - признак Play All
+        std::string init_cmd = "g2 = 0; jump " + MakeFPTarget(fp) + ";";
         if( root_menu )
             // если есть меню (вообще есть), то инициализируем первое
             init_cmd = boost::format("g1 = %1%; %2%") % GetMenuANum(root_menu) % init_cmd % bf::stop;

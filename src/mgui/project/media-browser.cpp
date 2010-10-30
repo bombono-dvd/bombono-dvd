@@ -44,9 +44,21 @@
 namespace Project
 {
 
+MediaStore::TrackFields& MediaStore::Fields()
+{
+    return GetColumnFields<MediaStore::TrackFields>();
+}
+
+MediaStore::MediaStore() { set_column_types(GetColumnRecord<TrackFields>()); }
+
+MediaItem MediaStore::Get(const Gtk::TreeRow& row)
+{
+    return row.get_value(Fields().media);
+}
+
 MediaItem MediaStore::GetMedia(const Gtk::TreeIter& itr) const
 {
-    return itr->get_value(columns.media);
+    return Get(*itr);
 }
 
 bool MediaStore::row_drop_possible_vfunc(const TreeModel::Path& dest, const Gtk::SelectionData& data) const
@@ -134,11 +146,8 @@ ActionFunctor EndActionMenuBld::CreateAction(Project::MediaItem mi)
 
 void EndActionMenuBld::AddConstantItem(const std::string& label, PostActionType typ)
 {
-    Gtk::Menu& lnk_list = resMenu;
-    Gtk::RadioMenuItem& itm = NewManaged<Gtk::RadioMenuItem>(radioGrp);
-    SetAlign(Add(itm, NewBoldItalicLabel(label)));
-    AppendRadioItem(itm, typ == pAct.paTyp, 
-                    bb::bind(&SetConstEALink, boost::ref(pAct), typ, onUpdater), lnk_list);
+    AddPredefinedItem(label, typ == pAct.paTyp, 
+                      bb::bind(&SetConstEALink, boost::ref(pAct), typ, onUpdater));
 }
 
 void EndActionMenuBld::AddConstantChoice()
@@ -223,7 +232,7 @@ void RenderMediaType(Gtk::CellRendererText* rndr, MediaItem mi)
 void MediaBrowser::BuildStructure()
 {
     RefPtr<MediaStore> ms = GetMediaStore();
-    const MediaStore::TrackFields& trk_fields = ms->columns;
+    const MediaStore::TrackFields& trk_fields = MediaStore::Fields();
 
     SetupBrowser(*this, trk_fields.media.index(), true);
 

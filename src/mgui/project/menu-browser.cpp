@@ -586,21 +586,38 @@ void AppendRadioItem(Gtk::RadioMenuItem& itm, bool is_active, const ActionFuncto
 CommonMenuBuilder::CommonMenuBuilder(MediaItem cur_itm, bool for_poster, bool only_with_audio): 
    curItm(cur_itm), forPoster(for_poster), resMenu(NewManaged<Gtk::Menu>()), onlyWithAudio(only_with_audio) {}
 
+static Gtk::RadioMenuItem& 
+AddMediaItemChoice(CommonMenuBuilder& mb, Gtk::Menu& lnk_list, MediaItem mi, const std::string& name,
+                   bool exp_link)
+{
+    std::string itm_name = name.empty() ? MakeMediaItemNameForMenu(mi) : name ;
+
+    Gtk::RadioMenuItem& itm = NewManaged<Gtk::RadioMenuItem>(mb.radioGrp, itm_name);
+    AppendRadioItem(itm, exp_link && (mi == mb.curItm), mb.CreateAction(mi), lnk_list);
+    return itm;
+}
 
 Gtk::RadioMenuItem& 
 CommonMenuBuilder::AddMediaItemChoice(Gtk::Menu& lnk_list, MediaItem mi, const std::string& name)
 {
-    std::string itm_name = name.empty() ? MakeMediaItemNameForMenu(mi) : name ;
+    return Project::AddMediaItemChoice(*this, lnk_list, mi, name, true);
+}
 
-    Gtk::RadioMenuItem& itm = NewManaged<Gtk::RadioMenuItem>(radioGrp, itm_name);
-    AppendRadioItem(itm, mi == curItm, CreateAction(mi), lnk_list);
-    return itm;
+void CommonMenuBuilder::AddPredefinedItem(const std::string& label, bool is_active, const ActionFunctor& fnr)
+{
+    Gtk::RadioMenuItem& itm = NewManaged<Gtk::RadioMenuItem>(radioGrp);
+    SetAlign(Add(itm, NewBoldItalicLabel(label)));
+    AppendRadioItem(itm, is_active, fnr, resMenu);
+}
+
+void AddNoLinkItem(CommonMenuBuilder& mb, bool exp_link)
+{
+    AddMediaItemChoice(mb, mb.resMenu, MediaItem(), "", exp_link);
 }
 
 void CommonMenuBuilder::AddConstantChoice()
 {
-    // No Link
-    AddMediaItemChoice(resMenu, MediaItem());
+    AddNoLinkItem(*this, true);
 }
 
 Gtk::Menu& CommonMenuBuilder::Create()

@@ -59,7 +59,8 @@ struct EmblemNameVis: public ObjVisitor
 
 void FillThumbnail(const Gtk::TreeIter& itr, RefPtr<MediaStore> ms, Media& md)
 {
-    RefPtr<Gdk::Pixbuf> thumb_pix = itr->get_value(ms->columns.thumbnail);
+    Gtk::TreeModelColumn<RefPtr<Gdk::Pixbuf> > thumb_cln = MediaStore::Fields().thumbnail;
+    RefPtr<Gdk::Pixbuf> thumb_pix = itr->get_value(thumb_cln);
     if( !thumb_pix )
     {
         // * серый фон
@@ -67,7 +68,7 @@ void FillThumbnail(const Gtk::TreeIter& itr, RefPtr<MediaStore> ms, Media& md)
         thumb_pix = CreatePixbuf(thumb_sz);
         thumb_pix->fill(RGBA::ToUint(Gdk::Color("light grey")));
 
-        itr->set_value(ms->columns.thumbnail, thumb_pix);
+        itr->set_value(thumb_cln, thumb_pix);
     }
 
     Point thumb_sz(PixbufSize(thumb_pix));
@@ -117,7 +118,7 @@ void PublishMediaVis::Visit(VideoMD& obj)
 void PublishMedia(const Gtk::TreeIter& itr, RefPtr<MediaStore> ms, MediaItem mi)
 {
     FillThumbnail(itr, ms, *mi);
-    (*itr)[ms->columns.media] = mi;
+    (*itr)[MediaStore::Fields().media] = mi;
 
     PublishMediaVis vis(itr, ms);
     mi->Accept(vis);
