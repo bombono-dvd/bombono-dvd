@@ -43,6 +43,7 @@ I. Requirements:
  o dvd+rw-tools   - http://fy.chalmers.se/~appro/linux/DVD+RW/
  o twolame        - http://www.twolame.org/
  o libxml++       - http://libxmlplusplus.sourceforge.net/
+ o ffmpeg         - http://www.ffmpeg.org/
 
 II. You need SCons to build Bombono DVD - maybe the best build tool ever. ;) 
 SCons is just make&autotools&libtool all together. Type:
