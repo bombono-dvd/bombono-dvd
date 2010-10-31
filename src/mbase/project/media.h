@@ -97,7 +97,9 @@ typedef boost::intrusive_ptr<VideoMD> VideoItem;
 enum PostActionType
 {
     patAUTO = 0,      // (по умолчанию) наиболее ожидаемое действие
-                      // при "существующей топологии проекта"
+                      // при "существующей топологии проекта":
+                      // - для меню это Loop
+                      // - для видео - Previous Menu или Next Video
     patNEXT_TITLE,    // (для видео) следующий по списку
     patEXP_LINK,      // явная ссылка
     patPLAY_ALL,      // смотреть все

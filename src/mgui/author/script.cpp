@@ -117,17 +117,6 @@ void ForeachMenu(MenuFnr fnr)
     }
 }
 
-bool IndexForAuthoring(VideoItem vi, int idx)
-{
-    GetAuthorNumber(vi) = idx+1; // индекс от 1
-    return true;
-}
-
-static int IndexVideosForAuthoring()
-{
-    return ForeachVideo(bb::bind(&IndexForAuthoring, _1, _2));
-}
-
 static std::string MakeFPTarget(MediaItem mi)
 {
     // Doc: "DVD-Video/2. The Unofficial DVD Specifications Guide/1. Guide - DVD2.2.5.pdf",
@@ -196,12 +185,6 @@ static std::string MakeButtonJump(MediaItem mi, bool vts_domain)
     TargetCommandVis vis(vts_domain);
     mi->Accept(vis);
     return vis.res;
-}
-
-static bool _GetFirstVideo(VideoItem& res, VideoItem vi, int)
-{
-    res = vi;
-    return false;
 }
 
 std::string MenuAuthorDir(Menu mn, int idx, bool cnv_from_utf8)
@@ -401,10 +384,21 @@ static Menu GetFirstMenu()
     return (menus_be.first != menus_be.second) ? GetMenu(mn_store, menus_be.first) : Menu();
 }
 
+//static bool _GetFirstVideo(VideoItem& res, VideoItem vi, int)
+//{
+//    res = vi;
+//    return false;
+//}
+
 VideoItem GetFirstVideo()
 {
     VideoItem first_vi;
-    ForeachVideo(bb::bind(&_GetFirstVideo, boost::ref(first_vi), _1, _2));
+    //ForeachVideo(bb::bind(&_GetFirstVideo, boost::ref(first_vi), _1, _2));
+    boost_foreach( VideoItem vi, AllVideos() )
+    {
+        first_vi = vi;
+        break;
+    }
     return first_vi;
 }
 
@@ -436,9 +430,21 @@ bool IsMenuToBe4_3()
     return is_menu_4_3;
 }
 
+//bool IndexForAuthoring(VideoItem vi, int idx)
+//{
+//    GetAuthorNumber(vi) = idx+1; // индекс от 1
+//    return true;
+//}
+
 void GenerateDVDAuthorScript(const std::string& out_dir)
 {
-    IndexVideosForAuthoring();
+    // индексируем видео в titles
+    //IndexVideosForAuthoring();
+    //ForeachVideo(bb::bind(&IndexForAuthoring, _1, _2));
+    int idx = 1; // индекс от 1
+    boost_foreach( VideoItem vi, AllVideos() )
+        GetAuthorNumber(vi) = idx++;
+
     ADatabase& db = AData();
     AStores&   as = GetAStores();
 

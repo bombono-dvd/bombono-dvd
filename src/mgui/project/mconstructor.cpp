@@ -839,6 +839,8 @@ ActionFunctor BuildConstructor(ConstructorApp& app, const std::string& prj_file_
     // разработчики Gnome перекладывают ответственность на разработчиков приложений, последним
     // угрожают,- "ничего не трогать, это забота WM" (Rhythmbox, Evince сделали вид, плохо слышат); 
     // а WM-ы ничего не могут и не хотят (без помощи от разработчиков приложений),- эпический провал (c)
+    // 
+    // Отписался по проблеме тут: https://bugzilla.gnome.org/show_bug.cgi?id=79285
     UnnamedPreferences& up = UnnamedPrefs();
     // используем мягкую форму вместо gtk_window_resize(), чтобы 
     // не уродовали наш продукт (два раза ку) уменьшением размеров до нуля
