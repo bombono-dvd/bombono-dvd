@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-08 00:37+0400\n"
+"POT-Creation-Date: 2010-10-31 20:23+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/mbase/project/media.cpp:68 src/mgui/project/media-browser.cpp:202
+#: src/mbase/project/media.cpp:68 src/mgui/project/media-browser.cpp:223
 msgid "Chapter"
 msgstr ""
 
@@ -25,7 +25,7 @@ msgstr ""
 msgid "Cant create folder %1% (check permissions)"
 msgstr ""
 
-#: src/mbase/project/menu.cpp:276
+#: src/mbase/project/menu.cpp:331
 msgid "Menu"
 msgstr ""
 
@@ -49,7 +49,7 @@ msgstr ""
 msgid "Import is completed."
 msgstr ""
 
-#: src/mgui/dvdimport.cpp:208 src/mgui/project/mconstructor.cpp:527
+#: src/mgui/dvdimport.cpp:208 src/mgui/project/mconstructor.cpp:540
 msgid "MB"
 msgstr ""
 
@@ -72,7 +72,7 @@ msgstr ""
 msgid "Cant write to folder %1% (check permissions)."
 msgstr ""
 
-#: src/mgui/dvdimport.cpp:472 src/mgui/win_utils.cpp:322
+#: src/mgui/dvdimport.cpp:472 src/mgui/win_utils.cpp:327
 #, boost-format
 msgid "A file named \"%1%\" already exists. Do you want to replace it?"
 msgstr ""
@@ -104,7 +104,7 @@ msgid ""
 msgstr ""
 
 #. имя
-#: src/mgui/dvdimport.cpp:609 src/mgui/project/media-browser.cpp:219
+#: src/mgui/dvdimport.cpp:609 src/mgui/project/media-browser.cpp:240
 msgid "Name"
 msgstr ""
 
@@ -118,142 +118,142 @@ msgstr ""
 
 #. COPY_N_PASTE - тупо сделал содержимое сообщений как у "TSNAMI-MPEG DVD Author"
 #. А что делать - нафига свои придумывать, если смысл один и тот же
-#: src/mgui/execution.cpp:52
+#: src/mgui/execution.cpp:56
 #, boost-format
 msgid "You are about to cancel %1%. Are you sure?"
 msgstr ""
 
-#: src/mgui/execution.cpp:411
+#: src/mgui/execution.cpp:479
 #, boost-format
 msgid "exit code = %1%"
 msgstr ""
 
-#: src/mgui/execution.cpp:413
+#: src/mgui/execution.cpp:481
 #, boost-format
 msgid "broken by signal %1%"
 msgstr ""
 
-#: src/mgui/mux.cpp:50
+#: src/mgui/mux.cpp:55
 msgid "muxing"
 msgstr ""
 
-#: src/mgui/mux.cpp:66
+#: src/mgui/mux.cpp:71
 #, boost-format
 msgid "Muxing \"%1%\""
 msgstr ""
 
-#: src/mgui/mux.cpp:77 src/mgui/author/output.cpp:231
+#: src/mgui/mux.cpp:82 src/mgui/author/output.cpp:231
 msgid "Show/_Hide Details"
 msgstr ""
 
-#: src/mgui/mux.cpp:101
+#: src/mgui/mux.cpp:105
 msgid "Muxing error"
 msgstr ""
 
-#: src/mgui/mux.cpp:102 src/mgui/author/output.cpp:654
+#: src/mgui/mux.cpp:106 src/mgui/author/output.cpp:653
 #, boost-format
 msgid "The reason is \"%1%\" (see Details)"
 msgstr ""
 
-#: src/mgui/mux.cpp:118
+#: src/mgui/mux.cpp:122
 msgid "Select a folder"
 msgstr ""
 
-#: src/mgui/mux.cpp:130
+#: src/mgui/mux.cpp:134
 msgid "in"
 msgstr ""
 
-#: src/mgui/mux.cpp:164
+#: src/mgui/mux.cpp:168
 msgid "Mux streams"
 msgstr ""
 
-#: src/mgui/mux.cpp:166
+#: src/mgui/mux.cpp:170
 msgid "Output"
 msgstr ""
 
-#: src/mgui/mux.cpp:167
+#: src/mgui/mux.cpp:171
 msgid "Select elementary video"
 msgstr ""
 
-#: src/mgui/mux.cpp:168
+#: src/mgui/mux.cpp:172
 msgid "Select audio"
 msgstr ""
 
 #. Названия типов для i18n
-#: src/mgui/mux.cpp:172 src/mgui/project/media-browser.cpp:201
+#: src/mgui/mux.cpp:176 src/mgui/project/media-browser.cpp:222
 #: src/mgui/timeline/layout-draw.cpp:156
 msgid "Video"
 msgstr ""
 
-#: src/mgui/mux.cpp:175
+#: src/mgui/mux.cpp:179
 msgid "MPEG2 elementary video (m2v)"
 msgstr ""
 
-#: src/mgui/mux.cpp:180
+#: src/mgui/mux.cpp:184 src/mgui/project/menu-browser.cpp:406
 msgid "Audio"
 msgstr ""
 
-#: src/mgui/mux.cpp:183 src/mgui/timeline/mviewer.cpp:281
+#: src/mgui/mux.cpp:187 src/mgui/timeline/mviewer.cpp:282
 msgid "Audio for DVD"
 msgstr ""
 
-#: src/mgui/mux.cpp:208
+#: src/mgui/mux.cpp:212
 msgid "Elementary video file is not selected."
 msgstr ""
 
-#: src/mgui/mux.cpp:210
+#: src/mgui/mux.cpp:214
 msgid "Audio file is not selected."
 msgstr ""
 
-#: src/mgui/mux.cpp:212
+#: src/mgui/mux.cpp:216
 msgid "Output file name is empty."
 msgstr ""
 
-#: src/mgui/prefs.cpp:143
+#: src/mgui/prefs.cpp:172
 msgid "Bombono DVD Preferences"
 msgstr ""
 
-#: src/mgui/prefs.cpp:157
+#: src/mgui/prefs.cpp:186
 msgid "_Default project type"
 msgstr ""
 
-#: src/mgui/prefs.cpp:160
+#: src/mgui/prefs.cpp:189
 msgid "Default _folder for authoring"
 msgstr ""
 
-#: src/mgui/prefs.cpp:165
+#: src/mgui/prefs.cpp:194
 msgid "_Play authoring result in"
 msgstr ""
 
-#: src/mgui/win_utils.cpp:325
+#: src/mgui/win_utils.cpp:330
 msgid "Replacing the file overwrite its contents."
 msgstr ""
 
-#: src/mgui/author/burn.cpp:199
+#: src/mgui/author/burn.cpp:192
 msgid "Auto"
 msgstr ""
 
-#: src/mgui/author/burn.cpp:211
+#: src/mgui/author/burn.cpp:204
 msgid "Update speeds ..."
 msgstr ""
 
-#: src/mgui/author/burn.cpp:332
+#: src/mgui/author/burn.cpp:325
 msgid "Checking Disc ..."
 msgstr ""
 
-#: src/mgui/author/burn.cpp:346
+#: src/mgui/author/burn.cpp:339
 msgid "Selected burn drive is for CD discs only. Change to another burn drive."
 msgstr ""
 
-#: src/mgui/author/burn.cpp:351
+#: src/mgui/author/burn.cpp:344
 msgid "CD disc is found in the drive, not DVD. Change to DVD disc."
 msgstr ""
 
-#: src/mgui/author/burn.cpp:356
+#: src/mgui/author/burn.cpp:349
 msgid "No DVD disc in the drive. Load a clear one and press OK."
 msgstr ""
 
-#: src/mgui/author/burn.cpp:361
+#: src/mgui/author/burn.cpp:354
 #, boost-format
 msgid ""
 "Disc with type \"%1%\" is found in the drive but for DVD-Video disc type "
@@ -261,29 +261,29 @@ msgid ""
 "right type and press OK."
 msgstr ""
 
-#: src/mgui/author/burn.cpp:370
+#: src/mgui/author/burn.cpp:363
 #, boost-format
 msgid ""
 "Disc with type \"%1%\" in the drive is not clear. Only clear recordable "
 "discs can be used for burning DVD-Video. Load a clear one and press OK."
 msgstr ""
 
-#: src/mgui/author/burn.cpp:377
+#: src/mgui/author/burn.cpp:370
 #, boost-format
 msgid ""
 "Disc with type \"%1%\" in the drive is not clear. We need to remove its "
 "contents before writing new one. Continue?"
 msgstr ""
 
-#: src/mgui/author/burn.cpp:381
+#: src/mgui/author/burn.cpp:374
 msgid "_Cancel"
 msgstr ""
 
-#: src/mgui/author/burn.cpp:382
+#: src/mgui/author/burn.cpp:375
 msgid "_Try again"
 msgstr ""
 
-#: src/mgui/author/execute.cpp:62
+#: src/mgui/author/execute.cpp:64
 msgid "Status: "
 msgstr ""
 
@@ -353,40 +353,40 @@ msgstr ""
 msgid "_Rendering only"
 msgstr ""
 
-#: src/mgui/author/output.cpp:277
+#: src/mgui/author/output.cpp:276
 msgid "Rendering"
 msgstr ""
 
-#: src/mgui/author/output.cpp:354
+#: src/mgui/author/output.cpp:353
 msgid "DVD Burning"
 msgstr ""
 
-#: src/mgui/author/output.cpp:398
+#: src/mgui/author/output.cpp:397
 msgid "The result is here"
 msgstr ""
 
-#: src/mgui/author/output.cpp:400
+#: src/mgui/author/output.cpp:399
 msgid ""
 "You can run authoring manually by executing command \"scons\" at the "
 "specified folder. Also, see README file for other options over there."
 msgstr ""
 
 #. Translators: impossible to go on!
-#: src/mgui/author/output.cpp:424
+#: src/mgui/author/output.cpp:423
 msgid "Authoring is cancelled."
 msgstr ""
 
-#: src/mgui/author/output.cpp:435
+#: src/mgui/author/output.cpp:434
 #, boost-format
 msgid "%1% is not a folder"
 msgstr ""
 
-#: src/mgui/author/output.cpp:446
+#: src/mgui/author/output.cpp:445
 #, boost-format
 msgid "Cant have full access to folder %1% (read, write)"
 msgstr ""
 
-#: src/mgui/author/output.cpp:454
+#: src/mgui/author/output.cpp:453
 #, boost-format
 msgid ""
 "Folder %1% is not empty. We need to remove all files in it before "
@@ -394,147 +394,176 @@ msgid ""
 "Continue?"
 msgstr ""
 
-#: src/mgui/author/output.cpp:460
+#: src/mgui/author/output.cpp:459
 #, boost-format
 msgid "Error during removing files: %1%"
 msgstr ""
 
-#: src/mgui/author/output.cpp:651
+#: src/mgui/author/output.cpp:650
 #, boost-format
 msgid "%1% cancelled."
 msgstr ""
 
-#: src/mgui/author/output.cpp:653
+#: src/mgui/author/output.cpp:652
 #, boost-format
 msgid "%1% broken."
 msgstr ""
 
 #. Translators: can be tranlated as "Operation "%1%" ..."
-#: src/mgui/author/output.cpp:660
+#: src/mgui/author/output.cpp:659
 #, boost-format
 msgid "%1% successfully completed."
 msgstr ""
 
-#: src/mgui/author/output.cpp:690 src/mgui/timeline/select.cpp:239
+#: src/mgui/author/output.cpp:699 src/mgui/timeline/select.cpp:236
 #, boost-format
 msgid "_Play in %1%"
 msgstr ""
 
-#: src/mgui/author/output.cpp:691
+#: src/mgui/author/output.cpp:700
 msgid "_Burn to DVD"
 msgstr ""
 
-#: src/mgui/author/script.cpp:391
+#: src/mgui/author/render.cpp:443
+#, boost-format
+msgid "ffmpeg failure: %1%"
+msgstr ""
+
+#: src/mgui/author/render.cpp:810
+msgid "command not found"
+msgstr ""
+
+#: src/mgui/author/script.cpp:469
 msgid "There is no media (video or menu)."
 msgstr ""
 
-#: src/mgui/author/script.cpp:556
+#: src/mgui/author/script.cpp:780
 #, boost-format
 msgid "external command failure: %1%"
 msgstr ""
 
-#: src/mgui/editor/select.cpp:599
+#: src/mgui/editor/select.cpp:410 src/mgui/project/menu-browser.cpp:259
+msgid "Play All"
+msgstr ""
+
+#: src/mgui/editor/select.cpp:662
 msgid "Delete"
 msgstr ""
 
-#: src/mgui/editor/select.cpp:613
+#. Link
+#. bool is_background = !has_selected;
+#. Project::Menu cur_mn = edt_area.CurMenu();
+#. Project::SetLinkMenu& slm = cur_mn->GetData<Project::SetLinkMenu>();
+#. slm.isForBack = is_background;
+#. slm.newLink   = GetCurObjectLink(is_background);
+#.
+#. InvokeOn(cur_mn, "SetLinkMenu");
+#. if( slm.linkMenu )
+#. {
+#. mn.items().push_back(MenuElem(_("Link")));
+#. mn.items().back().set_submenu(*slm.linkMenu.release());
+#. }
+#. mn.items().push_back(
+#. MenuElem(_("Remove Link"), bb::bind(&SetSelObjectsLinks,
+#. Project::MediaItem(), is_background)));
+#: src/mgui/editor/select.cpp:681
 msgid "Link"
 msgstr ""
 
-#: src/mgui/editor/select.cpp:617
+#: src/mgui/editor/select.cpp:684
 msgid "Remove Link"
 msgstr ""
 
 #. Poster Link
-#: src/mgui/editor/select.cpp:621
+#: src/mgui/editor/select.cpp:688
 msgid "Set Poster"
 msgstr ""
 
-#: src/mgui/editor/select.cpp:630
+#: src/mgui/editor/select.cpp:700
 msgid "Align"
 msgstr ""
 
-#: src/mgui/editor/select.cpp:638
+#: src/mgui/editor/select.cpp:706
 msgid "Align Left"
 msgstr ""
 
-#: src/mgui/editor/select.cpp:639
+#: src/mgui/editor/select.cpp:707
 msgid "Align Right"
 msgstr ""
 
-#: src/mgui/editor/select.cpp:640
+#: src/mgui/editor/select.cpp:708
 msgid "Align Top"
 msgstr ""
 
-#: src/mgui/editor/select.cpp:641
+#: src/mgui/editor/select.cpp:709
 msgid "Align Bottom"
 msgstr ""
 
-#: src/mgui/editor/select.cpp:644
+#: src/mgui/editor/select.cpp:712
 msgid "Center Horizontally"
 msgstr ""
 
-#: src/mgui/editor/select.cpp:645
+#: src/mgui/editor/select.cpp:713
 msgid "Center Vertically"
 msgstr ""
 
-#: src/mgui/editor/select.cpp:650
+#: src/mgui/editor/select.cpp:718
 msgid "Distribute Horizontally"
 msgstr ""
 
-#: src/mgui/editor/select.cpp:651
+#: src/mgui/editor/select.cpp:719
 msgid "Distribute Vertically"
 msgstr ""
 
 #. Set Background Color
-#: src/mgui/editor/select.cpp:656 src/mgui/editor/select.cpp:908
+#: src/mgui/editor/select.cpp:724 src/mgui/editor/select.cpp:976
 msgid "Set Background Color..."
 msgstr ""
 
 #. Selection Tool
-#: src/mgui/editor/toolbar.cpp:135
+#: src/mgui/editor/toolbar.cpp:136
 msgid "Selection Tool"
 msgstr ""
 
 #. Text Tool
-#: src/mgui/editor/toolbar.cpp:138
+#: src/mgui/editor/toolbar.cpp:139
 msgid "Text Tool"
 msgstr ""
 
-#: src/mgui/editor/toolbar.cpp:495
+#: src/mgui/editor/toolbar.cpp:500
 msgid "Add Item"
 msgstr ""
 
-#: src/mgui/editor/toolbar.cpp:517
+#: src/mgui/editor/toolbar.cpp:522
 msgid "Font Name"
 msgstr ""
 
-#: src/mgui/editor/toolbar.cpp:533
+#: src/mgui/editor/toolbar.cpp:538
 msgid "Font Size"
 msgstr ""
 
 #. * кнопки стилей шрифта
-#: src/mgui/editor/toolbar.cpp:538
+#: src/mgui/editor/toolbar.cpp:543
 msgid "Bold"
 msgstr ""
 
-#: src/mgui/editor/toolbar.cpp:539
+#: src/mgui/editor/toolbar.cpp:544
 msgid "Italic"
 msgstr ""
 
-#: src/mgui/editor/toolbar.cpp:540
+#: src/mgui/editor/toolbar.cpp:545
 msgid "Underline"
 msgstr ""
 
-#: src/mgui/editor/toolbar.cpp:549
+#: src/mgui/editor/toolbar.cpp:552
 msgid "Pick a Color for Text"
 msgstr ""
 
-#: src/mgui/editor/toolbar.cpp:551
+#: src/mgui/editor/toolbar.cpp:554
 msgid "Text Color"
 msgstr ""
 
-#: src/mgui/editor/toolbar.cpp:563
+#: src/mgui/editor/toolbar.cpp:566
 msgid "Show Safe Area"
 msgstr ""
 
@@ -684,106 +713,93 @@ msgstr ""
 msgid "First-Play media can be Video or Menu only."
 msgstr ""
 
-#: src/mgui/project/mconstructor.cpp:335
+#: src/mgui/project/mconstructor.cpp:348
 msgid "Bombono DVD is a DVD authoring program with nice and clean GUI"
 msgstr ""
 
 #. dlg.set_authors(authors);
 #. dlg.set_documenters(documenters);
 #. dlg.set_decorated(false);
-#: src/mgui/project/mconstructor.cpp:340
+#: src/mgui/project/mconstructor.cpp:353
 msgid "translator-credits"
 msgstr ""
 
 #. раньше Brasero использовал KiB, MiB и GiB, как более точные технически
 #. (вроде как размеры HDD принято измерять по 1GB=1000MB); теперь Brasero
 #. перешел на стандарт KB/MB/GB, ну и BmD тоже (а че, мы не гордые :)
-#: src/mgui/project/mconstructor.cpp:527
+#: src/mgui/project/mconstructor.cpp:540
 msgid "KB"
 msgstr ""
 
-#: src/mgui/project/mconstructor.cpp:527
+#: src/mgui/project/mconstructor.cpp:540
 msgid "GB"
 msgstr ""
 
 #. Project
-#: src/mgui/project/mconstructor.cpp:635
+#: src/mgui/project/mconstructor.cpp:648
 msgid "_Project"
 msgstr ""
 
-#: src/mgui/project/mconstructor.cpp:642
+#: src/mgui/project/mconstructor.cpp:655
 msgid "_Quit"
 msgstr ""
 
-#: src/mgui/project/mconstructor.cpp:644
+#: src/mgui/project/mconstructor.cpp:657
 msgid "Add Videos from _DVD"
 msgstr ""
 
-#: src/mgui/project/mconstructor.cpp:644
+#: src/mgui/project/mconstructor.cpp:657
 msgid "DVD-Import Assistant"
 msgstr ""
 
-#: src/mgui/project/mconstructor.cpp:646
+#: src/mgui/project/mconstructor.cpp:659
 msgid "_Mux"
 msgstr ""
 
-#: src/mgui/project/mconstructor.cpp:646
+#: src/mgui/project/mconstructor.cpp:659
 msgid "Mux Elementary Streams into MPEG2"
 msgstr ""
 
-#: src/mgui/project/mconstructor.cpp:648
+#: src/mgui/project/mconstructor.cpp:661
 msgid "Pr_eferences"
 msgstr ""
 
 #. Go
-#: src/mgui/project/mconstructor.cpp:687
+#: src/mgui/project/mconstructor.cpp:700
 msgid "_Go"
 msgstr ""
 
 #. первый вставляем сразу
 #. Help
-#: src/mgui/project/mconstructor.cpp:693
+#: src/mgui/project/mconstructor.cpp:706
 msgid "_Help"
 msgstr ""
 
-#: src/mgui/project/mconstructor.cpp:818
+#: src/mgui/project/mconstructor.cpp:860
 msgctxt "MainTabs"
 msgid "_Source"
 msgstr ""
 
-#: src/mgui/project/mconstructor.cpp:820
+#: src/mgui/project/mconstructor.cpp:862
 msgctxt "MainTabs"
 msgid "_Menu"
 msgstr ""
 
-#: src/mgui/project/mconstructor.cpp:822
+#: src/mgui/project/mconstructor.cpp:864
 msgctxt "MainTabs"
 msgid "_Output"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:148
-msgid "Previous Menu"
-msgstr ""
-
-#: src/mgui/project/media-browser.cpp:148
-#: src/mgui/project/media-browser.cpp:150
-msgid "Next Video"
-msgstr ""
-
-#: src/mgui/project/media-browser.cpp:149
-#, boost-format
-msgid "Auto (%1%)"
-msgstr ""
-
-#: src/mgui/project/media-browser.cpp:179
+#: src/mgui/project/media-browser.cpp:198
+#: src/mgui/project/menu-browser.cpp:427
 msgid "End Action"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:203
+#: src/mgui/project/media-browser.cpp:224
 msgid "Still Picture"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:235
+#: src/mgui/project/media-browser.cpp:256
 msgid "Type"
 msgstr ""
 
@@ -793,121 +809,186 @@ msgstr ""
 #. vbox.pack_start(label, Gtk::PACK_SHRINK);
 #. Gtk::Requisition req = label.size_request();
 #. label.set_size_request(0, req.height+10);
-#: src/mgui/project/media-browser.cpp:293
-#: src/mgui/project/menu-browser.cpp:374
+#: src/mgui/project/media-browser.cpp:312
+#: src/mgui/project/menu-browser.cpp:808
 msgid "Media List"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:333
+#: src/mgui/project/media-browser.cpp:352
 msgid "Add Media from File Browser"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:342
+#: src/mgui/project/media-browser.cpp:361
 msgid "Remove Media"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:353
+#: src/mgui/project/media-browser.cpp:372
 msgid "Make Chapters for Video"
 msgstr ""
 
-#: src/mgui/project/menu-browser.cpp:191
+#: src/mgui/project/menu-browser.cpp:99 src/mgui/project/menu-browser.cpp:608
 msgid "No Link"
 msgstr ""
 
+#: src/mgui/project/menu-browser.cpp:248
+msgid "Previous Menu"
+msgstr ""
+
+#: src/mgui/project/menu-browser.cpp:248 src/mgui/project/menu-browser.cpp:256
+msgid "Next Video"
+msgstr ""
+
+#: src/mgui/project/menu-browser.cpp:249
+#, boost-format
+msgid "Auto (%1%)"
+msgstr ""
+
+#: src/mgui/project/menu-browser.cpp:252
+msgid "Loop"
+msgstr ""
+
+#: src/mgui/project/menu-browser.cpp:351 src/mgui/project/menu-browser.cpp:482
+msgid "Menu Settings"
+msgstr ""
+
+#: src/mgui/project/menu-browser.cpp:363
+msgid "_Still picture"
+msgstr ""
+
+#: src/mgui/project/menu-browser.cpp:368
+msgid "Select external audio file"
+msgstr ""
+
+#: src/mgui/project/menu-browser.cpp:371 src/mgui/project/menu-browser.cpp:373
+msgid "_Motion menu"
+msgstr ""
+
+#: src/mgui/project/menu-browser.cpp:387
+msgid "_Duration (in seconds)"
+msgstr ""
+
+#: src/mgui/project/menu-browser.cpp:400
+msgid "Still menu with audio in the background"
+msgstr ""
+
+#: src/mgui/project/menu-browser.cpp:410
+msgid "_From the project"
+msgstr ""
+
+#: src/mgui/project/menu-browser.cpp:414
+msgid "_External audio"
+msgstr ""
+
+#: src/mgui/project/menu-browser.cpp:437
+msgid "_Subpicture Colors"
+msgstr ""
+
+#: src/mgui/project/menu-browser.cpp:439
+msgid "S_elected item color"
+msgstr ""
+
+#: src/mgui/project/menu-browser.cpp:440
+msgid "_Activated item color"
+msgstr ""
+
+#: src/mgui/project/menu-browser.cpp:442
+msgid "_Restore default colors"
+msgstr ""
+
 #. * subj
-#: src/mgui/project/menu-browser.cpp:338
+#: src/mgui/project/menu-browser.cpp:773
 msgid "Menu List"
 msgstr ""
 
-#: src/mgui/project/menu-browser.cpp:354
+#: src/mgui/project/menu-browser.cpp:788
 msgid "Add Menu"
 msgstr ""
 
-#: src/mgui/project/menu-browser.cpp:359
+#: src/mgui/project/menu-browser.cpp:793
 msgid "Remove Menu"
 msgstr ""
 
-#: src/mgui/project/menu-browser.cpp:364
+#: src/mgui/project/menu-browser.cpp:798
 msgid "Edit Menu"
 msgstr ""
 
-#: src/mgui/project/serialize.cpp:61
+#: src/mgui/project/serialize.cpp:62
 msgid "Save Project As..."
 msgstr ""
 
-#: src/mgui/project/serialize.cpp:93
+#: src/mgui/project/serialize.cpp:94
 #, boost-format
 msgid "Cant open project file \"%1%\""
 msgstr ""
 
-#: src/mgui/project/serialize.cpp:166
+#: src/mgui/project/serialize.cpp:167
 #, boost-format
 msgid "Save changes to \"%1%\"?"
 msgstr ""
 
-#: src/mgui/project/serialize.cpp:168
+#: src/mgui/project/serialize.cpp:169
 msgid "Close _without Saving"
 msgstr ""
 
-#: src/mgui/project/serialize.cpp:206
+#: src/mgui/project/serialize.cpp:207
 msgid "New Project"
 msgstr ""
 
-#: src/mgui/project/serialize.cpp:215
+#: src/mgui/project/serialize.cpp:216
 msgid "Please select a Television standard for your project:"
 msgstr ""
 
-#: src/mgui/project/serialize.cpp:237
+#: src/mgui/project/serialize.cpp:238
 msgid "Open Project"
 msgstr ""
 
-#: src/mgui/project/serialize.cpp:241
+#: src/mgui/project/serialize.cpp:242
 msgid "Project files (*.xml)"
 msgstr ""
 
-#: src/mgui/project/serialize.cpp:246 src/mgui/timeline/mviewer.cpp:283
+#: src/mgui/project/serialize.cpp:247 src/mgui/timeline/mviewer.cpp:284
 msgid "All Files (*.*)"
 msgstr ""
 
-#: src/mgui/project/serialize.cpp:308
+#: src/mgui/project/serialize.cpp:309
 msgid "_New Project"
 msgstr ""
 
-#: src/mgui/project/serialize.cpp:310
+#: src/mgui/project/serialize.cpp:311
 msgid "_Open..."
 msgstr ""
 
-#: src/mgui/project/serialize.cpp:312
+#: src/mgui/project/serialize.cpp:313
 msgid "_Save"
 msgstr ""
 
-#: src/mgui/project/serialize.cpp:314
+#: src/mgui/project/serialize.cpp:315
 msgid "Save _As..."
 msgstr ""
 
 #. Add
-#: src/mgui/timeline/layout.cpp:526 src/mgui/timeline/select.cpp:216
+#: src/mgui/timeline/layout.cpp:525 src/mgui/timeline/select.cpp:213
 msgid "Add Chapter Point"
 msgstr ""
 
-#: src/mgui/timeline/mviewer.cpp:76
+#: src/mgui/timeline/mviewer.cpp:77
 msgid "Error while opening file:"
 msgstr ""
 
 #. 0 надпись
-#: src/mgui/timeline/mviewer.cpp:249
+#: src/mgui/timeline/mviewer.cpp:250
 msgid "File Browser"
 msgstr ""
 
-#: src/mgui/timeline/mviewer.cpp:279
+#: src/mgui/timeline/mviewer.cpp:280
 msgid "All formats"
 msgstr ""
 
-#: src/mgui/timeline/mviewer.cpp:280
+#: src/mgui/timeline/mviewer.cpp:281
 msgid "MPEG files"
 msgstr ""
 
-#: src/mgui/timeline/mviewer.cpp:282
+#: src/mgui/timeline/mviewer.cpp:283
 msgid "Still Images"
 msgstr ""
 
@@ -920,32 +1001,33 @@ msgid "Save Frame..."
 msgstr ""
 
 #. Add at Intervals
-#: src/mgui/timeline/select.cpp:170 src/mgui/timeline/select.cpp:228
+#: src/mgui/timeline/select.cpp:170 src/mgui/timeline/select.cpp:225
 msgid "Add Chapter Points at Intervals"
 msgstr ""
 
-#: src/mgui/timeline/select.cpp:176
+#: src/mgui/timeline/select.cpp:177
 msgid "Interval between Chapters:"
 msgstr ""
 
-#: src/mgui/timeline/select.cpp:183
+#. 5 мин. по умолчанию
+#: src/mgui/timeline/select.cpp:181
 msgid "min."
 msgstr ""
 
-#: src/mgui/timeline/select.cpp:186
+#: src/mgui/timeline/select.cpp:184
 msgid "Remove Existing Chapters"
 msgstr ""
 
 #. Delete
-#: src/mgui/timeline/select.cpp:219
+#: src/mgui/timeline/select.cpp:216
 msgid "Delete Chapter Point"
 msgstr ""
 
 #. Delete All
-#: src/mgui/timeline/select.cpp:223
+#: src/mgui/timeline/select.cpp:220
 msgid "Delete All Chapter Points"
 msgstr ""
 
-#: src/mgui/timeline/select.cpp:236
+#: src/mgui/timeline/select.cpp:233
 msgid "Save Current Frame"
 msgstr ""

@@ -351,7 +351,7 @@ void MenuSettings(Menu mn, Gtk::Window* win)
     Gtk::Dialog dlg(_("Menu Settings"), true);
     if( win )
         dlg.set_transient_for(*win);
-    SetDialogStrict(dlg, 380, -1, true);
+    SetDialogStrict(dlg, 420, -1, true);
 
     //DialogVBox& vbox_all = AddHIGedVBox(dlg);
     Gtk::Notebook& nbook = Add(*dlg.get_vbox(), NewManaged<Gtk::Notebook>());
@@ -434,7 +434,7 @@ void MenuSettings(Menu mn, Gtk::Window* win)
     Gtk::ColorButton& sel_btn = NewManaged<Gtk::ColorButton>();
     Gtk::ColorButton& act_btn = NewManaged<Gtk::ColorButton>();
     {
-        DialogVBox& vbox = AddDialogPage(nbook, _("_SubPicture Colors"), true);
+        DialogVBox& vbox = AddDialogPage(nbook, _("_Subpicture Colors"), true);
 
         PackColorButton(vbox, sel_btn, pal.selClr, SMCLN_("S_elected item color"));
         PackColorButton(vbox, act_btn, pal.actClr, SMCLN_("_Activated item color"));
