@@ -100,6 +100,7 @@ enum PostActionType
                       // при "существующей топологии проекта"
     patNEXT_TITLE,    // (для видео) следующий по списку
     patEXP_LINK,      // явная ссылка
+    patPLAY_ALL,      // смотреть все
 };
 
 struct PostAction

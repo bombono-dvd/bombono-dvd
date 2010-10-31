@@ -155,13 +155,12 @@ void EndActionMenuBld::AddConstantChoice()
     ccAdder(*this);
 }
 
-int MenusCnt();
-
 static void VideoAddConstantChoice(EndActionMenuBld& bld)
 {
-    const char* real_cmd = MenusCnt() ? _("Previous Menu") : _("Next Video") ;
-    bld.AddConstantItem(BF_("Auto (%1%)") % real_cmd % bf::stop, patAUTO);
-    bld.AddConstantItem(_("Next Video"), patNEXT_TITLE);
+    void AddPA(EndActionMenuBld& bld, PostActionType pat, bool is_video);
+    AddPA(bld, patAUTO,       true);
+    AddPA(bld, patNEXT_TITLE, true);
+    AddPA(bld, patPLAY_ALL,   true);
 }
 
 static bool OnOBButtonPress(ObjectBrowser& brw, const RightButtonFunctor& fnr, GdkEventButton* event)

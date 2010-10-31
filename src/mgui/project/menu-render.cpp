@@ -261,23 +261,6 @@ void SetThumbControl(MenuPack& mp)
 ///////////////////////////////////////////////////////////////////////
 // Преобразования MenuItem <-> MenuRegion 
 
-TextObj* CreateEditorText(TextItemMD& txt_md)
-{
-    std::string text = txt_md.mdName;
-    ASSERT( !text.empty() );
-
-    TextObj* obj = new TextObj;
-
-    Editor::TextStyle style(Pango::FontDescription(txt_md.FontDesc()), txt_md.IsUnderlined(), 
-                            MakeColor(txt_md.Color()));
-    MEdt::CheckDescNonNull(style);
-    obj->Load(text, txt_md.Placement(), style);
-
-    obj->MediaItem().SetLink(txt_md.Ref());
-
-    return obj;
-}
-
 static void LoadBackground(MenuRegion& menu_rgn, Menu mn)
 {
     const MenuParams& prms = mn->Params(); //mn ? mn->Params() : AData().GetDefMP() ; 
@@ -295,19 +278,38 @@ static void LoadBackground(MenuRegion& menu_rgn, Menu mn)
 //     menu_rgn.Ins(*bg_soo);
 }
 
+static void LoadMenuItem(Comp::MediaObj* obj, MenuItem mi)
+{
+    obj->MediaItem().SetLink(mi->Ref());
+    obj->PlayAll() = mi->playAll;
+}
+
+TextObj* CreateEditorText(TextItemMD& txt_md)
+{
+    std::string text = txt_md.mdName;
+    ASSERT( !text.empty() );
+
+    TextObj* obj = new TextObj;
+
+    Editor::TextStyle style(Pango::FontDescription(txt_md.FontDesc()), txt_md.IsUnderlined(), 
+                            MakeColor(txt_md.Color()));
+    MEdt::CheckDescNonNull(style);
+    obj->Load(text, txt_md.Placement(), style);
+
+    LoadMenuItem(obj, &txt_md);
+
+    return obj;
+}
+
+FrameThemeObj* NewFTO(const std::string& theme, const Rect& lct)
+{
+    return new FrameThemeObj(Project::ThemeOrDef(theme).c_str(), lct);
+}
+
 void AddMenuItem(MenuRegion& menu_rgn, Comp::Object* obj)
 {
     menu_rgn.Ins(*obj);
     SetOwnerMenu(obj, GetOwnerMenu(&menu_rgn));
-}
-
-FrameThemeObj* AddFTOItem(MenuRegion& menu_rgn, const std::string& theme, const Rect& lct, MediaItem mi)
-{
-    FrameThemeObj* fto = new FrameThemeObj(Project::ThemeOrDef(theme).c_str(), lct);
-    fto->MediaItem().SetLink(mi);
-
-    AddMenuItem(menu_rgn, fto);
-    return fto;
 }
 
 void ClearMenuSavedData(Menu mn)
@@ -338,11 +340,10 @@ void LoadMenu(MenuRegion& menu_rgn, Menu mn)
         }
         else if( FrameItemMD* frame_mi = dynamic_cast<FrameItemMD*>(mi.get()) )
         {
-            //FrameThemeObj* fto = new FrameThemeObj(frame_mi->Theme().c_str(), mi->Placement());
-            //fto->MediaItem() = mi->Ref();
-            //AddMenuItem(menu_rgn, fto);
-            FrameThemeObj* fto = AddFTOItem(menu_rgn, frame_mi->Theme(), mi->Placement(), mi->Ref());
+            FrameThemeObj* fto = NewFTO(frame_mi->Theme(), frame_mi->Placement());
+            LoadMenuItem(fto, frame_mi);
             fto->PosterItem().SetLink(frame_mi->Poster());
+            AddMenuItem(menu_rgn, fto);
         }
         else
             ASSERT(0);
@@ -355,6 +356,7 @@ void SaveMenuItem(MenuItem mi, Comp::MediaObj* m_obj)
 {
     mi->Placement() = m_obj->Placement();
     mi->Ref()       = m_obj->MediaItem();
+    mi->playAll     = m_obj->PlayAll();
 }
 
 void SaveMenu(Menu mn)

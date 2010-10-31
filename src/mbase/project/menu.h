@@ -106,11 +106,13 @@ Menu IsMenu(MediaItem mi);
 class MenuItemMD: public Media
 {
     public:
-                           MenuItemMD(): owner(0) {}
+                           MenuItemMD(): owner(0), playAll(false) {}
 
                            // положение на холсте
                      Rect& Placement() { return itmPlc; }
                 MediaItem& Ref() { return itmRef; }
+
+                     bool  playAll;
 
        virtual       void  SerializeImpl(Archieve& ar);
 

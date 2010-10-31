@@ -299,7 +299,8 @@ void MenuItemMD::SerializeImpl(Archieve& ar)
     SerializeReference(ar, "Ref", itmRef);
 
     // *
-    ar & NameValue("Placement", itmPlc);
+    ar( "Placement", itmPlc  )
+      ( "PlayAll",   playAll );
 }
 
 void FrameItemMD::SerializeImpl(Archieve& ar)

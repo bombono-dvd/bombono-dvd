@@ -361,7 +361,10 @@ static void AddFTOItem(MEditorArea& editor, const Rect& lct, Project::MediaItem 
 {
     MenuRegion& rgn = editor.CurMenuRegion();
 
-    Project::AddFTOItem(rgn, Editor::GetActiveTheme(), lct, mi);
+    FrameThemeObj* fto = Project::NewFTO(Editor::GetActiveTheme(), lct);
+    fto->MediaItem().SetLink(mi);
+    Project::AddMenuItem(rgn, fto);
+
     RenderForRegion(editor, Planed::AbsToRel(rgn.Transition(), lct));
 }
 

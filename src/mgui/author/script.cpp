@@ -228,16 +228,19 @@ int TitlesCount()
     return boost::distance(AllVideos());
 }
 
+static std::string PlayAllCmd()
+{
+    if( TitlesCount() == 0 )
+        Author::Error("There is no video for \"Play All\" function.");
+    return boost::format("g2 = 1; %1%") % JumpTitleCmd(1) % bf::stop;
+}
+
 bool HasButtonLink(Comp::MediaObj& m_obj, std::string& targ_str)
 {
     bool res = true;
 
     if( m_obj.PlayAll() )
-    {
-        if( TitlesCount() == 0 )
-            Author::Error("There is no video for \"Play All\" function.");
-        targ_str = boost::format("g2 = 1; %1%") % JumpTitleCmd(1) % bf::stop;
-    }
+        targ_str = PlayAllCmd();
     else if( MediaItem btn_target = m_obj.MediaItem() )
     {
         targ_str = MakeButtonJump(btn_target, false);
@@ -307,6 +310,9 @@ static void AddPostCmd(xmlpp::Element* pgc_node, MediaItem mi)
     case patEXP_LINK:
         if( pa.paLink )
             post_cmd = MakeButtonJump(pa.paLink, is_video);
+        break;
+    case patPLAY_ALL:
+        post_cmd = PlayAllCmd();
         break;
     default:
         //ASSERT_RTL(0);

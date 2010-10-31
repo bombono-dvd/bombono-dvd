@@ -34,16 +34,16 @@
       </MotionData>
       <SubpicturePalette Selected="#fff00080" Activated="#ff006c80"/>
       <MenuItems>
-        <MenuItem Name="" Frame="ogradient" Poster="Media.1" Type="Frame Item" Ref="Menu.2">
+        <MenuItem Name="" Frame="ogradient" Poster="Media.1" Type="Frame Item" Ref="Menu.2" PlayAll="0">
           <Placement lft="371" top="73" rgt="621" btm="223"/>
         </MenuItem>
-        <MenuItem Name="" Frame="oval" Poster="Media.0.3" Type="Frame Item" Ref="Media.1">
+        <MenuItem Name="" Frame="oval" Poster="Media.0.3" Type="Frame Item" Ref="Media.1" PlayAll="0">
           <Placement lft="375" top="286" rgt="625" btm="436"/>
         </MenuItem>
-        <MenuItem Name="My Text" Font="Kedage 39.041015625" Underline="1" Color="#f0e0f0ff" Type="Text Item" Ref="Media.0.0">
+        <MenuItem Name="My Text" Font="Kedage 39.041015625" Underline="1" Color="#f0e0f0ff" Type="Text Item" Ref="" PlayAll="1">
           <Placement lft="78" top="339" rgt="276" btm="392"/>
         </MenuItem>
-        <MenuItem Name="" Frame="gradient" Poster="" Type="Frame Item" Ref="Menu.1">
+        <MenuItem Name="" Frame="gradient" Poster="" Type="Frame Item" Ref="Menu.1" PlayAll="0">
           <Placement lft="72" top="58" rgt="285" btm="177"/>
         </MenuItem>
       </MenuItems>
@@ -57,7 +57,7 @@
       </MotionData>
       <SubpicturePalette Selected="#fff00080" Activated="#ff006c80"/>
       <MenuItems>
-        <MenuItem Name="" Frame="roundrect" Poster="" Type="Frame Item" Ref="Media.0.0">
+        <MenuItem Name="" Frame="roundrect" Poster="" Type="Frame Item" Ref="Media.0.0" PlayAll="0">
           <Placement lft="150" top="100" rgt="550" btm="450"/>
         </MenuItem>
       </MenuItems>
@@ -71,13 +71,13 @@
       </MotionData>
       <SubpicturePalette Selected="#ff006c80" Activated="#fff000e6"/>
       <MenuItems>
-        <MenuItem Name="" Frame="cell" Poster="" Type="Frame Item" Ref="Media.1.0">
+        <MenuItem Name="" Frame="cell" Poster="" Type="Frame Item" Ref="Media.1.0" PlayAll="0">
           <Placement lft="427" top="135" rgt="656" btm="275"/>
         </MenuItem>
-        <MenuItem Name="Part 2" Font="Sans 33.4697265625" Underline="0" Color="#f0e060ff" Type="Text Item" Ref="">
+        <MenuItem Name="Part 2" Font="Sans 33.4697265625" Underline="0" Color="#f0e060ff" Type="Text Item" Ref="" PlayAll="0">
           <Placement lft="105" top="417" rgt="235" btm="470"/>
         </MenuItem>
-        <MenuItem Name="" Frame="stonerect" Poster="" Type="Frame Item" Ref="Media.1">
+        <MenuItem Name="" Frame="stonerect" Poster="" Type="Frame Item" Ref="Media.1" PlayAll="0">
           <Placement lft="98" top="51" rgt="317" btm="194"/>
         </MenuItem>
       </MenuItems>

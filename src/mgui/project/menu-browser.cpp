@@ -237,9 +237,45 @@ class AudioMenuBld: public CommonMenuBuilder
 
 CommonMenuBuilder* AudioButton::MakeBuilder() { return new AudioMenuBld(this); }
 
+std::string Pat2Name(PostActionType pat, bool is_video)
+{
+    std::string res;
+    switch( pat )
+    {
+    case patAUTO:
+        if( is_video )
+        {
+            const char* real_cmd = MenusCnt() ? _("Previous Menu") : _("Next Video") ;
+            res = BF_("Auto (%1%)") % real_cmd % bf::stop;
+        }
+        else
+            res = _("Loop");
+        break;
+    case patNEXT_TITLE:
+        if( is_video )
+            res = _("Next Video");
+        break;
+    case patPLAY_ALL:
+        res = _("Play All");
+    case patEXP_LINK:
+    default:
+        // запрещены
+        break;
+    }
+
+    ASSERT( !res.empty() );
+    return res;
+}
+
+void AddPA(EndActionMenuBld& bld, PostActionType pat, bool is_video)
+{
+    bld.AddConstantItem(Pat2Name(pat, is_video), pat);
+}
+
 static void MenuAddConstantChoice(EndActionMenuBld& bld)
 {
-    bld.AddConstantItem(_("Loop"), patAUTO);
+    AddPA(bld, patAUTO,     false);
+    AddPA(bld, patPLAY_ALL, false);
 }
 
 CommonMenuBuilder* MenuPAButton::MakeBuilder() 
@@ -253,10 +289,7 @@ void MenuPAButton::Update()
     if( pAct.paTyp == patEXP_LINK )
         SetMediaLabel(label, pAct.paLink);
     else
-    {
-        ASSERT( pAct.paTyp == patAUTO );
-        label.set_markup(BoldItalicText(_("Loop")));
-    }
+        label.set_markup(BoldItalicText(Pat2Name(pAct.paTyp, false)));
 }
 
 // установка пустой строки в Gtk::FileChooser почему-то устанавливает
@@ -446,7 +479,7 @@ static void OnRightButton(ObjectBrowser& brw, MediaItem mi, GdkEventButton* even
     ASSERT(mn);
 
     Gtk::Menu& gmn = NewPopupMenu();
-    AddEnabledItem(gmn, _("Menu Settings"), bb::bind(&MenuSettings, mn, GetTopWindow(brw)));
+    AddEnabledItem(gmn, DOTS_("Menu Settings"), bb::bind(&MenuSettings, mn, GetTopWindow(brw)));
     Popup(gmn, event, true);
 }
 
