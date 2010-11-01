@@ -33,7 +33,7 @@
 // mstdio_sync_filebuf.h
 // This file is part of Bombono DVD project.
 //
-// Copyright (c) 2007,2009 Ilya Murav'jov
+// Copyright (c) 2007,2009-2010 Ilya Murav'jov
 // 
 // Используется в проекте "Атом" как безопасная (в плане буферизации)
 // обертка над FILE* и int (файловый дескриптор)
