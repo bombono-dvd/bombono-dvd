@@ -6,22 +6,23 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: bombono-dvd 0.5.9\n"
+"Project-Id-Version: bombono-dvd 0.7.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-04-03 00:13+0400\n"
-"PO-Revision-Date: 2010-08-11 13:46+0200\n"
+"POT-Creation-Date: 2010-10-08 00:37+0400\n"
+"PO-Revision-Date: 2010-10-11 04:57+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: cs\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
-#: src/mbase/project/media.cpp:68 src/mgui/project/media-browser.cpp:200
+#: src/mbase/project/media.cpp:68 src/mgui/project/media-browser.cpp:202
 msgid "Chapter"
 msgstr "Kapitola"
 
-#: src/mbase/project/media.cpp:112
+#: src/mbase/project/media.cpp:114
 #, boost-format
 msgid "Cant create folder %1% (check permissions)"
 msgstr "Nelze vytvořit složku %1% (zkontrolujte oprávnění)"
@@ -30,264 +31,268 @@ msgstr "Nelze vytvořit složku %1% (zkontrolujte oprávnění)"
 msgid "Menu"
 msgstr "Menu"
 
-#: src/mgui/dvdimport.cpp:82
+#: src/mgui/dvdimport.cpp:83
 msgid "Choose Source DVD-Video"
 msgstr "Zvolte zdroj DVD-Video"
 
-#: src/mgui/dvdimport.cpp:85
+#: src/mgui/dvdimport.cpp:86
 msgid "Select Videos to Import"
 msgstr "Vyberte videa pro import"
 
-#: src/mgui/dvdimport.cpp:88
+#: src/mgui/dvdimport.cpp:89
 msgid "Select Folder to Save Videos"
 msgstr "Vyberte složku pro uložení videí"
 
-#: src/mgui/dvdimport.cpp:91
+#: src/mgui/dvdimport.cpp:92
 msgid "Importing..."
 msgstr "Importuje se…"
 
-#: src/mgui/dvdimport.cpp:94
+#: src/mgui/dvdimport.cpp:95
 msgid "Import is completed."
 msgstr "Import je dokončen."
 
-#: src/mgui/dvdimport.cpp:207 src/mgui/project/mconstructor.cpp:824
+#: src/mgui/dvdimport.cpp:208 src/mgui/project/mconstructor.cpp:527
 msgid "MB"
 msgstr "MB"
 
-#: src/mgui/dvdimport.cpp:388
+#: src/mgui/dvdimport.cpp:389
 msgid "Select All"
 msgstr "Vybrat vše"
 
-#: src/mgui/dvdimport.cpp:388
+#: src/mgui/dvdimport.cpp:389
 msgid "Unselect All"
 msgstr "Zrušit výběr"
 
 #. мы не можем пустить исключение здесь, потому что оно пойдет
 #. и через C-шный код (Gtk) - отложим
-#: src/mgui/dvdimport.cpp:410
+#: src/mgui/dvdimport.cpp:411
 msgid "Are you sure to stop importing?"
 msgstr "Opravdu chcete zastavit import?"
 
-#: src/mgui/dvdimport.cpp:443
+#: src/mgui/dvdimport.cpp:444
 #, boost-format
 msgid "Cant write to folder %1% (check permissions)."
 msgstr "Nelze zapisovat do složky %1% (zkontrolujte oprávnění)."
 
-#: src/mgui/dvdimport.cpp:471 src/mgui/win_utils.cpp:319
+#: src/mgui/dvdimport.cpp:472 src/mgui/win_utils.cpp:322
 #, boost-format
 msgid "A file named \"%1%\" already exists. Do you want to replace it?"
 msgstr "Soubor s názvem „%1%“ již existuje. Chcete jej přepsat?"
 
-#: src/mgui/dvdimport.cpp:504
+#: src/mgui/dvdimport.cpp:505
 msgid "Import error!"
 msgstr "Chyba importu!"
 
-#: src/mgui/dvdimport.cpp:508
+#: src/mgui/dvdimport.cpp:509
 msgid "Videos successfully imported."
 msgstr "Video úspěšně naimportováno."
 
-#: src/mgui/dvdimport.cpp:509
+#: src/mgui/dvdimport.cpp:510
 msgid "Import has been interrupted."
 msgstr "Import byl přerušen."
 
-#: src/mgui/dvdimport.cpp:543
+#: src/mgui/dvdimport.cpp:544
 msgid "DVD-Video Import"
 msgstr "Import DVD-Video"
 
-#: src/mgui/dvdimport.cpp:566
+#: src/mgui/dvdimport.cpp:567
 msgid "Choose DVD disc, DVD folder or iso image file."
 msgstr "Zvolte disk DVD, složku DVD nebo soubor s obrazem ISO."
 
-#: src/mgui/dvdimport.cpp:584
+#: src/mgui/dvdimport.cpp:585
 msgid "NTSC/PAL mismatch. Try another disc or import to project of corresponding type."
 msgstr "Směs NTSC/PAL. Zkuste jiný disk nebo naimportujte projekt odpovídajícího typu."
 
 #. имя
-#: src/mgui/dvdimport.cpp:608 src/mgui/project/media-browser.cpp:217
+#: src/mgui/dvdimport.cpp:609 src/mgui/project/media-browser.cpp:219
 msgid "Name"
 msgstr "Název"
 
-#: src/mgui/dvdimport.cpp:621
+#: src/mgui/dvdimport.cpp:622
 msgid "Details"
 msgstr "Podrobnosti"
 
-#: src/mgui/dvdimport.cpp:667
+#: src/mgui/dvdimport.cpp:668
 msgid "It is desirable the destination folder to be empty."
 msgstr "Je záhodno, aby cílová složka byla prázdná."
 
 #. COPY_N_PASTE - тупо сделал содержимое сообщений как у "TSNAMI-MPEG DVD Author"
 #. А что делать - нафига свои придумывать, если смысл один и тот же
-#: src/mgui/execution.cpp:27
+#: src/mgui/execution.cpp:52
 #, boost-format
 msgid "You are about to cancel %1%. Are you sure?"
 msgstr "Chystáte se zrušit %1%. Opravdu to chcete?"
 
-#: src/mgui/mux.cpp:29
-msgid "muxing"
-msgstr "multiplexuje se"
-
-#: src/mgui/mux.cpp:45
-#, boost-format
-msgid "Muxing \"%1%\""
-msgstr "Multiplexuje se „%1%“"
-
-#: src/mgui/mux.cpp:56 src/mgui/author/output.cpp:229
-msgid "Show/_Hide Details"
-msgstr "Zo_brazit/skrýt podrobnosti"
-
-#: src/mgui/mux.cpp:80
-msgid "Muxing error"
-msgstr "Chyba multiplexování"
-
-#: src/mgui/mux.cpp:81 src/mgui/author/output.cpp:632
-#, boost-format
-msgid "The reason is \"%1%\" (see Details)"
-msgstr "Důvodem je „%1%“ (viz Podrobnosti)"
-
-#: src/mgui/mux.cpp:97
-msgid "Select a folder"
-msgstr "Výběr složky"
-
-#: src/mgui/mux.cpp:109
-msgid "in"
-msgstr "v"
-
-#: src/mgui/mux.cpp:143
-msgid "Mux streams"
-msgstr "Multiplexovaný proud"
-
-#: src/mgui/mux.cpp:145
-msgid "Output"
-msgstr "Výstup"
-
-#: src/mgui/mux.cpp:146
-msgid "Select elementary video"
-msgstr "Výběr prostého videa"
-
-#: src/mgui/mux.cpp:147
-msgid "Select audio"
-msgstr "Výběr zvuku"
-
-#. Названия типов для i18n
-#: src/mgui/mux.cpp:151 src/mgui/project/media-browser.cpp:199
-#: src/mgui/timeline/layout-draw.cpp:156
-msgid "Video"
-msgstr "Video"
-
-#: src/mgui/mux.cpp:154
-msgid "MPEG2 elementary video (m2v)"
-msgstr "Prosté video MPEG2 (m2v)"
-
-#: src/mgui/mux.cpp:159
-msgid "Audio"
-msgstr "Zvuk"
-
-#: src/mgui/mux.cpp:162 src/mgui/timeline/mviewer.cpp:271
-msgid "Audio for DVD"
-msgstr "Zvuk pro DVD"
-
-#: src/mgui/mux.cpp:187
-msgid "Elementary video file is not selected."
-msgstr "Není vybrán soubor s prostým videem."
-
-#: src/mgui/mux.cpp:189
-msgid "Audio file is not selected."
-msgstr "Není vybrán zvukový soubor."
-
-#: src/mgui/mux.cpp:191
-msgid "Output file name is empty."
-msgstr "Název výstupního souboru je prázdný."
-
-#: src/mgui/prefs.cpp:98
-msgid "Bombono DVD Preferences"
-msgstr "Předvolby Bombono DVD"
-
-#: src/mgui/prefs.cpp:111
-msgid "_Default Project Type"
-msgstr "_Výchozí typ projektu"
-
-#: src/mgui/prefs.cpp:116
-msgid "_Play Authoring Result in"
-msgstr "_Přehrát výsledky tvorby v"
-
-#: src/mgui/win_utils.cpp:322
-msgid "Replacing the file overwrite its contents."
-msgstr "Nahrazením souboru přepíšete jeho obsah."
-
-#: src/mgui/author/burn.cpp:198
-msgid "Auto"
-msgstr "Automaticky"
-
-#: src/mgui/author/burn.cpp:210
-msgid "Update speeds ..."
-msgstr "Aktualizovat rychlosti…"
-
-#: src/mgui/author/burn.cpp:331
-msgid "Checking Disc ..."
-msgstr "Kontroluje se disk…"
-
-#: src/mgui/author/burn.cpp:345
-msgid "Selected burn drive is for CD discs only. Change to another burn drive."
-msgstr "Vybraná vypalovací mechanika je pouze pro disky CD. Zvolte prosím jinou vypalovací mechaniku."
-
-#: src/mgui/author/burn.cpp:350
-msgid "CD disc is found in the drive, not DVD. Change to DVD disc."
-msgstr "V mechanice byl nalezen disk CD a ne DVD. Vyměňte jej prosím za disk DVD."
-
-#: src/mgui/author/burn.cpp:355
-msgid "No DVD disc in the drive. Load a clear one and press OK."
-msgstr "V mechanice není žádný disk DVD. Vložte prázdný disk a zmáčkněte OK."
-
-#: src/mgui/author/burn.cpp:360
-#, boost-format
-msgid "Disc with type \"%1%\" is found in the drive but for DVD-Video disc type should be one from: DVD-R, DVD+R, DVD-RW, DVD+RW. Load a clear one with right type and press OK."
-msgstr "V mechanice je disk „%1%“, ale pro DVD-Video je zapotřebí jeden následujících typů: DVD-R, DVD+R, DVD-RW, DVD+RW. Vložte prázdný disk správného typu a zmáčkněte OK."
-
-#: src/mgui/author/burn.cpp:369
-#, boost-format
-msgid "Disc with type \"%1%\" in the drive is not clear. Only clear recordable discs can be used for burning DVD-Video. Load a clear one and press OK."
-msgstr "Disk „%1%“, který je vložený v mechanice, není prázdný. Na vypálení DVD-Video lze použít jedině prázdný zapisovatelný disk. Vložte prázdný disk a zmáčkněte OK."
-
-#: src/mgui/author/burn.cpp:376
-#, boost-format
-msgid "Disc with type \"%1%\" in the drive is not clear. We need to remove its contents before writing new one. Continue?"
-msgstr "Disk „%1%“, který je vložený v mechanice, není prázdný. Před zápisem je zapotřebí vymazat jeho obsah. Pokračovat?"
-
-#: src/mgui/author/burn.cpp:380
-msgid "_Cancel"
-msgstr "_Zrušit"
-
-#: src/mgui/author/burn.cpp:381
-msgid "_Try again"
-msgstr "Zkusit z_novu"
-
-#: src/mgui/author/execute.cpp:72
-msgid "Status: "
-msgstr "Stav:"
-
-#: src/mgui/author/execute.cpp:568
+#: src/mgui/execution.cpp:411
 #, boost-format
 msgid "exit code = %1%"
 msgstr "návratový kód = %1%"
 
-#: src/mgui/author/execute.cpp:570
+#: src/mgui/execution.cpp:413
 #, boost-format
 msgid "broken by signal %1%"
 msgstr "přerušeno signálem %1%"
 
-#: src/mgui/author/indicator.cpp:67
+#: src/mgui/mux.cpp:50
+msgid "muxing"
+msgstr "multiplexuje se"
+
+#: src/mgui/mux.cpp:66
+#, boost-format
+msgid "Muxing \"%1%\""
+msgstr "Multiplexuje se „%1%“"
+
+#: src/mgui/mux.cpp:77 src/mgui/author/output.cpp:231
+msgid "Show/_Hide Details"
+msgstr "Zo_brazit/skrýt podrobnosti"
+
+#: src/mgui/mux.cpp:101
+msgid "Muxing error"
+msgstr "Chyba multiplexování"
+
+#: src/mgui/mux.cpp:102 src/mgui/author/output.cpp:654
+#, boost-format
+msgid "The reason is \"%1%\" (see Details)"
+msgstr "Důvodem je „%1%“ (viz Podrobnosti)"
+
+#: src/mgui/mux.cpp:118
+msgid "Select a folder"
+msgstr "Výběr složky"
+
+#: src/mgui/mux.cpp:130
+msgid "in"
+msgstr "v"
+
+#: src/mgui/mux.cpp:164
+msgid "Mux streams"
+msgstr "Multiplexovaný proud"
+
+#: src/mgui/mux.cpp:166
+msgid "Output"
+msgstr "Výstup"
+
+#: src/mgui/mux.cpp:167
+msgid "Select elementary video"
+msgstr "Výběr prostého videa"
+
+#: src/mgui/mux.cpp:168
+msgid "Select audio"
+msgstr "Výběr zvuku"
+
+#. Названия типов для i18n
+#: src/mgui/mux.cpp:172 src/mgui/project/media-browser.cpp:201
+#: src/mgui/timeline/layout-draw.cpp:156
+msgid "Video"
+msgstr "Video"
+
+#: src/mgui/mux.cpp:175
+msgid "MPEG2 elementary video (m2v)"
+msgstr "Prosté video MPEG2 (m2v)"
+
+#: src/mgui/mux.cpp:180
+msgid "Audio"
+msgstr "Zvuk"
+
+#: src/mgui/mux.cpp:183 src/mgui/timeline/mviewer.cpp:281
+msgid "Audio for DVD"
+msgstr "Zvuk pro DVD"
+
+#: src/mgui/mux.cpp:208
+msgid "Elementary video file is not selected."
+msgstr "Není vybrán soubor s prostým videem."
+
+#: src/mgui/mux.cpp:210
+msgid "Audio file is not selected."
+msgstr "Není vybrán zvukový soubor."
+
+#: src/mgui/mux.cpp:212
+msgid "Output file name is empty."
+msgstr "Název výstupního souboru je prázdný."
+
+#: src/mgui/prefs.cpp:143
+msgid "Bombono DVD Preferences"
+msgstr "Předvolby Bombono DVD"
+
+#: src/mgui/prefs.cpp:157
+msgid "_Default project type"
+msgstr "_Výchozí typ projektu"
+
+#: src/mgui/prefs.cpp:160
+msgid "Default _folder for authoring"
+msgstr "Výchozí _složka pro tvorbu"
+
+#: src/mgui/prefs.cpp:165
+msgid "_Play authoring result in"
+msgstr "_Přehrát výsledky tvorby v"
+
+#: src/mgui/win_utils.cpp:325
+msgid "Replacing the file overwrite its contents."
+msgstr "Nahrazením souboru přepíšete jeho obsah."
+
+#: src/mgui/author/burn.cpp:199
+msgid "Auto"
+msgstr "Automaticky"
+
+#: src/mgui/author/burn.cpp:211
+msgid "Update speeds ..."
+msgstr "Aktualizovat rychlosti…"
+
+#: src/mgui/author/burn.cpp:332
+msgid "Checking Disc ..."
+msgstr "Kontroluje se disk…"
+
+#: src/mgui/author/burn.cpp:346
+msgid "Selected burn drive is for CD discs only. Change to another burn drive."
+msgstr "Vybraná vypalovací mechanika je pouze pro disky CD. Zvolte prosím jinou vypalovací mechaniku."
+
+#: src/mgui/author/burn.cpp:351
+msgid "CD disc is found in the drive, not DVD. Change to DVD disc."
+msgstr "V mechanice byl nalezen disk CD a ne DVD. Vyměňte jej prosím za disk DVD."
+
+#: src/mgui/author/burn.cpp:356
+msgid "No DVD disc in the drive. Load a clear one and press OK."
+msgstr "V mechanice není žádný disk DVD. Vložte prázdný disk a zmáčkněte OK."
+
+#: src/mgui/author/burn.cpp:361
+#, boost-format
+msgid "Disc with type \"%1%\" is found in the drive but for DVD-Video disc type should be one from: DVD-R, DVD+R, DVD-RW, DVD+RW. Load a clear one with right type and press OK."
+msgstr "V mechanice je disk „%1%“, ale pro DVD-Video je zapotřebí jeden následujících typů: DVD-R, DVD+R, DVD-RW, DVD+RW. Vložte prázdný disk správného typu a zmáčkněte OK."
+
+#: src/mgui/author/burn.cpp:370
+#, boost-format
+msgid "Disc with type \"%1%\" in the drive is not clear. Only clear recordable discs can be used for burning DVD-Video. Load a clear one and press OK."
+msgstr "Disk „%1%“, který je vložený v mechanice, není prázdný. Na vypálení DVD-Video lze použít jedině prázdný zapisovatelný disk. Vložte prázdný disk a zmáčkněte OK."
+
+#: src/mgui/author/burn.cpp:377
+#, boost-format
+msgid "Disc with type \"%1%\" in the drive is not clear. We need to remove its contents before writing new one. Continue?"
+msgstr "Disk „%1%“, který je vložený v mechanice, není prázdný. Před zápisem je zapotřebí vymazat jeho obsah. Pokračovat?"
+
+#: src/mgui/author/burn.cpp:381
+msgid "_Cancel"
+msgstr "_Zrušit"
+
+#: src/mgui/author/burn.cpp:382
+msgid "_Try again"
+msgstr "Zkusit z_novu"
+
+#: src/mgui/author/execute.cpp:62
+msgid "Status: "
+msgstr "Stav:"
+
+#: src/mgui/author/indicator.cpp:66
 msgid "Rendering Menus"
 msgstr "Vykreslují se menu"
 
-#: src/mgui/author/indicator.cpp:68
+#: src/mgui/author/indicator.cpp:67
 msgid "Generating DVD-Video"
 msgstr "Generuje se DVD-Video"
 
-#: src/mgui/author/indicator.cpp:69
+#: src/mgui/author/indicator.cpp:68
 msgid "Creating ISO Image"
 msgstr "Vytváří se obraz ISO"
 
-#: src/mgui/author/indicator.cpp:70
+#: src/mgui/author/indicator.cpp:69
 msgid "Burning DVD"
 msgstr "Vypaluje se DVD"
 
@@ -308,212 +313,338 @@ msgstr "Ses_tavit DVD-Video"
 msgid "Select Output _Folder:"
 msgstr "Vyberte výstupní _složku:"
 
-#: src/mgui/author/output.cpp:175
+#: src/mgui/author/output.cpp:177
 msgid " Choose Author Mode: "
 msgstr "Zvolte režim tvorby:"
 
 #. цель по умолчанию
-#: src/mgui/author/output.cpp:181
+#: src/mgui/author/output.cpp:183
 msgid "_Write DVD Folder"
 msgstr "Z_apsat složku DVD"
 
-#: src/mgui/author/output.cpp:182
+#: src/mgui/author/output.cpp:184
 msgid "Write Disk _Image"
 msgstr "Zapsat obraz d_isku"
 
-#: src/mgui/author/output.cpp:191
+#: src/mgui/author/output.cpp:193
 msgid "Disc Label: "
 msgstr "Popisek disku: "
 
-#: src/mgui/author/output.cpp:196
+#: src/mgui/author/output.cpp:198
 msgid "Burn to _DVD"
 msgstr "Vypálit na _DVD"
 
-#: src/mgui/author/output.cpp:204
+#: src/mgui/author/output.cpp:206
 msgid "DVD Drive: "
 msgstr "Mechanika DVD: "
 
-#: src/mgui/author/output.cpp:210
+#: src/mgui/author/output.cpp:212
 msgid "Writing Speed: "
 msgstr "Rychlost zápisu: "
 
-#: src/mgui/author/output.cpp:221
+#: src/mgui/author/output.cpp:223
 msgid "_Rendering only"
 msgstr "Pouze vyk_reslit"
 
-#: src/mgui/author/output.cpp:275
+#: src/mgui/author/output.cpp:277
 msgid "Rendering"
 msgstr "Vykreslování"
 
-#: src/mgui/author/output.cpp:352
+#: src/mgui/author/output.cpp:354
 msgid "DVD Burning"
 msgstr "Vypalování DVD"
 
-#: src/mgui/author/output.cpp:396
+#: src/mgui/author/output.cpp:398
 msgid "The result is here"
 msgstr "Výsledek je zde"
 
-#: src/mgui/author/output.cpp:398
+#: src/mgui/author/output.cpp:400
 msgid "You can run authoring manually by executing command \"scons\" at the specified folder. Also, see README file for other options over there."
 msgstr "Tvorbu můžete spustit ručně pomocí příkazu „scons“ v dané složce. Podívejte se také do souboru README na další možnosti.."
 
 #. Translators: impossible to go on!
-#: src/mgui/author/output.cpp:422
+#: src/mgui/author/output.cpp:424
 msgid "Authoring is cancelled."
 msgstr "Tvorba byla přerušena."
 
-#: src/mgui/author/output.cpp:433
+#: src/mgui/author/output.cpp:435
 #, boost-format
 msgid "%1% is not a folder"
 msgstr "%1% není složka"
 
-#: src/mgui/author/output.cpp:444
+#: src/mgui/author/output.cpp:446
 #, boost-format
 msgid "Cant have full access to folder %1% (read, write)"
 msgstr "Nelze získat plný přístup ke složce %1% (čtení, zápis)"
 
-#: src/mgui/author/output.cpp:452
+#: src/mgui/author/output.cpp:454
 #, boost-format
 msgid ""
 "Folder %1% is not empty. We need to remove all files in it before authoring.\n"
 "Continue?"
 msgstr "Složka %1% není prázdná. Před započetím vytváření je nutné odstranit všechny soubory. Pokračovat?"
 
-#: src/mgui/author/output.cpp:458
+#: src/mgui/author/output.cpp:460
 #, boost-format
 msgid "Error during removing files: %1%"
 msgstr "Chyba během odstraňování souborů: %1%"
 
-#: src/mgui/author/output.cpp:629
+#: src/mgui/author/output.cpp:651
 #, boost-format
 msgid "%1% cancelled."
 msgstr "Operace „%1%“ zrušena."
 
-#: src/mgui/author/output.cpp:631
+#: src/mgui/author/output.cpp:653
 #, boost-format
 msgid "%1% broken."
 msgstr "Operace „%1%“ přerušena."
 
 #. Translators: can be tranlated as "Operation "%1%" ..."
-#: src/mgui/author/output.cpp:638
+#: src/mgui/author/output.cpp:660
 #, boost-format
 msgid "%1% successfully completed."
 msgstr "Operace „%1%“ úspěšně dokončena."
 
-#: src/mgui/author/output.cpp:668 src/mgui/timeline/select.cpp:216
+#: src/mgui/author/output.cpp:690 src/mgui/timeline/select.cpp:239
 #, boost-format
 msgid "_Play in %1%"
 msgstr "_Přehrát v %1%"
 
-#: src/mgui/author/output.cpp:669
+#: src/mgui/author/output.cpp:691
 msgid "_Burn to DVD"
 msgstr "_Vypálit na DVD"
 
-#: src/mgui/author/script.cpp:392
+#: src/mgui/author/script.cpp:391
 msgid "There is no media (video or menu)."
 msgstr "Nejsou k dispozici žádná média (video nebo menu)."
 
-#: src/mgui/author/script.cpp:557
+#: src/mgui/author/script.cpp:556
 #, boost-format
 msgid "external command failure: %1%"
 msgstr "externí příkaz selhal: %1%"
 
-#: src/mgui/editor/select.cpp:499
+#: src/mgui/editor/select.cpp:599
 msgid "Delete"
 msgstr "Smazat"
 
-#: src/mgui/editor/select.cpp:513
+#: src/mgui/editor/select.cpp:613
 msgid "Link"
 msgstr "Odkaz"
 
-#: src/mgui/editor/select.cpp:517
+#: src/mgui/editor/select.cpp:617
 msgid "Remove Link"
 msgstr "Odstranit odkaz"
 
 #. Poster Link
-#: src/mgui/editor/select.cpp:521
+#: src/mgui/editor/select.cpp:621
 msgid "Set Poster"
 msgstr "Nastavit pozadí"
 
-#: src/mgui/editor/select.cpp:530
+#: src/mgui/editor/select.cpp:630
 msgid "Align"
 msgstr "Zarovnat"
 
-#: src/mgui/editor/select.cpp:538
+#: src/mgui/editor/select.cpp:638
 msgid "Align Left"
 msgstr "Zarovnat doleva"
 
-#: src/mgui/editor/select.cpp:539
+#: src/mgui/editor/select.cpp:639
 msgid "Align Right"
 msgstr "Zarovnat doprava"
 
-#: src/mgui/editor/select.cpp:540
+#: src/mgui/editor/select.cpp:640
 msgid "Align Top"
 msgstr "Zarovnat nahoru"
 
-#: src/mgui/editor/select.cpp:541
+#: src/mgui/editor/select.cpp:641
 msgid "Align Bottom"
 msgstr "Zarovnat dolů"
 
-#: src/mgui/editor/select.cpp:544
+#: src/mgui/editor/select.cpp:644
 msgid "Center Horizontally"
-msgstr "Vycentrovat vodorovně"
+msgstr "Vystředit vodorovně"
 
-#: src/mgui/editor/select.cpp:545
+#: src/mgui/editor/select.cpp:645
 msgid "Center Vertically"
-msgstr "Vycentrovat svisle"
+msgstr "Vystředit svisle"
+
+#: src/mgui/editor/select.cpp:650
+msgid "Distribute Horizontally"
+msgstr "Rozložit vodorovně"
+
+#: src/mgui/editor/select.cpp:651
+msgid "Distribute Vertically"
+msgstr "Rozložit svisle"
 
 #. Set Background Color
-#: src/mgui/editor/select.cpp:550 src/mgui/editor/select.cpp:802
+#: src/mgui/editor/select.cpp:656 src/mgui/editor/select.cpp:908
 msgid "Set Background Color..."
 msgstr "Nastavit barvu pozadí…"
 
 #. Selection Tool
-#: src/mgui/editor/toolbar.cpp:129
+#: src/mgui/editor/toolbar.cpp:135
 msgid "Selection Tool"
 msgstr "Nástroj pro výběr"
 
 #. Text Tool
-#: src/mgui/editor/toolbar.cpp:132
+#: src/mgui/editor/toolbar.cpp:138
 msgid "Text Tool"
 msgstr "Nástroj pro text"
 
-#: src/mgui/editor/toolbar.cpp:493
+#: src/mgui/editor/toolbar.cpp:495
 msgid "Add Item"
 msgstr "Přidat položku"
 
-#: src/mgui/editor/toolbar.cpp:515
+#: src/mgui/editor/toolbar.cpp:517
 msgid "Font Name"
 msgstr "Název písma"
 
-#: src/mgui/editor/toolbar.cpp:531
+#: src/mgui/editor/toolbar.cpp:533
 msgid "Font Size"
 msgstr "Velikost písma"
 
 #. * кнопки стилей шрифта
-#: src/mgui/editor/toolbar.cpp:536
+#: src/mgui/editor/toolbar.cpp:538
 msgid "Bold"
 msgstr "Tučné"
 
-#: src/mgui/editor/toolbar.cpp:537
+#: src/mgui/editor/toolbar.cpp:539
 msgid "Italic"
 msgstr "Kurzíva"
 
-#: src/mgui/editor/toolbar.cpp:538
+#: src/mgui/editor/toolbar.cpp:540
 msgid "Underline"
 msgstr "Podtržené"
 
-#: src/mgui/editor/toolbar.cpp:547
+#: src/mgui/editor/toolbar.cpp:549
 msgid "Pick a Color for Text"
 msgstr "Výběr barvy pro text"
 
-#: src/mgui/editor/toolbar.cpp:549
+#: src/mgui/editor/toolbar.cpp:551
 msgid "Text Color"
 msgstr "Barva textu"
 
-#: src/mgui/editor/toolbar.cpp:561
+#: src/mgui/editor/toolbar.cpp:563
 msgid "Show Safe Area"
 msgstr "Zobrazit bezrizikovou oblast"
+
+#: src/mgui/project/add.cpp:37
+msgid "yes"
+msgstr "ano"
+
+#: src/mgui/project/add.cpp:37
+msgid "no"
+msgstr "ne"
+
+#: src/mgui/project/add.cpp:86
+msgid "Video bitrate"
+msgstr "Datový tok videa"
+
+#: src/mgui/project/add.cpp:87
+msgid "kbps"
+msgstr "kb/s"
+
+#: src/mgui/project/add.cpp:88
+msgid "Maximum data rate for video (9800 kbps) is exceeded."
+msgstr "Byl překročen maximální datový tok pro video (9800 kb/s)."
+
+#: src/mgui/project/add.cpp:91
+#, boost-format
+msgid "The %1% DVD-Video can accept MPEG-2 with resolutions: %2% only."
+msgstr "DVD-Video %1% umí pojmou MPEG-2 s rozlišením pouze %2%."
+
+#: src/mgui/project/add.cpp:92
+#, boost-format
+msgid "The %1% DVD-Video can accept MPEG-2 with frame rate: %2% only."
+msgstr "DVD-Video %1% umí pojmou MPEG-2 se snímkovou rychlostí pouze %2%."
+
+#: src/mgui/project/add.cpp:93
+#, boost-format
+msgid "The %1% DVD-Video can accept MPEG-2 with aspects 4:3, 16:9 only."
+msgstr "DVD-Video %1% umí pojmou MPEG-2 s poměrem stran pouze 4:3 a 16:9."
+
+#: src/mgui/project/add.cpp:113
+msgid "Video size"
+msgstr "Velikost videa"
+
+#: src/mgui/project/add.cpp:133
+msgid "Frame rate"
+msgstr "Snímková rychlost"
+
+#: src/mgui/project/add.cpp:134
+msgid "fps"
+msgstr "f/s"
+
+#: src/mgui/project/add.cpp:142
+msgid "Aspect ratio"
+msgstr "Poměr stran"
+
+#: src/mgui/project/add.cpp:217
+msgid "<b>Bombono DVD</b> can use \"DVD-ready\" video only now. Use muxing programs like \"mplex -f 8\" (from <b>mjpegtools</b>), mencoder (from <b>mplayer</b>) or <b>transcode</b> to make your video ready for <b>Bombono DVD</b>."
+msgstr "<b>Bombono DVD</b> umí v současné podobě použít pouze video „DVD-ready“ (připravené pro DVD). K přípravě videa vhodného pro <b>Bombono DVD</b> použijte multiplexovací program, jako např. „mplex -f 8“ (z <b>mjpegtools</b>), memcoder (z <b>mplayer</b>) nebo <b>transcode</b>."
+
+#: src/mgui/project/add.cpp:221
+msgid "DVD packs"
+msgstr "Balíčky DVD"
+
+#: src/mgui/project/add.cpp:223
+msgid "NAV packets"
+msgstr "Pakety NAV"
+
+#: src/mgui/project/add.cpp:229
+msgid "This video may not be added due to (errors in <span foreground=\"red\">red color</span>):"
+msgstr "Toto video nemohlo být přidáno z důvodu (chyba je vyznačena <span foreground=\"red\">červeně</span>):"
+
+#. подскажем пользователю, что он ошибся форматом проекта
+#: src/mgui/project/add.cpp:240
+#, boost-format
+msgid "This video has %1% type and can't be added to current project of %2% type. Create new project from menu \"Project->New Project\" with right type."
+msgstr "Toto video je typu %1% a nelze jej přidat do současného projektu typu %2%. Vytvořte z nabídky „Projekt->Nový projekt“ nový projekt se správným typem."
+
+#: src/mgui/project/add.cpp:269
+msgid "File doesn't exist."
+msgstr "Soubor neexistuje."
+
+#: src/mgui/project/add.cpp:274
+msgid "Folders can't be added."
+msgstr "Složky nelze přidat."
+
+#. по расширению выводим наиболее вероятную ошибку
+#: src/mgui/project/add.cpp:309
+msgid "Unknown file type."
+msgstr "Neznámý typ souboru."
+
+#: src/mgui/project/add.cpp:379
+#, boost-format
+msgid ""
+"The file \"%1%\" looks like VOB from DVD.\n"
+"Run import?"
+msgstr ""
+"Soubor „%1%“ vypadá jako VOB z DVD.\n"
+"Spustit import?"
+
+#: src/mgui/project/add.cpp:396
+#, boost-format
+msgid "The file \"%1%\" looks like elementary stream and need to be muxed before using. Run muxing?"
+msgstr "Soubor „%1%“ vypadá jako prostý proud a před použitím je zapotřebí jej multiplexovat. Spustit multiplexování?"
+
+#: src/mgui/project/add.cpp:458
+msgid "Also:"
+msgstr "Rovněž:"
+
+#: src/mgui/project/add.cpp:471
+#, boost-format
+msgid "See more about preparing video for authoring in <a href=\"%1%\">online help</a>."
+msgstr "Více informací o přípravě videa pro tvorbu najdete v <a href=\"%1%\">on-line nápovědě</a> (anglicky)."
+
+#: src/mgui/project/add.cpp:482
+#, boost-format
+msgid "Can't add file \"%1%\"."
+msgstr "Nelze přidat soubor „%1%“."
+
+#: src/mgui/project/add.cpp:484
+msgid "Can't add files:"
+msgstr "Nelze přidat soubory:"
 
 #: src/mgui/project/browser.cpp:128
 #, boost-format
@@ -534,278 +665,106 @@ msgstr "Opravdu chcete smazat menu „%1%“?"
 msgid "First-Play media can be Video or Menu only."
 msgstr "První přehrávané médium může být jen video nebo menu."
 
-#: src/mgui/project/mconstructor.cpp:132
-msgid "Save Project As..."
-msgstr "Uložení projektu jako…"
-
-#: src/mgui/project/mconstructor.cpp:169
-#, boost-format
-msgid "Cant open project file \"%1%\""
-msgstr "Nelze otevřít soubor s projektem „%1%“"
-
-#: src/mgui/project/mconstructor.cpp:465
+#: src/mgui/project/mconstructor.cpp:335
 msgid "Bombono DVD is a DVD authoring program with nice and clean GUI"
 msgstr "Bombono DVD je program s příjemným a přehledným uživatelským rozhraním pro tvorbu DVD"
 
 #. dlg.set_authors(authors);
 #. dlg.set_documenters(documenters);
 #. dlg.set_decorated(false);
-#: src/mgui/project/mconstructor.cpp:470
+#: src/mgui/project/mconstructor.cpp:340
 msgid "translator-credits"
 msgstr "Marek Černocký <marek@manet.cz>"
-
-#: src/mgui/project/mconstructor.cpp:611
-#, boost-format
-msgid "Save changes to \"%1%\"?"
-msgstr "Uložit změny do „%1%“?"
-
-#: src/mgui/project/mconstructor.cpp:613
-msgid "Close _without Saving"
-msgstr "Zavřít _bez ukládání"
-
-#: src/mgui/project/mconstructor.cpp:653
-msgid "New Project"
-msgstr "Nový projekt"
-
-#: src/mgui/project/mconstructor.cpp:662
-msgid "Please select a Television standard for your project:"
-msgstr "Vyberte prosím televizní standard pro svůj projekt:"
-
-#: src/mgui/project/mconstructor.cpp:687
-msgid "Open Project"
-msgstr "Otevření projektu"
-
-#: src/mgui/project/mconstructor.cpp:691
-msgid "Project files (*.xml)"
-msgstr "Soubory s projekty (*.xml)"
-
-#: src/mgui/project/mconstructor.cpp:696 src/mgui/timeline/mviewer.cpp:273
-msgid "All Files (*.*)"
-msgstr "Všechny soubory (*.*)"
 
 #. раньше Brasero использовал KiB, MiB и GiB, как более точные технически
 #. (вроде как размеры HDD принято измерять по 1GB=1000MB); теперь Brasero
 #. перешел на стандарт KB/MB/GB, ну и BmD тоже (а че, мы не гордые :)
-#: src/mgui/project/mconstructor.cpp:824
+#: src/mgui/project/mconstructor.cpp:527
 msgid "KB"
 msgstr "kB"
 
-#: src/mgui/project/mconstructor.cpp:824
+#: src/mgui/project/mconstructor.cpp:527
 msgid "GB"
 msgstr "GB"
 
 #. Project
-#: src/mgui/project/mconstructor.cpp:935
+#: src/mgui/project/mconstructor.cpp:635
 msgid "_Project"
 msgstr "_Projekt"
 
-#: src/mgui/project/mconstructor.cpp:940
-msgid "_New Project"
-msgstr "_Nový projekt"
-
-#: src/mgui/project/mconstructor.cpp:942
-msgid "_Open..."
-msgstr "_Otevřít…"
-
-#: src/mgui/project/mconstructor.cpp:944
-msgid "_Save"
-msgstr "_Uložit"
-
-#: src/mgui/project/mconstructor.cpp:946
-msgid "Save _As..."
-msgstr "Uložit j_ako…"
-
-#: src/mgui/project/mconstructor.cpp:948
+#: src/mgui/project/mconstructor.cpp:642
 msgid "_Quit"
 msgstr "U_končit"
 
-#: src/mgui/project/mconstructor.cpp:950
+#: src/mgui/project/mconstructor.cpp:644
 msgid "Add Videos from _DVD"
 msgstr "Přidat videa z _DVD"
 
-#: src/mgui/project/mconstructor.cpp:950
+#: src/mgui/project/mconstructor.cpp:644
 msgid "DVD-Import Assistant"
 msgstr "Průvodce importem DVD"
 
-#: src/mgui/project/mconstructor.cpp:952
+#: src/mgui/project/mconstructor.cpp:646
 msgid "_Mux"
 msgstr "_Multiplexovat"
 
-#: src/mgui/project/mconstructor.cpp:952
+#: src/mgui/project/mconstructor.cpp:646
 msgid "Mux Elementary Streams into MPEG2"
 msgstr "Multiplexovat prostý proud do MPEG2"
 
-#: src/mgui/project/mconstructor.cpp:954
+#: src/mgui/project/mconstructor.cpp:648
 msgid "Pr_eferences"
 msgstr "Př_edvolby"
 
 #. Go
-#: src/mgui/project/mconstructor.cpp:993
+#: src/mgui/project/mconstructor.cpp:687
 msgid "_Go"
 msgstr "Pře_jít"
 
 #. первый вставляем сразу
 #. Help
-#: src/mgui/project/mconstructor.cpp:999
+#: src/mgui/project/mconstructor.cpp:693
 msgid "_Help"
 msgstr "_Nápověda"
 
-#: src/mgui/project/mconstructor.cpp:1100
+#: src/mgui/project/mconstructor.cpp:818
 msgctxt "MainTabs"
 msgid "_Source"
 msgstr "_Zdroj"
 
-#: src/mgui/project/mconstructor.cpp:1102
+#: src/mgui/project/mconstructor.cpp:820
 msgctxt "MainTabs"
 msgid "_Menu"
 msgstr "_Menu"
 
-#: src/mgui/project/mconstructor.cpp:1104
+#: src/mgui/project/mconstructor.cpp:822
 msgctxt "MainTabs"
 msgid "_Output"
 msgstr "_Výstup"
 
-#: src/mgui/project/mb-actions.cpp:142
-msgid "yes"
-msgstr "ano"
-
-#: src/mgui/project/mb-actions.cpp:142
-msgid "no"
-msgstr "ne"
-
-#: src/mgui/project/mb-actions.cpp:191
-msgid "Video bitrate"
-msgstr "Datový tok videa"
-
-#: src/mgui/project/mb-actions.cpp:192
-msgid "kbps"
-msgstr "kb/s"
-
-#: src/mgui/project/mb-actions.cpp:193
-msgid "Maximum data rate for video (9800 kbps) is exceeded."
-msgstr "Byl překročen maximální datový tok pro video (9800 kb/s)."
-
-#: src/mgui/project/mb-actions.cpp:196
-#, boost-format
-msgid "The %1% DVD-Video can accept MPEG-2 with resolutions: %2% only."
-msgstr "DVD-Video %1% umí pojmou MPEG-2 s rozlišením pouze %2%."
-
-#: src/mgui/project/mb-actions.cpp:197
-#, boost-format
-msgid "The %1% DVD-Video can accept MPEG-2 with frame rate: %2% only."
-msgstr "DVD-Video %1% umí pojmou MPEG-2 se snímkovou rychlostí pouze %2%."
-
-#: src/mgui/project/mb-actions.cpp:198
-#, boost-format
-msgid "The %1% DVD-Video can accept MPEG-2 with aspects 4:3, 16:9 only."
-msgstr "DVD-Video %1% umí pojmou MPEG-2 s poměrem stran pouze 4:3 a 16:9."
-
-#: src/mgui/project/mb-actions.cpp:218
-msgid "Video size"
-msgstr "Velikost videa"
-
-#: src/mgui/project/mb-actions.cpp:238
-msgid "Frame rate"
-msgstr "Snímková rychlost"
-
-#: src/mgui/project/mb-actions.cpp:239
-msgid "fps"
-msgstr "f/s"
-
-#: src/mgui/project/mb-actions.cpp:247
-msgid "Aspect ratio"
-msgstr "Poměr stran"
-
-#: src/mgui/project/mb-actions.cpp:322
-msgid "<b>Bombono DVD</b> can use \"DVD-ready\" video only now. Use muxing programs like \"mplex -f 8\" (from <b>mjpegtools</b>), mencoder (from <b>mplayer</b>) or <b>transcode</b> to make your video ready for <b>Bombono DVD</b>."
-msgstr "<b>Bombono DVD</b> umí v současné podobě použít pouze video „DVD-ready“ (připravené pro DVD). K přípravě videa vhodného pro <b>Bombono DVD</b> použijte multiplexovací program, jako např. „mplex -f 8“ (z <b>mjpegtools</b>), memcoder (z <b>mplayer</b>) nebo <b>transcode</b>."
-
-#: src/mgui/project/mb-actions.cpp:326
-msgid "DVD packs"
-msgstr "Balíčky DVD"
-
-#: src/mgui/project/mb-actions.cpp:328
-msgid "NAV packets"
-msgstr "Pakety NAV"
-
-#: src/mgui/project/mb-actions.cpp:334
-msgid "This video may not be added due to (errors in <span foreground=\"red\">red color</span>):"
-msgstr "Toto video nemohlo být přidáno z důvodu (chyba je vyznačena <span foreground=\"red\">červeně</span>):"
-
-#. подскажем пользователю, что он ошибся форматом проекта
-#: src/mgui/project/mb-actions.cpp:345
-#, boost-format
-msgid "This video has %1% type and can't be added to current project of %2% type. Create new project from menu \"Project->New Project\" with right type."
-msgstr "Toto video je typu %1% a nelze jej přidat do současného projektu typu %2%. Vytvořte z nabídky „Projekt->Nový projekt“ nový projekt se správným typem."
-
-#: src/mgui/project/mb-actions.cpp:373
-msgid "File doesn't exist."
-msgstr "Soubor neexistuje."
-
-#: src/mgui/project/mb-actions.cpp:378
-msgid "Folders can't be added."
-msgstr "Složky nelze přidat."
-
-#. по расширению выводим наиболее вероятную ошибку
-#: src/mgui/project/mb-actions.cpp:413
-msgid "Unknown file type."
-msgstr "Neznámý typ souboru."
-
-#: src/mgui/project/mb-actions.cpp:631
-#, boost-format
-msgid ""
-"The file \"%1%\" looks like VOB from DVD.\n"
-"Run import?"
-msgstr ""
-"Soubor „%1%“ vypadá jako VOB z DVD.\n"
-"Spustit import?"
-
-#: src/mgui/project/mb-actions.cpp:648
-#, boost-format
-msgid "The file \"%1%\" looks like elementary stream and need to be muxed before using. Run muxing?"
-msgstr "Soubor „%1%“ vypadá jako prostý proud a před použitím je zapotřebí jej multiplexovat. Spustit multiplexování?"
-
-#: src/mgui/project/mb-actions.cpp:710
-msgid "Also:"
-msgstr "Rovněž:"
-
-#: src/mgui/project/mb-actions.cpp:719
-#, boost-format
-msgid "See more about preparing video for authoring in <a href=\"%1%\">online help</a>."
-msgstr "Více informací o přípravě videa pro tvorbu najdete v <a href=\"%1%\">on-line nápovědě</a> (anglicky)."
-
-#: src/mgui/project/mb-actions.cpp:727
-#, boost-format
-msgid "Can't add file \"%1%\"."
-msgstr "Nelze přidat soubor „%1%“."
-
-#: src/mgui/project/mb-actions.cpp:730
-msgid "Can't add files:"
-msgstr "Nelze přidat soubory:"
-
-#: src/mgui/project/media-browser.cpp:146
+#: src/mgui/project/media-browser.cpp:148
 msgid "Previous Menu"
 msgstr "Předchozí menu"
 
-#: src/mgui/project/media-browser.cpp:146
 #: src/mgui/project/media-browser.cpp:148
+#: src/mgui/project/media-browser.cpp:150
 msgid "Next Video"
 msgstr "Následující video"
 
-#: src/mgui/project/media-browser.cpp:147
+#: src/mgui/project/media-browser.cpp:149
 #, boost-format
 msgid "Auto (%1%)"
 msgstr "Automaticky (%1%)"
 
-#: src/mgui/project/media-browser.cpp:177
+#: src/mgui/project/media-browser.cpp:179
 msgid "End Action"
 msgstr "Akce na konci"
 
-#: src/mgui/project/media-browser.cpp:201
+#: src/mgui/project/media-browser.cpp:203
 msgid "Still Picture"
 msgstr "Statický obrázek"
 
-#: src/mgui/project/media-browser.cpp:233
+#: src/mgui/project/media-browser.cpp:235
 msgid "Type"
 msgstr "Typ"
 
@@ -815,103 +774,159 @@ msgstr "Typ"
 #. vbox.pack_start(label, Gtk::PACK_SHRINK);
 #. Gtk::Requisition req = label.size_request();
 #. label.set_size_request(0, req.height+10);
-#: src/mgui/project/media-browser.cpp:291
-#: src/mgui/project/menu-browser.cpp:373
+#: src/mgui/project/media-browser.cpp:293
+#: src/mgui/project/menu-browser.cpp:374
 msgid "Media List"
 msgstr "Seznam médií"
 
-#: src/mgui/project/media-browser.cpp:331
+#: src/mgui/project/media-browser.cpp:333
 msgid "Add Media from File Browser"
 msgstr "Přidat médium z procházení souborů"
 
-#: src/mgui/project/media-browser.cpp:340
+#: src/mgui/project/media-browser.cpp:342
 msgid "Remove Media"
 msgstr "Odebrat médium"
 
-#: src/mgui/project/media-browser.cpp:351
+#: src/mgui/project/media-browser.cpp:353
 msgid "Make Chapters for Video"
 msgstr "Vytvořit kapitoly pro video"
 
-#: src/mgui/project/menu-browser.cpp:190
+#: src/mgui/project/menu-browser.cpp:191
 msgid "No Link"
 msgstr "Žádný odkaz"
 
 #. * subj
-#: src/mgui/project/menu-browser.cpp:337
+#: src/mgui/project/menu-browser.cpp:338
 msgid "Menu List"
 msgstr "Seznam menu"
 
-#: src/mgui/project/menu-browser.cpp:353
+#: src/mgui/project/menu-browser.cpp:354
 msgid "Add Menu"
 msgstr "Přidat menu"
 
-#: src/mgui/project/menu-browser.cpp:358
+#: src/mgui/project/menu-browser.cpp:359
 msgid "Remove Menu"
 msgstr "Odebrat menu"
 
-#: src/mgui/project/menu-browser.cpp:363
+#: src/mgui/project/menu-browser.cpp:364
 msgid "Edit Menu"
 msgstr "Upravit menu"
 
+#: src/mgui/project/serialize.cpp:61
+msgid "Save Project As..."
+msgstr "Uložení projektu jako…"
+
+#: src/mgui/project/serialize.cpp:93
+#, boost-format
+msgid "Cant open project file \"%1%\""
+msgstr "Nelze otevřít soubor s projektem „%1%“"
+
+#: src/mgui/project/serialize.cpp:166
+#, boost-format
+msgid "Save changes to \"%1%\"?"
+msgstr "Uložit změny do „%1%“?"
+
+#: src/mgui/project/serialize.cpp:168
+msgid "Close _without Saving"
+msgstr "Zavřít _bez ukládání"
+
+#: src/mgui/project/serialize.cpp:206
+msgid "New Project"
+msgstr "Nový projekt"
+
+#: src/mgui/project/serialize.cpp:215
+msgid "Please select a Television standard for your project:"
+msgstr "Vyberte prosím televizní standard pro svůj projekt:"
+
+#: src/mgui/project/serialize.cpp:237
+msgid "Open Project"
+msgstr "Otevření projektu"
+
+#: src/mgui/project/serialize.cpp:241
+msgid "Project files (*.xml)"
+msgstr "Soubory s projekty (*.xml)"
+
+#: src/mgui/project/serialize.cpp:246 src/mgui/timeline/mviewer.cpp:283
+msgid "All Files (*.*)"
+msgstr "Všechny soubory (*.*)"
+
+#: src/mgui/project/serialize.cpp:308
+msgid "_New Project"
+msgstr "_Nový projekt"
+
+#: src/mgui/project/serialize.cpp:310
+msgid "_Open..."
+msgstr "_Otevřít…"
+
+#: src/mgui/project/serialize.cpp:312
+msgid "_Save"
+msgstr "_Uložit"
+
+#: src/mgui/project/serialize.cpp:314
+msgid "Save _As..."
+msgstr "Uložit j_ako…"
+
 #. Add
-#: src/mgui/timeline/layout.cpp:526 src/mgui/timeline/select.cpp:193
+#: src/mgui/timeline/layout.cpp:526 src/mgui/timeline/select.cpp:216
 msgid "Add Chapter Point"
 msgstr "Přidat bod kapitoly"
 
+#: src/mgui/timeline/mviewer.cpp:76
+msgid "Error while opening file:"
+msgstr "Chyba během otevírání souboru:"
+
 #. 0 надпись
-#: src/mgui/timeline/mviewer.cpp:239
+#: src/mgui/timeline/mviewer.cpp:249
 msgid "File Browser"
 msgstr "Procházení souborů"
 
-#: src/mgui/timeline/mviewer.cpp:269
+#: src/mgui/timeline/mviewer.cpp:279
 msgid "All formats"
 msgstr "Všechny formáty"
 
-#: src/mgui/timeline/mviewer.cpp:270
+#: src/mgui/timeline/mviewer.cpp:280
 msgid "MPEG files"
 msgstr "Soubory MPEG"
 
-#: src/mgui/timeline/mviewer.cpp:272
+#: src/mgui/timeline/mviewer.cpp:282
 msgid "Still Images"
 msgstr "Statické obrázky"
 
-#: src/mgui/timeline/select.cpp:127
+#: src/mgui/timeline/select.cpp:143
+msgid "A_dd to project"
+msgstr "Při_dat do projektu"
+
+#: src/mgui/timeline/select.cpp:146
 msgid "Save Frame..."
 msgstr "Uložit snímek…"
 
 #. Add at Intervals
-#: src/mgui/timeline/select.cpp:147 src/mgui/timeline/select.cpp:205
+#: src/mgui/timeline/select.cpp:170 src/mgui/timeline/select.cpp:228
 msgid "Add Chapter Points at Intervals"
 msgstr "Přidat kapitoly v intervalech"
 
-#: src/mgui/timeline/select.cpp:153
+#: src/mgui/timeline/select.cpp:176
 msgid "Interval between Chapters:"
 msgstr "Rozestup mez kapitolami:"
 
-#: src/mgui/timeline/select.cpp:160
+#: src/mgui/timeline/select.cpp:183
 msgid "min."
 msgstr "min."
 
-#: src/mgui/timeline/select.cpp:163
+#: src/mgui/timeline/select.cpp:186
 msgid "Remove Existing Chapters"
 msgstr "Odebrat existující kapitoly"
 
 #. Delete
-#: src/mgui/timeline/select.cpp:196
+#: src/mgui/timeline/select.cpp:219
 msgid "Delete Chapter Point"
 msgstr "Smazat bod kapitoly"
 
 #. Delete All
-#: src/mgui/timeline/select.cpp:200
+#: src/mgui/timeline/select.cpp:223
 msgid "Delete All Chapter Points"
 msgstr "Smazat všechny body kapitoly"
 
-#: src/mgui/timeline/select.cpp:213
+#: src/mgui/timeline/select.cpp:236
 msgid "Save Current Frame"
 msgstr "Uložit aktuální snímek"
-
-#~ msgid "Default _folder for authoring"
-#~ msgstr "Výchozí _složka pro tvorbu"
-
-#~ msgid "A_dd to project"
-#~ msgstr "Při_dat do projektu"
