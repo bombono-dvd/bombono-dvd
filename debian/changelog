@@ -1,3 +1,9 @@
+bombono-dvd (0.8.0-1) karmic; urgency=low
+
+  * New upstream release.
+
+ -- Ilya Murav'jov <muravev@yandex.ru>  Tue, 02 Nov 2010 00:44:05 +0300
+
 bombono-dvd (0.7.0-1) karmic; urgency=low
 
   * New upstream release.
