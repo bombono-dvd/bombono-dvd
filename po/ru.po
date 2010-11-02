@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-31 20:23+0300\n"
-"PO-Revision-Date: 2010-10-31 20:30+0300\n"
+"POT-Creation-Date: 2010-11-02 13:44+0300\n"
+"PO-Revision-Date: 2010-11-02 13:45+0300\n"
 "Last-Translator: Ilya Murav'jov <muravev@yandex.ru>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -446,7 +446,7 @@ msgstr "ошибка выполнения внешней команды: %1%"
 #: src/mgui/editor/select.cpp:410
 #: src/mgui/project/menu-browser.cpp:259
 msgid "Play All"
-msgstr "Смотреть все"
+msgstr "Смотреть всё"
 
 #: src/mgui/editor/select.cpp:662
 msgid "Delete"
@@ -570,93 +570,93 @@ msgstr "Цвет текста"
 msgid "Show Safe Area"
 msgstr "Показать безопасную область"
 
-#: src/mgui/project/add.cpp:37
+#: src/mgui/project/add.cpp:57
 msgid "yes"
 msgstr "да"
 
-#: src/mgui/project/add.cpp:37
+#: src/mgui/project/add.cpp:57
 msgid "no"
 msgstr "нет"
 
-#: src/mgui/project/add.cpp:86
+#: src/mgui/project/add.cpp:106
 msgid "Video bitrate"
 msgstr "Видео-битрейт"
 
-#: src/mgui/project/add.cpp:87
+#: src/mgui/project/add.cpp:107
 msgid "kbps"
 msgstr "кбит/с"
 
-#: src/mgui/project/add.cpp:88
+#: src/mgui/project/add.cpp:108
 msgid "Maximum data rate for video (9800 kbps) is exceeded."
 msgstr "Превышен максимальный битрейт для видео (9800 кбит/с)."
 
-#: src/mgui/project/add.cpp:91
+#: src/mgui/project/add.cpp:111
 #, boost-format
 msgid "The %1% DVD-Video can accept MPEG-2 with resolutions: %2% only."
 msgstr "DVD-Video формата %1% может принимать MPEG-2 только следующих размеров: %2%."
 
-#: src/mgui/project/add.cpp:92
+#: src/mgui/project/add.cpp:112
 #, boost-format
 msgid "The %1% DVD-Video can accept MPEG-2 with frame rate: %2% only."
 msgstr "DVD-Video формата %1% может принимать MPEG-2 только с частотой кадров: %2%."
 
-#: src/mgui/project/add.cpp:93
+#: src/mgui/project/add.cpp:113
 #, boost-format
 msgid "The %1% DVD-Video can accept MPEG-2 with aspects 4:3, 16:9 only."
 msgstr "DVD-Video формата %1% может принимать MPEG-2 только следующих соотношений: 4:3, 16:9."
 
-#: src/mgui/project/add.cpp:113
+#: src/mgui/project/add.cpp:133
 msgid "Video size"
 msgstr "Размер видео"
 
-#: src/mgui/project/add.cpp:133
+#: src/mgui/project/add.cpp:153
 msgid "Frame rate"
 msgstr "Частота кадров"
 
-#: src/mgui/project/add.cpp:134
+#: src/mgui/project/add.cpp:154
 msgid "fps"
 msgstr "кадров/с"
 
-#: src/mgui/project/add.cpp:142
+#: src/mgui/project/add.cpp:162
 msgid "Aspect ratio"
 msgstr "Соотношение сторон"
 
-#: src/mgui/project/add.cpp:217
+#: src/mgui/project/add.cpp:237
 msgid "<b>Bombono DVD</b> can use \"DVD-ready\" video only now. Use muxing programs like \"mplex -f 8\" (from <b>mjpegtools</b>), mencoder (from <b>mplayer</b>) or <b>transcode</b> to make your video ready for <b>Bombono DVD</b>."
 msgstr "<b>Bombono DVD</b> может использовать сейчас только \"готовые для DVD\" видео. Используйте программы мультиплексирования, например \"mplex -f 8\" (из <b>mjpegtools</b>), mencoder (из <b>mplayer</b>) или <b>transcode</b>, чтобы подготовить видео для <b>Bombono DVD</b>."
 
-#: src/mgui/project/add.cpp:221
+#: src/mgui/project/add.cpp:241
 msgid "DVD packs"
 msgstr "DVD-пакеты"
 
-#: src/mgui/project/add.cpp:223
+#: src/mgui/project/add.cpp:243
 msgid "NAV packets"
 msgstr "NAV-пакеты"
 
-#: src/mgui/project/add.cpp:229
+#: src/mgui/project/add.cpp:249
 msgid "This video may not be added due to (errors in <span foreground=\"red\">red color</span>):"
 msgstr "Это видео не может быть добавлено из-за (ошибки <span foreground=\"red\">красным цветом</span>):"
 
 #. подскажем пользователю, что он ошибся форматом проекта
-#: src/mgui/project/add.cpp:240
+#: src/mgui/project/add.cpp:260
 #, boost-format
 msgid "This video has %1% type and can't be added to current project of %2% type. Create new project from menu \"Project->New Project\" with right type."
 msgstr "Это видео имеет тип %1% и не может быть добавлено в текущий проект типа %2%. Создайте новый проект из меню \"Проект->Новый проект\" соответствующего типа."
 
-#: src/mgui/project/add.cpp:269
+#: src/mgui/project/add.cpp:289
 msgid "File doesn't exist."
 msgstr "Файл не существует."
 
-#: src/mgui/project/add.cpp:274
+#: src/mgui/project/add.cpp:294
 msgid "Folders can't be added."
 msgstr "Каталоги нельзя добавлять."
 
 #. по расширению выводим наиболее вероятную ошибку
-#: src/mgui/project/add.cpp:309
+#: src/mgui/project/add.cpp:329
 msgid "Unknown file type."
 msgstr "Неизвестный тип файла."
 
-#: src/mgui/project/add.cpp:379
+#: src/mgui/project/add.cpp:399
 #, boost-format
 msgid ""
 "The file \"%1%\" looks like VOB from DVD.\n"
@@ -665,26 +665,26 @@ msgstr ""
 "Файл \"%1%\" похож на VOB с DVD.\n"
 "Запустить импорт?"
 
-#: src/mgui/project/add.cpp:396
+#: src/mgui/project/add.cpp:416
 #, boost-format
 msgid "The file \"%1%\" looks like elementary stream and need to be muxed before using. Run muxing?"
 msgstr "Файл \"%1%\" похож видео/аудио-дорожку. Необходимо смикшировать видео перед использованием. Выполнить микширование?"
 
-#: src/mgui/project/add.cpp:458
+#: src/mgui/project/add.cpp:478
 msgid "Also:"
 msgstr "А также:"
 
-#: src/mgui/project/add.cpp:471
+#: src/mgui/project/add.cpp:491
 #, boost-format
 msgid "See more about preparing video for authoring in <a href=\"%1%\">online help</a>."
 msgstr "Подробнее о подготовке видео для авторинга смотрите в <a href=\"%1%\">онлайн-справке</a>."
 
-#: src/mgui/project/add.cpp:482
+#: src/mgui/project/add.cpp:502
 #, boost-format
 msgid "Can't add file \"%1%\"."
 msgstr "Не удалось добавить файл \"%1%\"."
 
-#: src/mgui/project/add.cpp:484
+#: src/mgui/project/add.cpp:504
 msgid "Can't add files:"
 msgstr "Не удалось добавить файлы:"
 
@@ -910,58 +910,58 @@ msgstr "Удалить меню"
 msgid "Edit Menu"
 msgstr "Редактировать меню"
 
-#: src/mgui/project/serialize.cpp:62
+#: src/mgui/project/serialize.cpp:82
 msgid "Save Project As..."
 msgstr "Сохранить проект _как..."
 
-#: src/mgui/project/serialize.cpp:94
+#: src/mgui/project/serialize.cpp:114
 #, boost-format
 msgid "Cant open project file \"%1%\""
 msgstr "Не удалось открыть файл проекта \"%1%\""
 
-#: src/mgui/project/serialize.cpp:167
+#: src/mgui/project/serialize.cpp:187
 #, boost-format
 msgid "Save changes to \"%1%\"?"
 msgstr "Сохранить изменения в \"%1%\"?"
 
-#: src/mgui/project/serialize.cpp:169
+#: src/mgui/project/serialize.cpp:189
 msgid "Close _without Saving"
 msgstr "Закрыть _без сохранения"
 
-#: src/mgui/project/serialize.cpp:207
+#: src/mgui/project/serialize.cpp:227
 msgid "New Project"
 msgstr "Создать проект"
 
-#: src/mgui/project/serialize.cpp:216
+#: src/mgui/project/serialize.cpp:236
 msgid "Please select a Television standard for your project:"
 msgstr "Выберите, пожалуйста, ТВ-стандарт для вашего проекта:"
 
-#: src/mgui/project/serialize.cpp:238
+#: src/mgui/project/serialize.cpp:258
 msgid "Open Project"
 msgstr "Открыть проект"
 
-#: src/mgui/project/serialize.cpp:242
+#: src/mgui/project/serialize.cpp:262
 msgid "Project files (*.xml)"
 msgstr "Файлы проектов (*xml)"
 
-#: src/mgui/project/serialize.cpp:247
+#: src/mgui/project/serialize.cpp:267
 #: src/mgui/timeline/mviewer.cpp:284
 msgid "All Files (*.*)"
 msgstr "Все файлы (*.*)"
 
-#: src/mgui/project/serialize.cpp:309
+#: src/mgui/project/serialize.cpp:329
 msgid "_New Project"
 msgstr "_Создать проект"
 
-#: src/mgui/project/serialize.cpp:311
+#: src/mgui/project/serialize.cpp:331
 msgid "_Open..."
 msgstr "_Открыть..."
 
-#: src/mgui/project/serialize.cpp:313
+#: src/mgui/project/serialize.cpp:333
 msgid "_Save"
 msgstr "Со_хранить"
 
-#: src/mgui/project/serialize.cpp:315
+#: src/mgui/project/serialize.cpp:335
 msgid "Save _As..."
 msgstr "Сохранить _как..."
 
