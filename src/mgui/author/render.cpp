@@ -805,7 +805,9 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
         // наличие полного ffmpeg
         std::string ff_formats;
         ExitData ed = PipeOutput("ffmpeg -formats", ff_formats);
-        if( !ed.IsGood() )
+        // старые версии выходят с 1 для нерабочих режимов -formats, -help, ... (Hardy)
+        bool is_good = ed.IsGood() || ed.IsCode(1);
+        if( !is_good )
         {
             const char* msg = ed.IsCode(127) ? _("command not found") : "unknown error" ;
             FFmpegError(msg);

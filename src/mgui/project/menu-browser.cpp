@@ -41,6 +41,8 @@
 #include <mlib/sdk/logger.h>
 #include <mlib/sigc.h>
 
+#include <gtk/gtkversion.h>
+
 guint64 FFmpegSizeForDVD(double sec)
 {
     int brate = 6000000; // bit/s, умолчание в ffmpeg для -target *-dvd
@@ -183,7 +185,14 @@ static void CoordBelow(Gtk::ToggleButton* btn, int& x, int& y, bool& push_in)
     RefPtr<Gdk::Window> win = btn->get_window();
     ASSERT( win );
     Rect plc = GetAllocation(*btn);
+// точно версию не знаю, но это и не важно
+#if GTK_CHECK_VERSION(2,18,0)
     win->get_root_coords(plc.lft, plc.btm, x, y);
+#else
+    win->get_origin(x, y);
+    x += plc.lft;
+    y += plc.btm; 
+#endif
 
     push_in = true;
 }

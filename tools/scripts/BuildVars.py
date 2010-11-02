@@ -481,19 +481,6 @@ def GetSrcBuildDir():
         GetSrcBuildDir.obj = GetDefEnv().Dir(BuildDir + '/' + GetSrcDirPath())
     return GetSrcBuildDir.obj
 
-def CreateEnvVersion2(**kw):
-    tools = ['default', 'AuxTools']
-    if kw.has_key('tools'):
-        tools += kw['tools']
-    kw['tools'] = tools
-
-    env = GetDefEnv().Environment(ENV = os.environ, toolpath = ['tools/scripts'], **kw)
-    env.Prepend(CPPPATH = [GetSrcBuildDir(), '#/' + GetSrcDirPath()])
-    # thin archives ('T' option) are to speed up static libraries build
-    # :TRICKY: libmpeg2.a and etc have to be built directly to build/lib (withour copying/symlinking)
-    env.Replace(ARFLAGS = str(env['ARFLAGS']) + 'T')
-    return env
-
 def IsToBuildQuick():
     can_bq = IsGccLike() # gcc and clang only (because of PCH)
 
@@ -511,6 +498,23 @@ def IsToBuildQuick():
             print 'BUILD_QUICK=true is not supported for current compiler(%s)!' % Cc
 
     return res
+
+def CreateEnvVersion2(**kw):
+    tools = ['default', 'AuxTools']
+    if kw.has_key('tools'):
+        tools += kw['tools']
+    kw['tools'] = tools
+
+    env = GetDefEnv().Environment(ENV = os.environ, toolpath = ['tools/scripts'], **kw)
+    env.Prepend(CPPPATH = [GetSrcBuildDir(), '#/' + GetSrcDirPath()])
+
+    # :TRICKY: relatively new ar (from binutils) needed for such things (Hardy doesn't have such)
+    # so turn it off for releases completely
+    if IsToBuildQuick():
+        # thin archives ('T' option) are to speed up static libraries build
+        # :TRICKY: libmpeg2.a and etc have to be built directly to build/lib (withour copying/symlinking)
+        env.Replace(ARFLAGS = str(env['ARFLAGS']) + 'T')
+    return env
 
 def MakeMainEnv():
     if IsToBuildQuick():
