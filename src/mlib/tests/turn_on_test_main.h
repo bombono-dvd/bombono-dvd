@@ -22,12 +22,12 @@
 #ifndef __MLIB_TESTS_TEST_TOTM_H__
 #define __MLIB_TESTS_TEST_TOTM_H__
 
-#include <boost/version.hpp>
+#include <mlib/tech.h>
 
 //
 // for Boost > 1.33 dynamic version begin to be built
 // 
-#if BOOST_VERSION / 100 % 1000 > 33
+#if BOOST_MINOR_VERSION > 33
 #   ifndef STILL_HAVE_STATIC_BOOST_WITH_MAIN
 #       define BOOST_TEST_DYN_LINK 
 #   endif

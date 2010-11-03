@@ -458,12 +458,12 @@ def MakeIncludeOptions(dir_list, to_convert=0):
 
 def MoveIncludeOptions(dict):
     if 'CPPPATH' in dict.keys():
-        dict['CPP_POST_FLAGS'] = MakeIncludeOptions(dict['CPPPATH'])
+        dict['POST_CPPINCFLAGS'] = MakeIncludeOptions(dict['CPPPATH'])
         del dict['CPPPATH']
 
 def GetDict(name):
     dict = UserOptDict[MakeDictName(name)]
-    #reduce SCons' C scanner area, CPPPATH -> CPP_POST_FLAGS
+    #reduce SCons' C scanner area, CPPPATH -> POST_CPPINCFLAGS
     if IsToBuildQuick():
         MoveIncludeOptions(dict)
     return dict
@@ -499,6 +499,9 @@ def IsToBuildQuick():
 
     return res
 
+def ExtendEnvVariable(env, name, add_name):
+    env[name] = '%s $%s' % (env[name], add_name)
+
 def CreateEnvVersion2(**kw):
     tools = ['default', 'AuxTools']
     if kw.has_key('tools'):
@@ -514,6 +517,12 @@ def CreateEnvVersion2(**kw):
         # thin archives ('T' option) are to speed up static libraries build
         # :TRICKY: libmpeg2.a and etc have to be built directly to build/lib (withour copying/symlinking)
         env.Replace(ARFLAGS = str(env['ARFLAGS']) + 'T')
+
+    # User defines
+    # it is cosmetically better to place POST_CPPFLAGS just after _CPPDEFFLAGS
+    # but 1) extending _CPPDEFFLAGS is bad such way 2) it still works 
+    ExtendEnvVariable(env, '_CCCOMCOM', 'POST_CPPFLAGS')
+
     return env
 
 def MakeMainEnv():
@@ -562,8 +571,9 @@ def MakeMainEnv():
         suffix = '.pch' if is_clang else '.gch'
         env['GCHSUFFIX'] = suffix
     
-        # 2 - reduce SCons' C scanner area, CPPPATH -> CPP_POST_FLAGS
-        env['_CPPINCFLAGS'] = env['_CPPINCFLAGS'] + ' $CPP_POST_FLAGS'
+        # 2 - reduce SCons' C scanner area, CPPPATH -> POST_CPPINCFLAGS
+        #env['_CPPINCFLAGS'] = env['_CPPINCFLAGS'] + ' $POST_CPPINCFLAGS'
+        ExtendEnvVariable(env, '_CPPINCFLAGS', 'POST_CPPINCFLAGS')
     else:
         def SetPCH(env, header_name, additional_envs=[]):
             pass

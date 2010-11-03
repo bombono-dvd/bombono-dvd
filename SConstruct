@@ -107,6 +107,13 @@ def CalcCommonFlags():
                     '_ISOC99_SOURCE'                # C99 extentions: snprintf()
                   ]
 
+#
+# Users CPPFLAGS support
+# Because SCons cannot handle -U option (~ #undef) it is done via
+# additional variable named POST_CPPFLAGS
+#
+UserCppFlags = ''
+
 def AdjustConfigOptions(env):
     CalcCommonFlags()
 
@@ -130,6 +137,7 @@ def AdjustConfigOptions(env):
     env.Append(CCFLAGS = BV.CFlags.split())
     env.Append(CXXFLAGS = BV.CxxFlags.split())
     env.Append(LINKFLAGS = BV.LdFlags.split())
+    env.Append(POST_CPPFLAGS = UserCppFlags.split())
         
     # :TODO: set them when need
     #env.Replace (PATH = user_options_dict['PATH'])
@@ -185,9 +193,10 @@ def ParseVariables(user_options):
             ('DESTDIR', 'Set the intermediate install directory.', ''),
             ('CC', 'C compiler.'),
             ('CXX', 'C++ compiler.'),
-    		('CFLAGS',  'Extra C Compiler flags (for C++ too).', ''),
-    		('CXXFLAGS','Extra C++ Compiler flags.', ''),
-    		('LDFLAGS', 'Extra Linker flags.', ''),
+            ('CPPFLAGS','Extra CPP flags.', ''),
+            ('CFLAGS',  'Extra C Compiler flags (for C++ too).', ''),
+            ('CXXFLAGS','Extra C++ Compiler flags.', ''),
+            ('LDFLAGS', 'Extra Linker flags.', ''),
             (BoolVariable('TEST',
                         'Set to 1 if you want to build and run tests.',
                         'false')),
@@ -230,6 +239,8 @@ def ParseVariables(user_options):
 
     BV.Cc  = user_options_dict['CC']
     BV.Cxx = user_options_dict['CXX']
+    global UserCppFlags
+    UserCppFlags  = user_options_dict['CPPFLAGS']
     BV.CFlags = user_options_dict['CFLAGS']
     BV.CxxFlags = user_options_dict['CXXFLAGS']
     BV.LdFlags  = user_options_dict['LDFLAGS']
@@ -262,8 +273,10 @@ else:
     user_options = Variables(None, BV.Args)
     ParseVariables(user_options)
     try:
+        def write_name_value(name, val):
+            config.write('%s = %r\n' % (name, val))
         def write_dict_value(name):
-            config.write('%s = %r\n' % (name, user_options_dict[name]))
+            write_name_value(name, user_options_dict[name])
 
         # save to file
         config = open(BV.CfgFile, 'w')
@@ -280,6 +293,7 @@ else:
         config.write('\n# Compiler information\n')
         config.write('CC = %r\n' % (BV.Cc))
         config.write('CXX = %r\n' % (BV.Cxx))
+        write_name_value('CPPFLAGS', UserCppFlags)
         config.write('CFLAGS = %r\n' % (BV.CFlags))
         config.write('CXXFLAGS = %r\n' % (BV.CxxFlags))
         config.write('LDFLAGS = %r\n' % (BV.LdFlags))

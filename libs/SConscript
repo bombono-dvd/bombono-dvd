@@ -19,7 +19,7 @@ else:
 
 boost_dict = { 'LIBPATH' : user_options_dict['BOOST_LIBPATH'] }
 if BV.IsToBuildQuick():
-    boost_dict['CPP_POST_FLAGS'] = BV.MakeIncludeOptions(user_options_dict['BOOST_INCLUDE'], 1)
+    boost_dict['POST_CPPINCFLAGS'] = BV.MakeIncludeOptions(user_options_dict['BOOST_INCLUDE'], 1)
 else:
     boost_dict['CPPPATH'] = user_options_dict['BOOST_INCLUDE']
 if not embedded_boost:

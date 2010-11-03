@@ -27,6 +27,7 @@
 // 
 #include <boost/current_function.hpp>  // для BOOST_CURRENT_FUNCTION
 #include <boost/detail/endian.hpp>     // для BOOST_XXX_ENDIAN
+#include <boost/version.hpp>           // для BOOST_MINOR_VERSION
 
 // для С-шного кода в С++
 #if defined(__cplusplus) || defined(c_plusplus)
@@ -84,6 +85,8 @@ void AssertImpl(const char* assertion, const char* file,
 #else
 #   error mlib/tech.h: unknown endianness (legacy PDP arch?)
 #endif
+
+#define BOOST_MINOR_VERSION (BOOST_VERSION / 100 % 1000)
 
 // gcc 4.4 вываливает кучу предупреждений о strict-alias rules
 // (только при >= -O2), но чувствую, что неправильно

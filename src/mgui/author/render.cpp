@@ -453,6 +453,17 @@ static void FFmpegError(const std::string& msg)
     Author::Error(FFmpegErrorTemplate(), msg);
 }
 
+static std::string errno2str()
+{
+    namespace bs = boost::system;
+#if BOOST_MINOR_VERSION >= 44
+    const bs::error_category& s_cat = bs::system_category();
+#else
+    const bs::error_category& s_cat = bs::system_category; // = bs::get_system_category();
+#endif 
+    return bs::error_code(errno, s_cat).message();
+}
+
 static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix, TrackBuf& buf)
 {
     int wdh = pix->get_width();
@@ -491,10 +502,7 @@ static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix, TrackBuf& buf)
     ASSERT( cur - beg == sz );
     //checked_writeall(fd, beg, sz);
     if( !writeall(fd, beg, sz) )
-    {
-        namespace bs = boost::system;
-        FFmpegError(bs::error_code(errno, bs::system_category()).message());
-    }
+        FFmpegError(errno2str());
 }
 
 std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pal, 
