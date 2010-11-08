@@ -789,9 +789,23 @@ static void CheckStrippedFFmpeg(const re::pattern& pat, const std::string& conts
     }
 }
 
+static bool CheckForCodecList(const std::string& conts)
+{
+    static re::pattern codecs_format("^Codecs:$");
+    return re::search(conts, codecs_format);
+}
+
+static void CheckNoCodecs(bool res)
+{
+    if( !res )
+        FFmpegError("no codec is found");
+}
+
 // conts - вывод ffmpeg -formats
 void TestFFmpegForDVDEncoding(const std::string& conts)
 {
+    CheckNoCodecs(CheckForCodecList(conts));
+
     static re::pattern dvd_format("^ .E dvd"RG_EW);
     CheckStrippedFFmpeg(dvd_format, conts, "dvd format");
 
@@ -821,7 +835,23 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
             FFmpegError(msg);
         }
         else
+        {
+            // * в новых версиях ffmpeg распечатка собственно кодеков выделена
+            //  в опцию -codecs
+            // * нормальной (сквозной) нумерации собственно ffmpeg не имеет (см. version.sh,-
+            // может появиться UNKNOWN, SVN-/git-ревизия и собственно версия), потому
+            // определяем по наличию строки "Codecs:"
+            if( !CheckForCodecList(ff_formats) )
+            {
+                std::string ff_codecs;
+                ExitData ed = PipeOutput("ffmpeg -codecs", ff_codecs);
+                CheckNoCodecs(ed.IsGood());
+                
+                ff_formats += ff_codecs;
+            }
+
             TestFFmpegForDVDEncoding(ff_formats);
+        }
 
         if( mn->MtnData().isStillPicture )
             SaveStillMenuMpg(mn_dir, mn);
