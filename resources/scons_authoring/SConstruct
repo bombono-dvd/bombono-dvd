@@ -2,7 +2,7 @@
 # coding: utf-8
 
 from SConsTwin import MakeGenAction, IsSConsVersionGE
-import os
+import os, sys
 
 # поменьше служебных файлов на виду
 tmp_dir = 'temp'
@@ -22,7 +22,16 @@ if not IsSConsVersionGE((1, 1, 0)):
 
 # нужен правильный $PATH и т.д.
 # просто Replace() не дают сделать
-DefaultEnvironment().Replace(ENV = os.environ)
+def_env = DefaultEnvironment()
+def_env.Replace(ENV = os.environ)
+
+if IsSConsVersionGE((2, 0, 0)):
+    # :KLUDGE: надо разобраться, где ошибка (=> добавить ошибку в базу SCons)
+    # проблемы имен директорий с не латинскими буквами (русскими)
+    def print_cmd_line(s, target, source, env):
+        # без u""!
+        sys.stdout.write(s + "\n")
+    def_env.Replace(PRINT_CMD_LINE_FUNC = print_cmd_line)
 
 # звук тишины для неподвижных меню
 def GetkHzArgForToolame(kHz):
