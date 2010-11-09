@@ -505,16 +505,50 @@ static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix, TrackBuf& buf)
         FFmpegError(errno2str());
 }
 
+// название в кавычках из-за пробелов (например)
+static std::string FilenameForCmd(const std::string& fname)
+{
+    return boost::format("\"%1%\"") % fname % bf::stop;
+}
+
 std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pal, 
                            const std::string& a_fname, double a_shift)
 {
     std::string a_input = "-an"; // без аудио
     if( !a_fname.empty() )
     {
+        std::string safe_a_fname = FilenameForCmd(a_fname);
+        int idx = -1;
+        // в последних версиях ffmpeg (черт побери) поменяли отображение
+        // входных потоков на выходные, в итоге возникают проблемы с указанием
+        // аудио из видеофайла; в итоге:
+        // - если первым идет -i <только видео>, то он перекрывается вторым 
+        //   -i <video&audio>; потому нужна явная карта, -map
+        // - если в обратном порядке, то вообще не работает, :TODO: 
+        {
+            // :TRICKY: статус не проверяем,- такой способ все равно
+            // считается "ошибочным" (но стандарт де факто для получения инфо
+            // о файле через ffmpeg)
+            std::string a_info;
+            PipeOutput("ffmpeg -i " + safe_a_fname, a_info);
+
+            static re::pattern audio_idx("Stream #"RG_NUM"\\."RG_NUM".*Audio:");
+
+            re::match_results what;
+            // флаг означает, что перевод строки не может быть точкой
+            if( re::search(a_info, what, audio_idx, boost::match_not_dot_newline) )
+                idx = boost::lexical_cast<int>(what.str(2));
+            else
+                FFmpegError(BF_("no audio stream in %1%") % safe_a_fname % bf::stop);
+        }
+        ASSERT( idx >= 0 );
+        // каждая опция -map задает соответ. одному выходному потоку входной поток
+        std::string map = boost::format("-map 0:0 -map 1:%1%") % idx % bf::stop;
+
         std::string shift; // без смещения
         if( a_shift )
             shift = boost::format("-ss %.2f ") % a_shift % bf::stop;
-        a_input = boost::format("%2%-i \"%1%\"") % a_fname % shift % bf::stop; 
+        a_input = boost::format("%2%-i %1% %3%") % safe_a_fname % shift % map % bf::stop; 
     }
 
     const char* target = "pal";
@@ -526,8 +560,9 @@ std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pa
         hgt = 480;
     }
 
-    return boost::format("%1% -target %5%-dvd -aspect %2% -s %3%x%4% -y \"%6%\"")
-        % a_input % (is_4_3 ? "4:3" : "16:9") % wdh % hgt % target % out_fname % bf::stop;
+    return boost::format("%1% -target %5%-dvd -aspect %2% -s %3%x%4% -y %6%")
+        % a_input % (is_4_3 ? "4:3" : "16:9") % wdh % hgt % target 
+        % FilenameForCmd(out_fname) % bf::stop;
 }
 
 #define MOTION_MENU_TAG "Motion Menus"
