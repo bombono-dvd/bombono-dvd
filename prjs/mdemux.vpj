@@ -205,6 +205,7 @@
 			<F N="../src/mdemux/decoder.h"/>
 			<F N="../src/mdemux/demuxconst.h"/>
 			<F N="../src/mdemux/dvdread.h"/>
+			<F N="../src/mdemux/intn_max.h"/>
 			<F N="../src/mdemux/mpeg.h"/>
 			<F N="../src/mdemux/mpeg_video.h"/>
 			<F N="../src/mdemux/player.h"/>

@@ -215,6 +215,7 @@
 			<F N="../src/mdemux/tests/lpcm2wav.cpp"/>
 			<F N="../src/mdemux/tests/mpeg2bench.cpp"/>
 			<F N="../src/mdemux/tests/test_dvdread.cpp"/>
+			<F N="../src/mdemux/tests/test_ffmpeg.cpp"/>
 			<F N="../src/mdemux/tests/test_main.cpp"/>
 			<F N="../src/mdemux/tests/test_mpeg2.cpp"/>
 		</Folder>

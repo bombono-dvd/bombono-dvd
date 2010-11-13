@@ -22,6 +22,9 @@ lib_mdemux_tests_env.Library( target = lib_path +'/'+mdemux_tests_lib_name, sour
 ######
 # bin
 
+# :TEMP:
+bin_mdemux_tests_env.Prepend( CPPPATH = ['/opt/ffmpeg05_svn20090706/include'], LIBPATH = ['/opt/ffmpeg05_svn20090706/lib'], LIBS = ['avformat'] )
+
 bin_mdemux_tests_env.Prepend( LIBS = [mdemux_tests_lib_name, 'mlib_tests', 'MdDemuxer', 'MdLib'] )
 
 test_prg_name = 'mdemux_tests'
@@ -29,6 +32,7 @@ source_files = [
                 'test_dvdread.cpp',
                 'test_main.cpp',
                 'test_mpeg2.cpp',
+                'test_ffmpeg.cpp',
                ]
 
 bin_mdemux_tests_env.Program( target = test_prg_name, source = source_files )
