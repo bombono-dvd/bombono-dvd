@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: bombono-dvd 0.7.0\n"
+"Project-Id-Version: bombono-dvd 0.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-08 00:37+0400\n"
-"PO-Revision-Date: 2010-10-08 18:57+0200\n"
+"POT-Creation-Date: 2010-10-31 20:23+0300\n"
+"PO-Revision-Date: 2010-11-03 19:21+0200\n"
 "Last-Translator: Jorma Karvonen <karvonen.jorma@gmail.com>\n"
 "Language-Team: Finnish <translation-team-fi@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/mbase/project/media.cpp:68 src/mgui/project/media-browser.cpp:202
+#: src/mbase/project/media.cpp:68 src/mgui/project/media-browser.cpp:223
 msgid "Chapter"
 msgstr "Kappale"
 
@@ -25,7 +25,7 @@ msgstr "Kappale"
 msgid "Cant create folder %1% (check permissions)"
 msgstr "Ei voi luoda kansiota %1% (tarkista käyttöoikeudet)"
 
-#: src/mbase/project/menu.cpp:276
+#: src/mbase/project/menu.cpp:331
 msgid "Menu"
 msgstr "Valikko"
 
@@ -49,7 +49,7 @@ msgstr "Tuodaan..."
 msgid "Import is completed."
 msgstr "Tuonti on toteutettu."
 
-#: src/mgui/dvdimport.cpp:208 src/mgui/project/mconstructor.cpp:527
+#: src/mgui/dvdimport.cpp:208 src/mgui/project/mconstructor.cpp:540
 msgid "MB"
 msgstr "megatavua"
 
@@ -72,7 +72,7 @@ msgstr "Haluatko varmasti pysäyttää tuonnin?"
 msgid "Cant write to folder %1% (check permissions)."
 msgstr "Ei voi kirjoittaa kansioon %1% (tarkista käyttöoikeudet)."
 
-#: src/mgui/dvdimport.cpp:472 src/mgui/win_utils.cpp:322
+#: src/mgui/dvdimport.cpp:472 src/mgui/win_utils.cpp:327
 #, boost-format
 msgid "A file named \"%1%\" already exists. Do you want to replace it?"
 msgstr "Tiedosto nimeltä ”%1%” on jo olemassa. Haluatko korvata sen?"
@@ -102,7 +102,7 @@ msgid "NTSC/PAL mismatch. Try another disc or import to project of corresponding
 msgstr "NTSC/PAL-täsmäämättömyys. Kokeile toista levyä tai tuo vastaavantyyppinen projekti."
 
 #. имя
-#: src/mgui/dvdimport.cpp:609 src/mgui/project/media-browser.cpp:219
+#: src/mgui/dvdimport.cpp:609 src/mgui/project/media-browser.cpp:240
 msgid "Name"
 msgstr "Nimi"
 
@@ -116,165 +116,165 @@ msgstr "On toivottavaa, että kohdekansio olisi tyhjä."
 
 #. COPY_N_PASTE - тупо сделал содержимое сообщений как у "TSNAMI-MPEG DVD Author"
 #. А что делать - нафига свои придумывать, если смысл один и тот же
-#: src/mgui/execution.cpp:52
+#: src/mgui/execution.cpp:56
 #, boost-format
 msgid "You are about to cancel %1%. Are you sure?"
 msgstr "Olet perumassa toiminnon %1%. Oletko varma?"
 
-#: src/mgui/execution.cpp:411
+#: src/mgui/execution.cpp:479
 #, boost-format
 msgid "exit code = %1%"
 msgstr "poistumiskoodi = %1%"
 
-#: src/mgui/execution.cpp:413
+#: src/mgui/execution.cpp:481
 #, boost-format
 msgid "broken by signal %1%"
 msgstr "signaalin %1% rikkoma"
 
-#: src/mgui/mux.cpp:50
+#: src/mgui/mux.cpp:55
 msgid "muxing"
 msgstr "lomitus"
 
-#: src/mgui/mux.cpp:66
+#: src/mgui/mux.cpp:71
 #, boost-format
 msgid "Muxing \"%1%\""
 msgstr "Lomitetaan ”%1%”"
 
-#: src/mgui/mux.cpp:77 src/mgui/author/output.cpp:231
+#: src/mgui/mux.cpp:82 src/mgui/author/output.cpp:231
 msgid "Show/_Hide Details"
 msgstr "Näytä/P_iilota yksityiskohdat"
 
-#: src/mgui/mux.cpp:101
+#: src/mgui/mux.cpp:105
 msgid "Muxing error"
 msgstr "Lomitusvirhe"
 
-#: src/mgui/mux.cpp:102 src/mgui/author/output.cpp:654
+#: src/mgui/mux.cpp:106 src/mgui/author/output.cpp:653
 #, boost-format
 msgid "The reason is \"%1%\" (see Details)"
 msgstr "Syy on ”%1%” (katso Yksityiskohdat)"
 
-#: src/mgui/mux.cpp:118
+#: src/mgui/mux.cpp:122
 msgid "Select a folder"
 msgstr "Valitse kansio"
 
-#: src/mgui/mux.cpp:130
+#: src/mgui/mux.cpp:134
 msgid "in"
 msgstr "kohteessa"
 
-#: src/mgui/mux.cpp:164
+#: src/mgui/mux.cpp:168
 msgid "Mux streams"
 msgstr "Lomitusvuot"
 
-#: src/mgui/mux.cpp:166
+#: src/mgui/mux.cpp:170
 msgid "Output"
 msgstr "Tuloste"
 
-#: src/mgui/mux.cpp:167
+#: src/mgui/mux.cpp:171
 msgid "Select elementary video"
 msgstr "Valitse perusvideo"
 
-#: src/mgui/mux.cpp:168
+#: src/mgui/mux.cpp:172
 msgid "Select audio"
 msgstr "Valitse ääni"
 
 #. Названия типов для i18n
-#: src/mgui/mux.cpp:172 src/mgui/project/media-browser.cpp:201
+#: src/mgui/mux.cpp:176 src/mgui/project/media-browser.cpp:222
 #: src/mgui/timeline/layout-draw.cpp:156
 msgid "Video"
 msgstr "Video"
 
-#: src/mgui/mux.cpp:175
+#: src/mgui/mux.cpp:179
 msgid "MPEG2 elementary video (m2v)"
 msgstr "MPEG2-perusvideo (m2v)"
 
-#: src/mgui/mux.cpp:180
+#: src/mgui/mux.cpp:184 src/mgui/project/menu-browser.cpp:406
 msgid "Audio"
 msgstr "Ääni"
 
-#: src/mgui/mux.cpp:183 src/mgui/timeline/mviewer.cpp:281
+#: src/mgui/mux.cpp:187 src/mgui/timeline/mviewer.cpp:282
 msgid "Audio for DVD"
 msgstr "Ääni DVD:lle"
 
-#: src/mgui/mux.cpp:208
+#: src/mgui/mux.cpp:212
 msgid "Elementary video file is not selected."
 msgstr "Perusvideotiedostoa ei ole valittu."
 
-#: src/mgui/mux.cpp:210
+#: src/mgui/mux.cpp:214
 msgid "Audio file is not selected."
 msgstr "Äänitiedostoa ei ole valittu."
 
-#: src/mgui/mux.cpp:212
+#: src/mgui/mux.cpp:216
 msgid "Output file name is empty."
 msgstr "Tulostetiedostonimi on tyhjä."
 
-#: src/mgui/prefs.cpp:143
+#: src/mgui/prefs.cpp:172
 msgid "Bombono DVD Preferences"
 msgstr "Bombono DVD-asetukset"
 
-#: src/mgui/prefs.cpp:157
+#: src/mgui/prefs.cpp:186
 msgid "_Default project type"
 msgstr "Oletusprojektit_yyppi"
 
-#: src/mgui/prefs.cpp:160
+#: src/mgui/prefs.cpp:189
 msgid "Default _folder for authoring"
 msgstr "O_letuskansio tekemiselle"
 
-#: src/mgui/prefs.cpp:165
+#: src/mgui/prefs.cpp:194
 msgid "_Play authoring result in"
 msgstr "S_oita tekemistulokset kohteessa"
 
-#: src/mgui/win_utils.cpp:325
+#: src/mgui/win_utils.cpp:330
 msgid "Replacing the file overwrite its contents."
 msgstr "Tiedoston korvaamisessa sen sisältö ylikirjoitetaan."
 
-#: src/mgui/author/burn.cpp:199
+#: src/mgui/author/burn.cpp:192
 msgid "Auto"
 msgstr "Automaattinen"
 
-#: src/mgui/author/burn.cpp:211
+#: src/mgui/author/burn.cpp:204
 msgid "Update speeds ..."
 msgstr "Päivitysnopeudet ..."
 
-#: src/mgui/author/burn.cpp:332
+#: src/mgui/author/burn.cpp:325
 msgid "Checking Disc ..."
 msgstr "Tarkistetaan levyä ..."
 
-#: src/mgui/author/burn.cpp:346
+#: src/mgui/author/burn.cpp:339
 msgid "Selected burn drive is for CD discs only. Change to another burn drive."
 msgstr "Valittu tallennuslaite on vain CD-levyjä varten. Vaihda toiseen tallentavaan laitteeseen."
 
-#: src/mgui/author/burn.cpp:351
+#: src/mgui/author/burn.cpp:344
 msgid "CD disc is found in the drive, not DVD. Change to DVD disc."
 msgstr "Levyasemasta löytyi CD-levy, ei DVD-levy. Vaihda DVD-levyyn."
 
-#: src/mgui/author/burn.cpp:356
+#: src/mgui/author/burn.cpp:349
 msgid "No DVD disc in the drive. Load a clear one and press OK."
 msgstr "Levyasemassa ei ole DVD-levyä. Lataa tyhjä levy ja paina OK-painiketta."
 
-#: src/mgui/author/burn.cpp:361
+#: src/mgui/author/burn.cpp:354
 #, boost-format
 msgid "Disc with type \"%1%\" is found in the drive but for DVD-Video disc type should be one from: DVD-R, DVD+R, DVD-RW, DVD+RW. Load a clear one with right type and press OK."
 msgstr "Levyasemasta löytyi ”%1%”-tyyppinen levy, mutta DVD-videolevyä varten tyypin pitäisi olla yksi seuraavista: DVD-R, DVD+R, DVD-RW, DVD+RW. Lataa tyhjä oikeantyyppinen levy ja paina OK-painiketta."
 
-#: src/mgui/author/burn.cpp:370
+#: src/mgui/author/burn.cpp:363
 #, boost-format
 msgid "Disc with type \"%1%\" in the drive is not clear. Only clear recordable discs can be used for burning DVD-Video. Load a clear one and press OK."
 msgstr "Levyasemassa oleva ”%1%”-tyyppinen levy ei ole tyhjä. Vain tyhjiä tallentavia levyjä voidaan käyttää DVD-videon tallentamiseen. Lataa tyhjä levy ja paina OK-painiketta."
 
-#: src/mgui/author/burn.cpp:377
+#: src/mgui/author/burn.cpp:370
 #, boost-format
 msgid "Disc with type \"%1%\" in the drive is not clear. We need to remove its contents before writing new one. Continue?"
 msgstr "Levyasemassa oleva ”%1%”-tyyppinen levy ei ole tyhjä. Meidän on poistettava sen sisältö ennen uuden kirjoittamista. Jatketaanko?"
 
-#: src/mgui/author/burn.cpp:381
+#: src/mgui/author/burn.cpp:374
 msgid "_Cancel"
 msgstr "_Peru"
 
-#: src/mgui/author/burn.cpp:382
+#: src/mgui/author/burn.cpp:375
 msgid "_Try again"
 msgstr "Yri_tä uudelleen"
 
-#: src/mgui/author/execute.cpp:62
+#: src/mgui/author/execute.cpp:64
 msgid "Status: "
 msgstr "Tila: "
 
@@ -345,38 +345,38 @@ msgstr "Kirjoitusnopeus: "
 msgid "_Rendering only"
 msgstr "_Vain hahmontaminen"
 
-#: src/mgui/author/output.cpp:277
+#: src/mgui/author/output.cpp:276
 msgid "Rendering"
 msgstr "Hahmonnetaan"
 
-#: src/mgui/author/output.cpp:354
+#: src/mgui/author/output.cpp:353
 msgid "DVD Burning"
 msgstr "DVD-tallennus"
 
-#: src/mgui/author/output.cpp:398
+#: src/mgui/author/output.cpp:397
 msgid "The result is here"
 msgstr "Tulos on tässä"
 
-#: src/mgui/author/output.cpp:400
+#: src/mgui/author/output.cpp:399
 msgid "You can run authoring manually by executing command \"scons\" at the specified folder. Also, see README file for other options over there."
 msgstr "Voit suorittaa tekemisen manuaalisesti komennolla ”scons” määritellyssä kansiossa. Katso myös README-tiedostosta lisävalitsimia."
 
 #. Translators: impossible to go on!
-#: src/mgui/author/output.cpp:424
+#: src/mgui/author/output.cpp:423
 msgid "Authoring is cancelled."
 msgstr "Tekeminen peruttiin."
 
-#: src/mgui/author/output.cpp:435
+#: src/mgui/author/output.cpp:434
 #, boost-format
 msgid "%1% is not a folder"
 msgstr "%1% ei ole kansio"
 
-#: src/mgui/author/output.cpp:446
+#: src/mgui/author/output.cpp:445
 #, boost-format
 msgid "Cant have full access to folder %1% (read, write)"
 msgstr "Ei voi olla täysiä käyttöoikeuksia kansioon %1% (luku, kirjoitus)"
 
-#: src/mgui/author/output.cpp:454
+#: src/mgui/author/output.cpp:453
 #, boost-format
 msgid ""
 "Folder %1% is not empty. We need to remove all files in it before authoring.\n"
@@ -385,147 +385,176 @@ msgstr ""
 "Kansio %1% ei ole tyhjä. Meidän on poistettava siitä kaikki tiedostot ennen tekemistä.\n"
 "Jatketaanko?"
 
-#: src/mgui/author/output.cpp:460
+#: src/mgui/author/output.cpp:459
 #, boost-format
 msgid "Error during removing files: %1%"
 msgstr "Virhe poistettaessa tiedostoja: %1%"
 
-#: src/mgui/author/output.cpp:651
+#: src/mgui/author/output.cpp:650
 #, boost-format
 msgid "%1% cancelled."
 msgstr "%1% peruttu."
 
-#: src/mgui/author/output.cpp:653
+#: src/mgui/author/output.cpp:652
 #, boost-format
 msgid "%1% broken."
 msgstr "%1% rikki."
 
 #. Translators: can be tranlated as "Operation "%1%" ..."
-#: src/mgui/author/output.cpp:660
+#: src/mgui/author/output.cpp:659
 #, boost-format
 msgid "%1% successfully completed."
 msgstr "Toiminto %1% valmis."
 
-#: src/mgui/author/output.cpp:690 src/mgui/timeline/select.cpp:239
+#: src/mgui/author/output.cpp:699 src/mgui/timeline/select.cpp:236
 #, boost-format
 msgid "_Play in %1%"
 msgstr "_Soita kohteessa %1%"
 
-#: src/mgui/author/output.cpp:691
+#: src/mgui/author/output.cpp:700
 msgid "_Burn to DVD"
 msgstr "T_allenna DVD:lle"
 
-#: src/mgui/author/script.cpp:391
+#: src/mgui/author/render.cpp:443
+#, boost-format
+msgid "ffmpeg failure: %1%"
+msgstr "ffmpeg-häiriö: %1%"
+
+#: src/mgui/author/render.cpp:810
+msgid "command not found"
+msgstr "komentoa ei löytynyt"
+
+#: src/mgui/author/script.cpp:469
 msgid "There is no media (video or menu)."
 msgstr "Ei ole mediaa (video tai valikko)."
 
-#: src/mgui/author/script.cpp:556
+#: src/mgui/author/script.cpp:780
 #, boost-format
 msgid "external command failure: %1%"
 msgstr "ulkoisen komennon virhe: %1%"
 
-#: src/mgui/editor/select.cpp:599
+#: src/mgui/editor/select.cpp:410 src/mgui/project/menu-browser.cpp:259
+msgid "Play All"
+msgstr "Soita kaikki"
+
+#: src/mgui/editor/select.cpp:662
 msgid "Delete"
 msgstr "Poista"
 
-#: src/mgui/editor/select.cpp:613
+#. Link
+#. bool is_background = !has_selected;
+#. Project::Menu cur_mn = edt_area.CurMenu();
+#. Project::SetLinkMenu& slm = cur_mn->GetData<Project::SetLinkMenu>();
+#. slm.isForBack = is_background;
+#. slm.newLink   = GetCurObjectLink(is_background);
+#.
+#. InvokeOn(cur_mn, "SetLinkMenu");
+#. if( slm.linkMenu )
+#. {
+#. mn.items().push_back(MenuElem(_("Link")));
+#. mn.items().back().set_submenu(*slm.linkMenu.release());
+#. }
+#. mn.items().push_back(
+#. MenuElem(_("Remove Link"), bb::bind(&SetSelObjectsLinks,
+#. Project::MediaItem(), is_background)));
+#: src/mgui/editor/select.cpp:681
 msgid "Link"
 msgstr "Linkki"
 
-#: src/mgui/editor/select.cpp:617
+#: src/mgui/editor/select.cpp:684
 msgid "Remove Link"
 msgstr "Poista linkki"
 
 #. Poster Link
-#: src/mgui/editor/select.cpp:621
+#: src/mgui/editor/select.cpp:688
 msgid "Set Poster"
 msgstr "Aseta juliste"
 
-#: src/mgui/editor/select.cpp:630
+#: src/mgui/editor/select.cpp:700
 msgid "Align"
 msgstr "Tasaa"
 
-#: src/mgui/editor/select.cpp:638
+#: src/mgui/editor/select.cpp:706
 msgid "Align Left"
 msgstr "Tasaa vasemmalle"
 
-#: src/mgui/editor/select.cpp:639
+#: src/mgui/editor/select.cpp:707
 msgid "Align Right"
 msgstr "Tasaa oikealle"
 
-#: src/mgui/editor/select.cpp:640
+#: src/mgui/editor/select.cpp:708
 msgid "Align Top"
 msgstr "Tasaa ylös"
 
-#: src/mgui/editor/select.cpp:641
+#: src/mgui/editor/select.cpp:709
 msgid "Align Bottom"
 msgstr "Tasaa alas"
 
-#: src/mgui/editor/select.cpp:644
+#: src/mgui/editor/select.cpp:712
 msgid "Center Horizontally"
 msgstr "Keskitä vaakasuoraan"
 
-#: src/mgui/editor/select.cpp:645
+#: src/mgui/editor/select.cpp:713
 msgid "Center Vertically"
 msgstr "Keskitä pystysuoraan"
 
-#: src/mgui/editor/select.cpp:650
+#: src/mgui/editor/select.cpp:718
 msgid "Distribute Horizontally"
 msgstr "Jakele vaakasuoraan"
 
-#: src/mgui/editor/select.cpp:651
+#: src/mgui/editor/select.cpp:719
 msgid "Distribute Vertically"
 msgstr "Jakele pystysuoraan"
 
 #. Set Background Color
-#: src/mgui/editor/select.cpp:656 src/mgui/editor/select.cpp:908
+#: src/mgui/editor/select.cpp:724 src/mgui/editor/select.cpp:976
 msgid "Set Background Color..."
 msgstr "Aseta taustaväri..."
 
 #. Selection Tool
-#: src/mgui/editor/toolbar.cpp:135
+#: src/mgui/editor/toolbar.cpp:136
 msgid "Selection Tool"
 msgstr "Valintatyökalu"
 
 #. Text Tool
-#: src/mgui/editor/toolbar.cpp:138
+#: src/mgui/editor/toolbar.cpp:139
 msgid "Text Tool"
 msgstr "Tekstityökalu"
 
-#: src/mgui/editor/toolbar.cpp:495
+#: src/mgui/editor/toolbar.cpp:500
 msgid "Add Item"
 msgstr "Lisää kohde"
 
-#: src/mgui/editor/toolbar.cpp:517
+#: src/mgui/editor/toolbar.cpp:522
 msgid "Font Name"
 msgstr "Kirjasinnimi"
 
-#: src/mgui/editor/toolbar.cpp:533
+#: src/mgui/editor/toolbar.cpp:538
 msgid "Font Size"
 msgstr "Kirjasinkoko"
 
 #. * кнопки стилей шрифта
-#: src/mgui/editor/toolbar.cpp:538
+#: src/mgui/editor/toolbar.cpp:543
 msgid "Bold"
 msgstr "Vahvennettu"
 
-#: src/mgui/editor/toolbar.cpp:539
+#: src/mgui/editor/toolbar.cpp:544
 msgid "Italic"
 msgstr "Kursiivi"
 
-#: src/mgui/editor/toolbar.cpp:540
+#: src/mgui/editor/toolbar.cpp:545
 msgid "Underline"
 msgstr "Alleviivattu"
 
-#: src/mgui/editor/toolbar.cpp:549
+#: src/mgui/editor/toolbar.cpp:552
 msgid "Pick a Color for Text"
 msgstr "Valitse tekstiväri"
 
-#: src/mgui/editor/toolbar.cpp:551
+#: src/mgui/editor/toolbar.cpp:554
 msgid "Text Color"
 msgstr "Tekstiväri"
 
-#: src/mgui/editor/toolbar.cpp:563
+#: src/mgui/editor/toolbar.cpp:566
 msgid "Show Safe Area"
 msgstr "Näytä turva-alue"
 
@@ -668,106 +697,93 @@ msgstr "Haluatko todella poistaa valikon ”%1%”?"
 msgid "First-Play media can be Video or Menu only."
 msgstr "Ensimmäinen soittomedia voi olla vain video tai valikko."
 
-#: src/mgui/project/mconstructor.cpp:335
+#: src/mgui/project/mconstructor.cpp:348
 msgid "Bombono DVD is a DVD authoring program with nice and clean GUI"
 msgstr "Bombono DVD on DVD-tekemisohjelma kauniilla ja siistillä graafisella käyttöliittymällä"
 
 #. dlg.set_authors(authors);
 #. dlg.set_documenters(documenters);
 #. dlg.set_decorated(false);
-#: src/mgui/project/mconstructor.cpp:340
+#: src/mgui/project/mconstructor.cpp:353
 msgid "translator-credits"
 msgstr "Jorma Karvonen <karvonen.jorma@gmail.com>"
 
 #. раньше Brasero использовал KiB, MiB и GiB, как более точные технически
 #. (вроде как размеры HDD принято измерять по 1GB=1000MB); теперь Brasero
 #. перешел на стандарт KB/MB/GB, ну и BmD тоже (а че, мы не гордые :)
-#: src/mgui/project/mconstructor.cpp:527
+#: src/mgui/project/mconstructor.cpp:540
 msgid "KB"
 msgstr "kilotavua"
 
-#: src/mgui/project/mconstructor.cpp:527
+#: src/mgui/project/mconstructor.cpp:540
 msgid "GB"
 msgstr "gigatavua"
 
 #. Project
-#: src/mgui/project/mconstructor.cpp:635
+#: src/mgui/project/mconstructor.cpp:648
 msgid "_Project"
 msgstr "Proje_kti"
 
-#: src/mgui/project/mconstructor.cpp:642
+#: src/mgui/project/mconstructor.cpp:655
 msgid "_Quit"
 msgstr "_Poistu"
 
-#: src/mgui/project/mconstructor.cpp:644
+#: src/mgui/project/mconstructor.cpp:657
 msgid "Add Videos from _DVD"
 msgstr "Lisää videot _DVD:stä"
 
-#: src/mgui/project/mconstructor.cpp:644
+#: src/mgui/project/mconstructor.cpp:657
 msgid "DVD-Import Assistant"
 msgstr "DVD-tuontiavustaja"
 
-#: src/mgui/project/mconstructor.cpp:646
+#: src/mgui/project/mconstructor.cpp:659
 msgid "_Mux"
 msgstr "_Multiplekseri"
 
-#: src/mgui/project/mconstructor.cpp:646
+#: src/mgui/project/mconstructor.cpp:659
 msgid "Mux Elementary Streams into MPEG2"
 msgstr "Multiplekseriperusvuot MPEG2:teen"
 
-#: src/mgui/project/mconstructor.cpp:648
+#: src/mgui/project/mconstructor.cpp:661
 msgid "Pr_eferences"
 msgstr "Asetu_kset"
 
 #. Go
-#: src/mgui/project/mconstructor.cpp:687
+#: src/mgui/project/mconstructor.cpp:700
 msgid "_Go"
 msgstr "_Siirry"
 
 #. первый вставляем сразу
 #. Help
-#: src/mgui/project/mconstructor.cpp:693
+#: src/mgui/project/mconstructor.cpp:706
 msgid "_Help"
 msgstr "O_paste"
 
-#: src/mgui/project/mconstructor.cpp:818
+#: src/mgui/project/mconstructor.cpp:860
 msgctxt "MainTabs"
 msgid "_Source"
 msgstr "Lä_hde"
 
-#: src/mgui/project/mconstructor.cpp:820
+#: src/mgui/project/mconstructor.cpp:862
 msgctxt "MainTabs"
 msgid "_Menu"
 msgstr "Valikk_o"
 
-#: src/mgui/project/mconstructor.cpp:822
+#: src/mgui/project/mconstructor.cpp:864
 msgctxt "MainTabs"
 msgid "_Output"
 msgstr "_Tuloste"
 
-#: src/mgui/project/media-browser.cpp:148
-msgid "Previous Menu"
-msgstr "Edellinen valikko"
-
-#: src/mgui/project/media-browser.cpp:148
-#: src/mgui/project/media-browser.cpp:150
-msgid "Next Video"
-msgstr "Seuraava video"
-
-#: src/mgui/project/media-browser.cpp:149
-#, boost-format
-msgid "Auto (%1%)"
-msgstr "Automaattinen (%1%)"
-
-#: src/mgui/project/media-browser.cpp:179
+#: src/mgui/project/media-browser.cpp:198
+#: src/mgui/project/menu-browser.cpp:427
 msgid "End Action"
 msgstr "Lopputoiminto"
 
-#: src/mgui/project/media-browser.cpp:203
+#: src/mgui/project/media-browser.cpp:224
 msgid "Still Picture"
 msgstr "Pysäytyskuva"
 
-#: src/mgui/project/media-browser.cpp:235
+#: src/mgui/project/media-browser.cpp:256
 msgid "Type"
 msgstr "Tyyppi"
 
@@ -777,122 +793,187 @@ msgstr "Tyyppi"
 #. vbox.pack_start(label, Gtk::PACK_SHRINK);
 #. Gtk::Requisition req = label.size_request();
 #. label.set_size_request(0, req.height+10);
-#: src/mgui/project/media-browser.cpp:293
-#: src/mgui/project/menu-browser.cpp:374
+#: src/mgui/project/media-browser.cpp:312
+#: src/mgui/project/menu-browser.cpp:808
 msgid "Media List"
 msgstr "Medialuettelo"
 
-#: src/mgui/project/media-browser.cpp:333
+#: src/mgui/project/media-browser.cpp:352
 msgid "Add Media from File Browser"
 msgstr "Lisää media tiedostoselaimesta"
 
-#: src/mgui/project/media-browser.cpp:342
+#: src/mgui/project/media-browser.cpp:361
 msgid "Remove Media"
 msgstr "Poista media"
 
-#: src/mgui/project/media-browser.cpp:353
+#: src/mgui/project/media-browser.cpp:372
 msgid "Make Chapters for Video"
 msgstr "Tee kappaleita videolle"
 
-#: src/mgui/project/menu-browser.cpp:191
+#: src/mgui/project/menu-browser.cpp:99 src/mgui/project/menu-browser.cpp:608
 msgid "No Link"
 msgstr "Ei linkkiä"
 
+#: src/mgui/project/menu-browser.cpp:248
+msgid "Previous Menu"
+msgstr "Edellinen valikko"
+
+#: src/mgui/project/menu-browser.cpp:248 src/mgui/project/menu-browser.cpp:256
+msgid "Next Video"
+msgstr "Seuraava video"
+
+#: src/mgui/project/menu-browser.cpp:249
+#, boost-format
+msgid "Auto (%1%)"
+msgstr "Automaattinen (%1%)"
+
+#: src/mgui/project/menu-browser.cpp:252
+msgid "Loop"
+msgstr "Silmukka"
+
+#: src/mgui/project/menu-browser.cpp:351 src/mgui/project/menu-browser.cpp:482
+msgid "Menu Settings"
+msgstr "Valikkoasetukset"
+
+#: src/mgui/project/menu-browser.cpp:363
+msgid "_Still picture"
+msgstr "_Pysäytyskuva"
+
+#: src/mgui/project/menu-browser.cpp:368
+msgid "Select external audio file"
+msgstr "Valitse ulkoinen äänitiedosto"
+
+#: src/mgui/project/menu-browser.cpp:371 src/mgui/project/menu-browser.cpp:373
+msgid "_Motion menu"
+msgstr "_Liikevalikko"
+
+#: src/mgui/project/menu-browser.cpp:387
+msgid "_Duration (in seconds)"
+msgstr "_Kesto (sekunneissa)"
+
+#: src/mgui/project/menu-browser.cpp:400
+msgid "Still menu with audio in the background"
+msgstr "Yhä äänivalikko taustalla"
+
+#: src/mgui/project/menu-browser.cpp:410
+msgid "_From the project"
+msgstr "P_rojektista"
+
+#: src/mgui/project/menu-browser.cpp:414
+msgid "_External audio"
+msgstr "_Ulkoinen ääni"
+
+#: src/mgui/project/menu-browser.cpp:437
+msgid "_Subpicture Colors"
+msgstr "Alik_uvavärit"
+
+#: src/mgui/project/menu-browser.cpp:439
+msgid "S_elected item color"
+msgstr "Valits_e kohdeväri"
+
+#: src/mgui/project/menu-browser.cpp:440
+msgid "_Activated item color"
+msgstr "_Aktivoi kohdeväri"
+
+#: src/mgui/project/menu-browser.cpp:442
+msgid "_Restore default colors"
+msgstr "Palauta oletus_värit"
+
 #. * subj
-#: src/mgui/project/menu-browser.cpp:338
+#: src/mgui/project/menu-browser.cpp:773
 msgid "Menu List"
 msgstr "Valikkoluettelo"
 
-#: src/mgui/project/menu-browser.cpp:354
+#: src/mgui/project/menu-browser.cpp:788
 msgid "Add Menu"
 msgstr "Lisää valikko"
 
-#: src/mgui/project/menu-browser.cpp:359
+#: src/mgui/project/menu-browser.cpp:793
 msgid "Remove Menu"
 msgstr "Poista valikko"
 
-#: src/mgui/project/menu-browser.cpp:364
+#: src/mgui/project/menu-browser.cpp:798
 msgid "Edit Menu"
 msgstr "Muokkaa valikkoa"
 
-#: src/mgui/project/serialize.cpp:61
+#: src/mgui/project/serialize.cpp:62
 msgid "Save Project As..."
 msgstr "Tallenna projekti nimellä..."
 
-#: src/mgui/project/serialize.cpp:93
+#: src/mgui/project/serialize.cpp:94
 #, boost-format
 msgid "Cant open project file \"%1%\""
 msgstr "Ei voi avata projektitiedostoa ”%1%”"
 
 #  Parametri on ilmeisesti projektin otsikko
-#: src/mgui/project/serialize.cpp:166
+#: src/mgui/project/serialize.cpp:167
 #, boost-format
 msgid "Save changes to \"%1%\"?"
 msgstr "Tallenna muutokset projektiin ”%1%”?"
 
-#: src/mgui/project/serialize.cpp:168
+#: src/mgui/project/serialize.cpp:169
 msgid "Close _without Saving"
 msgstr "Sulje tallenta_matta"
 
-#: src/mgui/project/serialize.cpp:206
+#: src/mgui/project/serialize.cpp:207
 msgid "New Project"
 msgstr "Uusi projekti"
 
-#: src/mgui/project/serialize.cpp:215
+#: src/mgui/project/serialize.cpp:216
 msgid "Please select a Television standard for your project:"
 msgstr "Valitse televisiostandardi projektillesi:"
 
-#: src/mgui/project/serialize.cpp:237
+#: src/mgui/project/serialize.cpp:238
 msgid "Open Project"
 msgstr "Avaa projekti"
 
-#: src/mgui/project/serialize.cpp:241
+#: src/mgui/project/serialize.cpp:242
 msgid "Project files (*.xml)"
 msgstr "Projektitiedostot (*.xml)"
 
-#: src/mgui/project/serialize.cpp:246 src/mgui/timeline/mviewer.cpp:283
+#: src/mgui/project/serialize.cpp:247 src/mgui/timeline/mviewer.cpp:284
 msgid "All Files (*.*)"
 msgstr "Kaikki tiedostot (*.*)"
 
-#: src/mgui/project/serialize.cpp:308
+#: src/mgui/project/serialize.cpp:309
 msgid "_New Project"
 msgstr "Uu_si projekti"
 
-#: src/mgui/project/serialize.cpp:310
+#: src/mgui/project/serialize.cpp:311
 msgid "_Open..."
 msgstr "A_vaa..."
 
-#: src/mgui/project/serialize.cpp:312
+#: src/mgui/project/serialize.cpp:313
 msgid "_Save"
 msgstr "Talle_nna"
 
-#: src/mgui/project/serialize.cpp:314
+#: src/mgui/project/serialize.cpp:315
 msgid "Save _As..."
 msgstr "T_allenna nimellä..."
 
 #. Add
-#: src/mgui/timeline/layout.cpp:526 src/mgui/timeline/select.cpp:216
+#: src/mgui/timeline/layout.cpp:525 src/mgui/timeline/select.cpp:213
 msgid "Add Chapter Point"
 msgstr "Lisää kappalekohta"
 
-#: src/mgui/timeline/mviewer.cpp:76
+#: src/mgui/timeline/mviewer.cpp:77
 msgid "Error while opening file:"
 msgstr "Virhe avattaessa tiedostoa:"
 
 #. 0 надпись
-#: src/mgui/timeline/mviewer.cpp:249
+#: src/mgui/timeline/mviewer.cpp:250
 msgid "File Browser"
 msgstr "Tiedostoselain"
 
-#: src/mgui/timeline/mviewer.cpp:279
+#: src/mgui/timeline/mviewer.cpp:280
 msgid "All formats"
 msgstr "Kaikki muodot"
 
-#: src/mgui/timeline/mviewer.cpp:280
+#: src/mgui/timeline/mviewer.cpp:281
 msgid "MPEG files"
 msgstr "MPEG-tiedostot"
 
-#: src/mgui/timeline/mviewer.cpp:282
+#: src/mgui/timeline/mviewer.cpp:283
 msgid "Still Images"
 msgstr "Pysätyskuvat"
 
@@ -905,33 +986,34 @@ msgid "Save Frame..."
 msgstr "Tallenna kehys..."
 
 #. Add at Intervals
-#: src/mgui/timeline/select.cpp:170 src/mgui/timeline/select.cpp:228
+#: src/mgui/timeline/select.cpp:170 src/mgui/timeline/select.cpp:225
 msgid "Add Chapter Points at Intervals"
 msgstr "Lisää kappalekohtia aikavälein"
 
-#: src/mgui/timeline/select.cpp:176
+#: src/mgui/timeline/select.cpp:177
 msgid "Interval between Chapters:"
 msgstr "Kappeleiden välinen aika:"
 
-#: src/mgui/timeline/select.cpp:183
+#. 5 мин. по умолчанию
+#: src/mgui/timeline/select.cpp:181
 msgid "min."
 msgstr "min."
 
-#: src/mgui/timeline/select.cpp:186
+#: src/mgui/timeline/select.cpp:184
 msgid "Remove Existing Chapters"
 msgstr "Poista olemassa olevat kappaleet"
 
 #. Delete
-#: src/mgui/timeline/select.cpp:219
+#: src/mgui/timeline/select.cpp:216
 msgid "Delete Chapter Point"
 msgstr "Poista kappalekohta"
 
 #. Delete All
-#: src/mgui/timeline/select.cpp:223
+#: src/mgui/timeline/select.cpp:220
 msgid "Delete All Chapter Points"
 msgstr "Poista kaikki kappalekohdat"
 
-#: src/mgui/timeline/select.cpp:236
+#: src/mgui/timeline/select.cpp:233
 msgid "Save Current Frame"
 msgstr "Tallenna nykyinen kehys"
 
