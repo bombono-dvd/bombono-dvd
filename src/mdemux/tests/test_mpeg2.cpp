@@ -530,7 +530,7 @@ BOOST_AUTO_TEST_CASE( MakeForPeriodTest )
 
     }
     else
-        BOOST_CHECK_MESSAGE(0, "Cant seek to time: " << time << " (sec)");
+        BOOST_CHECK_MESSAGE(0, "Can't seek to time: " << time << " (sec)");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -679,7 +679,7 @@ BOOST_AUTO_TEST_CASE( PlayerVLMaxTest )
 
 static void MoveToTime(Mpeg::Player& plyr, double time)
 {
-    BOOST_CHECK_MESSAGE( plyr.SetTime(time), "Cant move to time: " << Mpeg::SecToHMS(time) );
+    BOOST_CHECK_MESSAGE( plyr.SetTime(time), "Can't move to time: " << Mpeg::SecToHMS(time) );
 }
 
 BOOST_AUTO_TEST_CASE( PlayerCoverageTest )

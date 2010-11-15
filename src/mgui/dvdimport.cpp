@@ -441,7 +441,7 @@ static void OnApply(ImportData& id)
 
     bool res = Project::HaveFullAccess(dir_path);
     if( !res )
-        MessageBox(BF_("Cant write to folder %1% (check permissions).") % dir_path % bf::stop,
+        MessageBox(BF_("Can't write to folder %1% (check permissions).") % dir_path % bf::stop,
                    Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK);
     else
     {

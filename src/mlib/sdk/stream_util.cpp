@@ -63,7 +63,7 @@ int OpenFileAsArg(const char* fpath, bool is_read)
     }
 
     if( fd == NO_HNDL )
-        Error("Cant open one of files!");
+        Error("Can't open one of files!");
 
     return fd;
 }

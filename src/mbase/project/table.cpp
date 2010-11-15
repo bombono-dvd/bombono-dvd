@@ -369,7 +369,7 @@ fs::path FindThemePath(const std::string& theme_name)
         if( fs::exists(pth) && IsFrameDir(pth) )
             return pth;
     }
-    throw std::runtime_error("Cant find theme " + theme_name);
+    throw std::runtime_error("Can't find theme " + theme_name);
     return fs::path();
 }
 

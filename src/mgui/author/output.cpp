@@ -442,7 +442,7 @@ static bool CanUseForAuthoring(const std::string& dir_str)
     ASSERT( fs::is_directory(dir_path) );
     if( !Project::HaveFullAccess(dir_path) )
     {
-        MessageBox(BF_("Cant have full access to folder %1% (read, write)") % dir_str % bf::stop + abort_str,
+        MessageBox(BF_("Can't have full access to folder %1% (read, write)") % dir_str % bf::stop + abort_str,
                    Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK);
         res = false;
     }

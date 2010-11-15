@@ -84,7 +84,7 @@ bool MediaInfo::TryGetInfo(ParseContext& prs_cont)
     }
     if( !strm.good() )
     {
-        errReason = "Cant read the file";
+        errReason = "Can't read the file";
         return false;
     }
     if( (io::pos)strm.tellg() == -1 )

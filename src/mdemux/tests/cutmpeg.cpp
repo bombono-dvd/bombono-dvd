@@ -74,13 +74,13 @@ int main(int argc, char *argv[])
     src_strm.open(argv[2], iof::in);
     if( !src_strm )
     {
-        io::cout << "Cant open file " << argv[2] << "." << io::endl;
+        io::cout << "Can't open file " << argv[2] << "." << io::endl;
         return 2;
     }
     io::stream dst_strm(argv[3], iof::out);
     if( !dst_strm )
     {
-        io::cout << "Cant write file " << argv[3] << "." << io::endl;
+        io::cout << "Can't write file " << argv[3] << "." << io::endl;
         return 2;
     }
 
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
     SavePackets sp(cont.dmx);
     if( !Mpeg::MakeForTime(vl, time, inf) )
     {
-        io::cerr << "Cant seek to time: " << time << " sec" << io::endl;
+        io::cerr << "Can't seek to time: " << time << " sec" << io::endl;
         return 3;
     }
 

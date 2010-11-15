@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
     PCMWaveHeader hdr;
     if( !ParsePcmTriple(argv[1], hdr) )
     {
-        io::cerr << "Cant get correct sample_rate:channels:bps triple!" << io::endl;
+        io::cerr << "Can't get correct sample_rate:channels:bps triple!" << io::endl;
         return 2;
     }
     uint32_t samplerate = hdr.sampleRate;
@@ -231,14 +231,14 @@ int main(int argc, char *argv[])
     io::stream strm(argv[2], iof::in);
     if( !strm )
     {
-        io::cerr << "Cant open file: " << argv[2] << io::endl;
+        io::cerr << "Can't open file: " << argv[2] << io::endl;
         return 3;
     }
 
     io::pos file_big_sz = StreamSize(strm);
     if( file_big_sz > UINT32_MAX-100 ) // ограничение размера wav-файла 32битами
     {
-        io::cerr << "Cant do wav-file because " << argv[2] << " is too big, > 3,9Gb." << io::endl;
+        io::cerr << "Can't do wav-file because " << argv[2] << " is too big, > 3,9Gb." << io::endl;
         return 4;
     }
     uint32_t file_sz = file_big_sz;
@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
     io::stream wav_strm(argv[3], iof::out);
     if( !wav_strm )
     {
-        io::cerr << "Cant write to file: " << argv[3] << io::endl;
+        io::cerr << "Can't write to file: " << argv[3] << io::endl;
         return 5;
     }
 

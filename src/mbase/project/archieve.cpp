@@ -124,7 +124,7 @@ xmlpp::Attribute* GetAttr(Archieve& ar, const char* name)
 {
     xmlpp::Attribute* attr = ar.OwnerNode()->get_attribute(name);
     if( !attr )
-        throw std::runtime_error(std::string("Cant find attribute ") + name);
+        throw std::runtime_error(std::string("Can't find attribute ") + name);
     return attr;
 }
 

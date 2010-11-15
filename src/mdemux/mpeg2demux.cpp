@@ -104,7 +104,7 @@ static std::string MakeKeyNameForLPCM(int track, uint8_t inf)
         break;
     case 3:
         bps = "unknown"; // неправильно, ошибка в потоке
-        io::cerr << "Cant get 'bits per sample' value for lpcm audio stream: " << track << io::endl;
+        io::cerr << "Can't get 'bits per sample' value for lpcm audio stream: " << track << io::endl;
         break;
     default:
         ASSERT(0);
@@ -171,7 +171,7 @@ void DemuxSvc::GetData(Mpeg::Demuxer& dmx, int len)
         std::string fname = dstName + "." + (get_key_name ? get_key_name() : key);
         ptr::shared<io::stream> strm(new io::stream(fname.c_str(), iof::out));
         if( !*strm )
-            io::cerr << "Cant write to file " << fname.c_str() << "." << io::endl;
+            io::cerr << "Can't write to file " << fname.c_str() << "." << io::endl;
 
         itr = strmMap.insert(std::make_pair(key, strm)).first;
     }
@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
     io::stream src_strm(src_fname, iof::in);
     if( !src_strm )
     {
-        io::cerr << "Cant open file " << argv[1] << "." << io::endl;
+        io::cerr << "Can't open file " << argv[1] << "." << io::endl;
         return 2;
     }
 

@@ -111,7 +111,7 @@ static void LoadProjectInteractive(const std::string& prj_file_name)
         // мягкая очистка
         db.Clear(false);
         db.ClearSettings();
-        MessageBox(BF_("Cant open project file \"%1%\"") % prj_file_name % bf::stop, Gtk::MESSAGE_ERROR, 
+        MessageBox(BF_("Can't open project file \"%1%\"") % prj_file_name % bf::stop, Gtk::MESSAGE_ERROR, 
                    Gtk::BUTTONS_OK, err_str);
     }
 }

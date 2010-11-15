@@ -114,7 +114,7 @@ static ptr::shared<io::stream> MakeDestStream(const std::string& prefix, int num
     std::string dst_name = (str::stream() << prefix << "." << num << ".ac3").str();
     ptr::shared<io::stream> dst = new io::stream(dst_name.c_str(), iof::out);
     if( !*dst )
-        ErrorAndExit((str::stream() << "Cant write to file: " << dst_name).str(), 2);
+        ErrorAndExit((str::stream() << "Can't write to file: " << dst_name).str(), 2);
 
     return dst;
 }
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
     const char* strm_fname = argv[2];
     io::stream strm(strm_fname, iof::in);
     if( !strm )
-        ErrorAndExit((str::stream() << "Cant open file: " << strm_fname).str(), 2);
+        ErrorAndExit((str::stream() << "Can't open file: " << strm_fname).str(), 2);
     
     TrackBuf buf;
     typedef std::vector<io::pos> FrameArray;

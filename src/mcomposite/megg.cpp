@@ -54,7 +54,7 @@ static void ShowMpeg2Image(int width, int height,
     int hgt = height;
     MagickLib::PixelPacket* p = tmpImg.setPixels(0, 0, wdh, hgt);
     //if( !p )
-    //    throw "Internal error: Cant setPixels()";
+    //    throw "Internal error: Can't setPixels()";
     ASSERT(p);
 
     Plane y_p(wdh, hgt, buf[0]);
