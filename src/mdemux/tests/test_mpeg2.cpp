@@ -25,6 +25,7 @@
 #include <mdemux/util.h>
 
 #include <mlib/string.h>
+#include <mlib/format.h>
 #include <mlib/lambda.h>
 #include <mlib/sdk/logger.h>
 #include <mlib/sdk/system.h>
@@ -535,22 +536,28 @@ BOOST_AUTO_TEST_CASE( MakeForPeriodTest )
 /////////////////////////////////////////////////////////////////////////////
 // Тест PlayerViewTest
 
-static void save_pgm(const char* filename, int width, int height,
+static FILE* open_check_file(const char* filename)
+{
+    FILE* file = fopen(filename, "wb");
+    if( !file )
+    {
+        io::cerr << boost::format("Could not open file \"%1%\".\n") % filename % bf::stop;
+        exit(1);
+    }
+    return file;
+}
+
+void save_pgm(const char* filename, int width, int height,
                       int chroma_width, int chroma_height,
                       uint8_t * const * buf)
 {
-    FILE * pgmfile;
-    int i;
     static uint8_t black[16384] = { 0};
 
-    pgmfile = fopen (filename, "wb");
-    if(!pgmfile)
-    {
-        fprintf (stderr, "Could not open file \"%s\".\n", filename);
-        exit (1);
-    }
+    FILE* pgmfile = open_check_file(filename);
+
     fprintf (pgmfile, "P5\n%d %d\n255\n",
              2 * chroma_width, height + chroma_height);
+    int i;
     for(i = 0; i < height; i++)
     {
         fwrite (buf[0] + i * width, width, 1, pgmfile);
@@ -562,6 +569,30 @@ static void save_pgm(const char* filename, int width, int height,
         fwrite (buf[2] + i * chroma_width, chroma_width, 1, pgmfile);
     }
     fclose (pgmfile);
+}
+
+void save_ppm(const char* filename, int width, int height, uint8_t* buf)
+{
+    FILE* ppmfile = open_check_file(filename);
+
+    fprintf (ppmfile, "P6\n%d %d\n255\n", width, height);
+    fwrite (buf, 3 * width, height, ppmfile);
+    fclose (ppmfile);
+}
+
+static void ShowFile(const std::string& fname)
+{
+    std::string cmd = "eog " + fname;
+    system(cmd.c_str());
+}
+
+void ShowRGB24(int width, int height, uint8_t* buf)
+{
+    TmpFileNames tfn;
+    std::string fname = tfn.CreateName();
+    save_ppm(fname.c_str(), width, height, buf);
+
+    ShowFile(fname);
 }
 
 // показать YCbCr-изображение отдельно по плоскостям, в оттенках серого
@@ -577,8 +608,7 @@ void ShowImage(Mpeg::Player& plyr)
     std::string fname = tfn.CreateName();
     save_pgm(fname.c_str(), wdh, hgt, wdh/2, hgt/2, plyr.Data());
     
-    std::string cmd = "eog " + fname;
-    system(cmd.c_str());
+    ShowFile(fname);
 }
 
 void PlayerViewTestImpl(const char* fname)
