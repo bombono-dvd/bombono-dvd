@@ -25,14 +25,14 @@
 #include <mlib/tech.h>
 #include <mlib/const.h>
 
-namespace Mpeg { 
-
 const double INV_TS = -1.0;
 
 inline bool IsTSValid(double ts) 
 {
     return ts >= 0.;
 }
+
+namespace Mpeg { 
 
 // численные ограничения декодирования
 const int DecodeBlockSize = 100000;  // 100kb, парсим столько за раз
