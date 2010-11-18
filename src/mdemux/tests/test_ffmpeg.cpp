@@ -4,8 +4,9 @@
 #include <mdemux/demuxconst.h> // IsTSValid()
 
 #include <mlib/tech.h>
-#include <mlib/stream.h>
 #include <mlib/geom2d.h>
+
+#include <mlib/stream.h>
 
 C_LINKAGE_BEGIN
 #include <libavformat/avformat.h>
@@ -120,9 +121,10 @@ BOOST_AUTO_TEST_CASE( TestFFmpegOpen )
     ASSERT( rgb_convert_ctx );
 
     Point dst_sz(sz);
-    AVFrame* rgb_frame = avcodec_alloc_frame();
+    AVFrame rgb_frame;
+    avcodec_get_frame_defaults(&rgb_frame); // не помешает
     uint8_t* rgb_buf = (uint8_t*)av_malloc(avpicture_get_size(dst_pf, dst_sz.x, dst_sz.y) * sizeof(uint8_t));
-    avpicture_fill((AVPicture*)rgb_frame, rgb_buf, dst_pf, dst_sz.x, dst_sz.y);
+    avpicture_fill((AVPicture*)&rgb_frame, rgb_buf, dst_pf, dst_sz.x, dst_sz.y);
 
     // время текущего кадра
     double cur_pts = INV_TS;
@@ -136,11 +138,13 @@ BOOST_AUTO_TEST_CASE( TestFFmpegOpen )
     res = av_seek_frame(ic, -1, start_ts, flags);
     ASSERT_RTL( !res );
 
-    AVFrame* frame = avcodec_alloc_frame();
-    AVPacket pkt;
-    int got_picture;
+    //AVFrame* frame = avcodec_alloc_frame();
     while( true )
     {
+        AVFrame picture;
+        AVPacket pkt;
+        int got_picture;
+
         // предположительное время начала следующего кадра (если не будет явно 
         // установлено) - расчет до следующего av_read_frame()
         double next_pts = cur_pts;
@@ -163,7 +167,9 @@ BOOST_AUTO_TEST_CASE( TestFFmpegOpen )
         ASSERT_RTL( pkt.stream_index == video_idx );
 
         dec->reordered_opaque = pkt.pts;
-        res = avcodec_decode_video(dec, frame, &got_picture, pkt.data, pkt.size);
+
+        avcodec_get_frame_defaults(&picture);
+        res = avcodec_decode_video(dec, &picture, &got_picture, pkt.data, pkt.size);
         ASSERT_RTL( res >= 0 );
 
         av_free_packet(&pkt);
@@ -175,7 +181,7 @@ BOOST_AUTO_TEST_CASE( TestFFmpegOpen )
             // - ffplay:  pkt.dts + довычисление
             // - mlt:     только pkt.dts
             // => делаем как mplayer + доводка как у ffmpeg
-            int64_t ff_pts = frame->reordered_opaque;
+            int64_t ff_pts = picture.reordered_opaque;
             //if( ff_pts == AV_NOPTS_VALUE )
             //    ff_pts = pkt->dts;
             cur_pts = TS2Time(ff_pts, ic, video_idx);
@@ -186,9 +192,9 @@ BOOST_AUTO_TEST_CASE( TestFFmpegOpen )
             // не допускаем смены разрешения
             ASSERT_RTL( VideoSize(dec) == sz );
             // не очень понятно как пользовать аргументы 4, 5
-            sws_scale(rgb_convert_ctx, frame->data, frame->linesize,
-                      0,  sz.y, rgb_frame->data, rgb_frame->linesize);
-            uint8_t* buf = rgb_frame->data[0];
+            sws_scale(rgb_convert_ctx, picture.data, picture.linesize,
+                      0,  sz.y, rgb_frame.data, rgb_frame.linesize);
+            uint8_t* buf = rgb_frame.data[0];
             uint8_t* ptr = buf;
             uint8_t tmp;
             for( int y=0; y<dst_sz.y; y++ )
@@ -205,8 +211,8 @@ BOOST_AUTO_TEST_CASE( TestFFmpegOpen )
             if( IsTSValid(cur_pts) )
                 ASSERT( fabs(cur_pts - TS2Time(pkt.dts, ic, video_idx)) < 0.001 );
 
-            //void ShowRGB24(int width, int height, uint8_t* buf);
-            //ShowRGB24(dst_sz.x, dst_sz.y, buf);
+            void ShowRGB24(int width, int height, uint8_t* buf);
+            ShowRGB24(dst_sz.x, dst_sz.y, buf);
 
             // :TEMP:
             //break;
@@ -215,10 +221,10 @@ BOOST_AUTO_TEST_CASE( TestFFmpegOpen )
                 break;
         }
     }
-    av_free(frame);
+    //av_free(frame);
 
     av_free(rgb_buf);
-    av_free(rgb_frame);
+    //av_free(rgb_frame);
     sws_freeContext(rgb_convert_ctx);
 
     // контекст кодека закрывается отдельно

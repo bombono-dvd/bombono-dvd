@@ -213,6 +213,7 @@
 			<F N="../src/mgui/execution.h"/>
 			<F N="../src/mgui/editor/fe-select.h"/>
 			<F N="../src/mgui/author/ffmpeg.h"/>
+			<F N="../src/mgui/ffviewer.h"/>
 			<F N="../src/mgui/author/gb_devices.h"/>
 			<F N="../src/mgui/gettext.h"/>
 			<F N="../src/mgui/sdk/libgnome/gnome-exec.h"/>
@@ -296,6 +297,7 @@
 			<F N="../src/mgui/sdk/entry.cpp"/>
 			<F N="../src/mgui/author/execute.cpp"/>
 			<F N="../src/mgui/execution.cpp"/>
+			<F N="../src/mgui/ffviewer.cpp"/>
 			<F N="../src/mgui/author/gb_devices.c"/>
 			<F N="../src/mgui/sdk/gnc-gtk-utils.c"/>
 			<F N="../src/mgui/sdk/libgnome/gnome-exec.c"/>

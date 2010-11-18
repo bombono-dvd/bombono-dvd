@@ -62,6 +62,9 @@ inline RefPtr<Gdk::Pixbuf> CreatePixbuf(const Point& sz, bool has_alpha = true)
     return CreatePixbuf(sz.x, sz.y, has_alpha);
 }
 
+// stride по ширине равен sz.x*[3|4], в зависимости от has_alpha
+RefPtr<Gdk::Pixbuf> CreateFromData(const guint8* data, const Point& sz, bool has_alpha);
+
 inline Rect MakeRect(GdkRectangle& g_rct)
 {
     return Rect(g_rct.x, g_rct.y, g_rct.x + g_rct.width, g_rct.y + g_rct.height);

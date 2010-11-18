@@ -52,6 +52,13 @@ RefPtr<Gdk::Pixbuf> CreatePixbuf(int wdh, int hgt, bool has_alpha)
     return Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, has_alpha, 8, wdh, hgt);
 }
 
+// stride по ширине равен sz.x*[3|4], в зависимости от has_alpha
+RefPtr<Gdk::Pixbuf> CreateFromData(const guint8* data, const Point& sz, bool has_alpha)
+{
+    int pix_sz = has_alpha ? 4 : 3 ;
+    return Gdk::Pixbuf::create_from_data(data, Gdk::COLORSPACE_RGB, has_alpha, 8, sz.x, sz.y, sz.x*pix_sz);
+}
+
 static void FreePixbuf(RefPtr<Gdk::Pixbuf>* pix)
 {
     delete pix;

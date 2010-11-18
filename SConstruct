@@ -446,6 +446,10 @@ user_options_dict['DVDREAD_DICT']['LIBS'] = ['dvdread']
 def AddMovieDicts(env):
     env.AppendUnique(**user_options_dict['LIBMPEG2_DICT'])
     env.AppendUnique(**user_options_dict['DVDREAD_DICT'])
+    
+    # :TEMP:
+    env.AppendUnique( CPPPATH = ['/opt/ffmpeg05_svn20090706/include'], LIBPATH = ['/opt/ffmpeg05_svn20090706/lib'], 
+        LIBS = ['avformat', 'avcodec', 'swscale', 'avutil'], RPATH = ['/opt/ffmpeg05_svn20090706/lib'] )
 
 # 
 # mdemux

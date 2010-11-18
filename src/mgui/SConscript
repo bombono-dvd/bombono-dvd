@@ -12,6 +12,7 @@ bin_path  = user_options_dict['BIN_BUILD_DIR']
 lib_src_files = [
                  'dvdimport.cpp',
                  'execution.cpp',
+                 'ffviewer.cpp',
                  'img-factory.cpp',
                  'img_utils.cpp',
                  'mcommon_vis.cpp',

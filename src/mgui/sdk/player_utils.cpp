@@ -60,13 +60,13 @@ static RefPtr<Gdk::Pixbuf> GetRawFrame(Mpeg::Player& plyr)
     case fofRGB:
         {
             Mpeg::SequenceData& seq = plyr.MInfo().vidSeq;
-            res_pix = Gdk::Pixbuf::create_from_data(plyr.Data()[0], Gdk::COLORSPACE_RGB, false, 8, seq.wdh, seq.hgt, seq.wdh*3);
+            res_pix = CreateFromData(plyr.Data()[0], Point(seq.wdh, seq.hgt), false);
         }
         break;
     case fofRGBA:
         {
             Mpeg::SequenceData& seq = plyr.MInfo().vidSeq;
-            res_pix = Gdk::Pixbuf::create_from_data(plyr.Data()[0], Gdk::COLORSPACE_RGB, true, 8,  seq.wdh, seq.hgt, seq.wdh*4);
+            res_pix = CreateFromData(plyr.Data()[0], Point(seq.wdh, seq.hgt), true);
 
             // приходится править альфу тут, потому что на каждую смену кадра
             // mpeg2dec переписывает ее
