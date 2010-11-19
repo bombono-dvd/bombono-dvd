@@ -308,7 +308,6 @@ inline bool IsVisibleObj(int pos, int rgn_wdh)
 // отрисовать курсор
 void PaintPointer(CR::RefPtr<CR::Context> cr, DPoint pos, bool form_only = false);
 
-Project::VideoItem SetCurrentVideo(Project::VideoItem new_vd);
 DVDMark PushBackDVDMark(int frame_pos);
 
 void InsertDVDMark(TrackLayout& trk_lay);

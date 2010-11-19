@@ -129,7 +129,7 @@ static void OnSaveFrameDialog(Gtk::FileChooserDialog& dlg, Gtk::CheckButton& btn
 
 static void SaveFrame(DAMonitor& mon)
 {
-    time4_t t4 = FramesToTime(mon.CurPos()>=0 ? mon.CurPos() : 0, Mpeg::GetFrameFPS(mon.GetPlayer()));
+    time4_t t4 = FramesToTime(mon.CurPos()>=0 ? mon.CurPos() : 0, FrameFPS(mon.GetViewer()));
     str::stream strm;
     strm << "frame";
     if( t4.hh != 0 )

@@ -158,7 +158,7 @@ TrackLayout::TrackLayout(Timeline::Monitor& mon):
     // :TRICKY:
     //get_window()->set_debug_updates();
 
-    if( !GetMonitor().GetPlayer().IsOpened() )
+    if( !GetMonitor().GetViewer().IsOpened() )
         CloseTrackLayout(*this);
 }
 
@@ -196,12 +196,12 @@ static void SetAdjBounds(Gtk::Adjustment& adj, int size, int page_size)
 
 double TrackLayout::FrameFPS()
 {
-    return Mpeg::GetFrameFPS(trkMon.GetPlayer());
+    return ::FrameFPS(trkMon.GetViewer());
 }
 
 double TrackLayout::GetFramesLength() 
 { 
-    return Timeline::GetFramesLength(trkMon.GetPlayer()); 
+    return FramesLength(trkMon.GetViewer()); 
 }
 
 int TrackLayout::GetGroundHeight()
@@ -405,12 +405,14 @@ void TLOnDeleteVis::Visit(Project::VideoChapterMD& obj)
         RedrawDVDMark(layout, Project::ChapterPosInt(&obj));
 }
 
+Project::VideoItem SetCurrentVideo(Project::VideoItem new_vd);
+
 void TLOnDeleteVis::Visit(Project::VideoMD& obj)
 {
     if( &obj == CurrVideo )
     {
         CloseTrackLayout(layout);
-        Timeline::SetCurrentVideo(0);
+        SetCurrentVideo(0);
     }
 }
 
@@ -591,17 +593,14 @@ void CloseTrackLayout(TrackLayout& layout)
 
     if( layout.is_sensitive() ) // так определяем что мы в нормальном состоянии
     {
-        Monitor& mon       = layout.GetMonitor();
-        Mpeg::Player& plyr = mon.GetPlayer();
-
-        plyr.Close();
+        layout.GetMonitor().GetViewer().Close();
         layout.SetPos(-1);
 
         MakeFullUpdate(layout, false);
     }
 }
 
-Project::VideoItem Timeline::SetCurrentVideo(Project::VideoItem new_vd)
+Project::VideoItem SetCurrentVideo(Project::VideoItem new_vd)
 {
     Project::VideoItem old_vd = CurrVideo;
     CurrVideo = new_vd ? new_vd : Project::VideoItem(new Project::VideoMD) ;
@@ -609,7 +608,7 @@ Project::VideoItem Timeline::SetCurrentVideo(Project::VideoItem new_vd)
     return old_vd;
 }
 
-bool OpenTrackLayout(TrackLayout& layout, Project::VideoItem vd, TLFunctor on_open_fnr)
+bool OpenTrackLayout(TrackLayout& layout, Project::VideoItem vd, std::string& err)
 {
     bool res = false;
     if( CurrVideo == vd )
@@ -618,10 +617,8 @@ bool OpenTrackLayout(TrackLayout& layout, Project::VideoItem vd, TLFunctor on_op
     {
         CloseTrackLayout(layout);
 
-        using namespace Timeline;
-        Monitor& mon       = layout.GetMonitor();
-        Mpeg::Player& plyr = mon.GetPlayer();
-        if( plyr.Open(GetFilename(*vd).c_str()) )
+        Monitor& mon = layout.GetMonitor();
+        if( mon.GetViewer().Open(GetFilename(*vd).c_str(), err) )
         {
             NormalTL& stt = NormalTL::Instance();
             stt.ChangeTo(layout);
@@ -634,9 +631,6 @@ bool OpenTrackLayout(TrackLayout& layout, Project::VideoItem vd, TLFunctor on_op
     }
 
     SetCurrentVideo(res ? vd : Project::VideoItem());
-    if( res && on_open_fnr )
-        on_open_fnr(layout);
     return res;
 }
-
 

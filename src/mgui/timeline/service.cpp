@@ -210,7 +210,7 @@ Rect Service::GetTrackLocation(bool is_trough)
 void Service::FormDVDThumbnails()
 {
     Rect v_rct(GetTrackLocation(false));
-    Point aspect = Mpeg::GetAspectRatio(trkLay.GetMonitor().GetPlayer());
+    Point aspect = DAspectRatio(trkLay.GetMonitor().GetViewer());
 
     int hgt = v_rct.Height();
     int wdh = int((double)hgt/aspect.y*aspect.x);

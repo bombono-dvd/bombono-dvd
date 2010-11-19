@@ -34,6 +34,9 @@ inline bool IsTSValid(double ts)
 
 namespace Mpeg { 
 
+const double PAL_SECAM_FRAME_FPS  = 25.0;           // PAL/SECAM FILM
+const double NTSC_VIDEO_FRAME_FPS = 30000.0/1001.0; // NTSC VIDEO
+
 // численные ограничения декодирования
 const int DecodeBlockSize = 100000;  // 100kb, парсим столько за раз
 const int BoundDecodeSize = 800000;  // размер данных, читаемых в начале и в конце

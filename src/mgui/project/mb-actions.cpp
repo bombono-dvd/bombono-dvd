@@ -124,25 +124,6 @@ void PublishMedia(const Gtk::TreeIter& itr, RefPtr<MediaStore> ms, MediaItem mi)
     mi->Accept(vis);
 }
 
-static void OnVideoView(TrackLayout& layout, VideoMD* vd, int chp_pos)
-{
-    using namespace Timeline;
-    // при первом открытии файла синхронизируем позиции глав
-    bool& opened_before = vd->GetData<bool>("VideoOpenedBefore");
-    if( !opened_before )
-    {
-        opened_before = true;
-        VideoMD::ListType lst = vd->List();
-        for( VideoMD::Itr itr = lst.begin(), end = lst.end(); itr != end; ++itr )
-        {
-            ChapterItem ci = *itr;
-            GetMarkData(ci).pos = TimeToFrames(ci->chpTime, layout.FrameFPS());
-        }
-    }
-    if( chp_pos >= 0 )
-        layout.SetPos(GetMarkData(chp_pos).pos);
-}
-
 class ViewMediaVis: public ObjVisitor
 {
     public:
@@ -161,11 +142,34 @@ BoolTLFunctor GetViewerFunctor(MediaItem mi)
     return vis.vFnr;
 }
 
+static bool ViewVideo(TrackLayout& layout, Project::VideoItem vd, int chp_pos)
+{
+    std::string err_str;
+    bool res = OpenTrackLayout(layout, vd, err_str);
+    if( res )
+    {
+        using namespace Timeline;
+        // при первом открытии файла синхронизируем позиции глав
+        bool& opened_before = vd->GetData<bool>("VideoOpenedBefore");
+        if( !opened_before )
+        {
+            opened_before = true;
+            VideoMD::ListType lst = vd->List();
+            for( VideoMD::Itr itr = lst.begin(), end = lst.end(); itr != end; ++itr )
+            {
+                ChapterItem ci = *itr;
+                GetMarkData(ci).pos = TimeToFrames(ci->chpTime, layout.FrameFPS());
+            }
+        }
+        if( chp_pos >= 0 )
+            layout.SetPos(GetMarkData(chp_pos).pos);
+    }
+    return res;
+}
+
 static BoolTLFunctor MakeViewFnr(VideoItem vi, int chp_pos)
 {
-    using namespace boost;
-    TLFunctor a_fnr = bb::bind(&OnVideoView, _1, vi.get(), chp_pos);
-    return bb::bind(&OpenTrackLayout, _1, vi, a_fnr);
+    return bb::bind(&ViewVideo, _1, vi, chp_pos);
 }
 
 void ViewMediaVis::Visit(VideoMD& obj)

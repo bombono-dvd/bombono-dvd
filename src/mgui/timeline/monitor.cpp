@@ -24,7 +24,7 @@
 #include "monitor.h"
 #include "service.h"
 
-#include <mgui/sdk/player_utils.h>
+//#include <mgui/sdk/player_utils.h>
 #include <mgui/render/common.h> // FillEmpty()
 
 //namespace Editor
@@ -40,22 +40,19 @@ Monitor::Monitor(): curPos(-1)
 
 DAMonitor::DAMonitor(): VideoArea(false)
 {
-    //SetOutputFormat(fofYCBCR);
-    //SetOutputFormat(fofRGBA);
-    //SetOutputFormat(plyr, fofRGB);
-    RGBOpen(plyr);
+    RGBOpen(vVwr);
 }
 
 Point DAMonitor::GetAspectRadio()
 {
-    return Mpeg::GetAspectRatio(plyr);
+    return DAspectRatio(vVwr);
 }
 
 void DAMonitor::GetFrame(RefPtr<Gdk::Pixbuf> pix, int frame_pos)
 {
-    ::GetFrame(pix, GetFrameTime(plyr, frame_pos), plyr);
+    ::GetFrame(pix, FrameTime(vVwr, frame_pos), vVwr);
     // :TODO: все равно дизайн для монитора нужен!
-    //if( !TryGetFrame(pix, GetFrameTime(plyr, frame_pos), plyr) )
+    //if( !TryGetFrame(pix, FrameTime(plyr, frame_pos), plyr) )
     //    if( pix )
     //    {
     //        if( plyr.IsOpened() )

@@ -201,8 +201,7 @@ void  VUpdate(Point sz);
 void PackTrackLayout(Gtk::Container& contr, TrackLayout& layout);
 
 void CloseTrackLayout(TrackLayout& layout);
-typedef boost::function<void(TrackLayout& layout)> TLFunctor;
-bool OpenTrackLayout(TrackLayout& layout, Project::VideoItem vd, TLFunctor on_open_fnr);
+bool OpenTrackLayout(TrackLayout& layout, Project::VideoItem vd, std::string& err);
 
 namespace Timeline 
 {
@@ -235,12 +234,6 @@ inline long TimeToFrames(int hh, int mm, int ss, int ff, double fps)
     if( !TimeToFrames(pos, hh, mm, ss, ff, fps) )
         pos = -1;
     return pos;
-}
-
-// длина медиа в кадрах
-inline double GetFramesLength(Mpeg::Player& plyr)
-{
-    return Mpeg::GetMediaSize(plyr) * Mpeg::GetFrameFPS(plyr);
 }
 
 } // namespace TimeLine

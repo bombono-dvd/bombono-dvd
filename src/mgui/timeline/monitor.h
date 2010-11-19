@@ -22,7 +22,8 @@
 #ifndef __MGUI_TIMELINE_MONITOR_H__
 #define __MGUI_TIMELINE_MONITOR_H__
 
-#include <mdemux/player.h>
+//#include <mdemux/player.h>
+#include <mgui/ffviewer.h>
 #include <mgui/img_utils.h>
 
 namespace Timeline
@@ -40,13 +41,13 @@ class Monitor
                           curPos = new_pos;
                           OnSetPos();
                       }
-        Mpeg::Player& GetPlayer() { return plyr; }
+         VideoViewer& GetViewer() { return vVwr; }
                       // заполним буфер контентом позиции frame_pos
     virtual     void  GetFrame(RefPtr<Gdk::Pixbuf> pix, int frame_pos) = 0;
 
     protected:
 
-        Mpeg::FwdPlayer  plyr;
+            VideoViewer  vVwr;
                     int  curPos; // текущее положение указателя
 
                       // обновление позиции монитора

@@ -302,7 +302,8 @@ static void OpenFileWithTrackLayout(TrackLayout& trk, const char* fnam)
     VideoItem vd(new VideoMD);
     vd->MakeByPath(fnam);
 
-    if( OpenTrackLayout(trk, vd, TLFunctor()) )
+    std::string err_str;
+    if( OpenTrackLayout(trk, vd, err_str) )
     {
         win.set_title(Glib::filename_to_utf8(Glib::path_get_basename(fnam)));
         GrabFocus(trk);
@@ -310,7 +311,7 @@ static void OpenFileWithTrackLayout(TrackLayout& trk, const char* fnam)
     else
     {
         win.set_title("MViewer");
-        const char* err_str = trk.GetMonitor().GetPlayer().MInfo().ErrorReason();
+        //const char* err_str = trk.GetMonitor().GetViewer().MInfo().ErrorReason();
 
         Gtk::MessageDialog mdlg(win, err_str, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, true);
         mdlg.run();

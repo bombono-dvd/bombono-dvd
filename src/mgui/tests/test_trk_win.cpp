@@ -99,10 +99,10 @@ TestMonitor::TestMonitor()
     //ASSERT( plyr.Open("/opt/src/Video/MonaLisa/ml_02_6.vob") );
     //ASSERT( plyr.Open("/opt/src/Video/Billiard/vts_01_1.vob") );
     std::string fname = "/opt/src/Video/elephantsdream.mpg";
-    CheckOpen(plyr, fname);
+    CheckOpen(vVwr, fname);
 
     CurrVideo->MakeByPath(fname);
-    double fps = Mpeg::GetFrameFPS(plyr);
+    double fps = FrameFPS(vVwr);
 
     curPos = TimeToFrames(0, 5, 1, 16, fps); // 5 мин. 1 с 16-й кадр
     PushBackDVDMark(TimeToFrames(0, 0, 59, 21, fps));
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( TestTrackLayout )
 
 BOOST_AUTO_TEST_CASE( TestTLMonitor )
 {
-    return;
+    //return;
     InitGtkmm();
 
     RunMViewer();

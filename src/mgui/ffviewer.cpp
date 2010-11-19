@@ -2,37 +2,129 @@
 #include <mgui/_pc_.h>
 
 #include "ffviewer.h"
-#include "mguiconst.h"
 #include "img_utils.h"
+#include "render/common.h" // FillEmpty()
 
-#include <mdemux/demuxconst.h> // IsTSValid()
+static AVStream* VideoStream(FFViewer& ffv)
+{
+    return ffv.iCtx->streams[ffv.videoIdx];
+}
+
+static AVCodecContext* GetVideoCtx(FFViewer& ffv)
+{
+    return VideoStream(ffv)->codec;
+}
+
+Point DAspectRatio(VideoViewer& ffv)
+{
+    if( !ffv.IsOpened() )
+        return Point(4, 3);
+
+    // по примеру ffplay
+    AVRational sample_r = VideoStream(ffv)->sample_aspect_ratio;
+    if( !sample_r.num )
+        sample_r = GetVideoCtx(ffv)->sample_aspect_ratio;
+    if( !sample_r.num || !sample_r.den )
+    {
+        sample_r.num = 1;
+        sample_r.den = 1;
+    }
+
+    Point res(sample_r.num*ffv.vidSz.x, sample_r.den*ffv.vidSz.y);
+    ReducePair(res);
+    return res;
+}
+
+double FrameFPS(FFViewer& ffv)
+{
+    double res = Mpeg::PAL_SECAM_FRAME_FPS;
+    if( ffv.IsOpened() )
+        // хоть и пишется, что r_frame_rate "just a guess", но
+        // все применяют его (mplayer, ffmpeg.c)
+        res = av_q2d(VideoStream(ffv)->r_frame_rate);
+    return res; 
+}
+
+static double AVTime2Sec(int64_t val)
+{
+    ASSERT( val != (int64_t)AV_NOPTS_VALUE );
+    return val / (double)AV_TIME_BASE;
+}
+
+static double Duration(AVFormatContext* ic)
+{
+    return AVTime2Sec(ic->duration);
+}
+
+static double StartTime(AVFormatContext* ic)
+{
+    return AVTime2Sec(ic->start_time);
+}
 
 // :REFACTOR: убрать копипаст в 
 // 1 test_ffmpeg.cpp
-// 2 здесь
+// +2 здесь
+// 3 общее API с Mpeg::Player
 
-struct FFViewer
+void CheckOpen(VideoViewer& vwr, const std::string& fname)
 {
-    AVFormatContext* iCtx;
-                int  videoIdx;
-                     // время текущего кадра
-             double  curPTS;
+    bool is_open = vwr.Open(fname.c_str());
+    ASSERT_OR_UNUSED( is_open );
+}
 
-            AVFrame  srcFrame;
-            AVFrame  rgbFrame;
-            uint8_t* rgbBuf;
-         SwsContext* rgbCnvCtx;
-              Point  vidSz; // лучше бы с rgbCnvCtx брать, но
-                            // не дают
+void RGBOpen(VideoViewer& vwr, const std::string& fname)
+{
+    //SetOutputFormat(plyr, fofRGB);
+    if( !fname.empty() )
+        CheckOpen(vwr, fname);
+}
 
+double FrameTime(VideoViewer& ffv, int fram_pos)
+{
+    return fram_pos / FrameFPS(ffv);
+}
 
-                    FFViewer();
-                   ~FFViewer();
+RefPtr<Gdk::Pixbuf> GetRawFrame(double time, FFViewer& ffv);
 
-              bool  Open(const char* fname);
-              bool  IsOpened();
-              void  Close();
-};
+bool TryGetFrame(RefPtr<Gdk::Pixbuf>& pix, double time, FFViewer& ffv)
+{
+    bool res = false;
+    RefPtr<Gdk::Pixbuf> img_pix = GetRawFrame(time, ffv);
+    if( img_pix )
+    {
+        res = true;
+        // заполняем кадр
+        if( pix )
+            //RGBA::Scale(pix, img_pix);
+            RGBA::CopyOrScale(pix, img_pix);
+        else
+            pix = img_pix->copy();
+    }
+    return res;
+}
+
+RefPtr<Gdk::Pixbuf> GetFrame(RefPtr<Gdk::Pixbuf>& pix, double time, FFViewer& ffv)
+{
+    if( !TryGetFrame(pix, time, ffv) )
+        FillEmpty(pix);
+    return pix;
+}
+
+double Duration(FFViewer& ffv)
+{
+    double res = 0.;
+    if( ffv.IsOpened() )
+        res = Duration(ffv.iCtx);
+    return res;
+}
+
+// длина медиа в кадрах
+double FramesLength(FFViewer& ffv)
+{
+    return Duration(ffv) * FrameFPS(ffv);
+}
+
+// FFViewer
 
 FFViewer::FFViewer(): iCtx(0), videoIdx(-1), curPTS(INV_TS),
     rgbBuf(0), rgbCnvCtx(0)
@@ -47,16 +139,6 @@ FFViewer::~FFViewer()
 bool FFViewer::IsOpened()
 {
     return iCtx != 0;
-}
-
-static AVStream* VideoStream(FFViewer& ffv)
-{
-    return ffv.iCtx->streams[ffv.videoIdx];
-}
-
-static AVCodecContext* GetVideoCtx(FFViewer& ffv)
-{
-    return VideoStream(ffv)->codec;
 }
 
 void FFViewer::Close()
@@ -97,25 +179,9 @@ Point VideoSize(AVCodecContext* dec)
     return Point(dec->width, dec->height);
 }
 
-static double AVTime2Sec(int64_t val)
+bool FFViewer::Open(const char* fname, std::string& /*err_str*/)
 {
-    ASSERT( val != (int64_t)AV_NOPTS_VALUE );
-    return val / (double)AV_TIME_BASE;
-}
-
-static double Duration(AVFormatContext* ic)
-{
-    return AVTime2Sec(ic->duration);
-}
-
-static double StartTime(AVFormatContext* ic)
-{
-    return AVTime2Sec(ic->start_time);
-}
-
-bool FFViewer::Open(const char* fname)
-{
-    bool result = true;
+    bool res = true;
 
     av_register_all();
     // * закрываем открытое ранее
@@ -133,9 +199,9 @@ bool FFViewer::Open(const char* fname)
     int buf_size = 0;
 
     AVFormatContext* ic = 0;
-    int res = av_open_input_file(&ic, fname, file_iformat, buf_size, ap);
+    int av_res = av_open_input_file(&ic, fname, file_iformat, buf_size, ap);
     // :TODO: обработка ошибок открытия файла
-    ASSERT_RTL( !res );
+    ASSERT_RTL( !av_res );
     //
     // * файл открыт
     //
@@ -179,8 +245,8 @@ bool FFViewer::Open(const char* fname)
     AVCodec* codec = avcodec_find_decoder(dec->codec_id);
     ASSERT( codec );
 
-    res = avcodec_open(dec, codec);
-    ASSERT( !res );
+    av_res = avcodec_open(dec, codec);
+    ASSERT( !av_res );
     //
     // * декодер настроен
     //
@@ -210,17 +276,16 @@ bool FFViewer::Open(const char* fname)
     avcodec_get_frame_defaults(&rgbFrame); // не помешает
     avpicture_fill((AVPicture*)&rgbFrame, rgbBuf, dst_pf, dst_sz.x, dst_sz.y);
 
-    if( !result )
+    if( !res )
         // защита от неполных открытий
         Close();
-    return result;
+    return res;
 }
 
-double FrameFPS(FFViewer& ffv)
+bool FFViewer::Open(const char* fname)
 {
-    // хоть и пишется, что r_frame_rate "just a guess", но
-    // все применяют его (mplayer, ffmpeg.c)
-    return av_q2d(VideoStream(ffv)->r_frame_rate);
+    std::string err;
+    return Open(fname, err);
 }
 
 static double TS2Time(int64_t ts, FFViewer& ffv)
@@ -299,7 +364,10 @@ static bool DecodeTill(FFViewer& ffv, double time, bool can_seek)
     ASSERT( IsTSValid(cur_pts) );
 
     const double MIN_WIN_DELTA = -1.; // в кадрах
-    const double MAX_WIN_DELTA = 6.;
+    const double MAX_WIN_DELTA = 100.; // 12.;
+    // используем вместо нуля из-за погрешности преобразований
+    // AV_TIME_BASE(int64_t) <-> секунды(double)
+    const double NULL_DELTA    = 0.0001;
 
     bool res = false;
     // * проверка диапазона
@@ -308,9 +376,17 @@ static bool DecodeTill(FFViewer& ffv, double time, bool can_seek)
     {
         if( can_seek )
             res = SeekSetTime(ffv, time);
+        else
+        {
+            // :TEMP:
+            if( delta < 0 )
+                io::cout << "delta: " << delta << io::endl;
+        }
     }
-    else if( delta <= 0 )
-        res = true; // считаем что не поздно
+    else if( delta <= NULL_DELTA )
+        // считаем, что кадр с такой отрицательной разницей и
+        // есть результат
+        res = true;
     else // if( delta < MAX_WIN_DELTA )
     {
         // допустимая разница, доводим
@@ -354,11 +430,15 @@ static bool SeekSetTime(FFViewer& ffv, double time)
 
     // * перемещение
     int flags = AVSEEK_FLAG_BACKWARD; // чтоб раньше времени пришли
-    ASSERT( ic->start_time != (int64_t)AV_NOPTS_VALUE );
-    int64_t start_ts = AV_TIME_BASE * time + ic->start_time;
+    // берем с запасом, для плохих AVI
+    double seek_time = time; // std::max(StartTime(ic), time-1);
+
+    int64_t start_ts = AV_TIME_BASE * seek_time;
     // вполне подойдет поиск по умолчальному потоку (все равно видео выберут)
     int av_res = av_seek_frame(ic, -1, start_ts, flags);
     ASSERT_RTL( !av_res );
+    // сбрасываем буфера декодеров (отдельно от seek)
+    avcodec_flush_buffers(GetVideoCtx(ffv));
 
     // * до первого кадра с PTS
     while( !IsTSValid(cur_pts) )
@@ -389,10 +469,7 @@ RefPtr<Gdk::Pixbuf> GetRawFrame(double time, FFViewer& ffv)
 {
     RefPtr<Gdk::Pixbuf> res_pix;
     if( ffv.IsOpened() && SetTime(ffv, time) )
-    {
-        Point sz();
         res_pix = CreateFromData(ffv.rgbFrame.data[0], ffv.vidSz, false);
-    }
     return res_pix;
 }
 

@@ -38,6 +38,110 @@ double TS2Time(int64_t ts, AVFormatContext* ic, int stream_idx)
     return tm;
 }
 
+void Seek(AVFormatContext* ic, double time)
+{
+    int flags = AVSEEK_FLAG_BACKWARD; // чтоб раньше времени пришли
+    ASSERT( ic->start_time != (int64_t)AV_NOPTS_VALUE );
+    int64_t start_ts = AV_TIME_BASE * time + ic->start_time;
+
+    io::cout << "seek: " << start_ts << io::endl;
+
+    // вполне подойдет поиск по умолчальному потоку (все равно видео выберут)
+    int res = av_seek_frame(ic, -1, start_ts, flags);
+    ASSERT_RTL( !res );
+}
+
+void Decode(AVFormatContext* ic, int video_idx, double time)
+{
+    Seek(ic, time);
+    // время текущего кадра
+    double cur_pts = INV_TS;
+    AVCodecContext* dec = ic->streams[video_idx]->codec;
+
+    int idx = 0;
+    while( true )
+    {
+        AVFrame picture;
+        AVPacket pkt;
+        int got_picture;
+
+        // предположительное время начала следующего кадра (если не будет явно 
+        // установлено) - расчет до следующего av_read_frame()
+        double next_pts = cur_pts;
+        if( IsTSValid(next_pts) )
+        {
+            // судя по всему, код ffplay(.c) устарел - длительность кадра вычисляется по 
+            // frame->repeat_pict, который всегда ноль;
+            // а вот ffmpeg делает хитрее, через "parser" (аналог моего Mpeg::Decoder'а),-
+            // тот repeat_pict заполняет правильно, и с учетом dec->time_base
+            // (1 + 1|2|3|5] = 2|3|4|6 полутактов для MPEG2)
+            AVStream* st = ic->streams[video_idx];
+            int ticks    = st->parser ? st->parser->repeat_pict + 1 : dec->ticks_per_frame ;
+            next_pts    += av_q2d(dec->time_base) * ticks;
+        }
+
+        int res = av_read_frame(ic, &pkt);
+        ASSERT( res >= 0 );
+
+        // только одно видео фильтруем
+        ASSERT_RTL( pkt.stream_index == video_idx );
+
+        dec->reordered_opaque = pkt.pts;
+
+        avcodec_get_frame_defaults(&picture);
+        res = avcodec_decode_video(dec, &picture, &got_picture, pkt.data, pkt.size);
+        ASSERT_RTL( res >= 0 );
+
+        av_free_packet(&pkt);
+        if( got_picture )
+        {
+            // * PTS текущего кадра
+            // Варианты вычисления pts:
+            // - mplayer: только по pkt.pts с переупорядочиваем
+            // - ffplay:  pkt.dts + довычисление
+            // - mlt:     только pkt.dts
+            // => делаем как mplayer + доводка как у ffmpeg
+            int64_t ff_pts = picture.reordered_opaque;
+            //if( ff_pts == AV_NOPTS_VALUE )
+            //    ff_pts = pkt->dts;
+            cur_pts = TS2Time(ff_pts, ic, video_idx);
+            if( !IsTSValid(cur_pts) )
+                cur_pts = next_pts;
+
+            //// * перевод в RGB
+            //// не допускаем смены разрешения
+            //ASSERT_RTL( VideoSize(dec) == sz );
+            //// не очень понятно как пользовать аргументы 4, 5
+            //sws_scale(rgb_convert_ctx, picture.data, picture.linesize,
+            //          0,  sz.y, rgb_frame.data, rgb_frame.linesize);
+            //uint8_t* buf = rgb_frame.data[0];
+            //uint8_t* ptr = buf;
+            //uint8_t tmp;
+            //for( int y=0; y<dst_sz.y; y++ )
+            //    for( int x=0; x<dst_sz.x; x++, ptr += 3 )
+            //    {
+            //        // b <-> r
+            //        tmp = ptr[0];
+            //        ptr[0] = ptr[2];
+            //        ptr[2] = tmp;
+            //    }
+
+            io::cout << "real pts: " << cur_pts << "; pts: " << TS2Time(pkt.pts, ic, video_idx)
+                     << "; dts: " << TS2Time(pkt.dts, ic, video_idx) << io::endl;
+            if( IsTSValid(cur_pts) )
+                ASSERT( fabs(cur_pts - TS2Time(pkt.dts, ic, video_idx)) < 0.001 );
+
+            //void ShowRGB24(int width, int height, uint8_t* buf);
+            //ShowRGB24(dst_sz.x, dst_sz.y, buf);
+
+            // :TEMP:
+            //break;
+            if( idx++ >= 5 )
+                break;
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE( TestFFmpegOpen )
 {
     const char* fname = "/home/ilya/opt/programming/atom-project/Autumn.mpg";
@@ -126,101 +230,19 @@ BOOST_AUTO_TEST_CASE( TestFFmpegOpen )
     uint8_t* rgb_buf = (uint8_t*)av_malloc(avpicture_get_size(dst_pf, dst_sz.x, dst_sz.y) * sizeof(uint8_t));
     avpicture_fill((AVPicture*)&rgb_frame, rgb_buf, dst_pf, dst_sz.x, dst_sz.y);
 
-    // время текущего кадра
-    double cur_pts = INV_TS;
-
-    // перемещение
-    double start = 5.9; // секунд
-    int flags = AVSEEK_FLAG_BACKWARD; // чтоб раньше времени пришли
-    ASSERT( ic->start_time != (int64_t)AV_NOPTS_VALUE );
-    int64_t start_ts = AV_TIME_BASE * start + ic->start_time;
-    // вполне подойдет поиск по умолчальному потоку (все равно видео выберут)
-    res = av_seek_frame(ic, -1, start_ts, flags);
-    ASSERT_RTL( !res );
+    //// перемещение
+    //double start = 20.0; // секунд
+    //int flags = AVSEEK_FLAG_BACKWARD; // чтоб раньше времени пришли
+    //ASSERT( ic->start_time != (int64_t)AV_NOPTS_VALUE );
+    //int64_t start_ts = AV_TIME_BASE * start + ic->start_time;
+    //// вполне подойдет поиск по умолчальному потоку (все равно видео выберут)
+    //res = av_seek_frame(ic, -1, start_ts, flags);
+    //ASSERT_RTL( !res );
+    Decode(ic, video_idx, 0.);
+    Decode(ic, video_idx, 9.8);
+    Decode(ic, video_idx, 20);
 
     //AVFrame* frame = avcodec_alloc_frame();
-    while( true )
-    {
-        AVFrame picture;
-        AVPacket pkt;
-        int got_picture;
-
-        // предположительное время начала следующего кадра (если не будет явно 
-        // установлено) - расчет до следующего av_read_frame()
-        double next_pts = cur_pts;
-        if( IsTSValid(next_pts) )
-        {
-            // судя по всему, код ffplay(.c) устарел - длительность кадра вычисляется по 
-            // frame->repeat_pict, который всегда ноль;
-            // а вот ffmpeg делает хитрее, через "parser" (аналог моего Mpeg::Decoder'а),-
-            // тот repeat_pict заполняет правильно, и с учетом dec->time_base
-            // (1 + 1|2|3|5] = 2|3|4|6 полутактов для MPEG2)
-            AVStream* st = ic->streams[video_idx];
-            int ticks    = st->parser ? st->parser->repeat_pict + 1 : dec->ticks_per_frame ;
-            next_pts    += av_q2d(dec->time_base) * ticks;
-        }
-
-        res = av_read_frame(ic, &pkt);
-        ASSERT( res >= 0 );
-
-        // только одно видео фильтруем
-        ASSERT_RTL( pkt.stream_index == video_idx );
-
-        dec->reordered_opaque = pkt.pts;
-
-        avcodec_get_frame_defaults(&picture);
-        res = avcodec_decode_video(dec, &picture, &got_picture, pkt.data, pkt.size);
-        ASSERT_RTL( res >= 0 );
-
-        av_free_packet(&pkt);
-        if( got_picture )
-        {
-            // * PTS текущего кадра
-            // Варианты вычисления pts:
-            // - mplayer: только по pkt.pts с переупорядочиваем
-            // - ffplay:  pkt.dts + довычисление
-            // - mlt:     только pkt.dts
-            // => делаем как mplayer + доводка как у ffmpeg
-            int64_t ff_pts = picture.reordered_opaque;
-            //if( ff_pts == AV_NOPTS_VALUE )
-            //    ff_pts = pkt->dts;
-            cur_pts = TS2Time(ff_pts, ic, video_idx);
-            if( !IsTSValid(cur_pts) )
-                cur_pts = next_pts;
-
-            // * перевод в RGB
-            // не допускаем смены разрешения
-            ASSERT_RTL( VideoSize(dec) == sz );
-            // не очень понятно как пользовать аргументы 4, 5
-            sws_scale(rgb_convert_ctx, picture.data, picture.linesize,
-                      0,  sz.y, rgb_frame.data, rgb_frame.linesize);
-            uint8_t* buf = rgb_frame.data[0];
-            uint8_t* ptr = buf;
-            uint8_t tmp;
-            for( int y=0; y<dst_sz.y; y++ )
-                for( int x=0; x<dst_sz.x; x++, ptr += 3 )
-                {
-                    // b <-> r
-                    tmp = ptr[0];
-                    ptr[0] = ptr[2];
-                    ptr[2] = tmp;
-                }
-
-            io::cout << "real pts: " << cur_pts << "; pts: " << TS2Time(pkt.pts, ic, video_idx)
-                     << "; dts: " << TS2Time(pkt.dts, ic, video_idx) << io::endl;
-            if( IsTSValid(cur_pts) )
-                ASSERT( fabs(cur_pts - TS2Time(pkt.dts, ic, video_idx)) < 0.001 );
-
-            void ShowRGB24(int width, int height, uint8_t* buf);
-            ShowRGB24(dst_sz.x, dst_sz.y, buf);
-
-            // :TEMP:
-            //break;
-            static int idx = 0;
-            if( idx++ >= 5 )
-                break;
-        }
-    }
     //av_free(frame);
 
     av_free(rgb_buf);

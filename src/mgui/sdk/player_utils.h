@@ -23,7 +23,6 @@
 #define __MGUI_SDK_PLAYER_H__
 
 #include <mdemux/player.h>
-#include <mdemux/decoder.h>
 #include <mgui/img_utils.h>
 
 // установить до первого применения
@@ -39,6 +38,12 @@ bool TryGetFrame(RefPtr<Gdk::Pixbuf>& pix, double time, Mpeg::FwdPlayer& plyr);
 inline double GetFrameTime(Mpeg::Player& plyr, int fram_pos)
 {
     return plyr.MInfo().FrameTime(fram_pos, false);
+}
+
+// длина медиа в кадрах
+inline double GetFramesLength(Mpeg::Player& plyr)
+{
+    return Mpeg::GetMediaSize(plyr) * Mpeg::GetFrameFPS(plyr);
 }
 
 #endif // #ifndef __MGUI_SDK_PLAYER_H__

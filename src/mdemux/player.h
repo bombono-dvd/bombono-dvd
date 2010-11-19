@@ -22,11 +22,11 @@
 #ifndef __MDEMUX_PLAYER_H__
 #define __MDEMUX_PLAYER_H__
 
-#include <mlib/patterns.h>
-#include <mlib/function.h>
-
 #include "videoline.h"
 #include "seek.h"
+
+#include <mlib/patterns.h>
+#include <mlib/function.h>
 
 namespace Mpeg
 {
@@ -119,9 +119,6 @@ PlanesType& DoCurrentItem() { dat = Data(); return dat; }
 //
 // Cтандартные данные
 // 
-
-const double PAL_SECAM_FRAME_FPS  = 25.0;           // PAL/SECAM FILM
-const double NTSC_VIDEO_FRAME_FPS = 30000.0/1001.0; // NTSC VIDEO
 
 inline double GetFrameFPS(Player& plyr)
 {
