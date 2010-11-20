@@ -207,19 +207,25 @@ bool FFViewer::Open(const char* fname, std::string& /*err_str*/)
     //
     iCtx = ic;
 
-    int err = av_find_stream_info(ic);
+    av_res = av_find_stream_info(ic);
     //if (err < 0) {
     //    fprintf(stderr, "%s: could not find codec parameters\n", is->filename);
     //    ret = -1;
     //    goto fail;
     //}
-    ASSERT_RTL( err >= 0 );
+    ASSERT_RTL( av_res >= 0 );
 
     DumpIFile(ic);
-    ASSERT_RTL( ic->duration   != (int64_t)AV_NOPTS_VALUE );
-    // начальное время не сущ. в редких случаях - оно устанавливается
-    // явно (avi) либо через минимум по элементарным потокам (mpeg-подобные)
+
+    ASSERT_RTL( ic->duration != (int64_t)AV_NOPTS_VALUE );
+    // начальное время определяется явно (avi) либо через минимум по элементарным потокам (mpeg-подобные);
+    // установка нач.времени для отдельного потока проходит в update_initial_timestamps() и потому
+    // может быть неопределена даже при определенной длине (которая может высчитываться по битрейту!); 
+    // это значит, что пакеты (access units) идут без pts/dts => контент (с большой вероятностью) не
+    // проиндексирован и av_seek_frame() будет линейным, пример - элементарные потоки
     ASSERT_RTL( ic->start_time != (int64_t)AV_NOPTS_VALUE );
+    //av_res = av_seek_frame(ic, -1, AV_TIME_BASE * Duration(ic)/2, AVSEEK_FLAG_BACKWARD);
+    //ASSERT_RTL( !av_res );
 
     // в секундах
     double dur = Duration(ic);
@@ -288,10 +294,43 @@ bool FFViewer::Open(const char* fname)
     return Open(fname, err);
 }
 
+// :REFACTOR:
+bool IsFTSValid(int64_t ts)
+{
+    return ts != (int64_t)AV_NOPTS_VALUE;
+}
+
+// предположительное время начала следующего кадра (если не будет явно 
+// установлено) - расчет до следующего av_read_frame()
+double NextTS(double cur_ts, FFViewer& ffv)
+{
+    double next_ts = cur_ts;
+    if( IsTSValid(cur_ts) )
+    {
+        // судя по всему, код ffplay(.c) устарел - длительность кадра вычисляется по 
+        // frame->repeat_pict, который всегда ноль;
+        // а вот ffmpeg делает хитрее, через "parser" (аналог моего Mpeg::Decoder'а),-
+        // тот repeat_pict заполняет правильно, и с учетом dec->time_base
+        // (1 + 1|2|3|5] = 2|3|4|6 полутактов для MPEG2)
+        AVStream* st = VideoStream(ffv);
+        AVCodecContext* dec = st->codec;
+        int ticks  = st->parser ? st->parser->repeat_pict + 1 : dec->ticks_per_frame ;
+        next_ts   += av_q2d(dec->time_base) * ticks;
+    }
+    return next_ts;
+}
+
+void UpdateTS(double& cur_ts, double stream_ts, double next_ts)
+{
+    cur_ts = stream_ts;
+    if( !IsTSValid(cur_ts) )
+        cur_ts = next_ts;
+}
+
 static double TS2Time(int64_t ts, FFViewer& ffv)
 {
     double tm = INV_TS;
-    if( ts != (int64_t)AV_NOPTS_VALUE )
+    if( IsFTSValid(ts) )
         tm = ts * av_q2d(VideoStream(ffv)->time_base);
     return tm;
 }
@@ -353,44 +392,125 @@ static void DoDecode(FFViewer& ffv)
         //         << "; dts: " << cur_dts << io::endl;
         //if( IsTSValid(cur_pts) )
         //    ASSERT( fabs(cur_pts - cur_dts) < 0.001 );
+
+        //// :TRICKY: в режиме "спешки" декодер возвращает не все кадры (кроме того, что
+        //// не все декодирует), потому cur_pts будет "на автомате" (next_pts) неадекватно
+        //// медленней; так как dts текущего пакета практически всегда должен быть не более
+        //// pts последней полностью готовой картинки, то поправляем последний
+        //double cur_dts = TS2Time(pkt.dts, ffv);
+        //if( IsTSValid(cur_pts) && IsTSValid(cur_dts) )
+        //    cur_pts = std::max(cur_pts, cur_dts);
+
+        //// :TEMP:
+        //if( IsTSValid(cur_dts) )
+        //    cur_pts = IsTSValid(cur_pts) ? std::max(cur_pts, cur_dts) : cur_dts ;
     }
 }
 
 static bool SeekSetTime(FFViewer& ffv, double time);
+
+// :REFACTOR:
+double Delta(double time, double ts, FFViewer& ffv)
+{
+    return (time - ts) * FrameFPS(ffv);
+}
+
+bool IsDeltaGE(double value, double time, double ts, FFViewer& ffv)
+{
+    return !IsTSValid(ts) || (Delta(time, ts, ffv) >= value);
+}
+
+// режим пропуска кадров
+bool IsNeedForHurryUp(double time, double ts, FFViewer& ffv)
+{
+    return IsDeltaGE(4, time, ts, ffv);
+}
+
+const double NEG_WIN_DELTA = -1.; // в кадрах
+const double MAX_WIN_DELTA = 300.; // 12.;
+// используем вместо нуля из-за погрешности преобразований
+// AV_TIME_BASE(int64_t) <-> секунды(double)
+const double NULL_DELTA    = 0.0001;
+
+static bool IsFrameFound(double delta)
+{
+    return delta <= NULL_DELTA;
+}
 
 static bool DecodeTill(FFViewer& ffv, double time, bool can_seek)
 {
     double& cur_pts = ffv.curPTS;
     ASSERT( IsTSValid(cur_pts) );
 
-    const double MIN_WIN_DELTA = -1.; // в кадрах
-    const double MAX_WIN_DELTA = 100.; // 12.;
-    // используем вместо нуля из-за погрешности преобразований
-    // AV_TIME_BASE(int64_t) <-> секунды(double)
-    const double NULL_DELTA    = 0.0001;
-
     bool res = false;
     // * проверка диапазона
-    double delta = (time - cur_pts) * FrameFPS(ffv);
-    if( (delta < MIN_WIN_DELTA) || (delta > MAX_WIN_DELTA) )
+    double delta = Delta(time, cur_pts, ffv);
+    if( (delta < NEG_WIN_DELTA) || (delta > MAX_WIN_DELTA) )
     {
         if( can_seek )
             res = SeekSetTime(ffv, time);
         else
         {
-            // :TEMP:
             if( delta < 0 )
-                io::cout << "delta: " << delta << io::endl;
+                res = true;
+
+            // :TEMP:
+            //if( delta < 0 )
+            //    io::cout << "delta: " << delta << io::endl;
+            io::cout << "Seek delta overflow: " << delta << io::endl;
         }
     }
-    else if( delta <= NULL_DELTA )
+    else if( IsFrameFound(delta) )
         // считаем, что кадр с такой отрицательной разницей и
         // есть результат
         res = true;
     else // if( delta < MAX_WIN_DELTA )
     {
         // допустимая разница, доводим
-        while( cur_pts < time )
+
+        //if( IsDeltaOver(3, time, cur_pts, ffv) )
+        //{
+        //    cur_pts   = INV_TS;
+        //
+        //    // :REFACTOR:
+        //    AVFrame& picture = ffv.srcFrame;
+        //    AVPacket pkt;
+        //    int got_picture;
+        //    double ts = INV_TS;
+        //    while( IsDeltaOver(3, time, ts, ffv) )
+        //    {
+        //        double next_ts = NextTS(ts, ffv);
+        //
+        //        int av_res = av_read_frame(ffv.iCtx, &pkt);
+        //        ASSERT( av_res >= 0 );
+        //
+        //        // только одно видео фильтруем
+        //        ASSERT_RTL( pkt.stream_index == ffv.videoIdx );
+        //
+        //        UpdateTS(ts, TS2Time(IsFTSValid(pkt.dts) ? pkt.dts : pkt.pts, ffv), next_ts);
+        //
+        //        avcodec_get_frame_defaults(&picture); // ffmpeg.c очищает каждый раз
+        //        av_res = avcodec_decode_video(GetVideoCtx(ffv), &picture, &got_picture, pkt.data, pkt.size);
+        //        ASSERT_RTL( av_res >= 0 );
+        //
+        //        av_free_packet(&pkt);
+        //    }
+        //}
+
+        //AVCodecContext* dec = GetVideoCtx(ffv);
+        //// режим пропуска кадров
+        //dec->hurry_up = 1; // 5;
+        //dec->skip_frame = AVDISCARD_BIDIR; // AVDISCARD_ALL;
+        //dec->skip_loop_filter = AVDISCARD_BIDIR; // AVDISCARD_ALL;
+        //dec->skip_idct = AVDISCARD_BIDIR; // AVDISCARD_ALL;
+        //while( IsDeltaOver(20, time, cur_pts, ffv) )
+        //    DoDecode(ffv);
+        //dec->hurry_up = 0;
+        //dec->skip_frame = AVDISCARD_DEFAULT;
+        //dec->skip_loop_filter = AVDISCARD_DEFAULT;
+        //dec->skip_idct = AVDISCARD_DEFAULT;
+
+        while( !IsFrameFound(Delta(time, cur_pts, ffv)) ) // while( IsDeltaOver(0, time, cur_pts, ffv) )
             DoDecode(ffv);
         res = true;
     }
@@ -420,22 +540,18 @@ static bool DecodeTill(FFViewer& ffv, double time, bool can_seek)
     return res;
 }
 
-static bool SeekSetTime(FFViewer& ffv, double time)
+static void DoSeek(FFViewer& ffv, int64_t ts, bool is_byte_seek)
 {
-    AVFormatContext* ic = ffv.iCtx;
-    double& cur_pts     = ffv.curPTS;
-
+    double& cur_pts = ffv.curPTS;
     // * обнуляем
     cur_pts = INV_TS;
 
     // * перемещение
-    int flags = AVSEEK_FLAG_BACKWARD; // чтоб раньше времени пришли
-    // берем с запасом, для плохих AVI
-    double seek_time = time; // std::max(StartTime(ic), time-1);
+    int flags = is_byte_seek ? AVSEEK_FLAG_BYTE
+        : AVSEEK_FLAG_BACKWARD; // чтоб раньше времени пришли
 
-    int64_t start_ts = AV_TIME_BASE * seek_time;
     // вполне подойдет поиск по умолчальному потоку (все равно видео выберут)
-    int av_res = av_seek_frame(ic, -1, start_ts, flags);
+    int av_res = av_seek_frame( ffv.iCtx, -1, ts, flags);
     ASSERT_RTL( !av_res );
     // сбрасываем буфера декодеров (отдельно от seek)
     avcodec_flush_buffers(GetVideoCtx(ffv));
@@ -443,6 +559,49 @@ static bool SeekSetTime(FFViewer& ffv, double time)
     // * до первого кадра с PTS
     while( !IsTSValid(cur_pts) )
         DoDecode(ffv);
+}
+
+static void DoTimeSeek(FFViewer& ffv, double seek_time)
+{
+    DoSeek(ffv, AV_TIME_BASE * seek_time, false);
+}
+
+bool TimeSeek(FFViewer& ffv, double seek_time, double time)
+{
+    DoTimeSeek(ffv, seek_time);
+
+    return IsDeltaGE(NEG_WIN_DELTA, time, ffv.curPTS, ffv);
+}
+
+static bool SeekSetTime(FFViewer& ffv, double time)
+{
+    AVFormatContext* ic = ffv.iCtx;
+
+    bool is_begin = false;
+    double start_time = StartTime(ic);
+    for( int i=0; i<4 && !is_begin; i++ )
+    {
+        int n = (1 << i) - 1; // 0, 1, 3, 7
+        double seek_time = time - n;
+
+        if( seek_time <= start_time )
+        {
+            is_begin = true;
+            break;
+        }
+
+        if( TimeSeek(ffv, seek_time, time) )
+            break;
+    }
+
+    if( is_begin )
+    {
+        // переход по позиции для avi сломан - см. ошибки ffmpeg
+        //if( !TimeSeek(ffv, start_time, time) )
+        //    // тогда переходим в начало файла
+        //    DoSeek(ffv, ic->data_offset, true);
+        TimeSeek(ffv, start_time, time);
+    }
 
     return DecodeTill(ffv, time, false);
 }

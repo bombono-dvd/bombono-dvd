@@ -40,7 +40,7 @@
 				Deletable="0"
 				SaveOption="SaveAll"
 				RunFromDir="%rw">
-				<Exec CmdLine="%(SCONS) TEST_BUILD=1 %bdmgui_tests"/>
+				<Exec CmdLine="%(SCONS) TEST_BUILD=1 build/src/mgui/tests/mgui_tests"/>
 			</Target>
 			<Target
 				Name="Rebuild"
@@ -189,6 +189,7 @@
 			Name="Source Files"
 			Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
 			<F N="../src/mgui/tests/clearlooks.cpp"/>
+			<F N="../src/mgui/ffviewer.cpp"/>
 			<F N="../src/mgui/author/render.cpp"/>
 			<F N="../src/mgui/tests/test_author.cpp"/>
 			<F N="../src/mgui/tests/test_burn.cpp"/>
