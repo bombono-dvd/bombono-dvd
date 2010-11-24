@@ -7,7 +7,7 @@
     </DefMenuParams>
   </Globals>
   <Medias>
-    <Media Name="Autumn" Path="../../../Autumn.mpg" Type="Video">
+    <Media Name="Autumn" Path="../../../AV-Samples/Autumn.mpg" Type="Video">
       <Parts>
         <Part Name="Chapter 1">9.7999999999999989</Part>
         <Part Name="Chapter 2">20</Part>
@@ -16,13 +16,13 @@
       </Parts>
       <PostAction Type="0" Ref=""/>
     </Media>
-    <Media Name="transition" Path="../../../transition.mpg" Type="Video">
+    <Media Name="transition" Path="../../../AV-Samples/Transition.mpg" Type="Video">
       <Parts>
         <Part Name="Chapter">6</Part>
       </Parts>
       <PostAction Type="0" Ref=""/>
     </Media>
-    <Media Name="Title" Path="../../../samples/backgrounds/space-01.jpg" Type="StillPicture"/>
+    <Media Name="Title" Path="../../../AV-Samples/Images/backgrounds/space-01.jpg" Type="StillPicture"/>
   </Medias>
   <Menus>
     <Menu Name="Billiard" Color="#f0e000ff" BGRef="Media.0">
