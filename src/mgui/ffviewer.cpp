@@ -141,10 +141,22 @@ bool FFViewer::IsOpened()
     return iCtx != 0;
 }
 
+static void ResetCurPTS(FFViewer& ffv)
+{
+    ffv.curPTS = INV_TS;
+}
+
+static bool IsCurPTS(FFViewer& ffv)
+{
+    return IsTSValid(ffv.curPTS);
+}
+
 void FFViewer::Close()
 {
     if( IsOpened() )
     {
+        ResetCurPTS(*this);
+
         av_free(rgbBuf);
         rgbBuf = 0;
         sws_freeContext(rgbCnvCtx);
@@ -338,40 +350,13 @@ static void DoVideoDecode(FFViewer& ffv, int& got_picture, AVPacket* pkt)
         LOG_WRN << "Error while decoding frame!" << io::endl;
 }
 
-//#include <exception> // std::exception
-class StopDecodeException: public std::exception {};
-
-static void DecodeStop()
-{
-    throw StopDecodeException();
-}
-
-static void ResetCurPTS(FFViewer& ffv)
-{
-    ffv.curPTS = INV_TS;
-}
-
-// в случае, надо прекратить работу и 
-// при этом очередного кадра нет => следующий SetTime()
-// не должен все обрушить
-static void NoPictureStop(FFViewer& ffv)
-{
-    ResetCurPTS(ffv);
-    DecodeStop();
-}
-
-static bool IsCurPTS(FFViewer& ffv)
-{
-    return IsTSValid(ffv.curPTS);
-}
-
-static void DoDecode(FFViewer& ffv)
+static bool DoDecode(FFViewer& ffv)
 {
     double& cur_pts  = ffv.curPTS;
     AVCodecContext* dec = GetVideoCtx(ffv);
 
     AVPacket pkt;
-    int got_picture;
+    int got_picture = 0;
 
     // предположительное время начала следующего кадра (если не будет явно 
     // установлено) - расчет до следующего av_read_frame()
@@ -385,6 +370,7 @@ static void DoDecode(FFViewer& ffv)
         next_pts    += av_q2d(dec->time_base) * ticks;
     }
 
+    bool res = true;
     int av_res = av_read_frame(ffv.iCtx, &pkt);
     if( av_res >= 0 )
     {
@@ -396,48 +382,51 @@ static void DoDecode(FFViewer& ffv)
         DoVideoDecode(ffv, got_picture, &pkt);
         av_free_packet(&pkt);
     }
-    else if( av_res == AVERROR_EOF )
+    else if( av_res == AVERROR_EOF ) // для mpegts также -EIO приходит
     {
         // остатки в декодере забираем
         DoVideoDecode(ffv, got_picture, 0);
 
         if( !got_picture )
             // больше ничего нет, даже того что было
-            NoPictureStop(ffv);
+            res = false;
     }
     else
         // остальные проблемы демиксера
-        NoPictureStop(ffv);
+        res = false;
 
-    if( got_picture )
+    if( res )
     {
-        // * PTS текущего кадра
-        cur_pts = TS2Time(ffv.srcFrame.reordered_opaque, ffv);
-        if( !IsTSValid(cur_pts) )
-            cur_pts = next_pts;
-
-        // pts: граничные случаи
-        double cur_dts = TS2Time(pkt.dts, ffv);
-        if( IsTSValid(cur_dts) )
+        if( got_picture )
         {
+            // * PTS текущего кадра
+            cur_pts = TS2Time(ffv.srcFrame.reordered_opaque, ffv);
             if( !IsTSValid(cur_pts) )
-                // первые кадры для avi-контейнеров (не B-кадры) имеют только dts
-                cur_pts = cur_dts;
-            else if( IsInHurry(dec) )
-                // помимо не декодирования декодер еще и пропускает B-кадры,
-                // а значит можно пропустить pts
-                cur_pts = std::min(cur_pts, cur_dts);
+                cur_pts = next_pts;
+
+            // pts: граничные случаи
+            double cur_dts = TS2Time(pkt.dts, ffv);
+            if( IsTSValid(cur_dts) )
+            {
+                if( !IsTSValid(cur_pts) )
+                    // первые кадры для avi-контейнеров (не B-кадры) имеют только dts
+                    cur_pts = cur_dts;
+                else if( IsInHurry(dec) )
+                    // помимо не декодирования декодер еще и пропускает B-кадры,
+                    // а значит можно пропустить pts
+                    cur_pts = std::min(cur_pts, cur_dts);
+            }
         }
     }
+    else
+        // очередного кадра нет => следующий SetTime()
+        // не должен все обрушить
+        ResetCurPTS(ffv);
+
+    return res;
 }
 
 static bool SeekSetTime(FFViewer& ffv, double time);
-
-double Delta(double time, double ts, FFViewer& ffv)
-{
-    ASSERT( IsTSValid(ts) );
-    return (time - ts) * FrameFPS(ffv);
-}
 
 const double NEG_WIN_DELTA = -1.; // в кадрах
 const double MAX_WIN_DELTA = 300.; // 12.;
@@ -455,14 +444,43 @@ static bool IsFrameLate(double delta)
     return delta < NEG_WIN_DELTA - NULL_DELTA;
 }
 
+static double Delta(double time, double ts, FFViewer& ffv)
+{
+    ASSERT( IsTSValid(ts) );
+    return (time - ts) * FrameFPS(ffv);
+}
+
+static double Delta(double time, FFViewer& ffv)
+{
+    return Delta(time, ffv.curPTS, ffv);
+}
+
+typedef boost::function<bool(FFViewer&)> FFVFunctor;
+
+static bool DecodeLoop(FFViewer& ffv, const FFVFunctor& condition_fnr)
+{
+    bool res = true;
+    while( !condition_fnr(ffv) )
+        if( !DoDecode(ffv) )
+        {
+            res = false;
+            break;
+        }
+    return res;
+}
+
+static bool IsFrameFound(double time, FFViewer& ffv)
+{
+    return IsFrameFound(Delta(time, ffv));
+}
+
 static bool DecodeTill(FFViewer& ffv, double time, bool can_seek)
 {
     ASSERT( IsCurPTS(ffv) );
-    double& cur_pts = ffv.curPTS;
 
     bool res = false;
     // * проверка диапазона
-    double delta = Delta(time, cur_pts, ffv);
+    double delta = Delta(time, ffv);
     if( IsFrameLate(delta) || (delta > MAX_WIN_DELTA) )
     {
         if( can_seek )
@@ -483,35 +501,6 @@ static bool DecodeTill(FFViewer& ffv, double time, bool can_seek)
     {
         // допустимая разница, доводим
 
-        //if( IsDeltaOver(3, time, cur_pts, ffv) )
-        //{
-        //    cur_pts   = INV_TS;
-        //
-        //    // :REFACTOR:
-        //    AVFrame& picture = ffv.srcFrame;
-        //    AVPacket pkt;
-        //    int got_picture;
-        //    double ts = INV_TS;
-        //    while( IsDeltaOver(3, time, ts, ffv) )
-        //    {
-        //        double next_ts = NextTS(ts, ffv);
-        //
-        //        int av_res = av_read_frame(ffv.iCtx, &pkt);
-        //        ASSERT( av_res >= 0 );
-        //
-        //        // только одно видео фильтруем
-        //        ASSERT_RTL( pkt.stream_index == ffv.videoIdx );
-        //
-        //        UpdateTS(ts, TS2Time(IsFTSValid(pkt.dts) ? pkt.dts : pkt.pts, ffv), next_ts);
-        //
-        //        avcodec_get_frame_defaults(&picture); // ffmpeg.c очищает каждый раз
-        //        av_res = avcodec_decode_video(GetVideoCtx(ffv), &picture, &got_picture, pkt.data, pkt.size);
-        //        ASSERT_RTL( av_res >= 0 );
-        //
-        //        av_free_packet(&pkt);
-        //    }
-        //}
-
         //AVCodecContext* dec = GetVideoCtx(ffv);
         //// режим пропуска кадров
         //dec->hurry_up = 1; // 5;
@@ -526,10 +515,7 @@ static bool DecodeTill(FFViewer& ffv, double time, bool can_seek)
         //dec->skip_idct = AVDISCARD_DEFAULT;
 
         LOG_INF << "Decoding delta: " << delta << io::endl;
-
-        while( !IsFrameFound(Delta(time, cur_pts, ffv)) ) // while( IsDeltaOver(0, time, cur_pts, ffv) )
-            DoDecode(ffv);
-        res = true;
+        res = DecodeLoop(ffv, bb::bind(&IsFrameFound, time, _1));
     }
 
     if( res )
@@ -539,8 +525,14 @@ static bool DecodeTill(FFViewer& ffv, double time, bool can_seek)
 
         // * перевод в RGB
         Point sz(ffv.vidSz);
-        // не допускаем смены разрешения
-        ASSERT_RTL( VideoSize(GetVideoCtx(ffv)) == sz );
+        // не допускаем смены разрешения в меньшую сторону, чтобы
+        // не вылететь при скалировании; вообще задумано, что разрешение
+        // не меняется
+        // :TODO: по требованию реализовать смену обновлением контекста 
+        // (размер rgb_frame оставить постоянным!) 
+        // Пример смены: ElephDream_720-h264.mov, 405->406; причем 
+        // vlc видит оба разрешения как Resolution/Display Resolution
+        ASSERT_RTL( !(VideoSize(GetVideoCtx(ffv)) < sz) );
         AVFrame& rgb_frame = ffv.rgbFrame;
         // не очень понятно как пользовать аргументы 4, 5
         sws_scale(ffv.rgbCnvCtx, ffv.srcFrame.data, ffv.srcFrame.linesize,
@@ -560,30 +552,31 @@ static bool DecodeTill(FFViewer& ffv, double time, bool can_seek)
     return res;
 }
 
-static void DoSeek(FFViewer& ffv, int64_t ts, bool is_byte_seek)
+static bool DoSeek(FFViewer& ffv, int64_t ts, bool is_byte_seek)
 {
     // * перемещение
-    if( !SeekCall(ffv.iCtx, ts, is_byte_seek) )
-        // индекс частично поломан, но раз не переместились,
-        // то состояние прежнее 
-        DecodeStop();
-
-    // * обнуляем
-    ResetCurPTS(ffv);
-
-    // сбрасываем буфера декодеров (отдельно от seek)
-    avcodec_flush_buffers(GetVideoCtx(ffv));
-
-    // * до первого кадра с PTS
-    while( !IsCurPTS(ffv) )
-        DoDecode(ffv);
+    // если перемещение не прошло (индекс частично поломан), то полагаем, что
+    // состояние прежнее (обнуление не требуется)
+    bool res = SeekCall(ffv.iCtx, ts, is_byte_seek);
+    if( res )
+    {
+        // * обнуляем
+        ResetCurPTS(ffv);
+    
+        // сбрасываем буфера декодеров (отдельно от seek)
+        avcodec_flush_buffers(GetVideoCtx(ffv));
+    
+        // * до первого кадра с PTS
+        res = DecodeLoop(ffv, &IsCurPTS);
+    }
+    return res;
 }
 
 bool TimeSeek(FFViewer& ffv, double seek_time, double time)
 {
-    DoSeek(ffv, AV_TIME_BASE * seek_time, false);
+    bool res = DoSeek(ffv, AV_TIME_BASE * seek_time, false);
 
-    return !IsFrameLate(Delta(time, ffv.curPTS, ffv));
+    return res && !IsFrameLate(Delta(time, ffv));
 }
 
 static double StartTime(FFViewer& ffv)
@@ -593,8 +586,8 @@ static double StartTime(FFViewer& ffv)
 
 static bool SeekSetTime(FFViewer& ffv, double time)
 {
-    //// :TEMP:
-    ////TimeSeek(ffv, time + 1, time);
+    //TimeSeek(ffv, time + 0.1, time);
+    //ASSERT( IsCurPTS(ffv) );
     //return DecodeTill(ffv, time, false);
 
     bool is_begin = false;
@@ -640,15 +633,10 @@ bool SetTime(FFViewer& ffv, double time)
     double cur_time = GetClockTime();
 
     bool res = false;
-    try
-    {
-        if( !IsCurPTS(ffv) )
-            res = SeekSetTime(ffv, time);
-        else
-            res = DecodeTill(ffv, time, true);
-    }
-    catch( const StopDecodeException& ) 
-    {}
+    if( !IsCurPTS(ffv) )
+        res = SeekSetTime(ffv, time);
+    else
+        res = DecodeTill(ffv, time, true);
 
     LOG_INF << "SetTime(): " << GetClockTime() - cur_time << io::endl;
 
