@@ -502,20 +502,21 @@ static bool DecodeTill(FFViewer& ffv, double time, bool can_seek)
         // допустимая разница, доводим
 
         //AVCodecContext* dec = GetVideoCtx(ffv);
-        //// режим пропуска кадров
         //dec->hurry_up = 1; // 5;
         //dec->skip_frame = AVDISCARD_BIDIR; // AVDISCARD_ALL;
         //dec->skip_loop_filter = AVDISCARD_BIDIR; // AVDISCARD_ALL;
         //dec->skip_idct = AVDISCARD_BIDIR; // AVDISCARD_ALL;
-        //while( IsDeltaOver(20, time, cur_pts, ffv) )
-        //    DoDecode(ffv);
-        //dec->hurry_up = 0;
-        //dec->skip_frame = AVDISCARD_DEFAULT;
-        //dec->skip_loop_filter = AVDISCARD_DEFAULT;
-        //dec->skip_idct = AVDISCARD_DEFAULT;
+
+        //dec->hurry_up = 1;
+        //dec->skip_frame = AVDISCARD_NONREF;
 
         LOG_INF << "Decoding delta: " << delta << io::endl;
         res = DecodeLoop(ffv, bb::bind(&IsFrameFound, time, _1));
+
+        //dec->hurry_up = 0;
+        //dec->skip_frame = AVDISCARD_DEFAULT;
+        //dec->skip_idct = AVDISCARD_DEFAULT;
+        //dec->skip_loop_filter = AVDISCARD_DEFAULT;
     }
 
     if( res )
@@ -586,7 +587,7 @@ static double StartTime(FFViewer& ffv)
 
 static bool SeekSetTime(FFViewer& ffv, double time)
 {
-    //TimeSeek(ffv, time + 0.1, time);
+    //TimeSeek(ffv, time + 0.5, time);
     //ASSERT( IsCurPTS(ffv) );
     //return DecodeTill(ffv, time, false);
 
@@ -638,7 +639,7 @@ bool SetTime(FFViewer& ffv, double time)
     else
         res = DecodeTill(ffv, time, true);
 
-    LOG_INF << "SetTime(): " << GetClockTime() - cur_time << io::endl;
+    LOG_INF << "SetTime() time: " << GetClockTime() - cur_time << io::endl;
 
     return res;
 }

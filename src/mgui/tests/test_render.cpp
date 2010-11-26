@@ -29,6 +29,8 @@
 #include <mgui/init.h>
 #include <mgui/author/ffmpeg.h>
 
+#include <mgui/ffviewer.h>
+
 #include <mlib/format.h>
 
 namespace Project {
@@ -110,4 +112,25 @@ BOOST_AUTO_TEST_CASE( TestCheckFFmpeg )
 
 } // namespace Project
 
+BOOST_AUTO_TEST_CASE( TestSeekFFViewer )
+{
+    return;
+    const char* fname = "/home/ilya/opt/programming/atom-project/AV-Samples/M.Jackson_1080p-h264.mkv";
+
+    FFViewer ffv;
+    bool res = ffv.Open(fname);
+    BOOST_CHECK( res );
+
+    double dur = Duration(ffv);
+    BOOST_CHECK_GT( dur, 3600 ); // 1 час
+
+    bool SetTime(FFViewer& ffv, double time);
+    for( int i=0; i<5; i++ )
+    {
+        double tm = dur/2 + 30*(i%2 ? i : -i);
+        io::cout << "SetTime: " << tm << io::endl;
+        res = SetTime(ffv, tm);
+        BOOST_CHECK( res );
+    }
+}
 

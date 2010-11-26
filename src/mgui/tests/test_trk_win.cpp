@@ -22,6 +22,7 @@
 #include <mgui/tests/_pc_.h>
 
 #include "mgui_test.h"
+#include "test_author.h" // IsTestOn()
 
 #include <mgui/timeline/service.h> 
 #include <mgui/timeline/mviewer.h>
@@ -144,7 +145,8 @@ BOOST_AUTO_TEST_CASE( TestTrackLayout )
 
 BOOST_AUTO_TEST_CASE( TestTLMonitor )
 {
-    //return;
+    if( !IsTestOn("./test_mviewer") )
+        return;
     InitGtkmm();
 
     RunMViewer();

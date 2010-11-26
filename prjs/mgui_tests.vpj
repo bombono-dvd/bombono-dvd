@@ -224,6 +224,7 @@
 			Filters="">
 			<F N="../src/mgui/tests/SConscript"/>
 			<F N="../test_author"/>
+			<F N="../test_mviewer"/>
 		</Folder>
 	</Files>
 </Project>

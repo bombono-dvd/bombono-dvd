@@ -144,6 +144,7 @@ void Decode(AVFormatContext* ic, int video_idx, double time)
 
 BOOST_AUTO_TEST_CASE( TestFFmpegOpen )
 {
+    return;
     const char* fname = "/home/ilya/opt/programming/atom-project/Autumn.mpg";
     //const char* fname = "/opt/src/test-mpegs/MonaLisa_02_6-c3.vob";
 

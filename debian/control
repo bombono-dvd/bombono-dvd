@@ -2,7 +2,7 @@ Source: bombono-dvd
 Section: graphics
 Priority: optional
 Maintainer: Ilya Murav'jov <muravev@yandex.ru>
-Build-Depends: cdbs, debhelper (>= 4.1.0), scons, libdvdread-dev, libgtkmm-2.4-dev, libxml++2.6-dev
+Build-Depends: cdbs, debhelper (>= 4.1.0), scons, libdvdread-dev, libgtkmm-2.4-dev, libxml++2.6-dev, libavformat-dev, libswscale-dev
 Homepage: http://www.bombono.org
 Standards-Version: 3.7.3
 

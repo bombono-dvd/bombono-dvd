@@ -23,6 +23,8 @@ BV.Targets = COMMAND_LINE_TARGETS
 
 # via pkg-config
 RequiredLibs = ['glibmm-2.4', 'libxml++-2.6', 'gtkmm-2.4']
+FFmpegLibs   = ['libavformat', 'libavcodec', 'libswscale', 'libavutil']
+RequiredLibs += FFmpegLibs
 
 # define path to libs
 def SetLibraries(config, user_options_dict):
@@ -396,18 +398,6 @@ Export('env', 'menv')
 # 4 get lib dicts
 GetDict = BV.GetDict
 
-def GetGtkmmDict():
-    dct = GetDict('gtkmm-2.4')
-    if not IsThreadedBuild:
-        # make happy gdb (debugger) by linking with multithreaded libc (in advance),
-        # cause it doesn't like singlethreaded app turns into multithreaded one
-        # in runtime (gtk shared libraries've become multithreaded)
-        dct['LINKFLAGS'] = dct.get('LINKFLAGS', []) + ThreadOpt
-    return dct
-
-gtk2mm_dict   = GetGtkmmDict()
-libxmlpp_dict = GetDict('libxml++-2.6')
-
 ############################################
 # Environments
 #
@@ -443,14 +433,13 @@ mlib_tests_env.AppendUnique(**boost_test_dict)
 Export('mlib_tests_env')
 
 user_options_dict['DVDREAD_DICT']['LIBS'] = ['dvdread']
+ffmpeg_dcts = [GetDict(pkg) for pkg in FFmpegLibs]
 def AddMovieDicts(env):
     env.AppendUnique(**user_options_dict['LIBMPEG2_DICT'])
     env.AppendUnique(**user_options_dict['DVDREAD_DICT'])
     
-    # :TEMP:
-    env.AppendUnique( CPPPATH = ['/opt/ffmpeg05_svn20090706/include'], LIBPATH = ['/opt/ffmpeg05_svn20090706/lib'], 
-        LIBS = ['avformat', 'avcodec', 'swscale', 'avutil'], RPATH = ['/opt/ffmpeg05_svn20090706/lib'] )
-
+    for dct in ffmpeg_dcts:
+        env.AppendUnique(**dct)
 # 
 # mdemux
 #
@@ -479,7 +468,7 @@ Export('mdemux_tests_env')
 #
 mbase_env = mlib_env.Clone()
 mbase_env.AppendUnique(**GetDict('glibmm-2.4'))
-mbase_env.AppendUnique(**libxmlpp_dict)
+mbase_env.AppendUnique(**GetDict('libxml++-2.6'))
 Export('mbase_env')
 
 # 
@@ -497,9 +486,19 @@ Export('mbase_tests_env')
 # Depends on: mcomposite, mproject
 # Depends on ext: gtkmm-2.4
 #
+
+def GetGtkmmDict():
+    dct = GetDict('gtkmm-2.4')
+    if not IsThreadedBuild:
+        # make happy gdb (debugger) by linking with multithreaded libc (in advance),
+        # cause it doesn't like singlethreaded app turns into multithreaded one
+        # in runtime (gtk shared libraries've become multithreaded)
+        dct['LINKFLAGS'] = dct.get('LINKFLAGS', []) + ThreadOpt
+    return dct
+
 mgui_env = mbase_env.Clone()
 AddMovieDicts(mgui_env)
-mgui_env.AppendUnique(**gtk2mm_dict)
+mgui_env.AppendUnique(**GetGtkmmDict())
 
 # if BV.Cc == 'como':
 #     mgui_env.Append(CXXFLAGS='--g++')

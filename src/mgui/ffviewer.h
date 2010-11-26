@@ -28,6 +28,7 @@ double FrameFPS(FFViewer& ffv);
 double FrameTime(VideoViewer& ffv, int fram_pos);
 RefPtr<Gdk::Pixbuf> GetFrame(RefPtr<Gdk::Pixbuf>& pix, double time, FFViewer& ffv);
 double FramesLength(FFViewer& ffv);
+double Duration(FFViewer& ffv);
 
 struct FFViewer
 {
