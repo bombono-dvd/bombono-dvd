@@ -265,6 +265,10 @@ bool FFViewer::Open(const char* fname, std::string& /*err_str*/)
     ASSERT( video_idx != -1 );
     AVCodecContext* dec = ic->streams[video_idx]->codec;
 
+    // Chromium зачем-то выставляет явно, но такие значения уже по умолчанию
+    //dec->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
+    //dec->error_recognition = FF_ER_CAREFUL;
+
     // AVCodec - это одиночка, а AVCodecContext - состояние для него
     // в соответ. потоке контейнера 
     AVCodec* codec = avcodec_find_decoder(dec->codec_id);
@@ -332,6 +336,59 @@ static bool IsInHurry(AVCodecContext* dec)
     return dec->hurry_up != 0;
 }
 
+struct HurryModeEnabler
+{
+    AVCodecContext* dec;
+
+    HurryModeEnabler(AVCodecContext* dec_): dec(dec_)
+    {
+        // как признак (хоть и устаревший)
+        dec->hurry_up = 1;
+        // Прирост скорости (h264): 
+        // - AVDISCARD_NONREF: 2x
+        // - AVDISCARD_BIDIR: для h264 (и других современных кодеков?) разница в скорости 
+        //   с AVDISCARD_NONREF небольшая, зато корректно все необходимые кадры распакуем
+        // - AVDISCARD_NONKEY: неотличим от AVDISCARD_ALL, так как I-кадры очень
+        //   редки
+        // - AVDISCARD_ALL: 3,6-4 (но тогда декодер вообще перестанет выдавать
+        //   кадры, например для mpeg4 - без переделки нельзя использовать)
+        // 
+        // 
+        dec->skip_frame = AVDISCARD_NONREF;
+
+        // незначительный прирост дают
+        //dec->skip_loop_filter = AVDISCARD_ALL;
+        //dec->skip_idct = AVDISCARD_ALL;
+
+    }
+   ~HurryModeEnabler()
+    {
+        dec->hurry_up = 0;
+        dec->skip_frame = AVDISCARD_DEFAULT;
+        //dec->skip_idct = AVDISCARD_DEFAULT;
+        //dec->skip_loop_filter = AVDISCARD_DEFAULT;
+    }
+};
+
+
+// для включения логов (де)кодера на время,
+// чтобы другое консоль не забивало
+struct CodecDebugEnabler
+{
+    int oldLvl;
+
+    CodecDebugEnabler(AVCodecContext* dec, int flags)
+    {
+        oldLvl = av_log_get_level();
+        av_log_set_level(AV_LOG_DEBUG);
+        dec->debug |= flags;
+    }
+   ~CodecDebugEnabler()
+    {
+        av_log_set_level(oldLvl);
+    }
+};
+
 static void DoVideoDecode(FFViewer& ffv, int& got_picture, AVPacket* pkt)
 {
     const uint8_t* buf = 0;
@@ -341,6 +398,10 @@ static void DoVideoDecode(FFViewer& ffv, int& got_picture, AVPacket* pkt)
         buf = pkt->data;
         buf_sz = pkt->size;
     }
+
+    // FF_DEBUG_PICT_INFO - вывод типов декодируемых картинок
+    // FF_DEBUG_MMCO - (h.264) управление зависимыми кадрами + порядок кадров (poc) 
+    //CodecDebugEnabler cde(GetVideoCtx(ffv), FF_DEBUG_PICT_INFO);
 
     AVFrame& picture = ffv.srcFrame;
     avcodec_get_frame_defaults(&picture); // ffmpeg.c очищает каждый раз
@@ -426,7 +487,16 @@ static bool DoDecode(FFViewer& ffv)
     return res;
 }
 
-static bool SeekSetTime(FFViewer& ffv, double time);
+static double Delta(double time, double ts, FFViewer& ffv)
+{
+    ASSERT( IsTSValid(ts) );
+    return (time - ts) * FrameFPS(ffv);
+}
+
+static double Delta(double time, FFViewer& ffv)
+{
+    return Delta(time, ffv.curPTS, ffv);
+}
 
 const double NEG_WIN_DELTA = -1.; // в кадрах
 const double MAX_WIN_DELTA = 300.; // 12.;
@@ -444,17 +514,6 @@ static bool IsFrameLate(double delta)
     return delta < NEG_WIN_DELTA - NULL_DELTA;
 }
 
-static double Delta(double time, double ts, FFViewer& ffv)
-{
-    ASSERT( IsTSValid(ts) );
-    return (time - ts) * FrameFPS(ffv);
-}
-
-static double Delta(double time, FFViewer& ffv)
-{
-    return Delta(time, ffv.curPTS, ffv);
-}
-
 typedef boost::function<bool(FFViewer&)> FFVFunctor;
 
 static bool DecodeLoop(FFViewer& ffv, const FFVFunctor& condition_fnr)
@@ -469,10 +528,18 @@ static bool DecodeLoop(FFViewer& ffv, const FFVFunctor& condition_fnr)
     return res;
 }
 
-static bool IsFrameFound(double time, FFViewer& ffv)
+static bool IsFrameFound(double time, double diff, FFViewer& ffv)
 {
-    return IsFrameFound(Delta(time, ffv));
+    return IsFrameFound(Delta(time, ffv) - diff);
 }
+
+// доводка до разницы <= diff (в кадрах)
+static bool DecodeForDiff(double time, double diff, FFViewer& ffv)
+{
+    return DecodeLoop(ffv, bb::bind(&IsFrameFound, time, diff, _1));
+}
+
+static bool SeekSetTime(FFViewer& ffv, double time);
 
 static bool DecodeTill(FFViewer& ffv, double time, bool can_seek)
 {
@@ -480,43 +547,32 @@ static bool DecodeTill(FFViewer& ffv, double time, bool can_seek)
 
     bool res = false;
     // * проверка диапазона
-    double delta = Delta(time, ffv);
-    if( IsFrameLate(delta) || (delta > MAX_WIN_DELTA) )
+    double delta   = Delta(time, ffv);
+    bool wish_seek = IsFrameLate(delta) || (delta > MAX_WIN_DELTA);
+    if( wish_seek && can_seek )
+        res = SeekSetTime(ffv, time);
+    else
     {
-        if( can_seek )
-            res = SeekSetTime(ffv, time);
-        else
+        if( wish_seek )
         {
-            if( delta < 0 )
-                res = true;
-
             LOG_WRN << "Seek delta overflow: " << delta << io::endl;
+            if( delta > 0 )
+                // уменьшаем до приемлемого, явно
+                time = ffv.curPTS + MAX_WIN_DELTA/FrameFPS(ffv);
         }
-    }
-    else if( IsFrameFound(delta) )
-        // считаем, что кадр с такой отрицательной разницей и
-        // есть результат
-        res = true;
-    else // if( delta < MAX_WIN_DELTA )
-    {
-        // допустимая разница, доводим
 
-        //AVCodecContext* dec = GetVideoCtx(ffv);
-        //dec->hurry_up = 1; // 5;
-        //dec->skip_frame = AVDISCARD_BIDIR; // AVDISCARD_ALL;
-        //dec->skip_loop_filter = AVDISCARD_BIDIR; // AVDISCARD_ALL;
-        //dec->skip_idct = AVDISCARD_BIDIR; // AVDISCARD_ALL;
+        // * допустимая разница, доводим
+        LOG_INF << "Decoding delta: " << Delta(time, ffv) << io::endl;
 
-        //dec->hurry_up = 1;
-        //dec->skip_frame = AVDISCARD_NONREF;
+        {
+            HurryModeEnabler hme(GetVideoCtx(ffv));
+            // кадр может длится <= 3 тактов по декодеру, но явный PTS
+            // может и больше
+            res = DecodeForDiff(time, 10, ffv);
+        }
 
-        LOG_INF << "Decoding delta: " << delta << io::endl;
-        res = DecodeLoop(ffv, bb::bind(&IsFrameFound, time, _1));
-
-        //dec->hurry_up = 0;
-        //dec->skip_frame = AVDISCARD_DEFAULT;
-        //dec->skip_idct = AVDISCARD_DEFAULT;
-        //dec->skip_loop_filter = AVDISCARD_DEFAULT;
+        // оставшееся в полном режиме
+        res = res && DecodeForDiff(time, 0, ffv);
     }
 
     if( res )
@@ -585,12 +641,20 @@ static double StartTime(FFViewer& ffv)
     return StartTime(ffv.iCtx);
 }
 
+static bool CanByteSeek(AVFormatContext* ic)
+{
+    // переход по позиции не работает для avi, mkv - см. особенности ffmpeg
+    // однако для без-заголовочных демиксеров (MPEG-PS, MPEG-TS)
+    // перейти в начало иногда возможно только так,- PanamaCanal_1080p-h264.ts
+    static AVInputFormat* mpegts_demuxer = 0;
+    if( !mpegts_demuxer )
+        mpegts_demuxer = av_find_input_format("mpegts");
+
+    return ic->iformat == mpegts_demuxer;
+}
+
 static bool SeekSetTime(FFViewer& ffv, double time)
 {
-    //TimeSeek(ffv, time + 0.5, time);
-    //ASSERT( IsCurPTS(ffv) );
-    //return DecodeTill(ffv, time, false);
-
     bool is_begin = false;
     double start_time = StartTime(ffv);
     for( int i=0; i<4 && !is_begin; i++ )
@@ -610,12 +674,10 @@ static bool SeekSetTime(FFViewer& ffv, double time)
 
     if( is_begin )
     {
-        // переход по позиции не работает для avi, mkv - см. особенности ffmpeg
-        // :TODO:
-        //if( !TimeSeek(ffv, start_time, time) )
-        //    // тогда переходим в начало файла
-        //    DoSeek(ffv, ic->data_offset, true);
-        TimeSeek(ffv, start_time, time);
+        if( !TimeSeek(ffv, start_time, time) && CanByteSeek(ffv.iCtx) )
+            // тогда переходим в начало файла
+            DoSeek(ffv, ffv.iCtx->data_offset, true);
+        //TimeSeek(ffv, start_time, time);
     }
 
     return IsCurPTS(ffv) && DecodeTill(ffv, time, false);
@@ -639,7 +701,7 @@ bool SetTime(FFViewer& ffv, double time)
     else
         res = DecodeTill(ffv, time, true);
 
-    LOG_INF << "SetTime() time: " << GetClockTime() - cur_time << io::endl;
+    LOG_INF << "SetTime() timing: " << GetClockTime() - cur_time << io::endl;
 
     return res;
 }
