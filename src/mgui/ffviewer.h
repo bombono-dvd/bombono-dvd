@@ -36,6 +36,7 @@ struct FFViewer
                 int  videoIdx;
                      // время текущего кадра
              double  curPTS;
+             double  prevPTS;
 
             AVFrame  srcFrame;
             AVFrame  rgbFrame;

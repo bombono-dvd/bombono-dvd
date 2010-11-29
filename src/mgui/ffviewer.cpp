@@ -35,13 +35,25 @@ Point DAspectRatio(VideoViewer& ffv)
     return res;
 }
 
+static double VideoFrameLength(AVCodecContext* dec, int ticks)
+{
+    return av_q2d(dec->time_base) * ticks;
+}
+
 double FrameFPS(FFViewer& ffv)
 {
     double res = Mpeg::PAL_SECAM_FRAME_FPS;
     if( ffv.IsOpened() )
+    {
+        // не работает для mpegts (Панама, Плавание)
         // хоть и пишется, что r_frame_rate "just a guess", но
         // все применяют его (mplayer, ffmpeg.c)
         res = av_q2d(VideoStream(ffv)->r_frame_rate);
+
+        // не всегда работает для MPEG4+AVI (Пацаны)
+        //AVCodecContext* dec = GetVideoCtx(ffv);
+        //res = 1.0/VideoFrameLength(dec, dec->ticks_per_frame);
+    }
     return res; 
 }
 
@@ -126,9 +138,12 @@ double FramesLength(FFViewer& ffv)
 
 // FFViewer
 
-FFViewer::FFViewer(): iCtx(0), videoIdx(-1), curPTS(INV_TS),
+static void ResetCurPTS(FFViewer& ffv);
+
+FFViewer::FFViewer(): iCtx(0), videoIdx(-1),
     rgbBuf(0), rgbCnvCtx(0)
 {
+    ResetCurPTS(*this);
 }
 
 FFViewer::~FFViewer()
@@ -139,11 +154,6 @@ FFViewer::~FFViewer()
 bool FFViewer::IsOpened()
 {
     return iCtx != 0;
-}
-
-static void ResetCurPTS(FFViewer& ffv)
-{
-    ffv.curPTS = INV_TS;
 }
 
 static bool IsCurPTS(FFViewer& ffv)
@@ -264,6 +274,8 @@ bool FFViewer::Open(const char* fname, std::string& /*err_str*/)
     }
     ASSERT( video_idx != -1 );
     AVCodecContext* dec = ic->streams[video_idx]->codec;
+    // для H.264 и плохих TS
+    dec->strict_std_compliance = FF_COMPLIANCE_STRICT;
 
     // Chromium зачем-то выставляет явно, но такие значения уже по умолчанию
     //dec->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
@@ -411,9 +423,21 @@ static void DoVideoDecode(FFViewer& ffv, int& got_picture, AVPacket* pkt)
         LOG_WRN << "Error while decoding frame!" << io::endl;
 }
 
+static void ResetCurPTS(FFViewer& ffv)
+{
+    ffv.curPTS  = INV_TS;
+    ffv.prevPTS = INV_TS;
+}
+
+static void UpdatePTS(FFViewer& ffv, double new_pts)
+{
+    ffv.prevPTS = ffv.curPTS;
+    ffv.curPTS  = new_pts;
+}
+
 static bool DoDecode(FFViewer& ffv)
 {
-    double& cur_pts  = ffv.curPTS;
+    double cur_pts = ffv.curPTS;
     AVCodecContext* dec = GetVideoCtx(ffv);
 
     AVPacket pkt;
@@ -428,7 +452,7 @@ static bool DoDecode(FFViewer& ffv)
         // пока же сделаем копипаст как в ffmpeg.c - см. особенности ffmpeg (compute_pkt_fields()) 
         AVStream* st = VideoStream(ffv);
         int ticks    = st->parser ? st->parser->repeat_pict + 1 : dec->ticks_per_frame ;
-        next_pts    += av_q2d(dec->time_base) * ticks;
+        next_pts    += VideoFrameLength(dec, ticks);
     }
 
     bool res = true;
@@ -475,8 +499,10 @@ static bool DoDecode(FFViewer& ffv)
                 else if( IsInHurry(dec) )
                     // помимо не декодирования декодер еще и пропускает B-кадры,
                     // а значит можно пропустить pts
-                    cur_pts = std::min(cur_pts, cur_dts);
+                    cur_pts = std::max(cur_pts, cur_dts);
             }
+
+            UpdatePTS(ffv, cur_pts);
         }
     }
     else
@@ -504,16 +530,6 @@ const double MAX_WIN_DELTA = 300.; // 12.;
 // AV_TIME_BASE(int64_t) <-> секунды(double)
 const double NULL_DELTA    = 0.0001;
 
-static bool IsFrameFound(double delta)
-{
-    return delta <= NULL_DELTA;
-}
-
-static bool IsFrameLate(double delta)
-{
-    return delta < NEG_WIN_DELTA - NULL_DELTA;
-}
-
 typedef boost::function<bool(FFViewer&)> FFVFunctor;
 
 static bool DecodeLoop(FFViewer& ffv, const FFVFunctor& condition_fnr)
@@ -528,6 +544,11 @@ static bool DecodeLoop(FFViewer& ffv, const FFVFunctor& condition_fnr)
     return res;
 }
 
+static bool IsFrameFound(double delta)
+{
+    return delta <= NULL_DELTA;
+}
+
 static bool IsFrameFound(double time, double diff, FFViewer& ffv)
 {
     return IsFrameFound(Delta(time, ffv) - diff);
@@ -539,6 +560,24 @@ static bool DecodeForDiff(double time, double diff, FFViewer& ffv)
     return DecodeLoop(ffv, bb::bind(&IsFrameFound, time, diff, _1));
 }
 
+//static bool IsFrameLate(double delta)
+//{
+//    return delta < NEG_WIN_DELTA - NULL_DELTA;
+//}
+//
+static bool IsFrameLate(double time, FFViewer& ffv)
+{
+    bool res = false;
+    if( IsTSValid(ffv.prevPTS) )
+    {
+        double delta = Delta(time, ffv.prevPTS, ffv);
+        res = IsFrameFound(delta);
+    }
+    else
+        res = Delta(time, ffv) < NEG_WIN_DELTA - NULL_DELTA;
+    return res;
+}
+
 static bool SeekSetTime(FFViewer& ffv, double time);
 
 static bool DecodeTill(FFViewer& ffv, double time, bool can_seek)
@@ -547,16 +586,16 @@ static bool DecodeTill(FFViewer& ffv, double time, bool can_seek)
 
     bool res = false;
     // * проверка диапазона
-    double delta   = Delta(time, ffv);
-    bool wish_seek = IsFrameLate(delta) || (delta > MAX_WIN_DELTA);
+    double orig_delta = Delta(time, ffv);
+    bool wish_seek = IsFrameLate(time, ffv) || (orig_delta > MAX_WIN_DELTA);
     if( wish_seek && can_seek )
         res = SeekSetTime(ffv, time);
     else
     {
         if( wish_seek )
         {
-            LOG_WRN << "Seek delta overflow: " << delta << io::endl;
-            if( delta > 0 )
+            LOG_WRN << "Seek delta overflow: " << orig_delta << io::endl;
+            if( orig_delta > 0 )
                 // уменьшаем до приемлемого, явно
                 time = ffv.curPTS + MAX_WIN_DELTA/FrameFPS(ffv);
         }
@@ -575,37 +614,6 @@ static bool DecodeTill(FFViewer& ffv, double time, bool can_seek)
         res = res && DecodeForDiff(time, 0, ffv);
     }
 
-    if( res )
-    {
-        // декодер должен выдать результат
-        ASSERT( ffv.srcFrame.data[0] );
-
-        // * перевод в RGB
-        Point sz(ffv.vidSz);
-        // не допускаем смены разрешения в меньшую сторону, чтобы
-        // не вылететь при скалировании; вообще задумано, что разрешение
-        // не меняется
-        // :TODO: по требованию реализовать смену обновлением контекста 
-        // (размер rgb_frame оставить постоянным!) 
-        // Пример смены: ElephDream_720-h264.mov, 405->406; причем 
-        // vlc видит оба разрешения как Resolution/Display Resolution
-        ASSERT_RTL( !(VideoSize(GetVideoCtx(ffv)) < sz) );
-        AVFrame& rgb_frame = ffv.rgbFrame;
-        // не очень понятно как пользовать аргументы 4, 5
-        sws_scale(ffv.rgbCnvCtx, ffv.srcFrame.data, ffv.srcFrame.linesize,
-                  0, sz.y, rgb_frame.data, rgb_frame.linesize);
-        uint8_t* buf = rgb_frame.data[0];
-        uint8_t* ptr = buf;
-        uint8_t tmp;
-        for( int y=0; y<sz.y; y++ )
-            for( int x=0; x<sz.x; x++, ptr += 3 )
-            {
-                // b <-> r
-                tmp = ptr[0];
-                ptr[0] = ptr[2];
-                ptr[2] = tmp;
-            }
-    }
     return res;
 }
 
@@ -633,7 +641,7 @@ bool TimeSeek(FFViewer& ffv, double seek_time, double time)
 {
     bool res = DoSeek(ffv, AV_TIME_BASE * seek_time, false);
 
-    return res && !IsFrameLate(Delta(time, ffv));
+    return res && !IsFrameLate(time, ffv);
 }
 
 static double StartTime(FFViewer& ffv)
@@ -678,6 +686,14 @@ static bool SeekSetTime(FFViewer& ffv, double time)
             // тогда переходим в начало файла
             DoSeek(ffv, ffv.iCtx->data_offset, true);
         //TimeSeek(ffv, start_time, time);
+
+        // некоторое видео глючит в начале (Hellboy), из-за чего
+        // последовательный доступ выполняется с перескоками -
+        // явно ставим пред. кадр
+        if( IsCurPTS(ffv) )
+            // :KLUDGE: -1 уже занят, поэтому -0.5
+            // (система работает, пока start_time не бывает отрицательным)
+            ffv.prevPTS = start_time - 0.5;
     }
 
     return IsCurPTS(ffv) && DecodeTill(ffv, time, false);
@@ -692,6 +708,7 @@ bool SetTime(FFViewer& ffv, double time)
         return false;
     time += StartTime(ffv);
 
+    // :TODO: рассчитывать только если включено логирование
     double GetClockTime();
     double cur_time = GetClockTime();
 
@@ -701,6 +718,39 @@ bool SetTime(FFViewer& ffv, double time)
     else
         res = DecodeTill(ffv, time, true);
 
+    if( res )
+    {
+        // декодер должен выдать результат
+        ASSERT( ffv.srcFrame.data[0] );
+
+        // * перевод в RGB
+        Point sz(ffv.vidSz);
+        // не допускаем смены разрешения в меньшую сторону, чтобы
+        // не вылететь при скалировании; вообще задумано, что разрешение
+        // не меняется
+        // :TODO: по требованию реализовать смену обновлением контекста 
+        // (размер rgb_frame оставить постоянным!) 
+        // Пример смены: ElephDream_720-h264.mov, 405->406; причем 
+        // vlc видит оба разрешения как Resolution/Display Resolution
+        ASSERT_RTL( !(VideoSize(GetVideoCtx(ffv)) < sz) );
+        AVFrame& rgb_frame = ffv.rgbFrame;
+        // не очень понятно как пользовать аргументы 4, 5
+        sws_scale(ffv.rgbCnvCtx, ffv.srcFrame.data, ffv.srcFrame.linesize,
+                  0, sz.y, rgb_frame.data, rgb_frame.linesize);
+        uint8_t* buf = rgb_frame.data[0];
+        uint8_t* ptr = buf;
+        uint8_t tmp;
+        for( int y=0; y<sz.y; y++ )
+            for( int x=0; x<sz.x; x++, ptr += 3 )
+            {
+                // b <-> r
+                tmp = ptr[0];
+                ptr[0] = ptr[2];
+                ptr[2] = tmp;
+            }
+    }
+
+    LOG_INF << "Time setting: " << time << "; current PTS: " << ffv.curPTS << "; previous PTS: " << ffv.prevPTS << io::endl;
     LOG_INF << "SetTime() timing: " << GetClockTime() - cur_time << io::endl;
 
     return res;

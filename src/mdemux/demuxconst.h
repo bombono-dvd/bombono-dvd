@@ -29,7 +29,9 @@ const double INV_TS = -1.0;
 
 inline bool IsTSValid(double ts) 
 {
-    return ts >= 0.;
+    // отрицательные значения вроде -0.5 могут использоваться
+    // в служебных целях, см. SeekSetTime()
+    return ts != INV_TS;
 }
 
 namespace Mpeg { 
