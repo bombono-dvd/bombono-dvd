@@ -30,6 +30,8 @@
 
 namespace Project {
 
+std::string FFmpegToDVDArgs(const std::string& out_fname, bool is_4_3, bool is_pal);
+// для меню
 std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pal, 
                            const std::string& a_fname = std::string(), double a_shift = 0.);
 

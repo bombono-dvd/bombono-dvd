@@ -38,17 +38,20 @@ namespace Project {
 BOOST_AUTO_TEST_CASE( TestRenderTranscoding )
 {
     return;
-    std::string fname   = "/home/ilya/opt/programming/atom-project/Autumn.mpg";
-    std::string a_fname = "/home/ilya/opt/programming/atom-project/transition.mpg";
+    //std::string fname   = "/home/ilya/opt/programming/atom-project/AV-Samples/Autumn.mpg";
+    //std::string a_fname = "/home/ilya/opt/programming/atom-project/AV-Samples/Transition.mpg";
+    std::string fname   = "../AV-Samples/Hellboy_1080p-mpeg2.ts";
+    std::string a_fname = "../AV-Samples/Hellboy_1080p-mpeg2.ts";
 
-    Mpeg::FwdPlayer plyr;
+    //Mpeg::FwdPlayer plyr;
+    FFViewer plyr;
     RGBOpen(plyr, fname);
 
-    bool is_pal = plyr.MInfo().vidSeq.hgt == 576;
+    bool is_pal = FrameFPS(plyr) == 25.0; // plyr.MInfo().vidSeq.hgt == 576;
 
     int fps = 30;
     double shift = 1. / fps;
-    double end  = 1.; // секунда
+    double end  = 10.; // секунда
 
     std::string ffmpeg_cmd = boost::format("ffmpeg -r %1% -f image2pipe -vcodec ppm -i pipe: %2%")
         % fps % FFmpegPostArgs("../dvd_out/trans.vob", false, is_pal, a_fname, 6) % bf::stop;
@@ -72,6 +75,14 @@ BOOST_AUTO_TEST_CASE( TestRenderTranscoding )
     }
 }
 
+static void RunFFmpeg(const std::string& ffmpeg_cmd)
+{
+    io::cout << ffmpeg_cmd << io::endl;
+    //Execution::SimpleSpawn(ffmpeg_cmd.c_str());
+    ExitData ed = System(ffmpeg_cmd);
+    BOOST_CHECK( ed.IsGood() );
+}
+
 BOOST_AUTO_TEST_CASE( TestStillTranscoding )
 {
     return;
@@ -82,10 +93,18 @@ BOOST_AUTO_TEST_CASE( TestStillTranscoding )
     std::string ffmpeg_cmd = boost::format("ffmpeg -t %3$.2f -loop_input -i \"%1%\" %2%") 
         % fname % FFmpegPostArgs("../dvd_out/trans.vob", false, true) % duration % bf::stop;
  
-    io::cout << ffmpeg_cmd << io::endl;
-    //Execution::SimpleSpawn(ffmpeg_cmd.c_str());
-    ExitData ed = System(ffmpeg_cmd);
-    BOOST_CHECK( ed.IsGood() );
+    RunFFmpeg(ffmpeg_cmd);
+}
+
+BOOST_AUTO_TEST_CASE( TestDVDTranscoding )
+{
+    return;
+    std::string src_fname = "../AV-Samples/ЧастноеВидео_dv.avi";
+
+    std::string ffmpeg_cmd = boost::format("ffmpeg -i %1% %2%") 
+        % FilenameForCmd(src_fname) % FFmpegToDVDArgs("../dvd_out/trans.vob", false, true) % bf::stop;
+
+    RunFFmpeg(ffmpeg_cmd);
 }
 
 BOOST_AUTO_TEST_CASE( TestMenuSettings )
@@ -112,10 +131,11 @@ BOOST_AUTO_TEST_CASE( TestCheckFFmpeg )
 
 } // namespace Project
 
-BOOST_AUTO_TEST_CASE( TestSeekFFViewer )
+BOOST_AUTO_TEST_CASE( TestStressFFViewer )
 {
     return;
-    const char* fname = "/home/ilya/opt/programming/atom-project/AV-Samples/M.Jackson_1080p-h264.mkv";
+    //const char* fname = "../AV-Samples/M.Jackson_1080p-h264.mkv";
+    const char* fname = "../AV-Samples/Chuzhaja_720w_mpeg4.avi";
 
     FFViewer ffv;
     bool res = ffv.Open(fname);
@@ -128,9 +148,12 @@ BOOST_AUTO_TEST_CASE( TestSeekFFViewer )
     for( int i=0; i<5; i++ )
     {
         double tm = dur/2 + 30*(i%2 ? i : -i);
-        io::cout << "SetTime: " << tm << io::endl;
         res = SetTime(ffv, tm);
         BOOST_CHECK( res );
     }
+
+    // повторная открываемость
+    for( int i=0; i<5; i++ )
+        RGBOpen(ffv, fname);
 }
 

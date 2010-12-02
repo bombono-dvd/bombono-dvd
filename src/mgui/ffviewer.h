@@ -14,6 +14,8 @@ C_LINKAGE_BEGIN
 #include <libswscale/swscale.h>
 C_LINKAGE_END
 
+#include <boost/noncopyable.hpp>
+
 struct FFViewer;
 
 //
@@ -30,10 +32,20 @@ RefPtr<Gdk::Pixbuf> GetFrame(RefPtr<Gdk::Pixbuf>& pix, double time, FFViewer& ff
 double FramesLength(FFViewer& ffv);
 double Duration(FFViewer& ffv);
 
-struct FFViewer
+RefPtr<Gdk::Pixbuf> GetRawFrame(double time, FFViewer& ffv);
+
+struct FFInfo: public boost::noncopyable
 {
     AVFormatContext* iCtx;
                 int  videoIdx;
+              Point  vidSz; // первоначальный размер
+
+          FFInfo();
+    bool  IsOpened();
+};
+
+struct FFViewer: public FFInfo
+{
                      // время текущего кадра
              double  curPTS;
              double  prevPTS;
@@ -42,8 +54,6 @@ struct FFViewer
             AVFrame  rgbFrame;
             uint8_t* rgbBuf;
          SwsContext* rgbCnvCtx;
-              Point  vidSz; // лучше бы с rgbCnvCtx брать, но
-                            // не дают
 
 
                     FFViewer();
@@ -51,7 +61,6 @@ struct FFViewer
 
               bool  Open(const char* fname, std::string& err);
               bool  Open(const char* fname);
-              bool  IsOpened();
               void  Close();
 };
 

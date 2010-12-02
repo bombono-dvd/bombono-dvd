@@ -35,6 +35,9 @@ INST_BFRMT_PERCENT(char const* const)
 INST_BFRMT_PERCENT(unsigned long long) // для uint64_t
 INST_BFRMT_PERCENT(const double)
 INST_BFRMT_PERCENT(double)
+INST_BFRMT_PERCENT(unsigned int)
+INST_BFRMT_PERCENT(unsigned char)
+INST_BFRMT_PERCENT(char const)
 
 // :KLUDGE: в зависимости от режима оптимизации компиляции инстанцировать приходится разные объекты,
 // в зависимости от того, inline'ит компилятор operator%() и feed() или нет

@@ -5,12 +5,32 @@
 #include "img_utils.h"
 #include "render/common.h" // FillEmpty()
 
-static AVStream* VideoStream(FFViewer& ffv)
+#include <mlib/gettext.h>
+
+// :REFACTOR: убрать копипаст в 
+// 1 test_ffmpeg.cpp
+// +2 здесь
+// 3 общее API с Mpeg::Player
+
+/////////////////////////////////////////
+// :KLUDGE: потому что riff.h не копируют
+C_LINKAGE_BEGIN
+typedef struct AVCodecTag {
+    int id;
+    unsigned int tag;
+} AVCodecTag;
+
+unsigned int codec_get_tag(const AVCodecTag *tags, int id);
+extern const AVCodecTag codec_bmp_tags[];
+C_LINKAGE_END
+/////////////////////////////////////////
+
+static AVStream* VideoStream(FFInfo& ffv)
 {
     return ffv.iCtx->streams[ffv.videoIdx];
 }
 
-static AVCodecContext* GetVideoCtx(FFViewer& ffv)
+static AVCodecContext* GetVideoCtx(FFInfo& ffv)
 {
     return VideoStream(ffv)->codec;
 }
@@ -57,9 +77,14 @@ double FrameFPS(FFViewer& ffv)
     return res; 
 }
 
+bool IsFTSValid(int64_t ts)
+{
+    return ts != (int64_t)AV_NOPTS_VALUE;
+}
+
 static double AVTime2Sec(int64_t val)
 {
-    ASSERT( val != (int64_t)AV_NOPTS_VALUE );
+    ASSERT( IsFTSValid(val) );
     return val / (double)AV_TIME_BASE;
 }
 
@@ -72,11 +97,6 @@ static double StartTime(AVFormatContext* ic)
 {
     return AVTime2Sec(ic->start_time);
 }
-
-// :REFACTOR: убрать копипаст в 
-// 1 test_ffmpeg.cpp
-// +2 здесь
-// 3 общее API с Mpeg::Player
 
 void CheckOpen(VideoViewer& vwr, const std::string& fname)
 {
@@ -95,8 +115,6 @@ double FrameTime(VideoViewer& ffv, int fram_pos)
 {
     return fram_pos / FrameFPS(ffv);
 }
-
-RefPtr<Gdk::Pixbuf> GetRawFrame(double time, FFViewer& ffv);
 
 bool TryGetFrame(RefPtr<Gdk::Pixbuf>& pix, double time, FFViewer& ffv)
 {
@@ -138,10 +156,30 @@ double FramesLength(FFViewer& ffv)
 
 // FFViewer
 
+FFInfo::FFInfo(): iCtx(0), videoIdx(-1) {}
+
+bool FFInfo::IsOpened()
+{
+    return iCtx != 0;
+}
+
+void CloseInfo(FFInfo& ffi)
+{
+    // контекст кодека закрывается отдельно
+    if( ffi.videoIdx != -1 )
+        avcodec_close(GetVideoCtx(ffi));
+    ffi.videoIdx = -1;
+
+    // судя по тому как, например, поле ctx_flags нигде не обнуляется
+    // (кроме как при инициализации), то повторно использовать структуру
+    // не принято -> все заново создаем при переоткрытии
+    av_close_input_file(ffi.iCtx);
+    ffi.iCtx = 0;
+}
+
 static void ResetCurPTS(FFViewer& ffv);
 
-FFViewer::FFViewer(): iCtx(0), videoIdx(-1),
-    rgbBuf(0), rgbCnvCtx(0)
+FFViewer::FFViewer(): rgbBuf(0), rgbCnvCtx(0)
 {
     ResetCurPTS(*this);
 }
@@ -149,11 +187,6 @@ FFViewer::FFViewer(): iCtx(0), videoIdx(-1),
 FFViewer::~FFViewer()
 {
     Close();
-}
-
-bool FFViewer::IsOpened()
-{
-    return iCtx != 0;
 }
 
 static bool IsCurPTS(FFViewer& ffv)
@@ -172,28 +205,20 @@ void FFViewer::Close()
         sws_freeContext(rgbCnvCtx);
         rgbCnvCtx = 0;
 
-        // контекст кодека закрывается отдельно
-        if( videoIdx != -1 )
-            avcodec_close(GetVideoCtx(*this));
-
-        // судя по тому как, например, поле ctx_flags нигде не обнуляется
-        // (кроме как при инициализации), то повторно использовать структуру
-        // не принято -> все заново создаем при переоткрытии
-        av_close_input_file(iCtx);
-        iCtx = 0;
+        CloseInfo(*this);
     }
 }
 
-static void DumpIFile(AVFormatContext* ic, int idx = 0)
+static void DumpIFile(AVFormatContext* ic, int idx = 0, const std::string& fname = std::string())
 {
     //
     // Инфо о всем контейнере как ее показывает ffmpeg
     //     
     // idx - идентификатор файла (для клиента)
-    const char* fname = "n/a";
+    //const char* fname = "n/a";
     // входной/выходной файл
     int is_output = 0;
-    dump_format(ic, idx, fname, is_output);
+    dump_format(ic, idx, fname.c_str(), is_output);
 }
 
 Point VideoSize(AVCodecContext* dec)
@@ -211,13 +236,28 @@ static bool SeekCall(AVFormatContext* ic, int64_t ts, bool is_byte_seek)
     return av_res == 0;
 }
 
-bool FFViewer::Open(const char* fname, std::string& /*err_str*/)
+static bool IsFFError(int av_res)
 {
-    bool res = true;
+    return av_res < 0;
+}
 
-    av_register_all();
-    // * закрываем открытое ранее
-    Close();
+static unsigned char GetChar(uint tag, int bit_begin)
+{
+    return (tag>>bit_begin) & 0xFF;
+}
+
+static bool SetIndex(int& idx, int i, bool b)
+{
+    bool res = (idx == -1) && b;
+    if( res )
+        idx = i;
+    return res;
+}
+
+bool OpenInfo(FFInfo& ffi, const char* fname, std::string& err_str)
+{
+    ASSERT( !ffi.IsOpened() );
+    bool res = false;
 
     // AVInputFormat* для форсирования формата контейнера
     // создается из av_find_input_format(str), где str из опции -f для ffmpeg
@@ -232,92 +272,168 @@ bool FFViewer::Open(const char* fname, std::string& /*err_str*/)
 
     AVFormatContext* ic = 0;
     int av_res = av_open_input_file(&ic, fname, file_iformat, buf_size, ap);
-    // :TODO: обработка ошибок открытия файла
-    ASSERT_RTL( !av_res );
-    //
-    // * файл открыт
-    //
-    iCtx = ic;
-
-    av_res = av_find_stream_info(ic);
-    //if (err < 0) {
-    //    fprintf(stderr, "%s: could not find codec parameters\n", is->filename);
-    //    ret = -1;
-    //    goto fail;
-    //}
-    ASSERT_RTL( av_res >= 0 );
-
-    DumpIFile(ic);
-
-    ASSERT_RTL( ic->duration != (int64_t)AV_NOPTS_VALUE );
-    // в 99% отсутствие нач. времени - элементарный поток = без контейнера;
-    // см. особенности ffmpeg, update_initial_timestamps()
-    ASSERT_RTL( ic->start_time != (int64_t)AV_NOPTS_VALUE );
-    // проверка индекса/возможности перемещения
-    ASSERT_RTL( SeekCall(ic, ic->start_time, false) );
-
-    // в секундах
-    double dur = Duration(ic);
-    io::cout << "duration: " << dur << io::endl;
-
-    // открытие кодека
-    int video_idx = -1;
-    for( int i=0; i < (int)ic->nb_streams; i++ )
+    if( IsFFError(av_res) ) // ошибка
     {
-        AVStream* strm = ic->streams[i];
-        AVCodecContext* avctx = strm->codec;
-        if( (video_idx == -1) && (avctx->codec_type == CODEC_TYPE_VIDEO) )
-            video_idx = i;
-        else
-            // для демиксера имеет значение только NONE и ALL
-            strm->discard = AVDISCARD_ALL;
+        switch( av_res )
+        {
+        case AVERROR_NOENT:
+            err_str = _("No such file");
+            break;
+        case AVERROR_NOFMT:
+            err_str = _("Unknown file format");
+            break;
+        case AVERROR_UNKNOWN:
+        default:
+            err_str = boost::format("FFmpeg unknown error: %1%") % av_res % bf::stop;
+            break;
+        }
     }
-    ASSERT( video_idx != -1 );
-    AVCodecContext* dec = ic->streams[video_idx]->codec;
-    // для H.264 и плохих TS
-    dec->strict_std_compliance = FF_COMPLIANCE_STRICT;
+    else
+    {
+        //
+        // * файл открыт
+        //
+        ffi.iCtx = ic;
+    
+        if( IsFFError(av_find_stream_info(ic)) )
+        {
+            // например .webm для FFmpeg <= 0.5 
+            err_str = BF_("Can't find stream information: %1%") % av_res % bf::stop;
+            return false;
+        }
+        if( LogFilter->IsEnabled(::Log::Info) )
+            DumpIFile(ic);
+    
+        int video_idx = -1, audio_idx = -1;
+        for( int i=0; i < (int)ic->nb_streams; i++ )
+        {
+            AVStream* strm = ic->streams[i];
+            AVCodecContext* avctx = strm->codec;
+            if( SetIndex(video_idx, i, avctx->codec_type == CODEC_TYPE_VIDEO) )
+                ;
+            else
+                // для демиксера имеет значение только NONE и ALL
+                strm->discard = AVDISCARD_ALL;
 
-    // Chromium зачем-то выставляет явно, но такие значения уже по умолчанию
-    //dec->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
-    //dec->error_recognition = FF_ER_CAREFUL;
+            SetIndex(audio_idx, i, avctx->codec_type == CODEC_TYPE_AUDIO);
+        }
 
-    // AVCodec - это одиночка, а AVCodecContext - состояние для него
-    // в соответ. потоке контейнера 
-    AVCodec* codec = avcodec_find_decoder(dec->codec_id);
-    ASSERT( codec );
+        if( video_idx == -1 )
+        {
+            err_str = _("No video stream found");
+            return false;
+        }
+        // для работы FFViewer аудио не нужно (пока), но на практике всегда
+        // требуется
+        if( audio_idx == -1 )
+        {
+            err_str = _("No audio stream found");
+            return false;
+        }
+                    
+        if( !IsFTSValid(ic->duration) )
+        {
+            err_str = _("Can't find the file duration");
+            return false;
+        }
 
-    av_res = avcodec_open(dec, codec);
-    ASSERT( !av_res );
-    //
-    // * декодер настроен
-    //
-    videoIdx = video_idx;
+        if( !IsFTSValid(ic->start_time) )
+        {
+            // в 99% отсутствие нач. времени - элементарный поток = без контейнера;
+            // см. особенности ffmpeg, update_initial_timestamps()
+            err_str = _("Start time of the file is unknown");
+            return false;
+        }
 
-    Point sz(VideoSize(dec));
-    ASSERT_RTL( sz.x );
-    vidSz = sz;
-    // по умолчанию такое использует ffmpeg/ffplay
-    // (для переопределения у них используется временный&глобальный
-    //     sws_opts = sws_getContext(16,16,0, 16,16,0, sws_flags, NULL,NULL,NULL);
-    //     opt_default(); // обновление sws_opts по -sws_flags
-    //     sws_flags = av_get_int(sws_opts, "sws_flags", NULL); // = sws_opts.flags    
-    int sws_flags = SWS_BICUBIC;
-    // :TRICKY: почему-то ffmpeg'у "нравится" BGR24 и не нравиться RGB24 в плане использования
-    // MMX (ускорения); цена по времени неизвестна,- используем только ради того, чтобы не было 
-    // предупреждений
-    // Другой вариант - PIX_FMT_RGB32, но там зависимый порядок байтов (в GdkPixbuf - нет) и
-    // мы нацелены на RGB24
-    PixelFormat dst_pf = PIX_FMT_BGR24; // PIX_FMT_RGB24;
-    rgbCnvCtx = sws_getContext(sz.x, sz.y, dec->pix_fmt, sz.x, sz.y,
-        dst_pf, sws_flags, 0, 0, 0);
-    ASSERT( rgbCnvCtx );
+        if( !SeekCall(ic, ic->start_time, false) )
+        {
+            // проверка индекса/возможности перемещения
+            err_str = _("Can't seek through the file");
+            return false;
+        }
+    
+        // открытие кодека
+        AVCodecContext* dec = ic->streams[video_idx]->codec;
+        // для H.264 и плохих TS
+        dec->strict_std_compliance = FF_COMPLIANCE_STRICT;
+    
+        // Chromium зачем-то выставляет явно, но такие значения уже по умолчанию
+        //dec->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
+        //dec->error_recognition = FF_ER_CAREFUL;
+    
+        uint tag = codec_get_tag(codec_bmp_tags, dec->codec_id);
+        std::string tag_str = boost::format("0x%1$04x") % tag % bf::stop;
+        unsigned char c0 = GetChar(tag, 0), c8 = GetChar(tag, 8), 
+            c16 = GetChar(tag, 16), c24 = GetChar(tag, 24);
+        if( isprint(c0) && isprint(c8) && isprint(c16) && isprint(c24) )
+            tag_str = boost::format("%1%%2%%3%%4% / %5%") 
+                % c0 % c8 % c16 % c24 % tag_str % bf::stop;
+                            
+        // AVCodec - это одиночка, а AVCodecContext - состояние для него
+        // в соответ. потоке контейнера 
+        AVCodec* codec = avcodec_find_decoder(dec->codec_id);
+        if( !codec )
+        {
+            err_str = BF_("No decoder found for the stream: %1%") % tag_str % bf::stop;
+            return false;
+        }
 
-    Point dst_sz(sz);
-    uint8_t* rgbBuf = (uint8_t*)av_malloc(avpicture_get_size(dst_pf, dst_sz.x, dst_sz.y) * sizeof(uint8_t));
-    avcodec_get_frame_defaults(&rgbFrame); // не помешает
-    avpicture_fill((AVPicture*)&rgbFrame, rgbBuf, dst_pf, dst_sz.x, dst_sz.y);
+        if( IsFFError(avcodec_open(dec, codec)) )
+        {
+            err_str = boost::format("Can't open codec: %1%") % tag_str % bf::stop;
+            return false;
+        }
 
-    if( !res )
+        //
+        // * декодер настроен
+        //
+        ffi.videoIdx = video_idx;
+    
+        Point sz(VideoSize(dec));
+        if( sz.IsNull() )
+        {
+            err_str = "Video has null size";
+            return false;
+        }
+        ffi.vidSz = sz;
+
+        res = true;
+    }
+    return res;
+}
+
+bool FFViewer::Open(const char* fname, std::string& err_str)
+{
+    av_register_all();
+    // * закрываем открытое ранее
+    Close();
+
+    bool res = OpenInfo(*this, fname, err_str);
+    if( res )
+    {
+        Point sz(vidSz);
+        // по умолчанию такое использует ffmpeg/ffplay
+        // (для переопределения у них используется временный&глобальный
+        //     sws_opts = sws_getContext(16,16,0, 16,16,0, sws_flags, NULL,NULL,NULL);
+        //     opt_default(); // обновление sws_opts по -sws_flags
+        //     sws_flags = av_get_int(sws_opts, "sws_flags", NULL); // = sws_opts.flags    
+        int sws_flags = SWS_BICUBIC;
+        // :TRICKY: почему-то ffmpeg'у "нравится" BGR24 и не нравиться RGB24 в плане использования
+        // MMX (ускорения); цена по времени неизвестна,- используем только ради того, чтобы не было 
+        // предупреждений
+        // Другой вариант - PIX_FMT_RGB32, но там зависимый порядок байтов (в GdkPixbuf - нет) и
+        // мы нацелены на RGB24
+        PixelFormat dst_pf = PIX_FMT_BGR24; // PIX_FMT_RGB24;
+        rgbCnvCtx = sws_getContext(sz.x, sz.y, GetVideoCtx(*this)->pix_fmt, sz.x, sz.y,
+            dst_pf, sws_flags, 0, 0, 0);
+        ASSERT( rgbCnvCtx );
+    
+        Point dst_sz(sz);
+        uint8_t* rgbBuf = (uint8_t*)av_malloc(avpicture_get_size(dst_pf, dst_sz.x, dst_sz.y) * sizeof(uint8_t));
+        avcodec_get_frame_defaults(&rgbFrame); // не помешает
+        avpicture_fill((AVPicture*)&rgbFrame, rgbBuf, dst_pf, dst_sz.x, dst_sz.y);
+    }
+    else
         // защита от неполных открытий
         Close();
     return res;
@@ -327,12 +443,6 @@ bool FFViewer::Open(const char* fname)
 {
     std::string err;
     return Open(fname, err);
-}
-
-// :REFACTOR:
-bool IsFTSValid(int64_t ts)
-{
-    return ts != (int64_t)AV_NOPTS_VALUE;
 }
 
 static double TS2Time(int64_t ts, FFViewer& ffv)

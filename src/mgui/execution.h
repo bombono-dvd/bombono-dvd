@@ -97,6 +97,8 @@ ExitData ExecuteAsync(const char* dir, const char* cmd, const ReadReadyFnr& fnr,
 ExitData PipeOutput(const std::string& cmd, std::string& output);
 
 std::string ExitDescription(const ExitData& ed);
+// название в кавычках из-за пробелов (например)
+std::string FilenameForCmd(const std::string& fname);
 
 // COPY_N_PASTE_ETALON - симбиоз из:
 // 1) g_spawn_command_line_async() - собственно выполнение

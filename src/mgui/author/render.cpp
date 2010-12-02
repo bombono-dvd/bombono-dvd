@@ -505,10 +505,20 @@ static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix, TrackBuf& buf)
         FFmpegError(errno2str());
 }
 
-// название в кавычках из-за пробелов (например)
-static std::string FilenameForCmd(const std::string& fname)
+std::string FFmpegToDVDArgs(const std::string& out_fname, bool is_4_3, bool is_pal)
 {
-    return boost::format("\"%1%\"") % fname % bf::stop;
+    const char* target = "pal";
+    int wdh = 720; // меню всегда полноразмерное
+    int hgt = 576;
+    if( !is_pal )
+    {
+        target = "ntsc";
+        hgt = 480;
+    }
+
+    return boost::format("-target %4%-dvd -aspect %1% -s %2%x%3% -y %5%")
+        % (is_4_3 ? "4:3" : "16:9") % wdh % hgt % target 
+        % FilenameForCmd(out_fname) % bf::stop;
 }
 
 std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pal, 
@@ -551,18 +561,7 @@ std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pa
         a_input = boost::format("%2%-i %1% %3%") % safe_a_fname % shift % map % bf::stop; 
     }
 
-    const char* target = "pal";
-    int wdh = 720; // меню всегда полноразмерное
-    int hgt = 576;
-    if( !is_pal )
-    {
-        target = "ntsc";
-        hgt = 480;
-    }
-
-    return boost::format("%1% -target %5%-dvd -aspect %2% -s %3%x%4% -y %6%")
-        % a_input % (is_4_3 ? "4:3" : "16:9") % wdh % hgt % target 
-        % FilenameForCmd(out_fname) % bf::stop;
+    return a_input + " " + FFmpegToDVDArgs(out_fname, is_4_3, is_pal);
 }
 
 #define MOTION_MENU_TAG "Motion Menus"

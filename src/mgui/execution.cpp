@@ -495,3 +495,8 @@ ExitData PipeOutput(const std::string& cmd, std::string& output)
     return ExecuteAsync(0, cmd.c_str(), fnr);
 }
 
+// название в кавычках из-за пробелов (например)
+std::string FilenameForCmd(const std::string& fname)
+{
+    return boost::format("\"%1%\"") % fname % bf::stop;
+}
