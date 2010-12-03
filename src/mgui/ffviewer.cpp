@@ -165,16 +165,19 @@ bool FFInfo::IsOpened()
 
 void CloseInfo(FFInfo& ffi)
 {
-    // контекст кодека закрывается отдельно
-    if( ffi.videoIdx != -1 )
-        avcodec_close(GetVideoCtx(ffi));
-    ffi.videoIdx = -1;
+    if( ffi.IsOpened() )
+    {
+        // контекст кодека закрывается отдельно
+        if( ffi.videoIdx != -1 )
+            avcodec_close(GetVideoCtx(ffi));
+        ffi.videoIdx = -1;
 
-    // судя по тому как, например, поле ctx_flags нигде не обнуляется
-    // (кроме как при инициализации), то повторно использовать структуру
-    // не принято -> все заново создаем при переоткрытии
-    av_close_input_file(ffi.iCtx);
-    ffi.iCtx = 0;
+        // судя по тому как, например, поле ctx_flags нигде не обнуляется
+        // (кроме как при инициализации), то повторно использовать структуру
+        // не принято -> все заново создаем при переоткрытии
+        av_close_input_file(ffi.iCtx);
+        ffi.iCtx = 0;
+    }
 }
 
 static void ResetCurPTS(FFViewer& ffv);
@@ -204,9 +207,9 @@ void FFViewer::Close()
         rgbBuf = 0;
         sws_freeContext(rgbCnvCtx);
         rgbCnvCtx = 0;
-
-        CloseInfo(*this);
     }
+
+    CloseInfo(*this);
 }
 
 static void DumpIFile(AVFormatContext* ic, int idx = 0, const std::string& fname = std::string())
@@ -256,6 +259,8 @@ static bool SetIndex(int& idx, int i, bool b)
 
 bool OpenInfo(FFInfo& ffi, const char* fname, std::string& err_str)
 {
+    av_register_all();
+
     ASSERT( !ffi.IsOpened() );
     bool res = false;
 
@@ -402,9 +407,17 @@ bool OpenInfo(FFInfo& ffi, const char* fname, std::string& err_str)
     return res;
 }
 
+bool CanOpenAsFFmpegVideo(const char* fname, std::string& err_str)
+{
+    FFInfo ffi;
+    bool res = OpenInfo(ffi, fname, err_str);
+    CloseInfo(ffi);
+
+    return res;
+}
+
 bool FFViewer::Open(const char* fname, std::string& err_str)
 {
-    av_register_all();
     // * закрываем открытое ранее
     Close();
 

@@ -23,6 +23,9 @@
 
 #include "add.h"
 
+#include <mgui/ffviewer.h>
+#include <mdemux/seek.h>
+
 #include <mgui/init.h>
 #include <mgui/dialog.h>
 #include <mgui/sdk/window.h>
@@ -30,8 +33,6 @@
 
 #include <mbase/project/handler.h>
 #include <mbase/project/table.h>
-
-#include <mdemux/seek.h>
 
 #include <mlib/filesystem.h>
 
@@ -171,7 +172,7 @@ void CheckVideoFormat(ErrorDesc& ed, const Mpeg::SequenceData& vid, bool is_ntsc
 
 } // namespace 
 
-bool CanOpenAsVideo(const char* fname, std::string& err_string, bool& must_be_video)
+bool IsVideoDVDCompliant(const char* fname, std::string& err_string, bool& is_mpeg2)
 {
     Mpeg::PlayerData pd;
     io::stream& strm     = pd.srcStrm;
@@ -182,7 +183,7 @@ bool CanOpenAsVideo(const char* fname, std::string& err_string, bool& must_be_vi
         err_string = inf.ErrorReason();
     else
     {
-        must_be_video = true; // дальше не проверяем тип - это точно видео
+        is_mpeg2 = true; // дальше не проверяем тип - это точно видео
         Mpeg::SequenceData& vid = inf.vidSeq;
         ErrorDesc ed;
         // * видео
@@ -295,22 +296,41 @@ StorageItem CreateMedia(const char* fname, std::string& err_string)
     	return md;
     }
 
-    //
+#define FFMPEG_IMPORT_POLICY 1
+#ifdef FFMPEG_IMPORT_POLICY
+
+    // Сейчас открытие с помощью CanOpenAsFFmpegVideo()/FFInfo считаем 
+    // эталоном в плане принятия материалов; в частности:
+    // - ошибка возвращается с темы, если не смогли открыть как изображение
+    // - тема не должна открывать аудио или картинки, чтоб был правильный тип
+    // Вроде как GdkPixbuf умел открывать видео (его первый кадр) и ради этого
+    // был поставлен доп. заслон в виде must_be_video (сейчас не повторяется на
+    // mpeg/m2v/..); если повторится, то улучшаем проверку (проверяем по кодеку 
+    // у FFmpeg,- для картинок он "image2" не должен быть)
+    int wdh, hgt;
+    if( CanOpenAsFFmpegVideo(fname, err_string) )
+        md = new VideoMD;
+    else if( gdk_pixbuf_get_file_info(fname, &wdh, &hgt) )
+        md = new StillImageMD;
+
+    if( md )
+        md->MakeByPath(fname);
+
+#else // !FFMPEG_IMPORT_POLICY
     // 2 определение типа файла
     // Пока открываем только минимальное кол-во
     // типов медиа (картинки и MPEG2), потому простой
     // перебор
-    // :TODO: переделать; с помощью библиотеки libmagick
+    // В идеале с помощью библиотеки libmagick можно
     // (утилита '/usr/bin/file') реализовать первичное 
-    // определение типа файла
-    //
+    // определение типа файла, но это на практике не имеет большого смысла
 
     std::string fext = get_extension(pth);
     bool must_be_video = CaseIEqual(fext, "mpeg") || CaseIEqual(fext, "mpg") || 
                          CaseIEqual(fext, "m2v")  || CaseIEqual(fext, "vob");
     int wdh, hgt;
     std::string video_err_str;
-    if( CanOpenAsVideo(fname, video_err_str, must_be_video) )
+    if( IsVideoDVDCompliant(fname, video_err_str, must_be_video) )
     {
         // 2.1 видео
     	md = new VideoMD;
@@ -328,6 +348,8 @@ StorageItem CreateMedia(const char* fname, std::string& err_string)
         // по расширению выводим наиболее вероятную ошибку
         err_string  = must_be_video ? video_err_str : _("Unknown file type.") ;
     }
+#endif // FFMPEG_IMPORT_POLICY
+
     return md;
 }
 

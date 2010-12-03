@@ -1,12 +1,16 @@
 <?xml version="1.0"?>
-<AProject Version="0.7.0">
+<AProject Version="0.8.1">
   <!--This document is for "Bombono DVD" program-->
-  <Globals PAL="1" First-Play="Media.1">
+  <Globals PAL="1" First-Play="Media.2">
     <DefMenuParams Aspect="2">
       <Resolution x="720" y="576"/>
     </DefMenuParams>
   </Globals>
   <Medias>
+    <Media Name="&#x41A;&#x43E;&#x43C;&#x431;&#x430;&#x439;&#x43D;&#x435;&#x440;&#x44B;_352w" Path="../../../AV-Samples/&#x41A;&#x43E;&#x43C;&#x431;&#x430;&#x439;&#x43D;&#x435;&#x440;&#x44B;_352w.flv" Type="Video">
+      <Parts/>
+      <PostAction Type="0" Ref=""/>
+    </Media>
     <Media Name="Autumn" Path="../../../AV-Samples/Autumn.mpg" Type="Video">
       <Parts>
         <Part Name="Chapter 1">9.7999999999999989</Part>
@@ -22,22 +26,22 @@
       </Parts>
       <PostAction Type="0" Ref=""/>
     </Media>
-    <Media Name="Title" Path="../../../AV-Samples/Images/backgrounds/space-01.jpg" Type="StillPicture"/>
+    <Media Name="Title" Path="../../../AV-Samples/Backgrounds/space-01.jpg" Type="StillPicture"/>
   </Medias>
   <Menus>
-    <Menu Name="Billiard" Color="#f0e000ff" BGRef="Media.0">
+    <Menu Name="Billiard" Color="#f0e000ff" BGRef="Media.1">
       <Params Aspect="2">
         <Resolution x="720" y="576"/>
       </Params>
-      <MotionData IsMotion="1" Duration="1" AudioRef="Media.0" IsStillPicture="0" IsInternalAudio="1" ExtAudio="">
-        <PostAction Type="2" Ref="Media.0"/>
+      <MotionData IsMotion="1" Duration="1" IsStillPicture="0" IsInternalAudio="1" AudioRef="Media.1" ExtAudio="">
+        <PostAction Type="2" Ref="Media.1"/>
       </MotionData>
       <SubpicturePalette Selected="#fff00080" Activated="#ff006c80"/>
       <MenuItems>
-        <MenuItem Name="" Frame="ogradient" Poster="Media.1" Type="Frame Item" Ref="Menu.2" PlayAll="0">
+        <MenuItem Name="" Frame="ogradient" Poster="Media.2" Type="Frame Item" Ref="Menu.2" PlayAll="0">
           <Placement lft="371" top="73" rgt="621" btm="223"/>
         </MenuItem>
-        <MenuItem Name="" Frame="oval" Poster="Media.0.3" Type="Frame Item" Ref="Media.1" PlayAll="0">
+        <MenuItem Name="" Frame="oval" Poster="Media.1.3" Type="Frame Item" Ref="Media.2" PlayAll="0">
           <Placement lft="375" top="286" rgt="625" btm="436"/>
         </MenuItem>
         <MenuItem Name="My Text" Font="Kedage 39.041015625" Underline="1" Color="#f0e0f0ff" Type="Text Item" Ref="" PlayAll="1">
@@ -48,36 +52,36 @@
         </MenuItem>
       </MenuItems>
     </Menu>
-    <Menu Name="W/O Back" Color="#000000ff" BGRef="Media.1">
+    <Menu Name="W/O Back" Color="#000000ff" BGRef="Media.2">
       <Params Aspect="2">
         <Resolution x="720" y="576"/>
       </Params>
-      <MotionData IsMotion="0" Duration="15" AudioRef="" IsStillPicture="0" IsInternalAudio="1" ExtAudio="">
+      <MotionData IsMotion="0" Duration="15" IsStillPicture="0" IsInternalAudio="1" AudioRef="" ExtAudio="">
         <PostAction Type="0" Ref=""/>
       </MotionData>
       <SubpicturePalette Selected="#fff00080" Activated="#ff006c80"/>
       <MenuItems>
-        <MenuItem Name="" Frame="roundrect" Poster="" Type="Frame Item" Ref="Media.0.0" PlayAll="0">
+        <MenuItem Name="" Frame="roundrect" Poster="" Type="Frame Item" Ref="Media.1.0" PlayAll="0">
           <Placement lft="150" top="100" rgt="550" btm="450"/>
         </MenuItem>
       </MenuItems>
     </Menu>
-    <Menu Name="Menu 4" Color="#000000ff" BGRef="Media.0">
+    <Menu Name="Menu 4" Color="#000000ff" BGRef="Media.1">
       <Params Aspect="2">
         <Resolution x="720" y="576"/>
       </Params>
-      <MotionData IsMotion="0" Duration="15" AudioRef="" IsStillPicture="0" IsInternalAudio="1" ExtAudio="">
+      <MotionData IsMotion="0" Duration="15" IsStillPicture="0" IsInternalAudio="1" AudioRef="" ExtAudio="">
         <PostAction Type="0" Ref=""/>
       </MotionData>
       <SubpicturePalette Selected="#ff006c80" Activated="#fff000e6"/>
       <MenuItems>
-        <MenuItem Name="" Frame="cell" Poster="" Type="Frame Item" Ref="Media.1.0" PlayAll="0">
+        <MenuItem Name="" Frame="cell" Poster="" Type="Frame Item" Ref="Media.2.0" PlayAll="0">
           <Placement lft="427" top="135" rgt="656" btm="275"/>
         </MenuItem>
-        <MenuItem Name="Part 2" Font="Sans 33.4697265625" Underline="0" Color="#f0e060ff" Type="Text Item" Ref="" PlayAll="0">
+        <MenuItem Name="Part 2" Font="Sans 32.71484375" Underline="0" Color="#f0e060ff" Type="Text Item" Ref="" PlayAll="0">
           <Placement lft="105" top="417" rgt="235" btm="470"/>
         </MenuItem>
-        <MenuItem Name="" Frame="stonerect" Poster="" Type="Frame Item" Ref="Media.1" PlayAll="0">
+        <MenuItem Name="" Frame="stonerect" Poster="" Type="Frame Item" Ref="Media.2" PlayAll="0">
           <Placement lft="98" top="51" rgt="317" btm="194"/>
         </MenuItem>
       </MenuItems>

@@ -57,6 +57,33 @@ struct EmblemNameVis: public ObjVisitor
     }
 };
 
+// вложенную в функцию (RequireTranscoding()) структуру
+// gcc не разрешает GetData-ить
+struct RTCache
+{
+    bool isCalced;
+    bool value;
+
+    RTCache(): isCalced(false), value(false) {}
+};
+
+static bool RequireTranscoding(VideoItem vi)
+{
+    // в принципе можно не кэшировать, все равно миниатюра
+    // видео редко обновляется (при редактировании - 1 раз)
+    RTCache& rtc = vi->GetData<RTCache>();
+    if( !rtc.isCalced )
+    {
+        const std::string& fname = GetFilename(*vi);
+        bool is_mpeg2;
+        std::string err_string;
+        rtc.value    = !IsVideoDVDCompliant(fname.c_str(), err_string, is_mpeg2);
+        rtc.isCalced = true;
+    }
+
+    return rtc.value;
+}
+
 void FillThumbnail(const Gtk::TreeIter& itr, RefPtr<MediaStore> ms, Media& md)
 {
     Gtk::TreeModelColumn<RefPtr<Gdk::Pixbuf> > thumb_cln = MediaStore::Fields().thumbnail;
@@ -72,13 +99,21 @@ void FillThumbnail(const Gtk::TreeIter& itr, RefPtr<MediaStore> ms, Media& md)
     }
 
     Point thumb_sz(PixbufSize(thumb_pix));
+    MediaItem mi = &md;
     // *
-    RefPtr<Gdk::Pixbuf> cache_pix = GetCalcedShot(&md);
+    RefPtr<Gdk::Pixbuf> cache_pix = GetCalcedShot(mi);
     RGBA::Scale(thumb_pix, cache_pix, FitIntoRect(thumb_sz, PixbufSize(cache_pix)));
 
     // * эмблемы
-    StampEmblem(thumb_pix, EmblemNameVis::Make(&md));
-    StampFPEmblem(&md, thumb_pix);
+    StampEmblem(thumb_pix, EmblemNameVis::Make(mi));
+    if( VideoItem vi = IsVideo(mi) )
+        if( RequireTranscoding(vi) )
+        {
+            RefPtr<Gdk::Pixbuf> t_emblem = GetCheckEmblem(thumb_pix, "emblems/transcoding.png");
+            // правый верхний угол
+            RGBA::AlphaComposite(thumb_pix, t_emblem, Point(thumb_pix->get_width() - t_emblem->get_width(), 1));
+        }
+    StampFPEmblem(mi, thumb_pix);
     //row[ms->columns.thumbnail] = thumb_pix;
     ms->row_changed(ms->get_path(itr), itr);
 }

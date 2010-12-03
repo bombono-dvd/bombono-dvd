@@ -27,6 +27,7 @@
 #include <mgui/render/menu.h>
 #include <mgui/sdk/browser.h>
 #include <mgui/img-factory.h>
+#include <mgui/ffviewer.h>
 
 #include <mbase/project/table.h>
 #include <mbase/project/colormd.h>
@@ -50,12 +51,12 @@ void PrimaryShotGetter::Visit(StillImageMD& obj)
 struct BrowserCache
 {
         ptr::weak_intrusive<VideoMD> curVI;
-                    Mpeg::FwdPlayer  player;
+                        VideoViewer  player;
 
         BrowserCache() { RGBOpen(player); }
 };
 
-static Mpeg::FwdPlayer& OpenCachePlayer(VideoItem vmd)
+static VideoViewer& OpenCachePlayer(VideoItem vmd)
 {
     BrowserCache& cache = AData().GetData<BrowserCache>();
     if( (cache.curVI.lock() != vmd) || !cache.player.IsOpened() )
@@ -93,8 +94,6 @@ VideoStart GetVideoStart(MediaItem mi)
         ASSERT(0);
     return res;
 }
-
-VideoPE::VideoPE(VideoStart vs): plyr(OpenCachePlayer(vs.first)), time(vs.second) {}
 
 static VideoPE* CreateVideoPE(Media& md)
 {
@@ -166,8 +165,8 @@ void ThumbSizeCalcer::Visit(StillImageMD& obj)
 
 Point CalcAspectSize(VideoMD& vi)
 {
-    Mpeg::FwdPlayer& player = OpenCachePlayer(&vi);
-    return Mpeg::GetAspectRatio(player);
+    VideoViewer& player = OpenCachePlayer(&vi);
+    return DAspectRatio(player);
 }
 
 void ThumbSizeCalcer::Visit(VideoMD& obj)
@@ -343,9 +342,16 @@ void ImagePE::Fill(RefPtr<Gdk::Pixbuf>& pix)
     FillPixbuf(pix, origPix, readOnly);
 }
 
+static PixbufGetterFunctor MakePGF(VideoViewer& plyr, double time)
+{
+    return bb::bind(&GetRawFrame, time, boost::ref(plyr));
+}
+
+VideoPE::VideoPE(VideoStart vs): pgFnr(MakePGF(OpenCachePlayer(vs.first), vs.second)) {}
+
 PixbufSource VideoPE::Make(const Point& sz)
 {
-    RefPtr<Gdk::Pixbuf> img = GetRawFrame(time, plyr);
+    RefPtr<Gdk::Pixbuf> img = pgFnr();
     if( img )
         return FormPixbufSource(sz, img, true);
     else
@@ -358,7 +364,7 @@ PixbufSource VideoPE::Make(const Point& sz)
 
 void VideoPE::Fill(RefPtr<Gdk::Pixbuf>& pix)
 {
-    RefPtr<Gdk::Pixbuf> img = GetRawFrame(time, plyr);
+    RefPtr<Gdk::Pixbuf> img = pgFnr();
     if( img )
         FillPixbuf(pix, img, true);
     else

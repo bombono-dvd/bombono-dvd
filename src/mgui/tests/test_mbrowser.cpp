@@ -118,9 +118,10 @@ BOOST_AUTO_TEST_CASE( TestMBrowserActions )
     CheckMediaPaths(ms, 3);
 
     // * добавление медиа
-    std::string tmp_str = GetTestFileName("colors.png");
+    std::string fname(GetTestFileName("colors.png"));
+    std::string tmp_str; 
     StorageItem CreateMedia(const char* fname, std::string& err_string);
-    StorageItem si = CreateMedia(tmp_str.c_str(), tmp_str);
+    StorageItem si = CreateMedia(fname.c_str(), tmp_str);
     BOOST_CHECK( si );
     // перед AcerTX.png
     PublishMedia(ms->insert(ms->get_iter("1")), ms, si);

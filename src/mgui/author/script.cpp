@@ -408,7 +408,8 @@ bool Is4_3(VideoItem first_vi)
     if( first_vi )
     {
         Point asp = Project::CalcAspectSize(*first_vi);
-        if( asp == Point(16, 9) )
+        // с погрешностью 0.1
+        if( (double)asp.x/asp.y > (4 + 0.1)/3. )
             is_4_3 = false;
     }
     return is_4_3;

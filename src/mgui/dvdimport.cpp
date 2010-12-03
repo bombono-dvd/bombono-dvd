@@ -31,6 +31,7 @@
 #include "sdk/packing.h"
 #include "sdk/widget.h"
 #include "sdk/browser.h"   // VideoPE
+#include "sdk/player_utils.h"
 #include "dialog.h"
 #include "gettext.h"
 
@@ -143,6 +144,11 @@ static bool OpenVob(VobPtr vob, Mpeg::FwdPlayer& plyr, dvd_reader_t* dvd)
     return plyr.OpenFBuf(strm_buf);
 }
 
+static Project::VideoPE MakeMpegPlayerPE(Mpeg::FwdPlayer& plyr, double time)
+{
+    return Project::VideoPE(bb::bind(&GetRawFrame, time, boost::ref(plyr)));
+}
+
 static bool OnSelectIdle(ImportData& id)
 {
     int num = id.numToThumb++;
@@ -161,7 +167,7 @@ static bool OnSelectIdle(ImportData& id)
             double preview_time = 3.0; // показываем кадр третьей (или первой?) секунды, иначе - середину
             if( preview_time >= tm )
                 preview_time = tm / 2;
-            row[VF().thumbnail] = Project::VideoPE(plyr, preview_time).Make(sz).RWPixbuf();
+            row[VF().thumbnail] = MakeMpegPlayerPE(plyr, preview_time).Make(sz).RWPixbuf();
         }
         else
             LOG_INF << "OpenFBuf() failed: " << plyr.MInfo().ErrorReason() << io::endl;
@@ -322,7 +328,7 @@ static bool UpdatePreview(ImportData& id)
         double tm = GetFrameTime(plyr, (int)id.previewAdj.get_value());
         RefPtr<Gdk::Pixbuf> pix = id.previewImg.get_pixbuf();
 
-        Project::VideoPE(plyr, tm).Fill(pix);
+        MakeMpegPlayerPE(plyr, tm).Fill(pix);
         id.previewImg.queue_draw();
     }
     return false;

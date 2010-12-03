@@ -33,6 +33,7 @@
 #include <mgui/sdk/browser.h>   // VideoStart
 #include <mgui/sdk/ioblock.h>
 #include <mgui/sdk/textview.h>  // AppendCommandText()
+#include <mgui/ffviewer.h>
 
 #include <mbase/project/table.h>
 
@@ -614,7 +615,7 @@ static void LoadMotionFrame(RefPtr<Gdk::Pixbuf>& pix, MediaItem ref, DataWare& s
                             MotionTimer& mt)
 {
     VideoStart vs = GetVideoStart(ref);
-    Mpeg::FwdPlayer& plyr = src.GetData<Mpeg::FwdPlayer>(MOTION_MENU_TAG);
+    VideoViewer& plyr = src.GetData<VideoViewer>(MOTION_MENU_TAG);
     if( mt.IsFirst() )
         RGBOpen(plyr, GetFilename(vs));
 

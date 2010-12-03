@@ -34,6 +34,7 @@ double Duration(FFViewer& ffv);
 
 RefPtr<Gdk::Pixbuf> GetRawFrame(double time, FFViewer& ffv);
 
+// в отличие от FFViewer открывать/закрывать самостоятельно
 struct FFInfo: public boost::noncopyable
 {
     AVFormatContext* iCtx;
@@ -43,6 +44,8 @@ struct FFInfo: public boost::noncopyable
           FFInfo();
     bool  IsOpened();
 };
+
+bool CanOpenAsFFmpegVideo(const char* fname, std::string& err_str);
 
 struct FFViewer: public FFInfo
 {

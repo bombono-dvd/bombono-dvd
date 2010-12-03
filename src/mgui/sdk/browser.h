@@ -22,7 +22,7 @@
 #ifndef __MGUI_SDK_BROWSER_H__
 #define __MGUI_SDK_BROWSER_H__
 
-#include "player_utils.h"
+//#include "player_utils.h"
 
 #include <mgui/project/thumbnail.h>
 
@@ -37,21 +37,21 @@ namespace Project
 typedef std::pair<VideoItem, double> VideoStart;
 VideoStart GetVideoStart(MediaItem mi);
 
+typedef boost::function<RefPtr<Gdk::Pixbuf>()> PixbufGetterFunctor;
+
 // чтение кадров с видео
 class VideoPE: public PixExtractor
 {
     public:
+                          VideoPE(const PixbufGetterFunctor& pgf): pgFnr(pgf) {}
                           VideoPE(VideoStart vs);
-
-                          VideoPE(Mpeg::FwdPlayer& plyr_, double time_)
-                            : plyr(plyr_), time(time_) {}
+                          //VideoPE(VideoViewer& plyr_, double time_);
 
     virtual PixbufSource  Make(const Point& sz);
     virtual         void  Fill(RefPtr<Gdk::Pixbuf>& pix);
 
     protected:
-        Mpeg::FwdPlayer& plyr;
-                 double  time;
+        PixbufGetterFunctor pgFnr;
 };
 
 } // namespace Project

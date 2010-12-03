@@ -47,6 +47,8 @@ void MuxAddStreams(const std::string& src_fname);
 // возвращает - куда надо вставить (до или после)
 bool ValidateMediaInsertionPos(Gtk::TreePath& brw_pth, bool want_ia = true);
 
+bool IsVideoDVDCompliant(const char* fname, std::string& err_string, bool& is_mpeg2);
+
 } // namespace Project
 
 namespace DVD {
