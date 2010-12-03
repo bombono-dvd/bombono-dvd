@@ -300,7 +300,8 @@ bool OpenInfo(FFInfo& ffi, const char* fname, std::string& err_str)
         //
         ffi.iCtx = ic;
     
-        if( IsFFError(av_find_stream_info(ic)) )
+        av_res = av_find_stream_info(ic);
+        if( IsFFError(av_res) )
         {
             // например .webm для FFmpeg <= 0.5 
             err_str = BF_("Can't find stream information: %1%") % av_res % bf::stop;
@@ -328,13 +329,12 @@ bool OpenInfo(FFInfo& ffi, const char* fname, std::string& err_str)
             err_str = _("No video stream found");
             return false;
         }
-        // для работы FFViewer аудио не нужно (пока), но на практике всегда
-        // требуется
-        if( audio_idx == -1 )
-        {
-            err_str = _("No audio stream found");
-            return false;
-        }
+        // включить по требованию (и поправить flower.mpg)
+        //if( audio_idx == -1 )
+        //{
+        //    err_str = _("No audio stream found");
+        //    return false;
+        //}
                     
         if( !IsFTSValid(ic->duration) )
         {
@@ -775,13 +775,26 @@ static double StartTime(FFViewer& ffv)
 static bool CanByteSeek(AVFormatContext* ic)
 {
     // переход по позиции не работает для avi, mkv - см. особенности ffmpeg
-    // однако для без-заголовочных демиксеров (MPEG-PS, MPEG-TS)
-    // перейти в начало иногда возможно только так,- PanamaCanal_1080p-h264.ts
-    static AVInputFormat* mpegts_demuxer = 0;
-    if( !mpegts_demuxer )
-        mpegts_demuxer = av_find_input_format("mpegts");
+    // однако для без-заголовочных демиксеров (MPEG-PS, MPEG-TS) требуется
 
-    return ic->iformat == mpegts_demuxer;
+    typedef std::map<std::string, AVInputFormat*> Map;
+    static Map map;
+    if( map.empty() )
+    {
+        // для видео < 1 секунды показывает пусто
+        map["mpeg"]   = av_find_input_format("mpeg");
+        // перейти в начало иногда возможно только так,- PanamaCanal_1080p-h264.ts
+        map["mpegts"] = av_find_input_format("mpegts");
+    }
+
+    bool res = false;
+    boost_foreach( Map::reference ref, map )
+        if( ic->iformat == ref.second )
+        {
+            res = true;
+            break;
+        }
+    return res;
 }
 
 static bool SeekSetTime(FFViewer& ffv, double time)

@@ -86,10 +86,10 @@ static void RunFFmpeg(const std::string& ffmpeg_cmd)
 BOOST_AUTO_TEST_CASE( TestStillTranscoding )
 {
     return;
-    std::string fname = "/home/ilya/opt/programming/atom-project/dvd_out/3.Menu 4/Menu.png";
+    std::string fname = "tools/test-data/flower.jpg";
 
     // в случае автономной работы ffmpeg указываем длительность аргументом
-    double duration = 15;
+    double duration = 15; // 0.1;
     std::string ffmpeg_cmd = boost::format("ffmpeg -t %3$.2f -loop_input -i \"%1%\" %2%") 
         % fname % FFmpegPostArgs("../dvd_out/trans.vob", false, true) % duration % bf::stop;
  
