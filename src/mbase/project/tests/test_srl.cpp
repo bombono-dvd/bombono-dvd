@@ -112,3 +112,10 @@ BOOST_AUTO_TEST_CASE( TestNormArray )
     BOOST_CHECK( arr[1].pnt == arr2[1].pnt );
 }
 
+BOOST_AUTO_TEST_CASE( TestXmlUTF8 )
+{
+    xmlpp::Document doc;
+    xmlpp::Element* root_node = doc.create_root_node("dvdauthor");
+    root_node->set_attribute("file", "1.Комбайнеры_352w.flv.mpg");
+    doc.write_to_file_formatted("/home/ilya/opt/programming/atom-project/dvd_out/DVDAuthor1.xml");//, "utf-123");
+}

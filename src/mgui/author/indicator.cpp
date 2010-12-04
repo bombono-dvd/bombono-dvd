@@ -63,6 +63,7 @@ struct StageMapT
 } 
 StageMap[stLAST] = 
 { 
+    { N_("Transcoding Videos"),   true, true, 1, 0.0 }, 
     { N_("Rendering Menus"),      true, true, 1, 0.0 }, 
     { N_("Generating DVD-Video"), true, true, 3, 0.0 }, 
     { N_("Creating ISO Image"),   true, true, 2, 0.0 }, 
@@ -90,7 +91,7 @@ void InitStageMap(Mode mod)
     for( int i=0; i<(int)ARR_SIZE(StageMap); i++ )
         StageMap[i].dWeight = StageMap[i].weight / sum;
 
-    CurStage = stRENDER;
+    CurStage = stBEG_STAGE;
 }
 
 void ExecState::SetIndicator(double percent)
@@ -119,13 +120,6 @@ void SetStageProgress(double percent)
     GetES().SetIndicator(sum);
 }
 
-static void SetPassed(Stage st)
-{
-    if( st != stRENDER )
-        SetPassed(Stage(st-1));
-    StageMap[st].isPassed = true;
-}
-
 std::string StageToStr(Stage st)
 {
     StageMapT& s = StageMap[st];
@@ -141,7 +135,8 @@ void SetStage(Stage st)
     StageMapT& s = StageMap[st];
     ASSERT( s.isNeeded );
 
-    SetPassed(st);
+    for( int i=stBEG_STAGE; i<st; i++ )
+        StageMap[i].isPassed = true;
     s.isPassed = false;
 
     CurStage = st;

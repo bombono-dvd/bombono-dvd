@@ -41,11 +41,13 @@ enum Mode
 enum Stage
 {
     stNO_STAGE   = -1,
+    stBEG_STAGE  = 0,
 
-    stRENDER     = 0,
-    stDVDAUTHOR  = 1,
-    stMK_ISO     = 2,
-    stBURN       = 3,
+    stTRANSCODE  = stBEG_STAGE,
+    stRENDER     = 1,
+    stDVDAUTHOR  = 2,
+    stMK_ISO     = 3,
+    stBURN       = 4,
 
     stLAST
 };

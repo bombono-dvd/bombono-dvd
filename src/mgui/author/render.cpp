@@ -727,6 +727,23 @@ static Gtk::TextView& PrintCmdToDetails(const std::string& cmd)
     return tv;
 }
 
+void RunExtCmd(const std::string& cmd)
+{
+    ExitData ed;
+    if( Execution::ConsoleMode::Flag )
+    {
+        io::cout << cmd << io::endl;
+        ed = System(cmd);
+    }
+    else
+    {
+        Gtk::TextView& tv = PrintCmdToDetails(cmd);
+        ed = Author::AsyncCall(0, cmd.c_str(), TextViewAppender(tv));
+    }
+    if( !ed.IsGood() )
+        FFmpegError(ed);
+}
+
 static void SaveStillMenuMpg(const std::string& mn_dir, Menu mn)
 {
     // сохраняем Menu.png и рендерим из нее
@@ -736,17 +753,7 @@ static void SaveStillMenuMpg(const std::string& mn_dir, Menu mn)
     std::string ffmpeg_cmd = boost::format("ffmpeg -t %3$.2f -loop_input -i \"%1%\" %2%") 
         % img_fname % MakeFFmpegPostArgs(mn_dir, mn) % MenuDuration(mn) % bf::stop;
 
-    ExitData ed;
-    if( Execution::ConsoleMode::Flag )
-        ed = System(ffmpeg_cmd);
-    else
-    {
-        Gtk::TextView& tv = PrintCmdToDetails(ffmpeg_cmd);
-        ed = Author::AsyncCall(0, ffmpeg_cmd.c_str(), TextViewAppender(tv));
-    }
-
-    if( !ed.IsGood() )
-        FFmpegError(ed);
+    RunExtCmd(ffmpeg_cmd);
 }
 
 FFmpegCloser::~FFmpegCloser()

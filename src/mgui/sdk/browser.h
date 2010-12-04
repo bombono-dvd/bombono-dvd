@@ -39,6 +39,8 @@ VideoStart GetVideoStart(MediaItem mi);
 
 typedef boost::function<RefPtr<Gdk::Pixbuf>()> PixbufGetterFunctor;
 
+// :TODO: упростить - вместо PixbufGetterFunctor просто передавать результат,
+// соответ. VideoPE вырождается в ImagePE(read_only=true)
 // чтение кадров с видео
 class VideoPE: public PixExtractor
 {

@@ -213,6 +213,8 @@ std::string ConvertPathFromUtf8(const std::string& path);
 Menu MakeMenu(const std::string& name);
 Menu MakeMenu(int old_sz); // авто-имя
 
+void SaveFormattedUTF8Xml(xmlpp::Document& doc, const Glib::ustring& filename);
+
 } // namespace Project
 
 #endif // #ifndef __MBASE_PROJECT_TABLE_H__

@@ -7,7 +7,7 @@
     </DefMenuParams>
   </Globals>
   <Medias>
-    <Media Name="&#x41A;&#x43E;&#x43C;&#x431;&#x430;&#x439;&#x43D;&#x435;&#x440;&#x44B;_352w" Path="../../../AV-Samples/&#x41A;&#x43E;&#x43C;&#x431;&#x430;&#x439;&#x43D;&#x435;&#x440;&#x44B;_352w.flv" Type="Video">
+    <Media Name="Kombajjnjory" Path="../../../AV-Samples/Kombajjnjory.flv" Type="Video">
       <Parts/>
       <PostAction Type="0" Ref=""/>
     </Media>
@@ -34,7 +34,7 @@
         <Resolution x="720" y="576"/>
       </Params>
       <MotionData IsMotion="1" Duration="1" IsStillPicture="0" IsInternalAudio="1" AudioRef="Media.1" ExtAudio="">
-        <PostAction Type="2" Ref="Media.1"/>
+        <PostAction Type="0" Ref=""/>
       </MotionData>
       <SubpicturePalette Selected="#fff00080" Activated="#ff006c80"/>
       <MenuItems>
@@ -44,8 +44,8 @@
         <MenuItem Name="" Frame="oval" Poster="Media.1.3" Type="Frame Item" Ref="Media.2" PlayAll="0">
           <Placement lft="375" top="286" rgt="625" btm="436"/>
         </MenuItem>
-        <MenuItem Name="My Text" Font="Kedage 39.041015625" Underline="1" Color="#f0e0f0ff" Type="Text Item" Ref="" PlayAll="1">
-          <Placement lft="78" top="339" rgt="276" btm="392"/>
+        <MenuItem Name="Play All" Font="Kedage 39.041015625" Underline="1" Color="#f0e0f0ff" Type="Text Item" Ref="" PlayAll="1">
+          <Placement lft="78" top="339" rgt="267" btm="392"/>
         </MenuItem>
         <MenuItem Name="" Frame="gradient" Poster="" Type="Frame Item" Ref="Menu.1" PlayAll="0">
           <Placement lft="72" top="58" rgt="285" btm="177"/>
@@ -78,7 +78,7 @@
         <MenuItem Name="" Frame="cell" Poster="" Type="Frame Item" Ref="Media.2.0" PlayAll="0">
           <Placement lft="427" top="135" rgt="656" btm="275"/>
         </MenuItem>
-        <MenuItem Name="Part 2" Font="Sans 32.71484375" Underline="0" Color="#f0e060ff" Type="Text Item" Ref="" PlayAll="0">
+        <MenuItem Name="Part 2" Font="Sans 32.96875" Underline="0" Color="#f0e060ff" Type="Text Item" Ref="" PlayAll="0">
           <Placement lft="105" top="417" rgt="235" btm="470"/>
         </MenuItem>
         <MenuItem Name="" Frame="stonerect" Poster="" Type="Frame Item" Ref="Media.2" PlayAll="0">

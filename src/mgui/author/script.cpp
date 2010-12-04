@@ -353,11 +353,25 @@ static bool ScriptMenu(xmlpp::Element* menus_node, Menu root_menu, Menu mn, int 
     return true;
 }
 
-static bool ScriptTitle(xmlpp::Element* ts_node, VideoItem vi)
+bool RequireTranscoding(VideoItem vi);
+// путь для скрипта dvdauthor
+static std::string DVDFilename(VideoItem vi, const std::string& out_dir)
+{
+    std::string dst_fname = GetFilename(*vi);
+    if( RequireTranscoding(vi) )
+    {
+        dst_fname = boost::format("%1%.%2%.mpg") % GetAuthorNumber(vi) 
+            % fs::path(dst_fname).leaf() % bf::stop;
+        dst_fname = AppendPath(out_dir, dst_fname);
+    }
+    return dst_fname;
+}
+
+static bool ScriptTitle(xmlpp::Element* ts_node, VideoItem vi, const std::string& out_dir)
 {
     xmlpp::Element* pgc_node = ts_node->add_child("pgc");
     xmlpp::Element* vob_node = pgc_node->add_child("vob");
-    vob_node->set_attribute("file", GetFilename(*vi));
+    vob_node->set_attribute("file", DVDFilename(vi, out_dir));
     // список глав
     bool is_empty = true;
     std::string chapters;
@@ -437,14 +451,22 @@ bool IsMenuToBe4_3()
 //    return true;
 //}
 
+// 2 цели:
+// - в первую очередь, для скрипта dvdauthor
+// - для нумерации при транскодировании
+void IndexVideosForAuthoring()
+{
+    int idx = 1; // индекс от 1
+    boost_foreach( VideoItem vi, AllVideos() )
+        GetAuthorNumber(vi) = idx++;
+}
+
 void GenerateDVDAuthorScript(const std::string& out_dir)
 {
     // индексируем видео в titles
     //IndexVideosForAuthoring();
     //ForeachVideo(bb::bind(&IndexForAuthoring, _1, _2));
-    int idx = 1; // индекс от 1
-    boost_foreach( VideoItem vi, AllVideos() )
-        GetAuthorNumber(vi) = idx++;
+    //IndexVideosForAuthoring();
 
     ADatabase& db = AData();
     AStores&   as = GetAStores();
@@ -522,9 +544,9 @@ void GenerateDVDAuthorScript(const std::string& out_dir)
         xmlpp::Element* ts_node = tts_node->add_child("titles");
         AddVideoTag(ts_node, Is4_3(first_vi));
 
-        ForeachVideo(bb::bind(&ScriptTitle, ts_node, _1));
+        ForeachVideo(bb::bind(&ScriptTitle, ts_node, _1, out_dir));
     }
-    doc.write_to_file_formatted(AppendPath(out_dir, "DVDAuthor.xml"));
+    SaveFormattedUTF8Xml(doc, AppendPath(out_dir, "DVDAuthor.xml"));
 }
 
 static bool AuthorClearVideo(VideoItem vi)
@@ -597,6 +619,23 @@ static void AuthorImpl(const std::string& out_dir)
 {
     AuthorSectionInfo((str::stream() << "Build DVD-Video in folder: " << out_dir).str());
     IteratePendingEvents();
+
+    IndexVideosForAuthoring();
+
+    void RunExtCmd(const std::string& cmd);
+    std::string FFmpegToDVDArgs(const std::string& out_fname, bool is_4_3, bool is_pal);
+    // * транскодирование
+    Author::SetStage(Author::stTRANSCODE);
+    boost_foreach( VideoItem vi, AllVideos() )
+        if( RequireTranscoding(vi) )
+        {
+            std::string src_fname = GetFilename(*vi);
+            std::string dst_fname = DVDFilename(vi, out_dir);
+            // :REFACTOR: см. тест
+            std::string ffmpeg_cmd = boost::format("ffmpeg -i %1% %2%") % FilenameForCmd(src_fname) 
+                % FFmpegToDVDArgs(dst_fname, AData().PalTvSystem(), Is4_3(vi)) % bf::stop;
+            RunExtCmd(ffmpeg_cmd);
+        }
 
     Author::ExecState& es = Author::GetES();
     str::stream& settings = es.settings;

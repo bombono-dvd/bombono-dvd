@@ -67,7 +67,7 @@ struct RTCache
     RTCache(): isCalced(false), value(false) {}
 };
 
-static bool RequireTranscoding(VideoItem vi)
+bool RequireTranscoding(VideoItem vi)
 {
     // в принципе можно не кэшировать, все равно миниатюра
     // видео редко обновляется (при редактировании - 1 раз)

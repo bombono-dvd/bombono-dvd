@@ -313,6 +313,26 @@ void ADatabase::SetProjectFName(const std::string& fname, const std::string& cur
     }
 }
 
+void SaveFormattedUTF8Xml(xmlpp::Document& doc, const Glib::ustring& filename)
+{
+    // Согласно стандарту XML, "2.2 Characters" и "4.3.3 Character Encoding in Entities",
+    // можно использовать почти буквы Unicode, за исключением служебных вроде '<','>';
+    // при этом их надо кодировать в кодировке, указанной в первом теге, пример:
+    // <?xml encoding='UTF-8'?>
+    // Если кодировка не указана/тега xml нет, то она равна UTF-8 (или UTF-16, если в начале
+    // файла идет "Byte Order Mark").
+    // Если же в соответ. кодировке отсутствует нужная буква, то ее заменяют ссылкой, называемой
+    // character reference; один и видов - &#xh...h, где h - hex-цифра.
+    // 
+    // libXML же всегда заменяет нелатинские буквы ссылками, если явно не указать кодировку,
+    // см. xmlSaveCtxtInit(), ctxt->escape (повторю, для UTF-8 в этом нет необходимости). 
+    // Судя по всему, такое не запрещено (машине без разницы), но жутко усложняет чтение текста 
+    // человеку.
+    // 
+    // Это есть единственная причина создания данной функции.
+    doc.write_to_file_formatted(filename, "UTF-8");
+}
+
 bool ADatabase::SaveWithFnr(ArchieveFnr afnr)
 {
     ASSERT( !isOut );
@@ -326,7 +346,7 @@ bool ADatabase::SaveWithFnr(ArchieveFnr afnr)
     root_node->add_child_comment("This document is for " APROGRAM_PRINTABLE_NAME " program");
 
     DoSaveArchieve(root_node, afnr);
-    doc.write_to_file_formatted(ConvertPathFromUtf8(prjFName));
+    SaveFormattedUTF8Xml(doc, ConvertPathFromUtf8(prjFName));
     return true;
 }
 
