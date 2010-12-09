@@ -183,9 +183,8 @@ static void InsertChapters(TrackLayout& trk_lay)
 
         cbtn = &PackStart(vbox, NewManaged<Gtk::CheckButton>(_("Remove Existing Chapters")));
     }
-    CompleteDialog(add_dlg);
 
-    if( Gtk::RESPONSE_OK == add_dlg.run() )
+    if( CompleteAndRunOk(add_dlg) )
     {
         int intr = btn->get_value_as_int() * 60; // секунды
         if( cbtn->get_active() )

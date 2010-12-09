@@ -28,13 +28,11 @@
 #include <mgui/win_utils.h>
 #include <mgui/gettext.h>
 #include <mgui/sdk/textview.h>
-
-#include <glib/gstdio.h>
+#include <mgui/project/handler.h> // FFmpegSizeForDVD()
 
 #include <boost/lexical_cast.hpp>
 #include <mlib/regex.h>
 
-guint64 FFmpegSizeForDVD(double sec);
 
 namespace Author
 {
@@ -191,11 +189,9 @@ void BuildDvdOF::SetStage(Stage stg)
     ::Author::SetStage(stg);
 }
 
-static bool GetSize(Project::VideoItem vi, io::pos& sz)
+bool GetSize(Project::VideoItem vi, io::pos& sz)
 {
-    struct stat buf;
-    if( g_stat(Project::GetFilename(*vi).c_str(), &buf) == 0 )
-        sz += buf.st_size;
+    sz += Project::PhisSize(GetFilename(*vi).c_str());
     return true;
 }
 

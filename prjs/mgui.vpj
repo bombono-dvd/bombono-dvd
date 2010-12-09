@@ -292,6 +292,7 @@
 			<F N="../src/mgui/sdk/cairo_utils.cpp"/>
 			<F N="../src/mgui/sdk/clearlooks.cpp"/>
 			<F N="../src/mgui/render/common.cpp"/>
+			<F N="../src/mgui/dialog.cpp"/>
 			<F N="../src/mgui/sdk/dndtreeview.cc"/>
 			<F N="../src/mgui/dvdimport.cpp"/>
 			<F N="../src/mgui/sdk/entry.cpp"/>

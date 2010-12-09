@@ -10,6 +10,7 @@ bin_path  = user_options_dict['BIN_BUILD_DIR']
 ######
 # lib
 lib_src_files = [
+                 'dialog.cpp',
                  'dvdimport.cpp',
                  'execution.cpp',
                  'ffviewer.cpp',

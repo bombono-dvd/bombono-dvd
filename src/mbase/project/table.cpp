@@ -254,6 +254,11 @@ void VideoMD::SerializeImpl(Archieve& ar)
     }
 
     SerializePostAction(ar, pAct);
+    {
+        ArchieveStackFrame asf(ar, "DVDTransData");
+        ar("DVDDims", transDat.dd   )
+          ("VRate",   transDat.vRate);
+    }
 }
 
 void VideoChapterMD::SerializeImpl(Archieve& ar)

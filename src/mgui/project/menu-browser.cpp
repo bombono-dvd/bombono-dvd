@@ -43,10 +43,11 @@
 
 #include <gtk/gtkversion.h>
 
-guint64 FFmpegSizeForDVD(double sec)
+guint64 FFmpegSizeForDVD(double sec, int vrate)
 {
-    int brate = 6000000; // bit/s, умолчание в ffmpeg для -target *-dvd
-    return brate/8 * (gint64)sec;
+    int arate = 448; // kbit/s, умолчание в ffmpeg для -target *-dvd
+    int snum  = 0;   // DeVeDe учитывает и субтитры (по 8kbit/s), но ИМХО ерунда 
+    return (gint64)sec * (vrate + arate + snum*8) * 125; // 1000/8 (бит в байте)
 }
 
 namespace Project
@@ -76,11 +77,6 @@ static Gtk::RadioButton& AddAudioChoice(const char* label, Gtk::VBox& vbox, Gtk:
     Gtk::RadioButton& r_btn = *Gtk::manage(new Gtk::RadioButton(grp, label, true));
     PackNamedWidget(vbox, r_btn, wdg, sg, Gtk::PACK_EXPAND_WIDGET);
     return r_btn;
-}
-
-static Gtk::Label& NewBoldLabel(const std::string& label)
-{
-    return NewMarkupLabel("<span weight=\"bold\">" + label + "</span>", true);
 }
 
 static void OnMotionChoice(Gtk::CheckButton& mtn_btn, Gtk::VBox& vbox)
@@ -315,8 +311,7 @@ bool SetFilename(Gtk::FileChooser& fc, const std::string& fpath)
 
 static void OnDurationChanged(Gtk::SpinButton& dur_btn, Gtk::Label& sz_lbl)
 {
-    std::string ToSizeString(gint64 size, bool round);
-    std::string str = ToSizeString(FFmpegSizeForDVD(dur_btn.get_value()), false);
+    std::string str = ShortSizeString(FFmpegSizeForDVD(dur_btn.get_value()));
     sz_lbl.set_label(str);
 }
 
@@ -342,25 +337,10 @@ static void PackColorButton(DialogVBox& vbox, Gtk::ColorButton& btn, const RGBA:
     AppendWithLabel(vbox, btn, label);
 }
 
-static Gtk::VBox& PackParaBox(Gtk::VBox& vbox)
-{
-    return PackStart(vbox, NewManaged<Gtk::VBox>(false, 4));
-}
-
-static Gtk::VBox& PackParaBox(Gtk::VBox& vbox, const char* name)
-{
-    Gtk::VBox& box = PackParaBox(vbox);
-    Gtk::Label& a_lbl = PackStart(box, NewBoldLabel(name));
-    SetAlign(a_lbl);
-
-    return box;
-}
 void MenuSettings(Menu mn, Gtk::Window* win)
 {
-    Gtk::Dialog dlg(_("Menu Settings"), true);
-    if( win )
-        dlg.set_transient_for(*win);
-    SetDialogStrict(dlg, 420, -1, true);
+    ptr::shared<Gtk::Dialog> p_dlg = MakeDialog(_("Menu Settings"), 420, -1, win);
+    Gtk::Dialog& dlg = *p_dlg;
 
     //DialogVBox& vbox_all = AddHIGedVBox(dlg);
     Gtk::Notebook& nbook = Add(*dlg.get_vbox(), NewManaged<Gtk::Notebook>());
@@ -393,16 +373,13 @@ void MenuSettings(Menu mn, Gtk::Window* win)
             Gtk::VBox& box = PackParaBox(vbox);
             // длительность
             {
-                Gtk::HBox& hbox = PackNamedWidget(box, LabelForWidget(SMCLN_("_Duration (in seconds)"), dur_btn), 
-                                                  dur_btn, vbox.labelSg, Gtk::PACK_SHRINK);
-                Gtk::Label& sz_lbl = NewManaged<Gtk::Label>();
-                sz_lbl.set_padding(5, 0);
-                PackStart(hbox, sz_lbl, Gtk::PACK_SHRINK);
+                ConfigureSpin(dur_btn, mtn_dat.duration, MAX_MOTION_DURATION);
+                Gtk::Label& sz_lbl = Pack2NamedWidget(box, SMCLN_("_Duration (in seconds)"), dur_btn,
+                                                      vbox.labelSg);
 
                 OnDurationChanged(dur_btn, sz_lbl);
                 dur_btn.signal_value_changed().connect(bb::bind(&OnDurationChanged, b::ref(dur_btn), b::ref(sz_lbl)));
             }
-            ConfigureSpin(dur_btn, mtn_dat.duration, MAX_MOTION_DURATION);
 
             // Still Picture
             sp_btn.set_active(mtn_dat.isStillPicture);
@@ -452,9 +429,7 @@ void MenuSettings(Menu mn, Gtk::Window* win)
         btn.signal_clicked().connect(bb::bind(&RestoreSPColors, b::ref(sel_btn), b::ref(act_btn)));
     }
 
-    CompleteDialog(dlg);
-
-    if( Gtk::RESPONSE_OK == dlg.run() )
+    if( CompleteAndRunOk(dlg) )
     {
         mtn_dat.isMotion = mtn_btn.get_active();
         mtn_dat.duration = dur_btn.get_value();

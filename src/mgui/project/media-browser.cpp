@@ -30,6 +30,7 @@
 #include <mgui/sdk/packing.h>
 #include <mgui/sdk/menu.h>
 #include <mgui/sdk/widget.h>
+#include <mgui/sdk/window.h>
 #include <mgui/dialog.h> // MessageBox
 #include <mgui/gettext.h>
 #include <mgui/key.h>
@@ -37,9 +38,13 @@
 
 #include <mgui/editor/toolbar.h>
 
+#include <mbase/project/table.h> 
+
 #include <mlib/sigc.h> 
 #include <mlib/sdk/logger.h>
 #include <mlib/filesystem.h>
+
+#include <glib/gstdio.h> // g_stat
 
 namespace Project
 {
@@ -192,15 +197,216 @@ static bool OnOBButtonPress(ObjectBrowser& brw, const RightButtonFunctor& fnr, G
     return true;
 }
 
-static void OnMBButtonPress(MediaItem mi, GdkEventButton* event)
+static void AppendNamedValue(Gtk::VBox& vbox, RefPtr<Gtk::SizeGroup> sg, const char* name, 
+                             const std::string& value)
+{
+    Gtk::Label& lbl = NewManaged<Gtk::Label>(value);
+    SetAlign(lbl);
+    AppendWithLabel(vbox, sg, lbl, name);
+}
+
+static std::string Double2Str(double val)
+{
+    return boost::format("%1%") % val % bf::stop;
+    //return (str::stream() << val).str();
+}
+
+int DVDWidths[] = { 352, 352, 704, 720 };
+
+static int MinDVDHeight(bool is_pal)
+{
+    return is_pal ? 288 : 240 ;
+}
+
+static Point DVDDimension(DVDDims dd, bool is_pal)
+{
+    int wdh = DVDWidths[dd];
+    int hgt;
+    if( dd == dvd352s )
+        hgt = MinDVDHeight(is_pal);
+    else
+        hgt = is_pal ? 576 : 480 ;
+    return Point(wdh, hgt);
+}
+
+// расчет по оригиналу
+static DVDDims CalcDimsAuto(FFInfo& ffv)
+{
+    bool is_pal = AData().PalTvSystem();
+    Point orig_sz(ffv.vidSz);
+
+    DVDDims dd = dvd352;
+    if( orig_sz.x > DVDDimension(dd, is_pal).x )
+        dd = dvd720;
+    else if( orig_sz.y <= MinDVDHeight(is_pal) )
+        dd = dvd352s;
+    return dd;
+}
+
+int CalcVRateAuto(DVDDims dd)
+{
+    return (dd == dvd352s) ? 2000 : (dd == dvd352) ? 3000 : 5000 ;
+}
+
+// в kbit/s, как у DeVeDe
+const int MIN_TRANS_VRATE = 400;
+const int MAX_TRANS_VRATE = 8500;
+
+DVDTransData GetRealTransData(const DVDTransData& td, FFInfo& ffv)
+{
+    DVDTransData res = td;
+    if( td.dd == dvdAUTO || (td.vRate < MIN_TRANS_VRATE) || (td.vRate > MAX_TRANS_VRATE) )
+    {
+        res.dd    = CalcDimsAuto(ffv);
+        res.vRate = CalcVRateAuto(res.dd);
+    }
+    return res;
+}
+
+// показываем этот список в настройках транскодирования
+DVDDims TransList[]= {dvd352s, dvd352, dvd720};
+
+DVDDims Index2Dimension(int idx)
+{
+    ASSERT( (idx >= 0) && (idx < (int)ARR_SIZE(TransList)) );
+    return TransList[idx];
+}
+
+struct BitrateControls
+{
+    Gtk::SpinButton  vRate;
+  Gtk::ComboBoxText  cmbDims;
+         Gtk::Label  szLbl;
+
+           FFInfo& ffv;
+
+    BitrateControls(FFInfo& ffv_): ffv(ffv_) {}
+};
+
+static void SetAutoBitrate(BitrateControls& bc, DVDDims dd)
+{
+    bc.vRate.set_value(CalcVRateAuto(dd));
+}
+
+static DVDDims Dimensions(BitrateControls& bc)
+{
+    return Index2Dimension(bc.cmbDims.get_active_row_number());
+}
+
+static void OnBitrateControlsChanged(BitrateControls& bc, bool dims_changed)
+{
+    if( dims_changed )
+        SetAutoBitrate(bc, Dimensions(bc));
+
+    // расчет размера результата
+    gint64 fsize = FFmpegSizeForDVD(Duration(bc.ffv), bc.vRate.get_value());
+    bc.szLbl.set_text(ShortSizeString(fsize));
+}
+
+static void SetDims(BitrateControls& bc, DVDDims dd)
+{
+    Gtk::ComboBoxText& dim_cmb = bc.cmbDims;
+    for( int i=0; i<(int)ARR_SIZE(TransList); i++ )
+        if( Index2Dimension(i) == dd )
+        {
+            dim_cmb.set_active(i);
+            break;
+        }
+}
+
+static void OnDefBitrate(BitrateControls& bc)
+{
+    DVDDims dd = CalcDimsAuto(bc.ffv); 
+    SetDims(bc, dd);
+    SetAutoBitrate(bc, dd);
+}
+
+static void RunBitrateCalc(VideoItem vi, Gtk::Window* win)
+{
+    std::string fname = GetFilename(*vi);
+    FFInfo ffv(fname.c_str());
+
+    std::string dlg_name = boost::format("%1% (%2%)") % _("Bitrate Calculator") % vi->mdName % bf::stop;
+    ptr::shared<Gtk::Dialog> p_dlg = MakeDialog(dlg_name.c_str(), 350, -1, win);
+    Gtk::Dialog& dlg = *p_dlg;
+
+    DialogVBox& vbox = AddHIGedVBox(dlg);
+    RefPtr<Gtk::SizeGroup> sg = vbox.labelSg;
+
+    BitrateControls bc(ffv);
+    DVDTransData td = GetRealTransData(vi->transDat, ffv);
+    {
+        Gtk::VBox& bc_box = PackParaBox(vbox);
+        Gtk::SpinButton& vrate_btn = bc.vRate;
+        ConfigureSpin(vrate_btn, td.vRate, MAX_TRANS_VRATE, MIN_TRANS_VRATE, 100);
+        Gtk::Label& kbps_lbl = Pack2NamedWidget(bc_box, SMCLN_("Video bitrate"), vrate_btn,
+                                                sg);
+        const char* kbps_txt = _("kbps");
+        kbps_lbl.set_label(kbps_txt);
+    
+        Gtk::ComboBoxText& dim_cmb = bc.cmbDims;
+        for( int i=0; i<(int)ARR_SIZE(TransList); i++ )
+        {
+            DVDDims dd2 = Index2Dimension(i);
+            dim_cmb.append_text(PointToStr(DVDDimension(dd2, AData().PalTvSystem())));
+        }
+        AppendWithLabel(bc_box, sg, dim_cmb, SMCLN_("Dimensions"));
+        SetDims(bc, td.dd);
+
+        Gtk::Label& sz_lbl = bc.szLbl;
+        SetAlign(sz_lbl);
+        AppendWithLabel(bc_box, sg, sz_lbl, SMCLN_("Result file size"));
+    
+        OnBitrateControlsChanged(bc, false); // расчет размера
+        vrate_btn.signal_value_changed().connect(bb::bind(&OnBitrateControlsChanged, b::ref(bc), false));
+        dim_cmb.signal_changed().connect(bb::bind(&OnBitrateControlsChanged, b::ref(bc), true));
+
+        Gtk::Button& def_btn = PackStart(bc_box, NewManaged<Gtk::Button>(_("_Restore default bitrate"), true));
+        def_btn.signal_clicked().connect(bb::bind(&OnDefBitrate, b::ref(bc)));
+        //PackStart(vbox, NewManaged<Gtk::Button>(_("_Adjust disc usage"), true));
+    }
+
+    // О файле
+    {
+        Gtk::VBox& info_box = PackParaBox(vbox, _("Original file info"));
+
+        AppendNamedValue(info_box, sg, SMCLN_("Dimensions"), PointToStr(ffv.vidSz));
+        // :TODO: убрать подчеркивание
+        AppendNamedValue(info_box, sg, RMU_(SMCLN_("_Duration (in seconds)")), Double2Str(Duration(ffv)));
+        AppendNamedValue(info_box, sg, SMCLN_("Frame rate"), 
+                         boost::format("%1% %2%") % Double2Str(FrameFPS(ffv)) % _("fps") % bf::stop);
+        // :KLUGDE: не показываем оригинальный битрейт видеопотока:
+        // - для mpeg2 это maxrate (пиковая нагрузка), к реальному -b vrate отношение
+        //   не имеещий (для dvd ffmpeg ставит его как 9000kbps)
+        // - для других кодеков (mpeg4, avc) ffmpeg вообще не определяет его
+        // Потому, если и показывать, то только полный битрейт, ffv.iCtx->bit_rate,
+        // он хоть адекватен
+        //AppendNamedValue(vbox, SMCLN_("Video bitrate"),
+        //                 boost::format("%1% %2%") % (GetVideoCtx(ffv)->bit_rate/1000) % kbps_txt % bf::stop);
+        AppendNamedValue(info_box, sg, SMCLN_("File size"), ShortSizeString(PhisSize(fname.c_str())));
+    }
+
+    if( CompleteAndRunOk(dlg) )
+    {
+        DVDTransData& td = vi->transDat;
+        td.dd    = Dimensions(bc);
+        td.vRate = bc.vRate.get_value();
+    }
+}
+
+static void OnMBButtonPress(ObjectBrowser& brw, MediaItem mi, GdkEventButton* event)
 {
     Gtk::Menu& mn  = NewPopupMenu(); 
     Gtk::MenuItem& ea_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("End Action")));
-    // пока только видео (позже - постдействие для интерактивных меню)
+    // только видео
     VideoItem vi = IsVideo(mi);
     if( SetEnabled(ea_itm, vi) )
         ea_itm.set_submenu(EndActionMenuBld(vi->PAction(), boost::function_identity,
                                             VideoAddConstantChoice).Create());
+    // калькулятор
+    AddEnabledItem(mn, _("Bitrate Calculator"), bb::bind(&RunBitrateCalc, vi, GetTopWindow(brw)), 
+                   vi && RequireTranscoding(vi));
+
     Popup(mn, event, true);
 }
 
@@ -215,7 +421,7 @@ MediaBrowser::MediaBrowser(RefPtr<MediaStore> a_lst)
     BuildStructure();
 
     SetupURIDrop(*this, bb::bind(&OnURIsDrop, boost::ref(*this), _1, _2));
-    SetOnRightButton(*this, bb::bind(&OnMBButtonPress, _2, _3));
+    SetOnRightButton(*this, bb::bind(&OnMBButtonPress, _1, _2, _3));
 }
 
 // Названия типов для i18n
@@ -401,6 +607,15 @@ RefPtr<MediaStore> CreateMediaStore()
 
     PublishMediaStore(ms);
     return ms;
+}
+
+io::pos PhisSize(const char* fname)
+{
+    io::pos res = 0;
+    struct stat buf;
+    if( g_stat(fname, &buf) == 0 )
+        res = buf.st_size;
+    return res;
 }
 
 } // namespace Project

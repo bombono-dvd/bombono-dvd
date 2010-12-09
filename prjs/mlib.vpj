@@ -264,6 +264,7 @@
 			<F N="../src/mlib/filesystem.cpp"/>
 			<F N="../src/mlib/foreach.h"/>
 			<F N="../src/mlib/geom2d.cpp"/>
+			<F N="../src/mlib/gettext.cpp"/>
 			<F N="../src/mlib/instantiate.cpp"/>
 			<F N="../src/mlib/sdk/logger.cpp"/>
 			<F N="../src/mlib/sdk/misc.cpp"/>

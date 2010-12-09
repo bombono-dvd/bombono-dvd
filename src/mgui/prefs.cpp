@@ -43,46 +43,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/convenience.hpp> // fs::create_directories()
 
-DialogVBox& PackDialogVBox(Gtk::Box& box)
-{
-    return PackStart(box, NewManaged<DialogVBox>(false, 10), Gtk::PACK_EXPAND_WIDGET);
-}
-
-DialogVBox& AddHIGedVBox(Gtk::Dialog& dlg)
-{
-    // :KLUDGE: почему-то set_border_width() на dlg.get_vbox() не действует, поэтому использовать
-    // MakeBoxHIGed() нельзя
-    Gtk::VBox& box = *dlg.get_vbox();
-
-    //return Add(PackStart(box, NewPaddingAlg(10, 10, 10, 10), Gtk::PACK_EXPAND_WIDGET), NewManaged<Gtk::VBox>(false, 10));
-    DialogVBox& vbox = PackDialogVBox(box);
-    vbox.set_border_width(10);
-    return vbox;
-}
-
-Gtk::HBox& PackNamedWidget(Gtk::VBox& vbox, Gtk::Widget& name_wdg, Gtk::Widget& wdg,
-                           RefPtr<Gtk::SizeGroup> sg, Gtk::PackOptions opt)
-{
-    Gtk::HBox& hbox = PackStart(vbox, NewManaged<Gtk::HBox>());
-
-    Add(PackStart(hbox, NewPaddingAlg(0, 0, 0, 5)), AddWidget(sg, name_wdg));
-    PackStart(hbox, wdg, opt);
-    return hbox;
-}
-
-Gtk::Label& LabelForWidget(const char* label, Gtk::Widget& wdg)
-{
-    Gtk::Label& lbl = NewManaged<Gtk::Label>(label, true);
-    SetAlign(lbl);
-    lbl.set_mnemonic_widget(wdg);
-    return lbl;
-}
-
-void AppendWithLabel(DialogVBox& vbox, Gtk::Widget& wdg, const char* label, Gtk::PackOptions opt)
-{
-    PackNamedWidget(vbox, LabelForWidget(label, wdg), wdg, vbox.labelSg, opt);
-}
-
 static std::string PreferencesPath(const char* fname)
 {
     return GetConfigDir() + "/" + fname;
@@ -170,9 +130,7 @@ void TrySetDirectory(Gtk::FileChooser& fc, const std::string& dir_path)
 void ShowPrefs(Gtk::Window* win)
 {
     Gtk::Dialog dlg(_("Bombono DVD Preferences"), false, true);
-    if( win )
-        dlg.set_transient_for(*win);
-    SetDialogStrict(dlg, 450, 200);
+    AdjustDialog(dlg, 450, 200, win, false);
 
     Gtk::ComboBoxText& tv_cmb = NewManaged<Gtk::ComboBoxText>();
     Gtk::ComboBoxText& pl_cmb = NewManaged<Gtk::ComboBoxText>();

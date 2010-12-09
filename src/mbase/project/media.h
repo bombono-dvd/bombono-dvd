@@ -113,6 +113,26 @@ struct PostAction
          PostAction(): paTyp(patAUTO) {}
 };
 
+//
+// разрешенные разрешения для DVD
+//
+enum DVDDims
+{
+    dvdAUTO = -1, // определить автоматом из исходника
+    dvd352s = 0,
+    dvd352,
+    dvd704,
+    dvd720
+};
+
+struct DVDTransData
+{
+    DVDDims  dd;
+        int  vRate;
+
+    DVDTransData(): dd(dvdAUTO), vRate(0) {}
+};
+
 // видео
 class VideoMD: public PSO<VideoMD, StorageMD> // от StorageMD
 {
@@ -130,6 +150,7 @@ class VideoMD: public PSO<VideoMD, StorageMD> // от StorageMD
 
     virtual     void  SerializeImpl(Archieve& ar);
                 
+        DVDTransData  transDat;
     protected:
 
         ListType  chpLst; // список глав

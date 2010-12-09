@@ -23,31 +23,41 @@ struct FFViewer;
 //
 typedef FFViewer VideoViewer;
 
+struct FFData;
+double FrameFPS(FFData& ffv);
+double Duration(FFData& ffv);
+
 void CheckOpen(VideoViewer& vwr, const std::string& fname);
 void RGBOpen(VideoViewer& viewer, const std::string& fname = std::string());
 Point DAspectRatio(VideoViewer& ffv);
-double FrameFPS(FFViewer& ffv);
 double FrameTime(VideoViewer& ffv, int fram_pos);
 RefPtr<Gdk::Pixbuf> GetFrame(RefPtr<Gdk::Pixbuf>& pix, double time, FFViewer& ffv);
 double FramesLength(FFViewer& ffv);
-double Duration(FFViewer& ffv);
 
 RefPtr<Gdk::Pixbuf> GetRawFrame(double time, FFViewer& ffv);
 
 // в отличие от FFViewer открывать/закрывать самостоятельно
-struct FFInfo: public boost::noncopyable
+struct FFData: public boost::noncopyable
 {
     AVFormatContext* iCtx;
                 int  videoIdx;
               Point  vidSz; // первоначальный размер
 
-          FFInfo();
+          FFData();
     bool  IsOpened();
+};
+
+// обертка для удобства пользования
+struct FFInfo: public FFData
+{
+     FFInfo();
+     FFInfo(const std::string& fname);
+    ~FFInfo();
 };
 
 bool CanOpenAsFFmpegVideo(const char* fname, std::string& err_str);
 
-struct FFViewer: public FFInfo
+struct FFViewer: public FFData
 {
                      // время текущего кадра
              double  curPTS;
@@ -67,6 +77,7 @@ struct FFViewer: public FFInfo
               void  Close();
 };
 
+AVCodecContext* GetVideoCtx(FFData& ffv);
 
 #endif // #ifndef __MGUI_FFVIEWER_H__
 

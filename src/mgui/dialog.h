@@ -77,10 +77,22 @@ DialogVBox& PackDialogVBox(Gtk::Box& box);
 
 void AppendWithLabel(DialogVBox& vbox, Gtk::Widget& wdg, const char* label,
                      Gtk::PackOptions opt = Gtk::PACK_EXPAND_WIDGET);
+Gtk::HBox& AppendWithLabel(Gtk::VBox& vbox, RefPtr<Gtk::SizeGroup> sg, Gtk::Widget& wdg, 
+                           const char* label, Gtk::PackOptions opt = Gtk::PACK_EXPAND_WIDGET);
+
 Gtk::HBox&  PackNamedWidget(Gtk::VBox& vbox, Gtk::Widget& name_wdg, Gtk::Widget& wdg,
                             RefPtr<Gtk::SizeGroup> sg, Gtk::PackOptions opt);
+Gtk::Label& Pack2NamedWidget(Gtk::VBox& box, const char* label, Gtk::Widget& wdg, 
+                             RefPtr<Gtk::SizeGroup> label_sg);
 Gtk::Label& LabelForWidget(const char* label, Gtk::Widget& wdg);
 
+
+ptr::shared<Gtk::Dialog> MakeDialog(const char* name, int min_wdh, int min_hgt, 
+                                    Gtk::Window* win);
+void AdjustDialog(Gtk::Dialog& dlg, int min_wdh, int min_hgt, 
+                  Gtk::Window* parent_win, bool set_resizable);
+
+bool CompleteAndRunOk(Gtk::Dialog& dlg);
 // close_style - вариант для настроек (без OK)
 void CompleteDialog(Gtk::Dialog& dlg, bool close_style = false);
 

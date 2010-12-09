@@ -353,7 +353,6 @@ static bool ScriptMenu(xmlpp::Element* menus_node, Menu root_menu, Menu mn, int 
     return true;
 }
 
-bool RequireTranscoding(VideoItem vi);
 // путь для скрипта dvdauthor
 static std::string DVDFilename(VideoItem vi, const std::string& out_dir)
 {

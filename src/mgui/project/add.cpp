@@ -101,7 +101,7 @@ void CheckVideoFormat(ErrorDesc& ed, const Mpeg::SequenceData& vid, bool is_ntsc
     // Doc: DVD-Video/1. Mpucoder Specs/DVD/dvdmpeg.html
     // проверка подходимости для DVD
     // *
-    int kbps = vid.bytRat/400;
+    int kbps = vid.bytRat/125; // *8/1000 : 1kbps = 1000bit/s
     bool is_byte_rate_ok = kbps <= 9800; // Kbps
     SetImportError(ed, is_byte_rate_ok, 
                    std::string(_("Video bitrate")) + ":\t" + 
@@ -299,7 +299,7 @@ StorageItem CreateMedia(const char* fname, std::string& err_string)
 #define FFMPEG_IMPORT_POLICY 1
 #ifdef FFMPEG_IMPORT_POLICY
 
-    // Сейчас открытие с помощью CanOpenAsFFmpegVideo()/FFInfo считаем 
+    // Сейчас открытие с помощью CanOpenAsFFmpegVideo()/FFData считаем 
     // эталоном в плане принятия материалов; в частности:
     // - ошибка возвращается с темы, если не смогли открыть как изображение
     // - тема не должна открывать аудио или картинки, чтоб был правильный тип

@@ -74,11 +74,7 @@ typedef ptr::shared<List> PList;
 
 } // namespace Str
 
-inline std::string PointToStr(const Point& pnt)
-{
-    return (str::stream() << pnt.x << 'x' << pnt.y).str();
-}
-
+std::string PointToStr(const Point& pnt);
 
 #endif // __MLIB_STRING_H__
 

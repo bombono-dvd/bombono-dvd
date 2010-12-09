@@ -33,7 +33,24 @@
 
 #include <mlib/format.h>
 
+#include <mgui/dialog.h>
+#include <mgui/gettext.h>
+#include <mgui/sdk/packing.h>
+#include <mgui/sdk/widget.h>
+#include <mgui/project/handler.h>
+
 namespace Project {
+
+
+BOOST_AUTO_TEST_CASE( TestBitrateCalculator )
+{
+    return;
+    //const char* fname = "../AV-Samples/Комбайнеры_352w.flv";
+    //const char* fname = "../AV-Samples/Autumn.mpg";
+    const char* fname = "../AV-Samples/Пацаны_544w_mpeg4.avi";
+    //const char* fname = "/home/ilya/opt/programming/atom-project/Autumn2.mpg";
+    GtkmmDBInit gd_init;
+}
 
 BOOST_AUTO_TEST_CASE( TestRenderTranscoding )
 {

@@ -101,6 +101,9 @@ Gtk::TreePath& GetBrowserPath(StorageItem si);
 RefPtr<MediaStore> CreateEmptyMediaStore();
 RefPtr<MediaStore> CreateMediaStore();
 
+io::pos PhisSize(const char* fname);
+bool RequireTranscoding(VideoItem vi);
+
 } // namespace Project
 
 #endif // #ifndef __MGUI_PROJECT_MEDIA_BROWSER_H__

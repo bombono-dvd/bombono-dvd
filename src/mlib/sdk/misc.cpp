@@ -19,8 +19,10 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // 
 
-#include <mlib/tech.h>
 #include "misc.h"
+
+#include <mlib/format.h>
+#include <mlib/tech.h>
 
 // = НОД
 int GCD(int a, int b)
@@ -136,4 +138,8 @@ bool GetDouble(double& res, const char* str)
 
 } // namespace Str
 
+std::string PointToStr(const Point& pnt)
+{
+    return boost::format("%1% \303\227 %2%") % pnt.x % pnt.y % bf::stop;
+}
 

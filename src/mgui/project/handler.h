@@ -43,7 +43,17 @@ inline void DoNameChange(MediaItem mi, const std::string& new_name)
     InvokeOnChangeName(mi);
 }
 
+std::string ToSizeString(gint64 size, bool round);
+inline std::string ShortSizeString(gint64 size)
+{
+    return ToSizeString(size, false);
+}
+
 } // namespace Project
+
+// vrate - в kbit/s
+// 6000 - умолчание в ffmpeg для -target *-dvd
+guint64 FFmpegSizeForDVD(double sec, int vrate = 6000);
 
 #endif // #ifndef __MGUI_PROJECT_HANDLER_H__
 

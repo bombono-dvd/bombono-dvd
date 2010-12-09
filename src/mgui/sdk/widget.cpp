@@ -22,6 +22,8 @@
 #include <mgui/_pc_.h>
 
 #include "widget.h"
+#include "packing.h"
+
 #include <mgui/img_utils.h>
 
 void SetScaleSecondary(Gtk::HScale& scl)
@@ -30,11 +32,10 @@ void SetScaleSecondary(Gtk::HScale& scl)
     scl.property_can_focus()  = false;
 }
 
-void ConfigureSpin(Gtk::SpinButton& btn, double val, double max)
+void ConfigureSpin(Gtk::SpinButton& btn, double val, double max, double min, int step)
 {
     // по мотивам gtk_spin_button_new_with_range()
-    int step = 1;
-    btn.configure(*Gtk::manage(new Gtk::Adjustment(val, 1, max, step, 10*step, 0)), step, 0);
+    btn.configure(*Gtk::manage(new Gtk::Adjustment(val, min, max, step, 10*step, 0)), step, 0);
     btn.set_numeric(true);
 }
 
@@ -56,4 +57,38 @@ void ConfigureRGBAButton(Gtk::ColorButton& btn, const RGBA::Pixel& pxl)
     btn.set_use_alpha();
     SetColor(btn, pxl);
 }
+
+Gtk::VBox& PackParaBox(Gtk::VBox& vbox)
+{
+    return PackStart(vbox, NewManaged<Gtk::VBox>(false, 4));
+}
+
+Gtk::Label& NewBoldLabel(const std::string& label)
+{
+    return NewMarkupLabel("<span weight=\"bold\">" + label + "</span>", true);
+}
+
+Gtk::VBox& PackParaBox(Gtk::VBox& vbox, const char* name)
+{
+    Gtk::VBox& box = PackParaBox(vbox);
+    Gtk::Label& a_lbl = PackStart(box, NewBoldLabel(name));
+    SetAlign(a_lbl);
+
+    return box;
+}
+
+std::string _remove_underscore_(const char* str)
+{
+    std::string res;
+    const char* next;
+    for( const char* cur = str, *end = str + strlen(str) ; cur < end; 
+         cur = next )
+    {
+        next = g_utf8_next_char(cur);
+        if( *cur != '_' )
+            res.append(cur, next);
+    }
+    return res;
+}
+
 

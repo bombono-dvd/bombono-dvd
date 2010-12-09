@@ -24,5 +24,13 @@
 
 #include <mlib/gettext.h>
 
+// зависит от g_utf8_next_char() - потому здесь
+std::string _remove_underscore_(const char* str);
+// когда одно и то же выражение требуется в 2 вариантах - без
+// и с указанием горячей клавишы, тогда вместо добавления работы
+// переводчику можно из переведенного (в UTF-8 только) убрать 
+// подчеркивание(я).
+#define RMU_(str) _remove_underscore_(str).c_str()
+
 #endif // #ifndef __MGUI_GETTEXT_H__
 

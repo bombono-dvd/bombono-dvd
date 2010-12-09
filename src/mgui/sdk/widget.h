@@ -52,6 +52,7 @@ Gtk::Frame& PackWidgetInFrame(Gtk::Widget& wdg, Gtk::ShadowType st,
                               const std::string& label = std::string());
 
 Gtk::Label& NewMarkupLabel(const std::string& label, bool use_underline = false);
+Gtk::Label& NewBoldLabel(const std::string& label);
 
 std::string BoldItalicText(const std::string& txt);
 Gtk::Label& NewBoldItalicLabel(const std::string& label, bool use_underline = false);
@@ -85,13 +86,16 @@ void SetForRadioToggle(RadioItem& itm, const ActionFunctor& fnr)
     itm.signal_toggled().connect(RadioToggleCaller<RadioItem>(itm, fnr));
 }
 
-void ConfigureSpin(Gtk::SpinButton& btn, double val, double max);
+void ConfigureSpin(Gtk::SpinButton& btn, double val, double max, double min = 1.0, int step = 1);
 
 RGBA::Pixel GetColor(const Gtk::ColorButton& btn);
 void SetColor(Gtk::ColorButton& btn, const RGBA::Pixel& pxl);
 void ConfigureRGBAButton(Gtk::ColorButton& btn, const RGBA::Pixel& pxl);
 
 bool SetEnabled(Gtk::Widget& wdg, bool is_enabled);
+
+Gtk::VBox& PackParaBox(Gtk::VBox& vbox);
+Gtk::VBox& PackParaBox(Gtk::VBox& vbox, const char* name);
 
 #endif // #ifndef __MGUI_SDK_WIDGET_H__
 

@@ -10,6 +10,7 @@
     <Media Name="Kombajjnjory" Path="../../../AV-Samples/Kombajjnjory.flv" Type="Video">
       <Parts/>
       <PostAction Type="0" Ref=""/>
+      <DVDTransData DVDDims="-1" VRate="0"/>
     </Media>
     <Media Name="Autumn" Path="../../../AV-Samples/Autumn.mpg" Type="Video">
       <Parts>
@@ -19,12 +20,14 @@
         <Part Name="Chapter 4">38.439999999999998</Part>
       </Parts>
       <PostAction Type="0" Ref=""/>
+      <DVDTransData DVDDims="-1" VRate="0"/>
     </Media>
     <Media Name="transition" Path="../../../AV-Samples/Transition.mpg" Type="Video">
       <Parts>
         <Part Name="Chapter">6</Part>
       </Parts>
       <PostAction Type="0" Ref=""/>
+      <DVDTransData DVDDims="-1" VRate="0"/>
     </Media>
     <Media Name="Title" Path="../../../AV-Samples/Backgrounds/space-01.jpg" Type="StillPicture"/>
   </Medias>

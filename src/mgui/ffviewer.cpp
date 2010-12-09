@@ -25,12 +25,12 @@ extern const AVCodecTag codec_bmp_tags[];
 C_LINKAGE_END
 /////////////////////////////////////////
 
-static AVStream* VideoStream(FFInfo& ffv)
+static AVStream* VideoStream(FFData& ffv)
 {
     return ffv.iCtx->streams[ffv.videoIdx];
 }
 
-static AVCodecContext* GetVideoCtx(FFInfo& ffv)
+AVCodecContext* GetVideoCtx(FFData& ffv)
 {
     return VideoStream(ffv)->codec;
 }
@@ -60,7 +60,7 @@ static double VideoFrameLength(AVCodecContext* dec, int ticks)
     return av_q2d(dec->time_base) * ticks;
 }
 
-double FrameFPS(FFViewer& ffv)
+double FrameFPS(FFData& ffv)
 {
     double res = Mpeg::PAL_SECAM_FRAME_FPS;
     if( ffv.IsOpened() )
@@ -140,7 +140,7 @@ RefPtr<Gdk::Pixbuf> GetFrame(RefPtr<Gdk::Pixbuf>& pix, double time, FFViewer& ff
     return pix;
 }
 
-double Duration(FFViewer& ffv)
+double Duration(FFData& ffv)
 {
     double res = 0.;
     if( ffv.IsOpened() )
@@ -156,14 +156,14 @@ double FramesLength(FFViewer& ffv)
 
 // FFViewer
 
-FFInfo::FFInfo(): iCtx(0), videoIdx(-1) {}
+FFData::FFData(): iCtx(0), videoIdx(-1) {}
 
-bool FFInfo::IsOpened()
+bool FFData::IsOpened()
 {
     return iCtx != 0;
 }
 
-void CloseInfo(FFInfo& ffi)
+void CloseInfo(FFData& ffi)
 {
     if( ffi.IsOpened() )
     {
@@ -257,7 +257,7 @@ static bool SetIndex(int& idx, int i, bool b)
     return res;
 }
 
-bool OpenInfo(FFInfo& ffi, const char* fname, std::string& err_str)
+bool OpenInfo(FFData& ffi, const char* fname, std::string& err_str)
 {
     av_register_all();
 
@@ -407,13 +407,24 @@ bool OpenInfo(FFInfo& ffi, const char* fname, std::string& err_str)
     return res;
 }
 
+FFInfo::FFInfo() {}
+
+FFInfo::FFInfo(const std::string& fname)
+{
+    std::string err_str;
+    bool res = OpenInfo(*this, fname.c_str(), err_str);
+    ASSERT_OR_UNUSED( res );
+}
+
+FFInfo::~FFInfo()
+{
+    CloseInfo(*this);
+}
+
 bool CanOpenAsFFmpegVideo(const char* fname, std::string& err_str)
 {
     FFInfo ffi;
-    bool res = OpenInfo(ffi, fname, err_str);
-    CloseInfo(ffi);
-
-    return res;
+    return OpenInfo(ffi, fname, err_str);
 }
 
 bool FFViewer::Open(const char* fname, std::string& err_str)
