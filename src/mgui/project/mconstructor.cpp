@@ -910,6 +910,9 @@ void InitI18n()
         const char* prefix = GetInstallPrefix();
         std::string locale_prefix(prefix ? (fs::path(prefix) / "share" / "locale").string() : "build/po/locale");
         bindtextdomain("bombono-dvd", locale_prefix.c_str());
+        // результат gettext() должен быть в UTF-8, а не в пользовательской локали
+        // (проблемы с не UTF8-локалями вроде ru_RU.KOI8-R)
+        bind_textdomain_codeset("bombono-dvd", "UTF-8");
         textdomain("bombono-dvd");
     }
 }
