@@ -189,7 +189,7 @@ bool IsVideoDVDCompliant(const char* fname, std::string& err_string, bool& is_mp
         Mpeg::SequenceData& vid = inf.vidSeq;
         ErrorDesc ed;
         // * видео
-        bool is_ntsc = !AData().PalTvSystem();
+        bool is_ntsc = !IsPALProject();
         CheckVideoFormat(ed, vid, is_ntsc);
         bool video_check = ed.res;
 

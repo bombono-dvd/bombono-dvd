@@ -418,6 +418,10 @@ void GetThemeList(Str::List& t_lst)
     t_lst.resize(std::unique(t_lst.begin(), t_lst.end()) - t_lst.begin());
 }
 
+bool IsPALProject()
+{
+    return AData().PalTvSystem();
+}
 
 } // namespace Project
 

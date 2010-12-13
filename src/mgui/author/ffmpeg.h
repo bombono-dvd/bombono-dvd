@@ -30,6 +30,9 @@
 
 namespace Project {
 
+struct DVDTransData;
+std::string FFmpegToDVDArgs(const std::string& out_fname, bool is_4_3, bool is_pal,
+                            const DVDTransData& td);
 std::string FFmpegToDVDArgs(const std::string& out_fname, bool is_4_3, bool is_pal);
 // для меню
 std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pal, 

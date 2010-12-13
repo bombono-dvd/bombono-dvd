@@ -215,6 +215,8 @@ Menu MakeMenu(int old_sz); // авто-имя
 
 void SaveFormattedUTF8Xml(xmlpp::Document& doc, const Glib::ustring& filename);
 
+bool IsPALProject();
+
 } // namespace Project
 
 #endif // #ifndef __MBASE_PROJECT_TABLE_H__

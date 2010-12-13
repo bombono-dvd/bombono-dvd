@@ -245,22 +245,21 @@ static int MinDVDHeight(bool is_pal)
     return is_pal ? 288 : 240 ;
 }
 
-bool IsPALProject()
+Point DVDDimension(DVDDims dd, bool is_pal)
 {
-    return AData().PalTvSystem();
-}
-
-static Point DVDDimension(DVDDims dd)
-{
+    ASSERT( dd != dvdAUTO );
     int wdh = DVDWidths[dd];
-
-    bool is_pal = IsPALProject();
     int hgt;
     if( dd == dvd352s )
         hgt = MinDVDHeight(is_pal);
     else
         hgt = is_pal ? 576 : 480 ;
     return Point(wdh, hgt);
+}
+
+static Point DVDDimension(DVDDims dd)
+{
+    return DVDDimension(dd, IsPALProject());
 }
 
 // расчет по оригиналу
@@ -285,12 +284,12 @@ int CalcVRateAuto(DVDDims dd)
 const int MIN_TRANS_VRATE = 400;
 const int MAX_TRANS_VRATE = 8500;
 
-DVDTransData GetRealTransData(const DVDTransData& td, RTCache& rtc)
+DVDTransData GetRealTransData(VideoItem vi)
 {
-    DVDTransData res = td;
-    if( td.dd == dvdAUTO || (td.vRate < MIN_TRANS_VRATE) || (td.vRate > MAX_TRANS_VRATE) )
+    DVDTransData res = vi->transDat;
+    if( res.dd == dvdAUTO || (res.vRate < MIN_TRANS_VRATE) || (res.vRate > MAX_TRANS_VRATE) )
     {
-        res.dd    = CalcDimsAuto(rtc);
+        res.dd    = CalcDimsAuto(GetRTC(vi));
         res.vRate = CalcVRateAuto(res.dd);
     }
     return res;
@@ -333,8 +332,7 @@ static gint64 CalcTransSize(RTCache& rtc, int vrate)
 
 gint64 CalcTransSize(VideoItem vi)
 {
-    RTCache& rtc = GetRTC(vi);
-    return CalcTransSize(rtc, GetRealTransData(vi->transDat, rtc).vRate);
+    return CalcTransSize(GetRTC(vi), GetRealTransData(vi).vRate);
 }
 
 static void OnBitrateControlsChanged(BitrateControls& bc, bool dims_changed)
@@ -381,9 +379,8 @@ static void RunBitrateCalc(VideoItem vi, Gtk::Window* win)
     DialogVBox& vbox = AddHIGedVBox(dlg);
     RefPtr<Gtk::SizeGroup> sg = vbox.labelSg;
 
-    RTCache& rtc = GetRTC(vi);
-    BitrateControls bc(rtc);
-    DVDTransData td = GetRealTransData(vi->transDat, rtc);
+    BitrateControls bc(GetRTC(vi));
+    DVDTransData td = GetRealTransData(vi);
     {
         Gtk::VBox& bc_box = PackParaBox(vbox);
         Gtk::SpinButton& vrate_btn = bc.vRate;
@@ -486,7 +483,7 @@ io::pos ProjectSizeSum(bool fixed_part)
 
 DVDDims GetRealTD(VideoItem vi)
 {
-    return GetRealTransData(vi->transDat, GetRTC(vi)).dd;
+    return GetRealTransData(vi).dd;
 }
 
 double RelTransWeight(VideoItem vi)

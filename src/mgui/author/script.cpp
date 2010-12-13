@@ -23,6 +23,7 @@
 
 #include "script.h"
 #include "burn.h"
+#include "ffmpeg.h"
 
 #include <mgui/init.h>
 #include <mgui/render/menu.h>
@@ -607,19 +608,22 @@ static void AuthorImpl(const std::string& out_dir)
     IndexVideosForAuthoring();
 
     void RunExtCmd(const std::string& cmd);
-    std::string FFmpegToDVDArgs(const std::string& out_fname, bool is_4_3, bool is_pal);
     // * транскодирование
     Author::SetStage(Author::stTRANSCODE);
-    boost_foreach( VideoItem vi, AllVideos() )
-        if( RequireTranscoding(vi) )
-        {
-            std::string src_fname = GetFilename(*vi);
-            std::string dst_fname = DVDFilename(vi, out_dir);
-            // :REFACTOR: см. тест
-            std::string ffmpeg_cmd = boost::format("ffmpeg -i %1% %2%") % FilenameForCmd(src_fname) 
-                % FFmpegToDVDArgs(dst_fname, AData().PalTvSystem(), Is4_3(vi)) % bf::stop;
-            RunExtCmd(ffmpeg_cmd);
-        }
+    boost_foreach( VideoItem vi, AllTransVideos() )
+    {
+        std::string src_fname = GetFilename(*vi);
+        std::string dst_fname = DVDFilename(vi, out_dir);
+        // :REFACTOR: см. тест
+        // :TRICKY: отдельные видеофайлы подгоняем под DVD-формат исходя из них самих
+        // (а не под одну "гребенку" проекта), несмотря на то, что запись в один VTS видео
+        // разных форматов вроде как противоречит спекам. Причина: вроде и так работает (на
+        // доступных мне железных и софтовых плейерах), а если будут проблемы - лучше мультиформат
+        // реализовать
+        std::string ffmpeg_cmd = boost::format("ffmpeg -i %1% %2%") % FilenameForCmd(src_fname) 
+            % FFmpegToDVDArgs(dst_fname, Is4_3(vi), IsPALProject(), GetRealTransData(vi)) % bf::stop;
+        RunExtCmd(ffmpeg_cmd);
+    }
 
     Author::ExecState& es = Author::GetES();
     str::stream& settings = es.settings;

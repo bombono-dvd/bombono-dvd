@@ -261,7 +261,7 @@ static ReaderPtr OpenDVD(const std::string& dvd_path, ImportData& id)
 {
     bool is_pal;
     ReaderPtr rd = OpenDVD(dvd_path, is_pal);
-    if( rd && id.addToProject && (is_pal != Project::AData().PalTvSystem()) )
+    if( rd && id.addToProject && (is_pal != Project::IsPALProject()) )
     {
         rd.reset();
         id.errLbl.show();

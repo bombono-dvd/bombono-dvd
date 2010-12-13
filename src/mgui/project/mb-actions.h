@@ -49,8 +49,6 @@ struct RTCache
     RTCache(): isCalced(false), reqTrans(false) {}
 };
 
-bool RequireTranscoding(VideoItem vi);
-
 } // namespace Project
 
 #endif // #ifndef __MGUI_PROJECT_MB_ACTIONS_H__

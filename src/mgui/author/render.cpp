@@ -506,20 +506,30 @@ static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix, TrackBuf& buf)
         FFmpegError(errno2str());
 }
 
+std::string FFmpegToDVDArgs(const std::string& out_fname, bool is_4_3, bool is_pal,
+                            const DVDTransData& td)
+{
+    const char* target =  is_pal ? "pal" : "ntsc" ;
+    Point DVDDimension(DVDDims dd, bool is_pal);
+    Point sz = DVDDimension(td.dd, is_pal);
+
+    std::string bitrate_str;
+    int vrate = td.vRate;
+    ASSERT( vrate >= 0 );
+    if( vrate )
+        bitrate_str = boost::format("-b %1%k ") % vrate % bf::stop; 
+
+    return boost::format("-target %4%-dvd -aspect %1% -s %2%x%3% %6%-y -mbd rd -trellis 2 -cmp 2 -subcmp 2 %5%")
+        % (is_4_3 ? "4:3" : "16:9") % sz.x % sz.y % target 
+        % FilenameForCmd(out_fname) % bitrate_str % bf::stop;
+}
+
 std::string FFmpegToDVDArgs(const std::string& out_fname, bool is_4_3, bool is_pal)
 {
-    const char* target = "pal";
-    int wdh = 720; // меню всегда полноразмерное
-    int hgt = 576;
-    if( !is_pal )
-    {
-        target = "ntsc";
-        hgt = 480;
-    }
-
-    return boost::format("-target %4%-dvd -aspect %1% -s %2%x%3% -y %5%")
-        % (is_4_3 ? "4:3" : "16:9") % wdh % hgt % target 
-        % FilenameForCmd(out_fname) % bf::stop;
+    // для меню - всегда полноразмерное
+    DVDTransData td;
+    td.dd = dvd720;
+    return FFmpegToDVDArgs(out_fname, is_4_3, is_pal, td);
 }
 
 std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pal, 
@@ -708,7 +718,7 @@ static std::string MakeFFmpegPostArgs(const std::string& mn_dir, Menu mn)
     }
     else
         a_fname = mtn_dat.audioExtPath;
-    return FFmpegPostArgs(out_fname, is_4_3, AData().PalTvSystem(), a_fname, a_shift);
+    return FFmpegPostArgs(out_fname, is_4_3, IsPALProject(), a_fname, a_shift);
 }
 
 double MenuDuration(Menu mn)
