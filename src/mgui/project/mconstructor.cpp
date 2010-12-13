@@ -31,7 +31,7 @@
 #include <mgui/editor/kit.h> // new Editor::Kit()
 #include <mgui/text_obj.h> // CalcAbsSizes()
 #include <mgui/trackwindow.h>
-#include <mgui/author/script.h> // ProjectSizeSum()
+#include <mgui/author/script.h> // ForeachVideo()
 #include <mgui/author/output.h> // PackOutput()
 
 #include <mgui/sdk/window.h>
@@ -557,7 +557,7 @@ brasero_utils_get_size_string(gint64 dsize,
 		goto end;
 	}
 
-	remain = (size % 1024) / 100;
+	remain = (size % 1024) / 102.4;
 	size = size / 1024;
 	unit = BRASERO_UTILS_GO;
 
@@ -599,24 +599,30 @@ std::string ToSizeString(gint64 size, bool round)
     return str_res;
 }
 
-void UpdateDVDSize()
+io::pos DVDPayloadSize()
 {
     SizeBar& sz_bar = Application().SB();
-    io::pos sz     = Author::ProjectSizeSum();
     io::pos typ_sz = DVDTypeSize((DVDType)sz_bar.dvdTypes.get_active_row_number());
 
+    // зарезервируем для IFO, BUP, VIDEO_TS-файлов
+    const int AUX_DVD_STUFF = 512*1024;
+    return typ_sz - AUX_DVD_STUFF;
+}
+
+void UpdateDVDSize()
+{
+    io::pos sz = ProjectSizeSum();
     std::string sz_str;
     if( sz != 0 )
     {
-        const int AUX_DVD_STUFF = 512*1024;
-        sz += AUX_DVD_STUFF; // зарезервируем для IFO, BUP, VIDEO_TS-файлов
-
         sz_str = ToSizeString(sz, true);
+        io::pos typ_sz = DVDPayloadSize();
+
         if( sz > typ_sz )
             sz_str = "<span color=\"red\">" + sz_str + "</span>";
         sz_str += " of ";
     }
-    sz_bar.szLbl.set_markup(sz_str);
+    Application().SB().szLbl.set_markup(sz_str);
 }
 
 class UpdateDVDSizeVis: public ObjVisitor

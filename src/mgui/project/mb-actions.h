@@ -35,6 +35,22 @@ BoolTLFunctor GetViewerFunctor(MediaItem mi);
 void PackMBWindow(Gtk::HPaned& fcw_hpaned, Timeline::DAMonitor& mon, TrackLayout& layout, 
                   MediaBrowser& brw);
 
+io::pos DVDPayloadSize();
+
+// кэш для расчетов по транскодированию и т.д.
+struct RTCache
+{
+      bool  isCalced;
+
+      bool  reqTrans;
+    double  duration;
+     Point  vidSz;
+
+    RTCache(): isCalced(false), reqTrans(false) {}
+};
+
+bool RequireTranscoding(VideoItem vi);
+
 } // namespace Project
 
 #endif // #ifndef __MGUI_PROJECT_MB_ACTIONS_H__

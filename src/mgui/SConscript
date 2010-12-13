@@ -58,6 +58,7 @@ lib_src_files = [
                  'project/menu-render.cpp',
                  'project/serialize.cpp',
                  'project/thumbnail.cpp',
+                 'project/video.cpp',
 
                  # render
                  'render/common.cpp',

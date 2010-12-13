@@ -118,8 +118,8 @@ struct PostAction
 //
 enum DVDDims
 {
-    dvdAUTO = -1, // определить автоматом из исходника
-    dvd352s = 0,
+    dvdAUTO = 0, // определить автоматом из исходника
+    dvd352s,
     dvd352,
     dvd704,
     dvd720

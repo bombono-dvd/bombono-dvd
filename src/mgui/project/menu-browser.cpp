@@ -450,7 +450,6 @@ void MenuSettings(Menu mn, Gtk::Window* win)
         // :TRICKY: рассмотреть вариант обновления через обработчик,
         // потому как вызов UpdateDVDSize() требует наличия Application()
         // (и валится в противном случае)
-        void UpdateDVDSize();
         UpdateDVDSize();
     }
 }

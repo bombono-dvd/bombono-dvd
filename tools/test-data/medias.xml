@@ -9,6 +9,7 @@
         <Part Name="Chapter 3">30</Part>
       </Parts>
       <PostAction Type="0" Ref=""/>
+      <DVDTransData DVDDims="0" VRate="0"/>
     </Media>
     <Media Name="AcerTX" Path="./colors.png" Type="StillPicture"/>
     <Media Name="Flower" Path="./flower.jpg" Type="StillPicture"/> 

@@ -30,6 +30,7 @@
 #include <mgui/sdk/widget.h>
 #include <mgui/sdk/textview.h>
 #include <mgui/project/thumbnail.h> // Project::CalcAspectSize()
+#include <mgui/project/video.h>
 #include <mgui/gettext.h>
 
 #include <mbase/project/table.h>
@@ -84,22 +85,6 @@ int ForeachVideo(VideoFnr fnr)
             i++;
         }
     return i;
-}
-
-static VideoItem ToVITransform(const Gtk::TreeRow& row) 
-{
-    return IsVideo( MediaStore::Get(row) );
-}
-
-static bool IsNotNull(const VideoItem& vi)
-{
-    return bool(vi);
-}
-
-fe::range<VideoItem> AllVideos()
-{
-    RefPtr<MediaStore> md_store = GetAStores().mdStore;
-    return fe::make_any( md_store->children() | fe::transformed(ToVITransform) | fe::filtered(IsNotNull) );
 }
 
 typedef boost::function<bool(Menu, int)> MenuFnr;

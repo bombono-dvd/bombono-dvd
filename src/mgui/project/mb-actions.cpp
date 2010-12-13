@@ -57,33 +57,6 @@ struct EmblemNameVis: public ObjVisitor
     }
 };
 
-// вложенную в функцию (RequireTranscoding()) структуру
-// gcc не разрешает GetData-ить
-struct RTCache
-{
-    bool isCalced;
-    bool value;
-
-    RTCache(): isCalced(false), value(false) {}
-};
-
-bool RequireTranscoding(VideoItem vi)
-{
-    // в принципе можно не кэшировать, все равно миниатюра
-    // видео редко обновляется (при редактировании - 1 раз)
-    RTCache& rtc = vi->GetData<RTCache>();
-    if( !rtc.isCalced )
-    {
-        const std::string& fname = GetFilename(*vi);
-        bool is_mpeg2;
-        std::string err_string;
-        rtc.value    = !IsVideoDVDCompliant(fname.c_str(), err_string, is_mpeg2);
-        rtc.isCalced = true;
-    }
-
-    return rtc.value;
-}
-
 void FillThumbnail(const Gtk::TreeIter& itr, RefPtr<MediaStore> ms, Media& md)
 {
     Gtk::TreeModelColumn<RefPtr<Gdk::Pixbuf> > thumb_cln = MediaStore::Fields().thumbnail;

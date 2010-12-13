@@ -43,6 +43,8 @@
 
 #include <strings.h> // strcasecmp()
 
+#define FFMPEG_IMPORT_POLICY 1
+
 namespace Project
 {
 
@@ -235,9 +237,14 @@ bool IsVideoDVDCompliant(const char* fname, std::string& err_string, bool& is_mp
                     i++;
             }
         }
+
+#ifdef FFMPEG_IMPORT_POLICY
+        std::string dvd_mux_desc = _("Remuxing is required.");
+#else
         std::string dvd_mux_desc = _("<b>Bombono DVD</b> can use \"DVD-ready\" video only now."
             " Use muxing programs like \"mplex -f 8\" (from <b>mjpegtools</b>)," 
             " mencoder (from <b>mplayer</b>) or <b>transcode</b> to make your video ready for <b>Bombono DVD</b>.");
+#endif
         SetImportError(ed, is_dvd_mux,
                        boost::format("%1%:    \t") % _("DVD packs") % bf::stop + MarkBoolError(is_dvd_mux, is_dvd_mux), dvd_mux_desc);
         SetImportError(ed, is_nav_found, 
@@ -247,7 +254,11 @@ bool IsVideoDVDCompliant(const char* fname, std::string& err_string, bool& is_mp
         res = ed.res;
         if( !res )
         {
+#ifdef FFMPEG_IMPORT_POLICY
+            err_string  = _("This video should be transcoded due to (errors in <span foreground=\"red\">red color</span>):");
+#else
             err_string  = _("This video may not be added due to (errors in <span foreground=\"red\">red color</span>):");
+#endif
             err_string += "\n<tt>" + ed.outStr + "</tt>";
 
             std::string desc_str = ed.descStr;
@@ -258,10 +269,17 @@ bool IsVideoDVDCompliant(const char* fname, std::string& err_string, bool& is_mp
                 if( ed2.res )
                 {
                     // подскажем пользователю, что он ошибся форматом проекта
+#ifdef FFMPEG_IMPORT_POLICY
+                    desc_str = BF_("This video has %1% type can't be added \"as is\" to"
+                        " current project of %2% type. Create new project from"
+                        " menu \"Project->New Project\" with right type.") % 
+                        TVTypeStr(!is_ntsc) % TVTypeStr(is_ntsc) % bf::stop;
+#else
                     desc_str = BF_("This video has %1% type and can't be added to"
                         " current project of %2% type. Create new project from"
                         " menu \"Project->New Project\" with right type.") % 
                         TVTypeStr(!is_ntsc) % TVTypeStr(is_ntsc) % bf::stop;
+#endif
                 }
             }
 
@@ -296,7 +314,6 @@ StorageItem CreateMedia(const char* fname, std::string& err_string)
     	return md;
     }
 
-#define FFMPEG_IMPORT_POLICY 1
 #ifdef FFMPEG_IMPORT_POLICY
 
     // Сейчас открытие с помощью CanOpenAsFFmpegVideo()/FFData считаем 

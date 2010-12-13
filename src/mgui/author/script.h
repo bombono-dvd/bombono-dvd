@@ -74,8 +74,6 @@ void ExecuteSconsCmd(const std::string& out_dir, OutputFilter& of,
 // список идентификаторов процессов)
 ExitData AsyncCall(const char* dir, const char* cmd, const ReadReadyFnr& fnr);
 
-io::pos ProjectSizeSum();
-
 // функтор сообщает об ошибках через исключение, которое преобразуется
 // в строку => признак ошибки - непустой результат
 std::string SafeCall(const ActionFunctor& fnr);

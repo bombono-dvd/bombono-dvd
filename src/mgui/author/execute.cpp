@@ -189,30 +189,23 @@ void BuildDvdOF::SetStage(Stage stg)
     ::Author::SetStage(stg);
 }
 
-bool GetSize(Project::VideoItem vi, io::pos& sz)
-{
-    sz += Project::PhisSize(GetFilename(*vi).c_str());
-    return true;
-}
-
-bool MenuSize(Project::Menu mn, io::pos& sz)
+static bool MenuSize(Project::Menu mn, io::pos& sz)
 {
     if( Project::IsMotion(mn) )
-        sz += FFmpegSizeForDVD(Project::MenuDuration(mn));
+        sz += FFmpegSizeForDVD(Project::MenuDuration(mn)) * Project::TRANS_OVER_ASSURANCE;
     return true;
 }
 
-io::pos ProjectSizeSum()
+io::pos MenusSize()
 {
     io::pos sz = 0;
-    Project::ForeachVideo(bb::bind(&GetSize, _1, b::ref(sz)));
     Project::ForeachMenu(bb::bind(&MenuSize, _1, b::ref(sz)));
     return sz;
 }
 
 int BuildDvdOF::GetDVDSize()
 {
-    return Round(ProjectSizeSum() / (double)(1024*1024));
+    return Round(Project::ProjectSizeSum() / (double)(1024*1024));
 }
 
 void BuildDvdOF::SetProgress(double percent)

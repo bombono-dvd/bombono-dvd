@@ -49,11 +49,22 @@ inline std::string ShortSizeString(gint64 size)
     return ToSizeString(size, false);
 }
 
+void UpdateDVDSize();
+const double TRANS_OVER_ASSURANCE = 1.05; // страховка на 5%
+io::pos ProjectSizeSum(bool fixed_part = false);
+
 } // namespace Project
 
 // vrate - в kbit/s
 // 6000 - умолчание в ffmpeg для -target *-dvd
 guint64 FFmpegSizeForDVD(double sec, int vrate = 6000);
+
+namespace Author
+{
+
+io::pos MenusSize();
+
+} // namespace Author
 
 #endif // #ifndef __MGUI_PROJECT_HANDLER_H__
 

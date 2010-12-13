@@ -25,6 +25,7 @@
 #include "add.h"
 #include "handler.h"
 #include "dnd.h"
+#include "video.h"
 
 #include <mgui/timeline/mviewer.h>
 #include <mgui/sdk/packing.h>
@@ -197,6 +198,31 @@ static bool OnOBButtonPress(ObjectBrowser& brw, const RightButtonFunctor& fnr, G
     return true;
 }
 
+RTCache& GetRTC(VideoItem vi)
+{
+    RTCache& rtc = vi->GetData<RTCache>();
+    if( !rtc.isCalced )
+    {
+        const std::string& fname = GetFilename(*vi);
+        bool is_mpeg2;
+        std::string err_string;
+        rtc.reqTrans = !IsVideoDVDCompliant(fname.c_str(), err_string, is_mpeg2);
+
+        FFInfo ffi(GetFilename(*vi).c_str());
+        rtc.duration = Duration(ffi);
+        rtc.vidSz    = ffi.vidSz;
+
+        rtc.isCalced = true;
+    }
+
+    return rtc;
+}
+
+bool RequireTranscoding(VideoItem vi)
+{
+    return GetRTC(vi).reqTrans;
+}
+
 static void AppendNamedValue(Gtk::VBox& vbox, RefPtr<Gtk::SizeGroup> sg, const char* name, 
                              const std::string& value)
 {
@@ -211,16 +237,24 @@ static std::string Double2Str(double val)
     //return (str::stream() << val).str();
 }
 
-int DVDWidths[] = { 352, 352, 704, 720 };
+// синхронизировать со списком DVDDims
+int DVDWidths[] = { 0, 352, 352, 704, 720 };
 
 static int MinDVDHeight(bool is_pal)
 {
     return is_pal ? 288 : 240 ;
 }
 
-static Point DVDDimension(DVDDims dd, bool is_pal)
+bool IsPALProject()
+{
+    return AData().PalTvSystem();
+}
+
+static Point DVDDimension(DVDDims dd)
 {
     int wdh = DVDWidths[dd];
+
+    bool is_pal = IsPALProject();
     int hgt;
     if( dd == dvd352s )
         hgt = MinDVDHeight(is_pal);
@@ -230,15 +264,14 @@ static Point DVDDimension(DVDDims dd, bool is_pal)
 }
 
 // расчет по оригиналу
-static DVDDims CalcDimsAuto(FFInfo& ffv)
+static DVDDims CalcDimsAuto(RTCache& rtc)
 {
-    bool is_pal = AData().PalTvSystem();
-    Point orig_sz(ffv.vidSz);
+    Point orig_sz(rtc.vidSz);
 
     DVDDims dd = dvd352;
-    if( orig_sz.x > DVDDimension(dd, is_pal).x )
+    if( orig_sz.x > DVDDimension(dd).x )
         dd = dvd720;
-    else if( orig_sz.y <= MinDVDHeight(is_pal) )
+    else if( orig_sz.y <= MinDVDHeight(IsPALProject()) )
         dd = dvd352s;
     return dd;
 }
@@ -252,12 +285,12 @@ int CalcVRateAuto(DVDDims dd)
 const int MIN_TRANS_VRATE = 400;
 const int MAX_TRANS_VRATE = 8500;
 
-DVDTransData GetRealTransData(const DVDTransData& td, FFInfo& ffv)
+DVDTransData GetRealTransData(const DVDTransData& td, RTCache& rtc)
 {
     DVDTransData res = td;
     if( td.dd == dvdAUTO || (td.vRate < MIN_TRANS_VRATE) || (td.vRate > MAX_TRANS_VRATE) )
     {
-        res.dd    = CalcDimsAuto(ffv);
+        res.dd    = CalcDimsAuto(rtc);
         res.vRate = CalcVRateAuto(res.dd);
     }
     return res;
@@ -278,9 +311,9 @@ struct BitrateControls
   Gtk::ComboBoxText  cmbDims;
          Gtk::Label  szLbl;
 
-           FFInfo& ffv;
+            RTCache& rtc;
 
-    BitrateControls(FFInfo& ffv_): ffv(ffv_) {}
+    BitrateControls(RTCache& rtc_): rtc(rtc_) {}
 };
 
 static void SetAutoBitrate(BitrateControls& bc, DVDDims dd)
@@ -293,13 +326,24 @@ static DVDDims Dimensions(BitrateControls& bc)
     return Index2Dimension(bc.cmbDims.get_active_row_number());
 }
 
+static gint64 CalcTransSize(RTCache& rtc, int vrate)
+{
+    return FFmpegSizeForDVD(rtc.duration, vrate);
+}
+
+gint64 CalcTransSize(VideoItem vi)
+{
+    RTCache& rtc = GetRTC(vi);
+    return CalcTransSize(rtc, GetRealTransData(vi->transDat, rtc).vRate);
+}
+
 static void OnBitrateControlsChanged(BitrateControls& bc, bool dims_changed)
 {
     if( dims_changed )
         SetAutoBitrate(bc, Dimensions(bc));
 
     // расчет размера результата
-    gint64 fsize = FFmpegSizeForDVD(Duration(bc.ffv), bc.vRate.get_value());
+    gint64 fsize = CalcTransSize(bc.rtc, bc.vRate.get_value());
     bc.szLbl.set_text(ShortSizeString(fsize));
 }
 
@@ -316,16 +360,20 @@ static void SetDims(BitrateControls& bc, DVDDims dd)
 
 static void OnDefBitrate(BitrateControls& bc)
 {
-    DVDDims dd = CalcDimsAuto(bc.ffv); 
+    DVDDims dd = CalcDimsAuto(bc.rtc); 
     SetDims(bc, dd);
     SetAutoBitrate(bc, dd);
 }
 
+static void SetTransData(VideoItem vi, DVDDims dd, int vrate)
+{
+    DVDTransData& td = vi->transDat;
+    td.dd    = dd;
+    td.vRate = vrate;
+}
+
 static void RunBitrateCalc(VideoItem vi, Gtk::Window* win)
 {
-    std::string fname = GetFilename(*vi);
-    FFInfo ffv(fname.c_str());
-
     std::string dlg_name = boost::format("%1% (%2%)") % _("Bitrate Calculator") % vi->mdName % bf::stop;
     ptr::shared<Gtk::Dialog> p_dlg = MakeDialog(dlg_name.c_str(), 350, -1, win);
     Gtk::Dialog& dlg = *p_dlg;
@@ -333,8 +381,9 @@ static void RunBitrateCalc(VideoItem vi, Gtk::Window* win)
     DialogVBox& vbox = AddHIGedVBox(dlg);
     RefPtr<Gtk::SizeGroup> sg = vbox.labelSg;
 
-    BitrateControls bc(ffv);
-    DVDTransData td = GetRealTransData(vi->transDat, ffv);
+    RTCache& rtc = GetRTC(vi);
+    BitrateControls bc(rtc);
+    DVDTransData td = GetRealTransData(vi->transDat, rtc);
     {
         Gtk::VBox& bc_box = PackParaBox(vbox);
         Gtk::SpinButton& vrate_btn = bc.vRate;
@@ -348,7 +397,7 @@ static void RunBitrateCalc(VideoItem vi, Gtk::Window* win)
         for( int i=0; i<(int)ARR_SIZE(TransList); i++ )
         {
             DVDDims dd2 = Index2Dimension(i);
-            dim_cmb.append_text(PointToStr(DVDDimension(dd2, AData().PalTvSystem())));
+            dim_cmb.append_text(PointToStr(DVDDimension(dd2)));
         }
         AppendWithLabel(bc_box, sg, dim_cmb, SMCLN_("Dimensions"));
         SetDims(bc, td.dd);
@@ -368,6 +417,8 @@ static void RunBitrateCalc(VideoItem vi, Gtk::Window* win)
 
     // О файле
     {
+        std::string fname = GetFilename(*vi);
+        FFInfo ffv(fname.c_str());
         Gtk::VBox& info_box = PackParaBox(vbox, _("Original file info"));
 
         AppendNamedValue(info_box, sg, SMCLN_("Dimensions"), PointToStr(ffv.vidSz));
@@ -388,10 +439,94 @@ static void RunBitrateCalc(VideoItem vi, Gtk::Window* win)
 
     if( CompleteAndRunOk(dlg) )
     {
-        DVDTransData& td = vi->transDat;
-        td.dd    = Dimensions(bc);
-        td.vRate = bc.vRate.get_value();
+        SetTransData(vi, Dimensions(bc), bc.vRate.get_value());
+        UpdateDVDSize();
     }
+}
+
+static void ShowDVDCompliantStatus(VideoItem vi)
+{
+    std::string err_string(_("Reason For Transcoding"));
+    std::string desc_string;
+    bool is_mpeg2 = false;
+    if( IsVideoDVDCompliant(GetFilename(*vi).c_str(), desc_string, is_mpeg2) )
+        err_string = _("The video is DVD compliant.");
+    else if( !is_mpeg2 )
+        desc_string = _("The video is not MPEG2.");
+
+    MessageBox(err_string, Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK, desc_string);
+}
+
+double Duration(VideoItem vi)
+{
+    return GetRTC(vi).duration;
+}
+
+io::pos ProjectSizeSum(bool fixed_part)
+{
+    io::pos sz = 0;
+    boost_foreach( VideoItem vi, AllVideos() )
+    {
+        if( RequireTranscoding(vi) )
+        {
+            io::pos v_sz = 0;
+            if( !fixed_part )
+                v_sz = CalcTransSize(vi);
+            else
+                v_sz = FFmpegSizeForDVD(Duration(vi), 0);
+
+            sz += v_sz * TRANS_OVER_ASSURANCE;
+        }
+        else
+            sz += PhisSize(GetFilename(*vi).c_str());
+    }
+
+    return sz + Author::MenusSize();
+}
+
+DVDDims GetRealTD(VideoItem vi)
+{
+    return GetRealTransData(vi->transDat, GetRTC(vi)).dd;
+}
+
+double RelTransWeight(VideoItem vi)
+{
+    Point osz = DVDDimension(GetRealTD(vi));
+    double square = osz.x*osz.y/double(352*240); // относительный вес видео
+
+    return square * Duration(vi);
+}
+
+static void AdjustDiscUsage()
+{
+    io::pos dvd_sz  = DVDPayloadSize();
+    io::pos work_sz = (dvd_sz - ProjectSizeSum(true)) / TRANS_OVER_ASSURANCE;
+
+    double total_weight = 0.;
+    boost_foreach( VideoItem vi, AllTransVideos() )
+        total_weight += RelTransWeight(vi);
+    ASSERT( total_weight > 0. );
+
+    bool is_overflow = false;
+    boost_foreach( VideoItem vi, AllTransVideos() )
+    {
+        // в kbit/s
+        int vrate = work_sz * RelTransWeight(vi)/(total_weight * 125 * Duration(vi));
+        if( vrate < MIN_TRANS_VRATE )
+            is_overflow = true;
+
+        vrate = std::max(vrate, MIN_TRANS_VRATE);
+        vrate = std::min(vrate, MAX_TRANS_VRATE);
+        SetTransData(vi, GetRealTD(vi), vrate);
+    }
+    UpdateDVDSize();
+
+    if( is_overflow )
+        MessageBox(_("Too many videos for this disc size. Please select a bigger disc size or remove some videos."), 
+                   Gtk::MESSAGE_WARNING, Gtk::BUTTONS_OK);
+    else
+        MessageBox(BF_("Disc usage is %1%%% now.") % Round(100*(ProjectSizeSum()/(double)dvd_sz)) % bf::stop, 
+                   Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK);
 }
 
 static void OnMBButtonPress(ObjectBrowser& brw, MediaItem mi, GdkEventButton* event)
@@ -403,9 +538,14 @@ static void OnMBButtonPress(ObjectBrowser& brw, MediaItem mi, GdkEventButton* ev
     if( SetEnabled(ea_itm, vi) )
         ea_itm.set_submenu(EndActionMenuBld(vi->PAction(), boost::function_identity,
                                             VideoAddConstantChoice).Create());
+
+    AppendSeparator(mn);
     // калькулятор
-    AddEnabledItem(mn, _("Bitrate Calculator"), bb::bind(&RunBitrateCalc, vi, GetTopWindow(brw)), 
-                   vi && RequireTranscoding(vi));
+    bool tr_enabled = IsTransVideo(vi);
+    AddEnabledItem(mn, _("Bitrate Calculator"), bb::bind(&RunBitrateCalc, vi, GetTopWindow(brw)),
+                   tr_enabled);
+    AddEnabledItem(mn, _("Reason For Transcoding"), bb::bind(&ShowDVDCompliantStatus, vi), vi);
+    AddEnabledItem(mn, _("Adjust Bitrate to Fit to Disc"), &AdjustDiscUsage, tr_enabled);
 
     Popup(mn, event, true);
 }

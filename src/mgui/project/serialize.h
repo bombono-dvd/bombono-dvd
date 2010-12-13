@@ -28,7 +28,6 @@ namespace Project
 {
 
 AStores& InitAStores();
-void UpdateDVDSize();
 
 class ConstructorApp;
 bool CheckBeforeClosing(ConstructorApp& app);

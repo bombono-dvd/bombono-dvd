@@ -28,6 +28,7 @@
 
 #include "menu-actions.h"
 #include "add.h"
+#include "handler.h"
 
 #include <mgui/dialog.h>
 #include <mgui/gettext.h>

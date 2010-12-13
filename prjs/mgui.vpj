@@ -270,6 +270,7 @@
 			<F N="../src/mgui/trackwindow.h"/>
 			<F N="../src/mgui/sdk/treemodel.h"/>
 			<F N="../src/mgui/editor/txtool.h"/>
+			<F N="../src/mgui/project/video.h"/>
 			<F N="../src/mgui/editor/visitors.h"/>
 			<F N="../src/mgui/sdk/widget.h"/>
 			<F N="../src/mgui/win_utils.h"/>
@@ -346,6 +347,7 @@
 			<F N="../src/mgui/editor/tool.cpp"/>
 			<F N="../src/mgui/editor/toolbar.cpp"/>
 			<F N="../src/mgui/editor/txtool.cpp"/>
+			<F N="../src/mgui/project/video.cpp"/>
 			<F N="../src/mgui/sdk/widget.cpp"/>
 			<F N="../src/mgui/win_utils.cpp"/>
 			<F N="../src/mgui/sdk/window.cpp"/>
