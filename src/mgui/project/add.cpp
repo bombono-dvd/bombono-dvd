@@ -43,8 +43,6 @@
 
 #include <strings.h> // strcasecmp()
 
-#define FFMPEG_IMPORT_POLICY 1
-
 namespace Project
 {
 
@@ -526,11 +524,15 @@ void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
         std::string desc = one_error ? err_str : err_desc ;
 
 #ifdef LABEL_HAS_A_TAG
+#ifdef FFMPEG_IMPORT_POLICY
+        // :TRICKY: пока текущая политика - едим все без объяснений
+#else
         std::string online_tip("\n\n");
         online_tip += BF_("See more about preparing video for authoring in <a href=\"%1%\">online help</a>.") % 
             "http://www.bombono.org/Preparing_sources_for_DVD" % bf::stop;
 
         desc += online_tip;
+#endif
 #endif
 
         // :KLUDGE: хотелось использовать ngettext() для того чтоб в PO строки были рядом,

@@ -23,6 +23,7 @@
 
 #include <mlib/format.h>
 #include <mlib/tech.h>
+#include <mlib/regex.h>
 
 // = НОД
 int GCD(int a, int b)
@@ -141,5 +142,13 @@ bool GetDouble(double& res, const char* str)
 std::string PointToStr(const Point& pnt)
 {
     return boost::format("%1% \303\227 %2%") % pnt.x % pnt.y % bf::stop;
+}
+
+bool ExtMatch(const char* display_name, const char* ext)
+{
+    // :TODO: ради ускорения сделать словарь (map) образцов сравнения по мере
+    // использования
+    re::pattern pat((std::string(".*\\.") + ext).c_str(), re::constants::icase);
+    return re::match(display_name, pat);
 }
 

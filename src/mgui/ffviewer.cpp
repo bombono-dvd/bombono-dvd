@@ -282,6 +282,8 @@ bool OpenInfo(FFData& ffi, const char* fname, std::string& err_str)
         switch( av_res )
         {
         case AVERROR_NOENT:
+            // :TODO: решить, ставить в конце точки или нет (сообщения пользователю
+            // показывается не HIG-ого)
             err_str = _("No such file");
             break;
         case AVERROR_NOFMT:

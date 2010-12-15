@@ -76,5 +76,7 @@ typedef ptr::shared<List> PList;
 
 std::string PointToStr(const Point& pnt);
 
+bool ExtMatch(const char* display_name, const char* ext);
+
 #endif // __MLIB_STRING_H__
 

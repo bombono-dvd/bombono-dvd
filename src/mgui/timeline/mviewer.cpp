@@ -32,6 +32,7 @@
 #include <mgui/prefs.h>
 
 #include <mlib/filesystem.h>
+#include <mlib/sigc.h>
 
 #include <gtk/gtkhpaned.h> // GTK_IS_HPANED()
 
@@ -165,22 +166,48 @@ Gtk::Label& MakeTitleLabel(const char* name)
 enum FCWFilterType
 {
     fftALL_FORMATS,
-    fftMPEG,
+    fftVIDEO,
     fftDVD_SOUND,
     fftIMAGES,
     fftALL
 };
 
-static void AddMPEGFilter(Gtk::FileFilter& ff)
+static bool ExtMatchFF(const Gtk::FileFilter::Info& inf, const char* ext)
 {
+    return ExtMatch(inf.display_name.c_str(), ext);
+}
+
+static void AddExtensionFilter(Gtk::FileFilter& ff, const char* ext)
+{
+    ff.add_custom(Gtk::FILE_FILTER_DISPLAY_NAME, 
+                  wrap_return<bool>(bb::bind(&ExtMatchFF, _1, ext)));
+}
+
+// Список адаптирован из vlc_interface.h (плейер VLC)
+// Видео здесь - все, что включает видеопоток; что из медиаформатов не включает
+// видео (есть только аудио) - идет в список аудио (так принято де факто,- VLC, Mplayer, Totem, ...)
+const char* video_extensions[] =
+{
+    "3g2","3gp","3gp2","3gpp","amv","asf","avi","bin","cue","divx","dv","flv","gxf","iso","m1v","m2v",
+    "m2t","m2ts","m4v","mkv","mov","mp2","mp2v","mp4","mp4v","mpa","mpe","mpeg","mpeg1",
+    "mpeg2","mpeg4","mpg","mpv2","mts","mxf","nsv","nuv",
+    "ogg","ogm","ogv","ogx","ps",
+    "rec","rm","rmvb","tod","ts","tts","vob","vro","webm","wmv"
+};
+
+static void AddVideoFilter(Gtk::FileFilter& ff)
+{
+#ifdef FFMPEG_IMPORT_POLICY
+    boost_foreach( const char* ext, video_extensions )
+        AddExtensionFilter(ff, ext);
+#else
     ff.add_pattern("*.m2v");
     ff.add_pattern("*.mpeg");
     ff.add_pattern("*.mpg");
-    // :TODO: case-зависимость раздражает - надо менять
-    // на add_mime_type()
-    ff.add_pattern("*.vob");
-    ff.add_pattern("*.VOB");
-    //ff.add_pattern("*.dva");
+    //ff.add_pattern("*.vob");
+    //ff.add_pattern("*.VOB");
+    AddExtensionFilter(ff, "vob");
+#endif
 }
 
 void FillSoundFilter(Gtk::FileFilter& ff)
@@ -202,7 +229,7 @@ static void AddImagesFilter(Gtk::FileFilter& ff)
 
 static void AddAllFormatsFilter(Gtk::FileFilter& ff)
 {
-    AddMPEGFilter(ff);
+    AddVideoFilter(ff);
     FillSoundFilter(ff);
     AddImagesFilter(ff);
 }
@@ -216,8 +243,8 @@ static void SetFilter(Gtk::FileChooserWidget& fcw, FCWFilterType typ)
     case fftALL_FORMATS:
         AddAllFormatsFilter(ff);
         break;
-    case fftMPEG:
-        AddMPEGFilter(ff);
+    case fftVIDEO:
+        AddVideoFilter(ff);
         break;
     case fftDVD_SOUND:
         FillSoundFilter(ff);
@@ -278,10 +305,14 @@ ActionFunctor PackFileChooserWidget(Gtk::Container& contr, OpenFileFnr fnr, bool
     {
         Gtk::ComboBoxText& combo = *Gtk::manage(new Gtk::ComboBoxText);
         combo.append_text(_("All formats"));
+#ifdef FFMPEG_IMPORT_POLICY
+        combo.append_text(_("Video files"));
+#else
         combo.append_text(_("MPEG files") + std::string(" (*.mpeg, *.mpg, *.vob)"));
+#endif
         combo.append_text(_("Audio for DVD") + std::string(" (*.mp2/mpa, *.ac3, *.dts, *.lpcm)"));
-        combo.append_text(_("Still Images") + std::string(" (*.png, *.jpg, *.jpeg, *.bmp)"));
-        combo.append_text(_("All Files (*.*)"));
+        combo.append_text(_("Still images") + std::string(" (*.png, *.jpg, *.jpeg, *.bmp)"));
+        combo.append_text(_("All files (*.*)"));
 
         // значение по умолчанию
         combo.set_active(fftALL_FORMATS);

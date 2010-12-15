@@ -16,6 +16,9 @@ C_LINKAGE_END
 
 #include <boost/noncopyable.hpp>
 
+// иначе импорт только DVD-совместимых файлов 
+#define FFMPEG_IMPORT_POLICY 1
+
 struct FFViewer;
 
 //

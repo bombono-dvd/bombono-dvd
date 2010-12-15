@@ -123,3 +123,10 @@ BOOST_AUTO_TEST_CASE( TestASSERT_UNUSED )
 
 }
 
+BOOST_AUTO_TEST_CASE( TestExtMatch )
+{
+    bool ExtMatch(const char* display_name, const char* ext);
+    BOOST_CHECK( ExtMatch("VTS_01_0.VOB", "vob") );
+    BOOST_CHECK( !ExtMatch("VTS_01_0.VOB.mkv", "vob") );
+    BOOST_CHECK(  ExtMatch("VTS_01_0.VOB.mkv", "mkv") );
+}
