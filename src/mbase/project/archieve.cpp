@@ -21,29 +21,14 @@
 
 #include <mbase/_pc_.h>
 
-#include <libxml/tree.h>
-
 #include "archieve.h"
+
+#include <mlib/format.h>
+
+#include <libxml/tree.h>
 
 namespace Project
 {
-
-void Archieve::DoStack(bool is_in)
-{
-    if( is_in )
-    {
-        if( isSubNode )
-            NextNode(*this);
-        else
-            OpenFirstChild(*this);
-    }
-    else
-    {
-        if( isSubNode )
-            CloseChild();
-    }
-    isSubNode = !is_in;
-}
 
 void Serialization::SaveArchiever::SerializeStringableImpl(ToStringConverter fnr)
 {
@@ -133,7 +118,28 @@ std::string GetValue(Archieve& ar, const char* name)
     return GetAttr(ar, name)->get_value();
 }
 
-static xmlpp::Element* GetNextElement(xmlpp::Node* node)
+// :REFACTOR:
+std::string QuotedName(const std::string& str)
+{
+    return "\"" + str + "\"";
+}
+
+static std::string NodeName(xmlpp::Element* node)
+{
+    return node->get_name().raw();
+}
+
+static std::string QuotedNodeName(xmlpp::Element* node)
+{
+    return QuotedName(NodeName(node));
+}
+
+static void Error(const std::string& err_str)
+{
+    throw std::runtime_error(err_str);
+}
+
+static xmlpp::Element* FindNextElement(xmlpp::Node* node)
 {
     xmlpp::Element* elem = 0;
     if( node )
@@ -144,34 +150,60 @@ static xmlpp::Element* GetNextElement(xmlpp::Node* node)
                 break;
         }
 
-    if( !elem )
-        throw std::runtime_error("No node available");
     return elem;
 }
 
-static Archieve& AcceptNextElement(Archieve& ar, xmlpp::Node* from_node)
+static void AcceptNode(Archieve& ar, xmlpp::Element* elem, bool is_parent)
 {
-    return ar.AcceptNode(GetNextElement(from_node));
+    if( !elem )
+    {
+        const char* msg = is_parent ? "No node in %1%" : "No node after %1%" ;
+        Error(boost::format(msg) % QuotedNodeName(ar.Node()) % bf::stop);
+    }
+    ar.AcceptNode(elem);
 }
 
-Archieve& OpenFirstChild(Archieve& ar)
+static void OpenFirstChild(Archieve& ar)
 {
-    xmlpp::Node* child = reinterpret_cast<xmlpp::Node*>(ar.Node()->cobj()->children->_private);
-    return AcceptNextElement(ar, child);
+    xmlpp::Element* node = ar.Node();
+
+    xmlNode* children = node->cobj()->children;
+    if( !children )
+        Error(boost::format("No content in %1%") % QuotedNodeName(node) % bf::stop);
+
+    xmlpp::Node* child = reinterpret_cast<xmlpp::Node*>(children->_private);
+    AcceptNode(ar, FindNextElement(child), true);
 }
 
-Archieve& NextNode(Archieve& ar)
+static void NextNode(Archieve& ar)
 {
-    return AcceptNextElement(ar, ar.Node()->get_next_sibling());
+    AcceptNode(ar, FindNextElement(ar.Node()->get_next_sibling()), false);
 }
 
 void CheckNodeName(Archieve& ar, const char* name)
 {
     ASSERT( ar.IsNormed() );
-    const std::string node_name = ar.Node()->get_name().raw();
+    const std::string node_name = NodeName(ar.Node());
     if( node_name != name )
-        throw std::runtime_error(std::string("Node mismatch: ") + 
-                                 name + "(expected) vs " + node_name);
+        Error(boost::format("Node mismatch: %1%(expected) vs %2%") 
+              % QuotedName(name) % QuotedName(node_name) % bf::stop);
+}
+
+void Archieve::DoStack(bool is_in)
+{
+    if( is_in )
+    {
+        if( isSubNode )
+            NextNode(*this);
+        else
+            OpenFirstChild(*this);
+    }
+    else
+    {
+        if( isSubNode )
+            CloseChild();
+    }
+    isSubNode = !is_in;
 }
 
 } // namespace Project

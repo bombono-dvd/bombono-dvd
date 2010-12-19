@@ -31,10 +31,6 @@ namespace Project
 xmlpp::Element* GetAsElement(xmlpp::Node* node);
 std::string GetValue(Archieve& ar, const char* name);
 
-// обход дерева XML при загрузке
-Archieve& OpenFirstChild(Archieve& ar);
-Archieve& NextNode(Archieve& ar);
-
 //
 // для загрузки массива
 // 

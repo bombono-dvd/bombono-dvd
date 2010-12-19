@@ -35,7 +35,6 @@
 #include <mlib/function.h>
 #include <mlib/bind.h>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/iterator/iterator_concepts.hpp> // RandomAccessTraversal
 
 #include <vector>
@@ -86,7 +85,6 @@ static void CheckRange(const Range& rng, const std::string& str)
 //
 
 //static Rect Int2Rect(int& x) { return Rect(0, 0, x, x); }
-static std::string Int2Str(int& x) { return boost::lexical_cast<std::string>(x); }
 
 int MPTransform(int x, int mult)
 {
