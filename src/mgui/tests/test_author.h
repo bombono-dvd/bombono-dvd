@@ -34,10 +34,10 @@ inline std::string TestProjectPath(const std::string& fname)
     return MakeAbsolutePath(GetTestFileName(fname.c_str())).string();
 }
 
-// "test-data/menus.xml"
+// "test-data/menus.bmd"
 inline std::string TestProjectPath()
 {
-    return TestProjectPath("menus.xml");
+    return TestProjectPath("menus.bmd");
 }
 
 bool AuthorDVDTest(const std::string& dir);

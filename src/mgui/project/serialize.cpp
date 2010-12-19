@@ -67,7 +67,7 @@ static std::string MakeProjectTitle(bool with_path_breakdown = false)
 {
     ADatabase& db = AData();
     if( !db.IsProjectSet() )
-        return "untitled.xml";
+        return "untitled.bmd";
 
     fs::path full_path(db.GetProjectFName());
     std::string res_str = full_path.leaf();
@@ -260,7 +260,9 @@ static void OnOpenProject(ConstructorApp& app)
     BuildChooserDialog(dialog, true, app.win);
 
     Gtk::FileFilter prj_filter;
-    prj_filter.set_name(_("Project files (*.xml)"));
+    prj_filter.set_name(_("Project files (*.bmd)"));
+    prj_filter.add_pattern("*.bmd");
+    // старые проекты
     prj_filter.add_pattern("*.xml");
     dialog.add_filter(prj_filter);
 
