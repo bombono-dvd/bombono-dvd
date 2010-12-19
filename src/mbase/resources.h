@@ -31,5 +31,7 @@ const std::string& GetDataDir();
 // ~/.config/bombono-dvd
 const std::string& GetConfigDir();
 
+std::string DataDirPath(const std::string& fpath);
+
 #endif // #ifndef __MBASE_RESOURCES_H__
 

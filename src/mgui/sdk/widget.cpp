@@ -91,4 +91,15 @@ std::string _remove_underscore_(const char* str)
     return res;
 }
 
+// установка пустой строки в Gtk::FileChooser почему-то устанавливает
+// текущий путь в него (в режиме открытия файла); и далее, последующий
+// get_filename() выдает текущий путь вместо "пусто"
+bool SetFilename(Gtk::FileChooser& fc, const std::string& fpath)
+{
+    bool not_empty = !fpath.empty();
+    if( not_empty )
+        fc.set_filename(fpath);
+
+    return not_empty;
+}
 

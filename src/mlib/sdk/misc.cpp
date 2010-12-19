@@ -24,6 +24,7 @@
 #include <mlib/format.h>
 #include <mlib/tech.h>
 #include <mlib/regex.h>
+#include <mlib/string.h>
 
 // = НОД
 int GCD(int a, int b)
@@ -142,6 +143,17 @@ bool GetDouble(double& res, const char* str)
 std::string PointToStr(const Point& pnt)
 {
     return boost::format("%1% \303\227 %2%") % pnt.x % pnt.y % bf::stop;
+}
+
+std::string Double2Str(double val)
+{
+    //return boost::format("%1%") % val % bf::stop;
+    return (str::stream() << val).str();
+}
+
+std::string Int2Str(int val)
+{
+    return (str::stream() << val).str();
 }
 
 bool ExtMatch(const char* display_name, const char* ext)

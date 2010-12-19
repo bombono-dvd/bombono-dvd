@@ -97,5 +97,7 @@ bool SetEnabled(Gtk::Widget& wdg, bool is_enabled);
 Gtk::VBox& PackParaBox(Gtk::VBox& vbox);
 Gtk::VBox& PackParaBox(Gtk::VBox& vbox, const char* name);
 
+bool SetFilename(Gtk::FileChooser& fc, const std::string& fpath);
+
 #endif // #ifndef __MGUI_SDK_WIDGET_H__
 

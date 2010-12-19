@@ -259,6 +259,12 @@ void VideoMD::SerializeImpl(Archieve& ar)
         ar("DVDDims", transDat.dd   )
           ("VRate",   transDat.vRate);
     }
+    {
+        ArchieveStackFrame asf(ar, "SubtitleData");
+        SerializePath(ar, "Path", subDat.pth);
+        ar( "DefShow",  subDat.defShow  )
+          ( "Encoding", subDat.encoding );
+    }
 }
 
 void VideoChapterMD::SerializeImpl(Archieve& ar)

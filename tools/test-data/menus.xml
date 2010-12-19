@@ -11,6 +11,7 @@
       <Parts/>
       <PostAction Type="0" Ref=""/>
       <DVDTransData DVDDims="0" VRate="0"/>
+      <SubtitleData Path="../../../AV-Samples/Kombajjnjory.flv.srt" DefShow="0" Encoding="UTF-8"/>
     </Media>
     <Media Name="Autumn" Path="../../../AV-Samples/Autumn.mpg" Type="Video">
       <Parts>
@@ -21,6 +22,7 @@
       </Parts>
       <PostAction Type="0" Ref=""/>
       <DVDTransData DVDDims="0" VRate="0"/>
+      <SubtitleData Path="" DefShow="0" Encoding=""/>
     </Media>
     <Media Name="transition" Path="../../../AV-Samples/Transition.mpg" Type="Video">
       <Parts>
@@ -28,6 +30,7 @@
       </Parts>
       <PostAction Type="0" Ref=""/>
       <DVDTransData DVDDims="0" VRate="0"/>
+      <SubtitleData Path="" DefShow="0" Encoding=""/>
     </Media>
     <Media Name="Title" Path="../../../AV-Samples/Backgrounds/space-01.jpg" Type="StillPicture"/>
   </Medias>

@@ -10,6 +10,7 @@
       </Parts>
       <PostAction Type="0" Ref=""/>
       <DVDTransData DVDDims="0" VRate="0"/>
+      <SubtitleData Path="" DefShow="0" Encoding=""/>
     </Media>
     <Media Name="AcerTX" Path="./colors.png" Type="StillPicture"/>
     <Media Name="Flower" Path="./flower.jpg" Type="StillPicture"/> 

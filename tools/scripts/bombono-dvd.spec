@@ -16,7 +16,7 @@ URL:		http://www.bombono.org
 Packager:	Ilya Murav'jov <muravev@yandex.ru>
 Source:		%{name}-%{version}.tar.bz2
 BuildRequires:	scons libdvdread-devel gtkmm2-devel libxml++-devel libffmpeg-devel
-Requires:       dvdauthor mjpegtools dvd+rw-tools scons toolame ffmpeg
+Requires:       dvdauthor mjpegtools dvd+rw-tools scons toolame ffmpeg enca
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
 # :TODO:

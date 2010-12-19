@@ -133,6 +133,15 @@ struct DVDTransData
     DVDTransData(): dd(dvdAUTO), vRate(0) {}
 };
 
+struct SubtitleData
+{
+    std::string  pth;
+           bool  defShow;
+    std::string  encoding;
+
+    SubtitleData(): defShow(false) {}
+};
+
 // видео
 class VideoMD: public PSO<VideoMD, StorageMD> // от StorageMD
 {
@@ -151,6 +160,8 @@ class VideoMD: public PSO<VideoMD, StorageMD> // от StorageMD
     virtual     void  SerializeImpl(Archieve& ar);
                 
         DVDTransData  transDat;
+        SubtitleData  subDat;
+
     protected:
 
         ListType  chpLst; // список глав

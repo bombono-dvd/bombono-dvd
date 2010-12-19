@@ -36,6 +36,7 @@
 #include <mgui/gettext.h>
 #include <mgui/key.h>
 #include <mgui/win_utils.h>
+#include <mgui/execution.h> // PipeOutput()
 
 #include <mgui/editor/toolbar.h>
 
@@ -231,12 +232,6 @@ static void AppendNamedValue(Gtk::VBox& vbox, RefPtr<Gtk::SizeGroup> sg, const c
     AppendWithLabel(vbox, sg, lbl, name);
 }
 
-static std::string Double2Str(double val)
-{
-    return boost::format("%1%") % val % bf::stop;
-    //return (str::stream() << val).str();
-}
-
 // синхронизировать со списком DVDDims
 int DVDWidths[] = { 0, 352, 352, 704, 720 };
 
@@ -257,7 +252,7 @@ Point DVDDimension(DVDDims dd, bool is_pal)
     return Point(wdh, hgt);
 }
 
-static Point DVDDimension(DVDDims dd)
+Point DVDDimension(DVDDims dd)
 {
     return DVDDimension(dd, IsPALProject());
 }
@@ -275,6 +270,11 @@ static DVDDims CalcDimsAuto(RTCache& rtc)
     return dd;
 }
 
+DVDDims CalcDimsAuto(VideoItem vi)
+{
+    return CalcDimsAuto(GetRTC(vi));
+}
+
 int CalcVRateAuto(DVDDims dd)
 {
     return (dd == dvd352s) ? 2000 : (dd == dvd352) ? 3000 : 5000 ;
@@ -289,7 +289,7 @@ DVDTransData GetRealTransData(VideoItem vi)
     DVDTransData res = vi->transDat;
     if( res.dd == dvdAUTO || (res.vRate < MIN_TRANS_VRATE) || (res.vRate > MAX_TRANS_VRATE) )
     {
-        res.dd    = CalcDimsAuto(GetRTC(vi));
+        res.dd    = CalcDimsAuto(vi);
         res.vRate = CalcVRateAuto(res.dd);
     }
     return res;
@@ -526,6 +526,89 @@ static void AdjustDiscUsage()
                    Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK);
 }
 
+// :REFACTOR:
+void AddDialogItem(Gtk::Menu& menu, const DialogParams& dp, bool is_enabled = true)
+{
+    AddEnabledItem(menu, dp.name.c_str(), bb::bind(&DoDialog, dp), is_enabled); 
+}
+
+// вывод кодировки в формате iconv
+// если локаль не национальная, то явно ставить opts как "-L lang"
+bool GetEncoding(const std::string& fpath, std::string& enc_str, 
+                 const std::string& opts = std::string())
+{
+    bool res = PipeOutput(boost::format("enca %1%-i %2%") % opts % FilenameForCmd(fpath) % bf::stop, 
+                          enc_str).IsGood();
+    if( res )
+    {
+        int len = enc_str.size();
+        res = (len >= 1) && (enc_str[len-1] = '\n');
+        if( res )
+            enc_str = std::string(enc_str.c_str(), enc_str.size()-1);
+    }
+    return res;
+}
+
+static void OnSelectSubtitles(Gtk::FileChooserButton& s_btn, Gtk::ComboBoxText& enc_cmb)
+{
+    std::string path = s_btn.get_filename();
+    if( !path.empty() )
+    {
+        std::string enc_str;
+        if( GetEncoding(path, enc_str) )
+        {
+            std::string old_enc = enc_cmb.get_active_text();
+            // по-другому установить по значению(!) нельзя 
+            enc_cmb.set_active_text(enc_str);
+            // восстанавливаем старую, если новой нет в списке
+            if( !old_enc.empty() && enc_cmb.get_active_text().empty() )
+                enc_cmb.set_active_text(old_enc);
+        }
+    }
+}
+
+static void SetSubtitles(VideoItem vi, Gtk::Dialog& dlg)
+{
+    SubtitleData& dat = vi->subDat;
+
+    Gtk::FileChooserButton& s_btn = NewManaged<Gtk::FileChooserButton>(
+        _("Select Subtitles"), Gtk::FILE_CHOOSER_ACTION_OPEN);
+    Gtk::CheckButton& ds_btn   = NewManaged<Gtk::CheckButton>(_("_Turn on subtitles by default"), true);
+    Gtk::ComboBoxText& enc_cmb = NewManaged<Gtk::ComboBoxText>();
+
+    DialogVBox& vbox = AddHIGedVBox(dlg);
+    SetFilename(s_btn, dat.pth);
+    AppendWithLabel(vbox, s_btn, SMCLN_("Select subtitles"));
+    ds_btn.set_active(dat.defShow);
+    PackStart(vbox, ds_btn);
+    // взято у DeVeDe с минимальными изменениями
+    // :TRICKY: держим список строк в формате iconv (что и понимает spumux), и
+    // при помощи enca надеемся на совпадение алиасов кодировок
+    io::stream strm(DataDirPath("copy-n-paste/codepages.lst").c_str());
+    std::string enc_str;
+    for( int i=0; std::getline(strm, enc_str), strm; i++ )
+    {
+        enc_cmb.append_text(enc_str);
+        if( dat.encoding == enc_str )
+            enc_cmb.set_active(i);
+    }
+    s_btn.signal_file_set().connect(bb::bind(&OnSelectSubtitles, b::ref(s_btn), b::ref(enc_cmb)));
+
+    AppendWithLabel(vbox, enc_cmb, SMCLN_("_Encoding"));
+
+    if( CompleteAndRunOk(dlg) )
+    {
+        dat.pth      = s_btn.get_filename();
+        dat.defShow  = ds_btn.get_active();
+        dat.encoding = enc_cmb.get_active_text();
+    }
+}
+
+DialogParams SubtitlesDialog(VideoItem vi, Gtk::Widget* par_wdg)
+{
+    return DialogParams(_("Set Subtitles"), bb::bind(&SetSubtitles, vi, _1), 400, -1, par_wdg);
+}
+
 static void OnMBButtonPress(ObjectBrowser& brw, MediaItem mi, GdkEventButton* event)
 {
     Gtk::Menu& mn  = NewPopupMenu(); 
@@ -543,6 +626,8 @@ static void OnMBButtonPress(ObjectBrowser& brw, MediaItem mi, GdkEventButton* ev
                    tr_enabled);
     AddEnabledItem(mn, _("Reason For Transcoding"), bb::bind(&ShowDVDCompliantStatus, vi), vi);
     AddEnabledItem(mn, _("Adjust Bitrate to Fit to Disc"), &AdjustDiscUsage, tr_enabled);
+    AppendSeparator(mn);
+    AddDialogItem(mn, SubtitlesDialog(vi, &brw), vi);
 
     Popup(mn, event, true);
 }

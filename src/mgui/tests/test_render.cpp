@@ -30,6 +30,8 @@
 #include <mgui/author/ffmpeg.h>
 
 #include <mgui/ffviewer.h>
+#include <mgui/dialog.h>
+#include <mgui/execution.h> // PipeOutput()
 
 #include <mlib/format.h>
 
@@ -127,6 +129,47 @@ BOOST_AUTO_TEST_CASE( TestCheckFFmpeg )
 
     void TestFFmpegForDVDEncoding(const std::string& conts);
     TestFFmpegForDVDEncoding(conts);
+}
+
+BOOST_AUTO_TEST_CASE( TestSetSubtitles )
+{
+    return;
+    GtkmmDBInit gd_init;
+    // :REFACTOR:
+    RefPtr<MediaStore> md = InitAndLoadPrj(TestProjectPath()).mdStore;
+    ASSERT( Size(md) );
+
+    VideoItem vi = IsVideo(md->GetMedia(md->children().begin()));
+    ASSERT( vi );
+
+    DialogParams SubtitlesDialog(VideoItem vi, Gtk::Widget* par_wdg);
+    DialogParams dp = SubtitlesDialog(vi, 0);
+    DoDialog(dp);
+}
+
+bool GetEncoding(const std::string& fpath, std::string& enc_str, 
+                 const std::string& opts);
+
+bool GetRussianEncoding(const std::string& fpath, std::string& enc_str)
+{
+    return GetEncoding(fpath, enc_str, "-L russian ");
+}
+
+static std::string TestGetEncoding(const char* fname)
+{
+    std::string enc_str;
+    BOOST_CHECK( GetRussianEncoding(GetTestFileName(fname), enc_str) );
+    return enc_str;
+}
+
+BOOST_AUTO_TEST_CASE( TestEnca )
+{
+    BOOST_CHECK_EQUAL( TestGetEncoding("enca/cp1251.srt"), "CP1251" );
+    BOOST_CHECK_EQUAL( TestGetEncoding("enca/koi8r.srt"),  "KOI8-R" );
+    BOOST_CHECK_EQUAL( TestGetEncoding("enca/utf8.srt"),   "UTF-8" );
+    // :KLUDGE: вот тут enca не прав - это UTF-16LE, так как UCS-2
+    // бывает только BE (см. BOM)
+    BOOST_CHECK_EQUAL( TestGetEncoding("enca/utf16.srt"),  "UCS-2" );
 }
 
 } // namespace Project

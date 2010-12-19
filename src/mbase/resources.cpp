@@ -76,3 +76,10 @@ const std::string& GetConfigDir()
     }
     return cfg_dir;
 }
+
+// :REFACTOR:
+std::string DataDirPath(const std::string& fpath)
+{
+    return AppendPath(GetDataDir(), fpath);
+}
+

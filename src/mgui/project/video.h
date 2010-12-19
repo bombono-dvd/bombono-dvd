@@ -16,6 +16,9 @@ bool IsTransVideo(VideoItem vi);
 
 DVDTransData GetRealTransData(VideoItem vi);
 
+Point DVDDimension(DVDDims dd);
+DVDDims CalcDimsAuto(VideoItem vi);
+
 } // namespace Project
 
 #endif // #ifndef __MGUI_PROJECT_VIDEO_H__

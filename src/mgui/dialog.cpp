@@ -4,6 +4,7 @@
 #include "dialog.h"
 #include "sdk/widget.h"
 #include "sdk/packing.h"
+#include "sdk/window.h" // GetTopWindow()
 
 DialogVBox& PackDialogVBox(Gtk::Box& box)
 {
@@ -82,5 +83,16 @@ bool CompleteAndRunOk(Gtk::Dialog& dlg)
 {
     CompleteDialog(dlg);
     return Gtk::RESPONSE_OK == dlg.run();
+}
+
+// :REFACTOR:
+void DoDialog(const DialogParams& dp)
+{
+    Gtk::Window* win = 0;
+    if( dp.parWdg )
+        win = GetTopWindow(*dp.parWdg);
+    // клиент может повторно установить имя диалога (set_title)
+    ptr::shared<Gtk::Dialog> dlg = MakeDialog(dp.name.c_str(), dp.minSz.x, dp.minSz.y, win);
+    dp.fnr(*dlg);
 }
 

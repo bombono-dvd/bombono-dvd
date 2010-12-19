@@ -98,5 +98,21 @@ void CompleteDialog(Gtk::Dialog& dlg, bool close_style = false);
 
 void SetDialogStrict(Gtk::Dialog& dlg, int min_wdh, int min_hgt, bool set_resizable = false);
 
+typedef boost::function<void(Gtk::Dialog&)> DialogFunctor;
+
+struct DialogParams
+{
+   std::string  name;
+         Point  minSz;
+ DialogFunctor  fnr;
+   Gtk::Widget* parWdg;
+
+    DialogParams(const char* name_, const DialogFunctor& fnr_, 
+                 int min_wdh, int min_hgt, Gtk::Widget* par_wdg = 0):
+        name(name_), minSz(min_wdh, min_hgt), fnr(fnr_), parWdg(par_wdg) {}
+};
+
+void DoDialog(const DialogParams& dp);
+
 #endif // #ifndef __MGUI_DIALOG_H__
 

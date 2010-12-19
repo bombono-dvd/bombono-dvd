@@ -8,7 +8,7 @@ Standards-Version: 3.7.3
 
 Package: bombono-dvd
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, dvdauthor, mjpegtools, dvd+rw-tools, scons, twolame, ffmpeg
+Depends: ${shlibs:Depends}, ${misc:Depends}, dvdauthor, mjpegtools, dvd+rw-tools, scons, twolame, ffmpeg, enca
 Suggests: totem
 Description: DVD authoring program with nice and clean GUI
  Bombono DVD is easy to use program for making DVD-Video.

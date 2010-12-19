@@ -244,6 +244,13 @@ static std::string AutoPostCmd(const std::string& jnt_cmd)
     return MenusCnt() ? std::string("call menu entry root;") : jnt_cmd ;
 }
 
+// :REFACTOR:
+static void AddChildWithText(xmlpp::Element* node, const char* node_name,
+                             const std::string& body)
+{
+    node->add_child(node_name)->add_child_text(body);
+}
+
 static void AddPostCmd(xmlpp::Element* pgc_node, MediaItem mi)
 {
     VideoItem vi = IsVideo(mi);
@@ -339,22 +346,49 @@ static bool ScriptMenu(xmlpp::Element* menus_node, Menu root_menu, Menu mn, int 
     return true;
 }
 
+static std::string SrcFilename(VideoItem vi)
+{
+    return GetFilename(*vi);
+}
+
+static std::string PrefixCnvPath(VideoItem vi, const std::string& out_dir)
+{
+    std::string dst_fname = boost::format("%1%.%2%") % GetAuthorNumber(vi) 
+        % fs::path(SrcFilename(vi)).leaf() % bf::stop;
+    return AppendPath(out_dir, dst_fname);
+}
+
 // путь для скрипта dvdauthor
+static std::string DVDCompliantFilename(VideoItem vi, const std::string& out_dir)
+{
+    std::string dst_fname = SrcFilename(vi);
+    if( RequireTranscoding(vi) )
+        dst_fname = PrefixCnvPath(vi, out_dir) + ".mpg";
+    return dst_fname;
+}
+
+static bool IsToAddSubtitles(VideoItem vi)
+{
+    return !vi->subDat.pth.empty();
+}
+
 static std::string DVDFilename(VideoItem vi, const std::string& out_dir)
 {
-    std::string dst_fname = GetFilename(*vi);
-    if( RequireTranscoding(vi) )
-    {
-        dst_fname = boost::format("%1%.%2%.mpg") % GetAuthorNumber(vi) 
-            % fs::path(dst_fname).leaf() % bf::stop;
-        dst_fname = AppendPath(out_dir, dst_fname);
-    }
+    std::string dst_fname = DVDCompliantFilename(vi, out_dir);
+    if( IsToAddSubtitles(vi) )
+        dst_fname = PrefixCnvPath(vi, out_dir) + ".sub.mpg";
     return dst_fname;
 }
 
 static bool ScriptTitle(xmlpp::Element* ts_node, VideoItem vi, const std::string& out_dir)
 {
     xmlpp::Element* pgc_node = ts_node->add_child("pgc");
+    if( IsToAddSubtitles(vi) )
+    {
+        int sub_num = vi->subDat.defShow ? 64 : 0 ;
+        AddChildWithText(pgc_node, "pre", boost::format("subtitle = %1%;") % sub_num % bf::stop);
+    }
+
     xmlpp::Element* vob_node = pgc_node->add_child("vob");
     vob_node->set_attribute("file", DVDFilename(vi, out_dir));
     // список глав
@@ -600,6 +634,22 @@ struct RestrictGetCanvasBuf
     }
 };
 
+static void CheckHomeSpumuxFont()
+{
+    char* home_dir = getenv("HOME");
+    if( !home_dir )
+        Error("Cannot find HOME directory!");
+
+    fs::path font_path = fs::path(home_dir)/"/.spumux/FreeSans.ttf";
+    if( !fs::exists(font_path) )
+    {
+        std::string err_str;
+        if( !CreateDirs(font_path.branch_path(), err_str) )
+            Error(err_str.c_str());
+        fs::copy_file(DataDirPath("copy-n-paste/FreeSans.ttf"), font_path);
+    }
+}
+
 static void AuthorImpl(const std::string& out_dir)
 {
     AuthorSectionInfo((str::stream() << "Build DVD-Video in folder: " << out_dir).str());
@@ -612,8 +662,8 @@ static void AuthorImpl(const std::string& out_dir)
     Author::SetStage(Author::stTRANSCODE);
     boost_foreach( VideoItem vi, AllTransVideos() )
     {
-        std::string src_fname = GetFilename(*vi);
-        std::string dst_fname = DVDFilename(vi, out_dir);
+        std::string src_fname = SrcFilename(vi);
+        std::string dst_fname = DVDCompliantFilename(vi, out_dir);
         // :REFACTOR: см. тест
         // :TRICKY: отдельные видеофайлы подгоняем под DVD-формат исходя из них самих
         // (а не под одну "гребенку" проекта), несмотря на то, что запись в один VTS видео
@@ -624,6 +674,59 @@ static void AuthorImpl(const std::string& out_dir)
             % FFmpegToDVDArgs(dst_fname, Is4_3(vi), IsPALProject(), GetRealTransData(vi)) % bf::stop;
         RunExtCmd(ffmpeg_cmd);
     }
+
+    // * субтитры
+    boost_foreach( VideoItem vi, AllVideos() )
+        if( IsToAddSubtitles(vi) )
+        {
+            xmlpp::Document doc;
+            xmlpp::Element* ts = doc.create_root_node("subpictures")->add_child("stream")->add_child("textsub");
+
+            SubtitleData& dat = vi->subDat;
+            ts->set_attribute("filename", dat.pth);
+            ts->set_attribute("font", "FreeSans.ttf");
+            //ts->set_attribute("force", "no");
+
+            // :KLUDGE:
+            // софтовые плейеры Xine, Vlc и Totem хотят размеров, соответ. 
+            // самому видео (Totem вообще падает иначе), а вот мой железячный плейер 
+            // не любит ничего кроме 720xfull и 28.0,- 
+            // решил в пользу софтовых ради удобства разработки, но лучше бы
+            // разобраться (хорошо, что не 720xfull - редкость)
+            DVDDims dd = RequireTranscoding(vi) ? GetRealTransData(vi).dd : CalcDimsAuto(vi);
+            // чуть меньше делаем размеры
+            Point movie_sz = DVDDimension(dd) - Point(2, 2);
+            ts->set_attribute("movie-width",  Int2Str(movie_sz.x));
+            ts->set_attribute("movie-height", Int2Str(movie_sz.y));
+            double font_sz = 28.;
+            switch( dd )
+            {
+            case dvd352s:
+                font_sz = 14.;
+                break;
+            case dvd352:
+                font_sz = 21.;
+                break;
+            default:
+                break;
+            }
+            ts->set_attribute("fontsize", Double2Str(font_sz));
+
+            if( !dat.encoding.empty() )
+                ts->set_attribute("characterset", dat.encoding);
+
+            ts->set_attribute("horizontal-alignment", "center");
+            ts->set_attribute("vertical-alignment",   "bottom");
+
+            std::string xml_fname = PrefixCnvPath(vi, out_dir) + ".textsub.xml";
+            SaveFormattedUTF8Xml(doc, xml_fname);
+            
+            CheckHomeSpumuxFont();
+            std::string spumux_cmd = boost::format("spumux -m dvd %1% < %2% > %3%") 
+                % FilenameForCmd(xml_fname) % FilenameForCmd(DVDCompliantFilename(vi, out_dir))
+                % FilenameForCmd(DVDFilename(vi, out_dir)) % bf::stop;
+            RunExtCmd(spumux_cmd);
+        }
 
     Author::ExecState& es = Author::GetES();
     str::stream& settings = es.settings;
