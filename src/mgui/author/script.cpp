@@ -244,7 +244,6 @@ static std::string AutoPostCmd(const std::string& jnt_cmd)
     return MenusCnt() ? std::string("call menu entry root;") : jnt_cmd ;
 }
 
-// :REFACTOR:
 static void AddChildWithText(xmlpp::Element* node, const char* node_name,
                              const std::string& body)
 {
@@ -307,7 +306,7 @@ static void AddPostCmd(xmlpp::Element* pgc_node, MediaItem mi)
         post_cmd = prefix + " " + post_cmd;
     }
 
-    pgc_node->add_child("post")->add_child_text(post_cmd);
+    AddChildWithText(pgc_node, "post", post_cmd);
 }
 
 static bool ScriptMenu(xmlpp::Element* menus_node, Menu root_menu, Menu mn, int i)
@@ -321,7 +320,7 @@ static bool ScriptMenu(xmlpp::Element* menus_node, Menu root_menu, Menu mn, int 
         int num = GetMenuANum(mn);
         int next_num = (i+1 < MenusCnt()) ? num+1 : 1 ;
         std::string loop_menus = boost::format("if(g1 != %1%) {jump menu %2%;}") % num % next_num % bf::stop;
-        pgc_node->add_child("pre")->add_child_text(loop_menus);
+        AddChildWithText(pgc_node, "pre", loop_menus);
     }
 
     xmlpp::Element* vob_node = pgc_node->add_child("vob");
@@ -338,10 +337,7 @@ static bool ScriptMenu(xmlpp::Element* menus_node, Menu root_menu, Menu mn, int 
         {
             std::string targ_str;    
             if( HasButtonLink(*m_obj, targ_str) )
-            {
-                xmlpp::Element* node = pgc_node->add_child("button");
-                node->add_child_text(targ_str);
-            }
+                AddChildWithText(pgc_node, "button", targ_str);
         }
     return true;
 }
@@ -524,9 +520,9 @@ void GenerateDVDAuthorScript(const std::string& out_dir)
     {
         xmlpp::Element* vmgm_node = root_node->add_child("vmgm");
         vmgm_node->add_child_comment("First Play");
-        xmlpp::Element* node = vmgm_node->add_child("fpc");
-        node->add_child_text("jump menu entry title;");
-        node = vmgm_node->add_child("menus");
+        AddChildWithText(vmgm_node, "fpc", "jump menu entry title;");
+
+        xmlpp::Element* node = vmgm_node->add_child("menus");
         // из-за того, что в VMG мы не устанавливаем ни одно видео, то
         // надо явно инициализировать атрибуты (см. функцию BuildAVInfo()
         // в dvdauthor):
@@ -550,7 +546,7 @@ void GenerateDVDAuthorScript(const std::string& out_dir)
         if( root_menu )
             // если есть меню (вообще есть), то инициализируем первое
             init_cmd = boost::format("g1 = %1%; %2%") % GetMenuANum(root_menu) % init_cmd % bf::stop;
-        title_entry->add_child("pre")->add_child_text(init_cmd);
+        AddChildWithText(title_entry, "pre", init_cmd);
     }
     // основная часть
     {
@@ -650,6 +646,13 @@ static void CheckHomeSpumuxFont()
     }
 }
 
+std::string FFmpegToDVDTranscode(const std::string& src_fname, const std::string& dst_fname,
+                                 bool is_4_3, bool is_pal, const DVDTransData& td)
+{
+    return boost::format("ffmpeg -i %1% %2%") % FilenameForCmd(src_fname) 
+        % FFmpegToDVDArgs(dst_fname, is_4_3, is_pal, td) % bf::stop;
+}
+
 static void AuthorImpl(const std::string& out_dir)
 {
     AuthorSectionInfo((str::stream() << "Build DVD-Video in folder: " << out_dir).str());
@@ -665,14 +668,13 @@ static void AuthorImpl(const std::string& out_dir)
         CheckFFDVDEncoding();
         std::string src_fname = SrcFilename(vi);
         std::string dst_fname = DVDCompliantFilename(vi, out_dir);
-        // :REFACTOR: см. тест
         // :TRICKY: отдельные видеофайлы подгоняем под DVD-формат исходя из них самих
         // (а не под одну "гребенку" проекта), несмотря на то, что запись в один VTS видео
         // разных форматов вроде как противоречит спекам. Причина: вроде и так работает (на
         // доступных мне железных и софтовых плейерах), а если будут проблемы - лучше мультиформат
         // реализовать
-        std::string ffmpeg_cmd = boost::format("ffmpeg -i %1% %2%") % FilenameForCmd(src_fname) 
-            % FFmpegToDVDArgs(dst_fname, Is4_3(vi), IsPALProject(), GetRealTransData(vi)) % bf::stop;
+        std::string ffmpeg_cmd = FFmpegToDVDTranscode(src_fname, dst_fname, Is4_3(vi), IsPALProject(), 
+                                                      GetRealTransData(vi));
         RunExtCmd(ffmpeg_cmd);
     }
 

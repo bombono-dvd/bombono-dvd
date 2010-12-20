@@ -164,3 +164,8 @@ bool ExtMatch(const char* display_name, const char* ext)
     return re::match(display_name, pat);
 }
 
+std::string QuotedName(const std::string& str)
+{
+    return "\"" + str + "\"";
+}
+

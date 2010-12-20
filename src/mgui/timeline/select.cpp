@@ -165,9 +165,8 @@ static int LastPos(TrackLayout& trk_lay)
 
 static void InsertDVDMarkAtPos(TrackLayout& trk_lay, int pos);
 
-static void InsertChapters(TrackLayout& trk_lay)
+static void InsertChapters(Gtk::Dialog& add_dlg, TrackLayout& trk_lay)
 {
-    Gtk::Dialog add_dlg(_("Add Chapter Points at Intervals"), *GetTopWindow(trk_lay), true);
     Gtk::SpinButton*  btn  = 0;
     Gtk::CheckButton* cbtn = 0;
     {
@@ -222,8 +221,10 @@ void ContextMenuHook::AtScale()
         act->set_sensitive(false);
     popupActions->add( act, bb::bind(&DeleteAllDVDMarks, boost::ref(trkLay)) );
     // Add at Intervals
+    DialogParams chp_params(_("Add Chapter Points at Intervals"), 
+                            bb::bind(&InsertChapters, _1, b::ref(trkLay)), -1, &trkLay);
     popupActions->add( Gtk::Action::create("Add at Intervals", DOTS_("Add Chapter Points at Intervals")),
-                       bb::bind(&InsertChapters, boost::ref(trkLay)) );
+                       DoDialogFunctor(chp_params) );
 
     // Save
     ActionFunctor save_fnr = boost::function_identity; // bl::constant(0); // если не mon, то пустой

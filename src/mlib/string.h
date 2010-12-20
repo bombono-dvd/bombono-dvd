@@ -80,5 +80,7 @@ std::string Int2Str(int val);
 
 bool ExtMatch(const char* display_name, const char* ext);
 
+std::string QuotedName(const std::string& str);
+
 #endif // __MLIB_STRING_H__
 

@@ -340,8 +340,7 @@ void InitGtkmm(int argc, char** argv)
     {
         si = new Gtk::Main(argc, argv);
         // стили виджетов программы
-        fs::path rc_fpath = fs::path(GetDataDir())/"gtkrc";
-        gtk_rc_parse(rc_fpath.string().c_str());
+        gtk_rc_parse(DataDirPath("gtkrc").c_str());
     }
 }
 

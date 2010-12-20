@@ -108,11 +108,14 @@ struct DialogParams
    Gtk::Widget* parWdg;
 
     DialogParams(const char* name_, const DialogFunctor& fnr_, 
-                 int min_wdh, int min_hgt, Gtk::Widget* par_wdg = 0):
+                 int min_wdh, Gtk::Widget* par_wdg = 0, int min_hgt = -1):
         name(name_), minSz(min_wdh, min_hgt), fnr(fnr_), parWdg(par_wdg) {}
 };
 
 void DoDialog(const DialogParams& dp);
+ActionFunctor DoDialogFunctor(const DialogParams& dp);
+
+void AddDialogItem(Gtk::Menu& menu, const DialogParams& dp, bool is_enabled = true);
 
 #endif // #ifndef __MGUI_DIALOG_H__
 

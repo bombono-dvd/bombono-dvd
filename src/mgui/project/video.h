@@ -14,7 +14,9 @@ fe::range<VideoItem> AllTransVideos();
 // vi && RequireTranscoding(vi)
 bool IsTransVideo(VideoItem vi);
 
+// расчет параметров транскодирования автоматом
 DVDTransData GetRealTransData(VideoItem vi);
+DVDTransData DVDDims2TDAuto(DVDDims dd);
 
 Point DVDDimension(DVDDims dd);
 DVDDims CalcDimsAuto(VideoItem vi);

@@ -231,7 +231,7 @@ static void OnNewProject(ConstructorApp& app)
     {
         AddCancelDoButtons(new_prj_dlg, Gtk::Stock::OK);
         Gtk::VBox& dlg_box = *new_prj_dlg.get_vbox();
-        PackStart(dlg_box, NewManaged<Gtk::Image>((fs::path(GetDataDir())/"cap400.png").string()));
+        PackStart(dlg_box, NewManaged<Gtk::Image>(DataDirPath("cap400.png")));
         Gtk::VBox& vbox = Add(PackStart(dlg_box, NewPaddingAlg(10, 40, 20, 20)), NewManaged<Gtk::VBox>());
         
         PackStart(vbox, NewManaged<Gtk::Label>(_("Please select a Television standard for your project:"),

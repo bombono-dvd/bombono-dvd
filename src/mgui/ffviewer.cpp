@@ -7,11 +7,6 @@
 
 #include <mlib/gettext.h>
 
-// :REFACTOR: убрать копипаст в 
-// 1 test_ffmpeg.cpp
-// +2 здесь
-// 3 общее API с Mpeg::Player
-
 /////////////////////////////////////////
 // :KLUDGE: потому что riff.h не копируют
 C_LINKAGE_BEGIN

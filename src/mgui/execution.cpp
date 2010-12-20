@@ -29,6 +29,7 @@
 
 #include <mlib/tech.h>
 #include <mlib/sigc.h>
+#include <mlib/string.h>
 
 //#include <mgui/sdk/libgnome/gnome-exec.h>
 #include <mgui/sdk/libgnome/gnome-util.h>
@@ -498,5 +499,6 @@ ExitData PipeOutput(const std::string& cmd, std::string& output)
 // название в кавычках из-за пробелов (например)
 std::string FilenameForCmd(const std::string& fname)
 {
-    return boost::format("\"%1%\"") % fname % bf::stop;
+    //return boost::format("\"%1%\"") % fname % bf::stop;
+    return QuotedName(fname);
 }

@@ -38,7 +38,7 @@ RefPtr<Gdk::Pixbuf> GetFactoryImage(const std::string& img_str)
     FIMap::iterator itr = fi_map.find(img_str);
     if( itr == fi_map.end() )
     {
-        RefPtr<Gdk::Pixbuf> img = Gdk::Pixbuf::create_from_file(AppendPath(GetDataDir(), img_str));
+        RefPtr<Gdk::Pixbuf> img = DataDirImage(img_str.c_str());
         fi_map[img_str] = img;
         return img;
     }

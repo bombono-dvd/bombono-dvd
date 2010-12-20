@@ -291,8 +291,9 @@ struct DiscSpinning
     {
         for( int i=0; i<8; i++ )
         {
-            std::string img_path = AppendPath(GetDataDir(), (str::stream("button/00") << i+1 << ".ico").str());
-            imgList.push_back(Gdk::Pixbuf::create_from_file(img_path));
+            //RefPtr<Gdk::Pixbuf> img = DataDirImage((str::stream("button/00") << i+1 << ".ico").str().c_str());
+            std::string fname = boost::format("button/00%1%.ico") % (i+1) % bf::stop;
+            imgList.push_back(DataDirImage(fname.c_str()));
         }
          
         ForAllWidgets(static_cast<Gtk::Widget&>(es.ExecButton()).gobj(), bb::bind(&FindBurnImage, _1, &imgWdg));

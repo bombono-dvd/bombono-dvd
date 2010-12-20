@@ -383,7 +383,7 @@ ThemeDirList::ThemeDirList()
     if( CreateDirsQuiet(user_frames) )
         AddDir(user_frames);
 
-    AddDir(GetDataDir() + "/frames");
+    AddDir(DataDirPath("frames"));
 }
 
 static bool IsFrameDir(const fs::path& f_dir)

@@ -5,6 +5,9 @@
 #include "sdk/widget.h"
 #include "sdk/packing.h"
 #include "sdk/window.h" // GetTopWindow()
+#include "sdk/menu.h"
+
+#include <mlib/gettext.h>
 
 DialogVBox& PackDialogVBox(Gtk::Box& box)
 {
@@ -85,7 +88,6 @@ bool CompleteAndRunOk(Gtk::Dialog& dlg)
     return Gtk::RESPONSE_OK == dlg.run();
 }
 
-// :REFACTOR:
 void DoDialog(const DialogParams& dp)
 {
     Gtk::Window* win = 0;
@@ -94,5 +96,16 @@ void DoDialog(const DialogParams& dp)
     // клиент может повторно установить имя диалога (set_title)
     ptr::shared<Gtk::Dialog> dlg = MakeDialog(dp.name.c_str(), dp.minSz.x, dp.minSz.y, win);
     dp.fnr(*dlg);
+}
+
+ActionFunctor DoDialogFunctor(const DialogParams& dp)
+{
+    return bb::bind(&DoDialog, dp);
+}
+
+void AddDialogItem(Gtk::Menu& menu, const DialogParams& dp, bool is_enabled)
+{
+    std::string dlg_name = _dots_(dp.name.c_str());
+    AddEnabledItem(menu, dlg_name.c_str(), DoDialogFunctor(dp), is_enabled); 
 }
 

@@ -145,7 +145,7 @@ void FillAsEmptyMonitor(RefPtr<Gdk::Pixbuf> canv_pix, Gtk::Widget& wdg)
 
     double rel = 0.5; //2./3.; // центр логотипа правее и ниже
     // :TODO: optimize?
-    RefPtr<Gdk::Pixbuf> logo_pix = Gdk::Pixbuf::create_from_file(AppendPath(GetDataDir(), "area-back.jpg"));
+    RefPtr<Gdk::Pixbuf> logo_pix = DataDirImage("area-back.jpg");
     Point logo_sz(PixbufSize(logo_pix));
     Point a = sz - logo_sz;
     a.x = int(a.x*rel);

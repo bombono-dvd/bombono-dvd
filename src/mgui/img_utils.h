@@ -191,5 +191,7 @@ void CopyAlphaComposite(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, bool m
 void AddAlpha(RefPtr<Gdk::Pixbuf>& pix);
 } // namespace RGBA
 
+RefPtr<Gdk::Pixbuf> DataDirImage(const char* fname);
+
 #endif // __MGUI_IMG_UTILS_H__
 

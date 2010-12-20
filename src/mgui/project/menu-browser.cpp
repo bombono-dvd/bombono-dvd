@@ -325,11 +325,8 @@ static void PackColorButton(DialogVBox& vbox, Gtk::ColorButton& btn, const RGBA:
     AppendWithLabel(vbox, btn, label);
 }
 
-void MenuSettings(Menu mn, Gtk::Window* win)
+void MenuSettings(Menu mn, Gtk::Dialog& dlg)
 {
-    ptr::shared<Gtk::Dialog> p_dlg = MakeDialog(_("Menu Settings"), 420, -1, win);
-    Gtk::Dialog& dlg = *p_dlg;
-
     //DialogVBox& vbox_all = AddHIGedVBox(dlg);
     Gtk::Notebook& nbook = Add(*dlg.get_vbox(), NewManaged<Gtk::Notebook>());
     nbook.set_border_width(2);
@@ -444,13 +441,19 @@ void MenuSettings(Menu mn, Gtk::Window* win)
 
 ///////////////////////////////
 
+DialogParams MenuSettingsDialog(Menu mn, Gtk::Widget* par_wdg)
+{
+    return DialogParams(_("Menu Settings"), bb::bind(&MenuSettings, mn, _1),
+                        420, par_wdg);
+}
+
 static void OnRightButton(ObjectBrowser& brw, MediaItem mi, GdkEventButton* event)
 {
     Menu mn = IsMenu(mi);
     ASSERT(mn);
 
     Gtk::Menu& gmn = NewPopupMenu();
-    AddEnabledItem(gmn, DOTS_("Menu Settings"), bb::bind(&MenuSettings, mn, GetTopWindow(brw)));
+    AddDialogItem(gmn, MenuSettingsDialog(mn, &brw));
     Popup(gmn, event, true);
 }
 

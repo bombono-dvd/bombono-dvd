@@ -284,14 +284,19 @@ int CalcVRateAuto(DVDDims dd)
 const int MIN_TRANS_VRATE = 400;
 const int MAX_TRANS_VRATE = 8500;
 
+DVDTransData DVDDims2TDAuto(DVDDims dd)
+{
+    DVDTransData res;
+    res.dd    = dd;
+    res.vRate = CalcVRateAuto(dd);
+    return res;
+}
+
 DVDTransData GetRealTransData(VideoItem vi)
 {
     DVDTransData res = vi->transDat;
     if( res.dd == dvdAUTO || (res.vRate < MIN_TRANS_VRATE) || (res.vRate > MAX_TRANS_VRATE) )
-    {
-        res.dd    = CalcDimsAuto(vi);
-        res.vRate = CalcVRateAuto(res.dd);
-    }
+        res = DVDDims2TDAuto(CalcDimsAuto(vi));
     return res;
 }
 
@@ -370,11 +375,9 @@ static void SetTransData(VideoItem vi, DVDDims dd, int vrate)
     td.vRate = vrate;
 }
 
-static void RunBitrateCalc(VideoItem vi, Gtk::Window* win)
+static void RunBitrateCalc(VideoItem vi, Gtk::Dialog& dlg)
 {
-    std::string dlg_name = boost::format("%1% (%2%)") % _("Bitrate Calculator") % vi->mdName % bf::stop;
-    ptr::shared<Gtk::Dialog> p_dlg = MakeDialog(dlg_name.c_str(), 350, -1, win);
-    Gtk::Dialog& dlg = *p_dlg;
+    dlg.set_title(boost::format("%1% (%2%)") % _("Bitrate Calculator") % vi->mdName % bf::stop);
 
     DialogVBox& vbox = AddHIGedVBox(dlg);
     RefPtr<Gtk::SizeGroup> sg = vbox.labelSg;
@@ -526,12 +529,6 @@ static void AdjustDiscUsage()
                    Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK);
 }
 
-// :REFACTOR:
-void AddDialogItem(Gtk::Menu& menu, const DialogParams& dp, bool is_enabled = true)
-{
-    AddEnabledItem(menu, dp.name.c_str(), bb::bind(&DoDialog, dp), is_enabled); 
-}
-
 // вывод кодировки в формате iconv
 // если локаль не национальная, то явно ставить opts как "-L lang"
 bool GetEncoding(const std::string& fpath, std::string& enc_str, 
@@ -606,7 +603,7 @@ static void SetSubtitles(VideoItem vi, Gtk::Dialog& dlg)
 
 DialogParams SubtitlesDialog(VideoItem vi, Gtk::Widget* par_wdg)
 {
-    return DialogParams(_("Set Subtitles"), bb::bind(&SetSubtitles, vi, _1), 400, -1, par_wdg);
+    return DialogParams(_("Set Subtitles"), bb::bind(&SetSubtitles, vi, _1), 400, par_wdg);
 }
 
 static void OnMBButtonPress(ObjectBrowser& brw, MediaItem mi, GdkEventButton* event)
@@ -622,11 +619,12 @@ static void OnMBButtonPress(ObjectBrowser& brw, MediaItem mi, GdkEventButton* ev
     AppendSeparator(mn);
     // калькулятор
     bool tr_enabled = IsTransVideo(vi);
-    AddEnabledItem(mn, _("Bitrate Calculator"), bb::bind(&RunBitrateCalc, vi, GetTopWindow(brw)),
-                   tr_enabled);
+    AddDialogItem(mn, DialogParams(_("Bitrate Calculator"), bb::bind(&RunBitrateCalc, vi, _1), 
+                                   350, &brw), tr_enabled);
     AddEnabledItem(mn, _("Reason For Transcoding"), bb::bind(&ShowDVDCompliantStatus, vi), vi);
     AddEnabledItem(mn, _("Adjust Bitrate to Fit to Disc"), &AdjustDiscUsage, tr_enabled);
     AppendSeparator(mn);
+
     AddDialogItem(mn, SubtitlesDialog(vi, &brw), vi);
 
     Popup(mn, event, true);

@@ -28,6 +28,7 @@
 #include <mgui/execution.h>
 #include <mgui/init.h>
 #include <mgui/author/ffmpeg.h>
+#include <mgui/project/video.h>
 
 #include <mgui/ffviewer.h>
 #include <mgui/dialog.h>
@@ -101,24 +102,28 @@ BOOST_AUTO_TEST_CASE( TestStillTranscoding )
 BOOST_AUTO_TEST_CASE( TestDVDTranscoding )
 {
     return;
-    std::string src_fname = "../AV-Samples/ЧастноеВидео_dv.avi";
-
-    std::string ffmpeg_cmd = boost::format("ffmpeg -i %1% %2%") 
-        % FilenameForCmd(src_fname) % FFmpegToDVDArgs("../dvd_out/trans.vob", false, true) % bf::stop;
-
+    const char* src_fname = "../AV-Samples/ЧастноеВидео_dv.avi";
+    std::string ffmpeg_cmd = FFmpegToDVDTranscode(src_fname, "../dvd_out/trans.vob", false, true,
+                                                  DVDDims2TDAuto(dvd720));
     RunFFmpeg(ffmpeg_cmd);
+}
+
+static AStores& LoadTestPrj()
+{
+    return InitAndLoadPrj(TestProjectPath());
 }
 
 BOOST_AUTO_TEST_CASE( TestMenuSettings )
 {
     return;
     GtkmmDBInit gd_init;
-    RefPtr<MenuStore> ms = InitAndLoadPrj(TestProjectPath()).mnStore;
+    RefPtr<MenuStore> ms = LoadTestPrj().mnStore;
     ASSERT( Size(ms) );
 
     Menu mn = GetMenu(ms, ms->children().begin());
-    void MenuSettings(Menu mn, Gtk::Window* win);
-    MenuSettings(mn, 0);
+
+    DialogParams MenuSettingsDialog(Menu mn, Gtk::Widget* par_wdg);
+    DoDialog(MenuSettingsDialog(mn, 0));
 }
 
 BOOST_AUTO_TEST_CASE( TestCheckFFmpeg )
@@ -135,16 +140,14 @@ BOOST_AUTO_TEST_CASE( TestSetSubtitles )
 {
     return;
     GtkmmDBInit gd_init;
-    // :REFACTOR:
-    RefPtr<MediaStore> md = InitAndLoadPrj(TestProjectPath()).mdStore;
+    RefPtr<MediaStore> md = LoadTestPrj().mdStore;
     ASSERT( Size(md) );
 
     VideoItem vi = IsVideo(md->GetMedia(md->children().begin()));
     ASSERT( vi );
 
     DialogParams SubtitlesDialog(VideoItem vi, Gtk::Widget* par_wdg);
-    DialogParams dp = SubtitlesDialog(vi, 0);
-    DoDialog(dp);
+    DoDialog(SubtitlesDialog(vi, 0));
 }
 
 bool GetEncoding(const std::string& fpath, std::string& enc_str, 

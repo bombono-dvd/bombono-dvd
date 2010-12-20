@@ -24,6 +24,8 @@
 #include "img_utils.h"
 #include "win_utils.h"
 
+#include <mbase/resources.h>
+
 RefPtr<Gdk::Pixbuf> GetAsPixbuf(Cairo::RefPtr<Cairo::ImageSurface> sur)
 {
     ASSERT( sur->get_format() == Cairo::FORMAT_ARGB32 );
@@ -489,4 +491,8 @@ void PutPixel(RefPtr<Gdk::Pixbuf> pix, const Point& pnt, const Pixel& pxl)
 
 } // namespace RGBA
 
+RefPtr<Gdk::Pixbuf> DataDirImage(const char* fname)
+{
+    return Gdk::Pixbuf::create_from_file(DataDirPath(fname));
+}
 

@@ -118,12 +118,6 @@ std::string GetValue(Archieve& ar, const char* name)
     return GetAttr(ar, name)->get_value();
 }
 
-// :REFACTOR:
-std::string QuotedName(const std::string& str)
-{
-    return "\"" + str + "\"";
-}
-
 static std::string NodeName(xmlpp::Element* node)
 {
     return node->get_name().raw();
