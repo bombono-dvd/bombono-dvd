@@ -595,12 +595,15 @@ static bool DoDecode(FFViewer& ffv)
     int av_res = av_read_frame(ffv.iCtx, &pkt);
     if( av_res >= 0 )
     {
-        // только одно видео фильтруем
-        ASSERT_RTL( pkt.stream_index == ffv.videoIdx );
-    
-        dec->reordered_opaque = pkt.pts;
-        
-        DoVideoDecode(ffv, got_picture, &pkt);
+        // хотя только одно видео фильтруем, по ходу работы
+        // может найтись новый поток - 
+        // samples.mplayerhq.hu/MPEG2/dothack2.mpg (субтитры на 8й секунде)
+        if( pkt.stream_index == ffv.videoIdx )
+        {
+            dec->reordered_opaque = pkt.pts;
+            
+            DoVideoDecode(ffv, got_picture, &pkt);
+        }
         av_free_packet(&pkt);
     }
     else if( av_res == AVERROR_EOF ) // для mpegts также -EIO приходит

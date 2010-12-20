@@ -662,6 +662,7 @@ static void AuthorImpl(const std::string& out_dir)
     Author::SetStage(Author::stTRANSCODE);
     boost_foreach( VideoItem vi, AllTransVideos() )
     {
+        CheckFFDVDEncoding();
         std::string src_fname = SrcFilename(vi);
         std::string dst_fname = DVDCompliantFilename(vi, out_dir);
         // :REFACTOR: см. тест

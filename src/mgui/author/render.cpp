@@ -869,6 +869,38 @@ void TestFFmpegForDVDEncoding(const std::string& conts)
     CheckStrippedFFmpeg(ac3_codec, conts, "ac3 audio encoder");
 }
 
+void CheckFFDVDEncoding()
+{
+    // наличие полного ffmpeg
+    std::string ff_formats;
+    ExitData ed = PipeOutput("ffmpeg -formats", ff_formats);
+    // старые версии выходят с 1 для нерабочих режимов -formats, -help, ... (Hardy)
+    bool is_good = ed.IsGood() || ed.IsCode(1);
+    if( !is_good )
+    {
+        const char* msg = ed.IsCode(127) ? _("command not found") : "unknown error" ;
+        FFmpegError(msg);
+    }
+    else
+    {
+        // * в новых версиях ffmpeg распечатка собственно кодеков выделена
+        //  в опцию -codecs
+        // * нормальной (сквозной) нумерации собственно ffmpeg не имеет (см. version.sh,-
+        // может появиться UNKNOWN, SVN-/git-ревизия и собственно версия), потому
+        // определяем по наличию строки "Codecs:"
+        if( !CheckForCodecList(ff_formats) )
+        {
+            std::string ff_codecs;
+            ExitData ed = PipeOutput("ffmpeg -codecs", ff_codecs);
+            CheckNoCodecs(ed.IsGood());
+
+            ff_formats += ff_codecs;
+        }
+
+        TestFFmpegForDVDEncoding(ff_formats);
+    }
+}
+
 bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
 {
     Author::Info((str::stream() << "Rendering menu \"" << mn->mdName << "\" ...").str());
@@ -876,34 +908,7 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
 
     if( IsMotion(mn) )
     {
-        // наличие полного ffmpeg
-        std::string ff_formats;
-        ExitData ed = PipeOutput("ffmpeg -formats", ff_formats);
-        // старые версии выходят с 1 для нерабочих режимов -formats, -help, ... (Hardy)
-        bool is_good = ed.IsGood() || ed.IsCode(1);
-        if( !is_good )
-        {
-            const char* msg = ed.IsCode(127) ? _("command not found") : "unknown error" ;
-            FFmpegError(msg);
-        }
-        else
-        {
-            // * в новых версиях ffmpeg распечатка собственно кодеков выделена
-            //  в опцию -codecs
-            // * нормальной (сквозной) нумерации собственно ffmpeg не имеет (см. version.sh,-
-            // может появиться UNKNOWN, SVN-/git-ревизия и собственно версия), потому
-            // определяем по наличию строки "Codecs:"
-            if( !CheckForCodecList(ff_formats) )
-            {
-                std::string ff_codecs;
-                ExitData ed = PipeOutput("ffmpeg -codecs", ff_codecs);
-                CheckNoCodecs(ed.IsGood());
-                
-                ff_formats += ff_codecs;
-            }
-
-            TestFFmpegForDVDEncoding(ff_formats);
-        }
+        CheckFFDVDEncoding();
 
         if( mn->MtnData().isStillPicture )
             SaveStillMenuMpg(mn_dir, mn);

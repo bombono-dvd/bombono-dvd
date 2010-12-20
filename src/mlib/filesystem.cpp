@@ -40,12 +40,18 @@ std::string operator / (const path& f, to_string_enum /*to_str*/)
 
 } } // namepspace filesystem, boost
 
+static const char* FindExtDot(const char* name)
+{
+    return strrchr(name, '.');
+}
+
 std::string get_basename(const fs::path& pth)
 {
     std::string name_s = pth.leaf();
     const char* name = name_s.c_str();
 
-    if( const char* dot = strstr(name, ".") )
+    //if( const char* dot = strstr(name, ".") )
+    if( const char* dot = FindExtDot(name) )
         return std::string(name, dot);
     return name_s;
 }
@@ -53,9 +59,8 @@ std::string get_basename(const fs::path& pth)
 std::string get_extension(const fs::path& pth)
 {
     std::string name_s = pth.leaf();
-    const char* name = name_s.c_str();
 
-    if( const char* dot = strrchr(name, '.') )
+    if( const char* dot = FindExtDot(name_s.c_str()) )
         return std::string(dot+1);
     return std::string();
 }

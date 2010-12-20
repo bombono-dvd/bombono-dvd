@@ -200,7 +200,8 @@ static void PlayInTotem(TrackLayout& trk_lay)
 {
     uint64_t msec = uint64_t(trk_lay.CurPos()/trk_lay.FrameFPS()*1000);
     // уже запущенный Totem не воспринимает --seek, поэтому сначала закрываем его
-    std::string cmd = boost::format("totem --quit; totem --seek %1% %2%") % msec % GetFilename(*CurrVideo) % bf::stop;
+    std::string cmd = boost::format("totem --quit; totem --seek %1% %2%") 
+        % msec % FilenameForCmd(GetFilename(*CurrVideo)) % bf::stop;
     Execution::SimpleSpawn(cmd.c_str());
 }
 
