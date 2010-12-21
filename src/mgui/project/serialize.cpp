@@ -80,7 +80,7 @@ static bool SaveProjectAs(Gtk::Widget& for_wdg)
 {
     bool res = false;
     std::string fname = MakeProjectTitle();
-    if( ChooseFileSaveTo(fname, _("Save Project As..."), for_wdg) )
+    if( ChooseFileSaveTo(fname, _("Save Project As"), for_wdg) )
     {
         fname = Project::ConvertPathToUtf8(fname);
 

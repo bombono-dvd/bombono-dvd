@@ -79,7 +79,7 @@ static bool RunMuxing(const std::string& dest_path, const std::string& args)
         Gtk::VBox& box = *dlg.get_vbox();
         PackStart(box, prg_bar);
 
-        Gtk::Expander& expdr = PackStart(box, NewManaged<Gtk::Expander>(_("Show/_Hide Details"), true));
+        Gtk::Expander& expdr = PackStart(box, NewManaged<Gtk::Expander>(_("Show/_hide Details"), true));
         txt_view.set_editable(false);
         txt_view.set_size_request(0, 200);
         expdr.add(PackDetails(txt_view));

@@ -63,10 +63,10 @@ struct StageMapT
 } 
 StageMap[stLAST] = 
 { 
-    { N_("Transcoding Videos"),   true, true, 1, 0.0 }, 
-    { N_("Rendering Menus"),      true, true, 1, 0.0 }, 
+    { N_("Transcoding videos"),   true, true, 1, 0.0 }, 
+    { N_("Rendering menus"),      true, true, 1, 0.0 }, 
     { N_("Generating DVD-Video"), true, true, 3, 0.0 }, 
-    { N_("Creating ISO Image"),   true, true, 2, 0.0 }, 
+    { N_("Creating ISO image"),   true, true, 2, 0.0 }, 
     { N_("Burning DVD"),          true, true, 4, 0.0 }, 
 };
 // текущий этап

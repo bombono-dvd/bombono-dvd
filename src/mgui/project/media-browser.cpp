@@ -569,7 +569,7 @@ static void SetSubtitles(VideoItem vi, Gtk::Dialog& dlg)
     SubtitleData& dat = vi->subDat;
 
     Gtk::FileChooserButton& s_btn = NewManaged<Gtk::FileChooserButton>(
-        _("Select Subtitles"), Gtk::FILE_CHOOSER_ACTION_OPEN);
+        _("Select subtitles"), Gtk::FILE_CHOOSER_ACTION_OPEN);
     Gtk::CheckButton& ds_btn   = NewManaged<Gtk::CheckButton>(_("_Turn on subtitles by default"), true);
     Gtk::ComboBoxText& enc_cmb = NewManaged<Gtk::ComboBoxText>();
 
@@ -603,7 +603,7 @@ static void SetSubtitles(VideoItem vi, Gtk::Dialog& dlg)
 
 DialogParams SubtitlesDialog(VideoItem vi, Gtk::Widget* par_wdg)
 {
-    return DialogParams(_("Set Subtitles"), bb::bind(&SetSubtitles, vi, _1), 400, par_wdg);
+    return DialogParams(_("Add Subtitles"), bb::bind(&SetSubtitles, vi, _1), 400, par_wdg);
 }
 
 static void OnMBButtonPress(ObjectBrowser& brw, MediaItem mi, GdkEventButton* event)
