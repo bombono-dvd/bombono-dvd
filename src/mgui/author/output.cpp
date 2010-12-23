@@ -25,6 +25,7 @@
 #include "script.h"
 #include "burn.h"
 
+#include <mgui/project/handler.h>
 #include <mgui/dialog.h>
 #include <mgui/win_utils.h>
 #include <mgui/img-factory.h>
@@ -278,7 +279,13 @@ void SetExecState(ExecState& es, bool is_exec)
     std::string op = (es.mode == modRENDERING) ? _("Rendering") : gettext(Project::DVDOperation.c_str());
     SetExecState(es, is_exec, op);
     if( is_exec )
-        InitStageMap(es.mode);
+    {
+        Project::SizeStat ss = Project::ProjectStat();
+        double trans_ratio = 0.;
+        if( ss.prjSum )
+            trans_ratio = ss.transSum / (double)ss.prjSum;
+        InitStageMap(es.mode, trans_ratio);
+    }
 }
 
 static void FindBurnImage(GtkWidget* wdg, Gtk::Image** img_wdg)

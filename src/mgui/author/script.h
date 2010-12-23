@@ -58,6 +58,9 @@ double MenuDuration(Menu mn);
 
 void ClearTaggedData(Menu mn, const char* tag);
 
+void RunExtCmd(const std::string& cmd, 
+               const ReadReadyFnr& add_fnr = ReadReadyFnr());
+
 } // namespace Project
 
 namespace Author {

@@ -52,9 +52,11 @@ enum Stage
     stLAST
 };
 
-void InitStageMap(Mode mod);
+// trans_ratio - в долях 1 от размера проекта
+void InitStageMap(Mode mod, double trans_ratio);
 void SetStage(Stage st);
-void SetStageProgress(double percent);
+// is_percent = false : в долях 1, иначе в %
+void SetStageProgress(double val, bool is_percent = false);
 
 std::string StageToStr(Stage st);
 

@@ -68,8 +68,11 @@ class ConsoleMode
 
 } // namespace Exection
 
+// :TODO: перейти на сигнатуру void(const std::string&, bool) - 
+// лишняя оптимизация (все равно RawRD нигде сейчас не используется)
 typedef boost::function<void(const char*, int, bool)> ReadReadyFnr;
-ReadReadyFnr TextViewAppender(Gtk::TextView& txt_view);
+ReadReadyFnr TextViewAppender(Gtk::TextView& txt_view, 
+                              const ReadReadyFnr& add_fnr = ReadReadyFnr());
 
 struct ExitData
 {

@@ -36,14 +36,17 @@
 
 #include <gtk/gtkwindow.h> // gtk_window_set_geometry_hints()
 
-static void OnNewText(Gtk::TextView& txt_view, const char* dat, int sz, bool is_out)
+static void OnNewText(Gtk::TextView& txt_view, const char* dat, int sz, bool is_out,
+                      const ReadReadyFnr& add_fnr)
 {
     AppendNewText(txt_view, std::string(dat, sz), is_out);
+    if( add_fnr )
+        add_fnr(dat, sz, is_out);
 }
 
-ReadReadyFnr TextViewAppender(Gtk::TextView& txt_view)
+ReadReadyFnr TextViewAppender(Gtk::TextView& txt_view, const ReadReadyFnr& add_fnr)
 {
-    return bb::bind(&OnNewText, boost::ref(txt_view), _1, _2, _3);
+    return bb::bind(&OnNewText, boost::ref(txt_view), _1, _2, _3, add_fnr);
 }
 
 static void OnResponse(Execution::Data& edat, int resp)

@@ -32,6 +32,7 @@
 #include <mgui/sdk/textview.h>
 #include <mgui/project/thumbnail.h> // Project::CalcAspectSize()
 #include <mgui/project/video.h>
+#include <mgui/project/handler.h>
 #include <mgui/gettext.h>
 
 #include <mbase/project/table.h>
@@ -42,6 +43,9 @@
 #include <mlib/filesystem.h>
 #include <mlib/string.h>
 #include <mlib/sdk/logger.h>
+#include <mlib/regex.h>
+
+#include <boost/lexical_cast.hpp>
 
 namespace Project 
 {
@@ -653,6 +657,25 @@ std::string FFmpegToDVDTranscode(const std::string& src_fname, const std::string
         % FFmpegToDVDArgs(dst_fname, atd, is_pal, td) % bf::stop;
 }
 
+// ffmpeg выводит размер первого создаваемого файла каждые полсекунды,
+// см. print_report() (при verbose=1, по умолчанию)
+// Формат: "size=%8.0fkB"
+re::pattern FFmpegSizePat( "size= *"RG_NUM"kB"); 
+
+static void OnTranscodePrintParse(const char* dat, int sz, const io::pos trans_total,
+                                  const io::pos trans_done, const io::pos trans_val)
+{
+    re::match_results what;
+    if( re::search(std::string(dat, sz), what, FFmpegSizePat) )
+    {
+        // :KLUDGE: вроде и нецелые могут быть, но precision=0
+        // как-то не в тему
+        io::pos sz = 1024 * boost::lexical_cast<io::pos>(what.str(1));
+        double per = (std::min(sz, trans_val) + trans_done)/double(trans_total);
+        Author::SetStageProgress(per);
+    }
+}
+
 static void AuthorImpl(const std::string& out_dir)
 {
     AuthorSectionInfo((str::stream() << "Build DVD-Video in folder: " << out_dir).str());
@@ -660,8 +683,8 @@ static void AuthorImpl(const std::string& out_dir)
 
     IndexVideosForAuthoring();
 
-    void RunExtCmd(const std::string& cmd);
     // * транскодирование
+    io::pos trans_done = 0, trans_total = ProjectStat().transSum;
     Author::SetStage(Author::stTRANSCODE);
     boost_foreach( VideoItem vi, AllTransVideos() )
     {
@@ -677,9 +700,13 @@ static void AuthorImpl(const std::string& out_dir)
         AutoDVDTransData atd(Is4_3(vi));
         atd.audioNum  = OutAudioNum(rtc.audioNum);
         atd.srcAspect = rtc.dar;
-        std::string ffmpeg_cmd = FFmpegToDVDTranscode(src_fname, dst_fname, atd, IsPALProject(), 
-                                                      GetRealTransData(vi));
-        RunExtCmd(ffmpeg_cmd);
+        DVDTransData td = GetRealTransData(vi);
+
+        std::string ffmpeg_cmd = FFmpegToDVDTranscode(src_fname, dst_fname, atd, IsPALProject(), td);
+        io::pos trans_val      = CalcTransSize(rtc, td.vRate);
+        RunExtCmd(ffmpeg_cmd, bb::bind(&OnTranscodePrintParse, _1, _2, trans_total, trans_done, trans_val));
+
+        trans_done += trans_val;
     }
 
     // * субтитры

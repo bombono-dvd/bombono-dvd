@@ -48,10 +48,16 @@
 
 #include <glib/gstdio.h> // g_stat
 
-guint64 FFmpegSizeForDVD(double sec, int vrate, int anum)
+io::pos FFmpegSizeForDVD(double sec, int vrate, int anum)
 {
-    int snum = 0; // DeVeDe учитывает и субтитры (по 8kbit/s), но ИМХО ерунда 
-    return (gint64)sec * (vrate + TRANS_AUDIO_BITRATE*anum + snum*8) * 125; // 1000/8 (бит в байте)
+    int snum = 0; // DeVeDe учитывает и субтитры (по 8kbit/s), но ИМХО ерунда
+    // 1000/8 (бит в байте)
+    io::pos res = (io::pos)sec * (vrate + TRANS_AUDIO_BITRATE*anum + snum*8) * 125;
+    // изначально хотелось показывать "точный" размер по битрейту, но там
+    // своя двусмысленность (почему сумма вдруг стала большe?); к тому же при самом
+    // транскодировании требуется вести расчет по всему проекту + необходим подсчет
+    // каждого файла снова (со страховкой) - заводить 2 варианта расчета значит усложнять.
+    return res * Project::TRANS_OVER_ASSURANCE;
 }
 
 namespace Project
@@ -353,14 +359,9 @@ int OutAudioNum(int i_anum)
     return std::min(i_anum, 8);
 }
 
-static gint64 CalcTransSize(RTCache& rtc, int vrate)
+io::pos CalcTransSize(RTCache& rtc, int vrate)
 {
     return FFmpegSizeForDVD(rtc.duration, vrate, OutAudioNum(rtc.audioNum));
-}
-
-gint64 CalcTransSize(VideoItem vi)
-{
-    return CalcTransSize(GetRTC(vi), GetRealTransData(vi).vRate);
 }
 
 static void OnBitrateControlsChanged(BitrateControls& bc, bool dims_changed)
@@ -428,7 +429,7 @@ static void RunBitrateCalc(VideoItem vi, Gtk::Dialog& dlg)
 
         Gtk::Label& sz_lbl = bc.szLbl;
         SetAlign(sz_lbl);
-        AppendWithLabel(bc_box, sg, sz_lbl, SMCLN_("Result file size"));
+        AppendWithLabel(bc_box, sg, sz_lbl, SMCLN_("Expected file size"));
     
         OnBitrateControlsChanged(bc, false); // расчет размера
         vrate_btn.signal_value_changed().connect(bb::bind(&OnBitrateControlsChanged, b::ref(bc), false));
@@ -489,9 +490,12 @@ double Duration(VideoItem vi)
     return GetRTC(vi).duration;
 }
 
-io::pos ProjectSizeSum(bool fixed_part)
+static SizeStat ProjectStatEx(bool fixed_part)
 {
-    io::pos sz = 0;
+    SizeStat ss;
+    io::pos& sz = ss.prjSum;
+    io::pos& tr_sz = ss.transSum;
+
     boost_foreach( VideoItem vi, AllVideos() )
     {
         if( RequireTranscoding(vi) )
@@ -500,13 +504,25 @@ io::pos ProjectSizeSum(bool fixed_part)
             int vrate    = fixed_part ? 0 : GetRealTransData(vi).vRate ;
             io::pos v_sz = CalcTransSize(rtc, vrate);
 
-            sz += v_sz * TRANS_OVER_ASSURANCE;
+            tr_sz += v_sz;
+            sz    += v_sz;
         }
         else
             sz += PhisSize(GetFilename(*vi).c_str());
     }
+    sz += Author::MenusSize();
 
-    return sz + Author::MenusSize();
+    return ss;
+}
+
+SizeStat ProjectStat()
+{
+    return ProjectStatEx(false);
+}
+
+io::pos ProjectSizeSum(bool fixed_part)
+{
+    return ProjectStatEx(fixed_part).prjSum;
 }
 
 DVDDims GetRealTD(VideoItem vi)
@@ -646,12 +662,12 @@ static void OnMBButtonPress(ObjectBrowser& brw, MediaItem mi, GdkEventButton* ev
                                             VideoAddConstantChoice).Create());
 
     AppendSeparator(mn);
-    // калькулятор
     bool tr_enabled = IsTransVideo(vi);
+    AddEnabledItem(mn, _("Adjust Bitrate to Fit to Disc"), &AdjustDiscUsage, tr_enabled);
+    // калькулятор
     AddDialogItem(mn, DialogParams(_("Bitrate Calculator"), bb::bind(&RunBitrateCalc, vi, _1), 
                                    350, &brw), tr_enabled);
     AddEnabledItem(mn, _("Reason For Transcoding"), bb::bind(&ShowDVDCompliantStatus, vi), vi);
-    AddEnabledItem(mn, _("Adjust Bitrate to Fit to Disc"), &AdjustDiscUsage, tr_enabled);
     AppendSeparator(mn);
 
     AddDialogItem(mn, SubtitlesDialog(vi, &brw), vi);

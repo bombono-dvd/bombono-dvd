@@ -43,8 +43,8 @@ inline void DoNameChange(MediaItem mi, const std::string& new_name)
     InvokeOnChangeName(mi);
 }
 
-std::string ToSizeString(gint64 size, bool round);
-inline std::string ShortSizeString(gint64 size)
+std::string ToSizeString(io::pos size, bool round);
+inline std::string ShortSizeString(io::pos size)
 {
     return ToSizeString(size, false);
 }
@@ -53,11 +53,21 @@ void UpdateDVDSize();
 const double TRANS_OVER_ASSURANCE = 1.05; // страховка на 5%
 io::pos ProjectSizeSum(bool fixed_part = false);
 
+struct SizeStat
+{
+    io::pos prjSum;
+    io::pos transSum;
+
+    SizeStat(): prjSum(0), transSum(0) {}
+};
+
+SizeStat ProjectStat();
+
 } // namespace Project
 
 // vrate - в kbit/s
 // 6000 - умолчание в ffmpeg для -target *-dvd
-guint64 FFmpegSizeForDVD(double sec, int vrate = 6000, int anum = 1);
+io::pos FFmpegSizeForDVD(double sec, int vrate = 6000, int anum = 1);
 
 namespace Author
 {

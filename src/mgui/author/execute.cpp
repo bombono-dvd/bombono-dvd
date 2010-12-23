@@ -192,7 +192,7 @@ void BuildDvdOF::SetStage(Stage stg)
 static bool MenuSize(Project::Menu mn, io::pos& sz)
 {
     if( Project::IsMotion(mn) )
-        sz += FFmpegSizeForDVD(Project::MenuDuration(mn)) * Project::TRANS_OVER_ASSURANCE;
+        sz += FFmpegSizeForDVD(Project::MenuDuration(mn));
     return true;
 }
 
@@ -210,7 +210,7 @@ int BuildDvdOF::GetDVDSize()
 
 void BuildDvdOF::SetProgress(double percent)
 {
-    SetStageProgress(percent);
+    SetStageProgress(percent, true);
 }
 
 //static void PrintRect(const Gdk::Rectangle& rct)

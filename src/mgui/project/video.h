@@ -38,6 +38,7 @@ struct RTCache
 };
 
 RTCache& GetRTC(VideoItem vi);
+io::pos CalcTransSize(RTCache& rtc, int vrate);
 
 } // namespace Project
 

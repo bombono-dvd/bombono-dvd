@@ -600,7 +600,7 @@ brasero_utils_get_size_string(gint64 dsize,
 					size);
 }
 
-std::string ToSizeString(gint64 size, bool round)
+std::string ToSizeString(io::pos size, bool round)
 {
     gchar* c_str = brasero_utils_get_size_string(size, TRUE, round ? TRUE : FALSE);
     std::string str_res = c_str;

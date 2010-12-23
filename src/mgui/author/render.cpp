@@ -284,7 +284,7 @@ static void PulseRenderProgress()
 
     DoneCnt++;
     ASSERT( WorkCnt && (DoneCnt <= WorkCnt) );
-    Author::SetStageProgress( DoneCnt/(double)WorkCnt * 100.);
+    Author::SetStageProgress(DoneCnt/(double)WorkCnt);
 
     IterateAuthoringEvents();
 }
@@ -791,7 +791,7 @@ static Gtk::TextView& PrintCmdToDetails(const std::string& cmd)
     return tv;
 }
 
-void RunExtCmd(const std::string& cmd)
+void RunExtCmd(const std::string& cmd, const ReadReadyFnr& add_fnr)
 {
     ExitData ed;
     if( Execution::ConsoleMode::Flag )
@@ -802,7 +802,7 @@ void RunExtCmd(const std::string& cmd)
     else
     {
         Gtk::TextView& tv = PrintCmdToDetails(cmd);
-        ed = Author::AsyncCall(0, cmd.c_str(), TextViewAppender(tv));
+        ed = Author::AsyncCall(0, cmd.c_str(), TextViewAppender(tv, add_fnr));
     }
     if( !ed.IsGood() )
         FFmpegError(ed);

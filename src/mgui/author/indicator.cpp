@@ -63,7 +63,7 @@ struct StageMapT
 } 
 StageMap[stLAST] = 
 { 
-    { N_("Transcoding videos"),   true, true, 1, 0.0 }, 
+    { N_("Transcoding videos"),   true, true, 0, 0.0 }, 
     { N_("Rendering menus"),      true, true, 1, 0.0 }, 
     { N_("Generating DVD-Video"), true, true, 3, 0.0 }, 
     { N_("Creating ISO image"),   true, true, 2, 0.0 }, 
@@ -72,8 +72,19 @@ StageMap[stLAST] =
 // текущий этап
 Stage CurStage = stNO_STAGE;
 
-void InitStageMap(Mode mod)
+void InitStageMap(Mode mod, double trans_ratio)
 {
+    // * расчет веса для транскодирования
+    // ffmpeg приблизительно в 2 раза быстрее реалки
+    const double ffmpeg_trans_mult = 0.5;
+    // обычный мультипликатор записи dvd;
+    // предположительный битрейт DVD-Video (11Mbit/s)
+    // равен 1x скорости чтения DVD
+    const double dvd_write_mult = 4.0;
+    // ~8 для, если транскодировать все
+    StageMap[stTRANSCODE].weight = trans_ratio * ffmpeg_trans_mult 
+        * dvd_write_mult * StageMap[stBURN].weight;
+
     StageMap[stDVDAUTHOR].isNeeded = mod != modRENDERING;
     StageMap[stBURN].isNeeded      = mod == modBURN;
     StageMap[stMK_ISO].isNeeded    = mod == modDISK_IMAGE;
@@ -99,7 +110,7 @@ void ExecState::SetIndicator(double percent)
     SetPercent(prgBar, percent);
 }
 
-void SetStageProgress(double percent)
+void SetStageProgress(double percent, bool is_percent)
 {
     if( Execution::ConsoleMode::Flag )
         return;
@@ -116,6 +127,8 @@ void SetStageProgress(double percent)
     StageMapT& cur_s = StageMap[CurStage];
     ASSERT( cur_s.isNeeded && !cur_s.isPassed );
 
+    if( !is_percent )
+        percent *= 100.;
     sum = sum * 100. + cur_s.dWeight * percent;
     GetES().SetIndicator(sum);
 }

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-23 15:07+0300\n"
+"POT-Creation-Date: 2010-12-24 02:05+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/mbase/project/media.cpp:68 src/mgui/project/media-browser.cpp:678
+#: src/mbase/project/media.cpp:68 src/mgui/project/media-browser.cpp:694
 msgid "Chapter"
 msgstr ""
 
@@ -104,7 +104,7 @@ msgid ""
 msgstr ""
 
 #. имя
-#: src/mgui/dvdimport.cpp:615 src/mgui/project/media-browser.cpp:695
+#: src/mgui/dvdimport.cpp:615 src/mgui/project/media-browser.cpp:711
 msgid "Name"
 msgstr ""
 
@@ -173,79 +173,79 @@ msgstr ""
 msgid "No decoder found for the stream: %1%"
 msgstr ""
 
-#: src/mgui/mux.cpp:55
+#: src/mgui/mux.cpp:58
 msgid "muxing"
 msgstr ""
 
-#: src/mgui/mux.cpp:71
+#: src/mgui/mux.cpp:74
 #, boost-format
 msgid "Muxing \"%1%\""
 msgstr ""
 
-#: src/mgui/mux.cpp:82 src/mgui/author/output.cpp:233
+#: src/mgui/mux.cpp:85 src/mgui/author/output.cpp:234
 msgid "Show/_hide Details"
 msgstr ""
 
-#: src/mgui/mux.cpp:105
+#: src/mgui/mux.cpp:108
 msgid "Muxing error"
 msgstr ""
 
-#: src/mgui/mux.cpp:106 src/mgui/author/output.cpp:656
+#: src/mgui/mux.cpp:109 src/mgui/author/output.cpp:663
 #, boost-format
 msgid "The reason is \"%1%\" (see Details)"
 msgstr ""
 
-#: src/mgui/mux.cpp:122
+#: src/mgui/mux.cpp:125
 msgid "Select a folder"
 msgstr ""
 
-#: src/mgui/mux.cpp:134
+#: src/mgui/mux.cpp:137
 msgid "in"
 msgstr ""
 
-#: src/mgui/mux.cpp:168
+#: src/mgui/mux.cpp:171
 msgid "Mux streams"
 msgstr ""
 
-#: src/mgui/mux.cpp:170
+#: src/mgui/mux.cpp:173
 msgid "Output"
 msgstr ""
 
-#: src/mgui/mux.cpp:171
+#: src/mgui/mux.cpp:174
 msgid "Select elementary video"
 msgstr ""
 
-#: src/mgui/mux.cpp:172
+#: src/mgui/mux.cpp:175
 msgid "Select audio"
 msgstr ""
 
 #. Названия типов для i18n
-#: src/mgui/mux.cpp:176 src/mgui/project/media-browser.cpp:677
+#: src/mgui/mux.cpp:179 src/mgui/project/media-browser.cpp:693
 #: src/mgui/timeline/layout-draw.cpp:156
 msgid "Video"
 msgstr ""
 
-#: src/mgui/mux.cpp:179
+#: src/mgui/mux.cpp:182
 msgid "MPEG2 elementary video (m2v)"
 msgstr ""
 
-#: src/mgui/mux.cpp:184 src/mgui/project/menu-browser.cpp:370
+#: src/mgui/mux.cpp:187 src/mgui/project/menu-browser.cpp:370
 msgid "Audio"
 msgstr ""
 
-#: src/mgui/mux.cpp:187 src/mgui/timeline/mviewer.cpp:313
+#: src/mgui/mux.cpp:190 src/mgui/timeline/mviewer.cpp:313
 msgid "Audio for DVD"
 msgstr ""
 
-#: src/mgui/mux.cpp:212
+#: src/mgui/mux.cpp:215
 msgid "Elementary video file is not selected."
 msgstr ""
 
-#: src/mgui/mux.cpp:214
+#: src/mgui/mux.cpp:217
 msgid "Audio file is not selected."
 msgstr ""
 
-#: src/mgui/mux.cpp:216
+#: src/mgui/mux.cpp:219
 msgid "Output file name is empty."
 msgstr ""
 
@@ -347,16 +347,16 @@ msgstr ""
 msgid "Burning DVD"
 msgstr ""
 
-#: src/mgui/author/output.cpp:53
+#: src/mgui/author/output.cpp:54
 msgid "DVD-Video Building"
 msgstr ""
 
-#: src/mgui/author/output.cpp:63
+#: src/mgui/author/output.cpp:64
 #, boost-format
 msgid "_Cancel %1%"
 msgstr ""
 
-#: src/mgui/author/output.cpp:64
+#: src/mgui/author/output.cpp:65
 msgid "_Build DVD-Video"
 msgstr ""
 
@@ -372,77 +372,77 @@ msgstr ""
 #. где добавление атрибутов (более простой способ - удалить все атрибуты и набрать самому, но до номеров
 #. столбцов не достучаться)
 #. - попробовать libsexy/libview - может там чего есть
-#: src/mgui/author/output.cpp:156
+#: src/mgui/author/output.cpp:157
 msgid "Select output _folder"
 msgstr ""
 
-#: src/mgui/author/output.cpp:178
+#: src/mgui/author/output.cpp:179
 msgid "Choose author mode"
 msgstr ""
 
 #. цель по умолчанию
-#: src/mgui/author/output.cpp:185
+#: src/mgui/author/output.cpp:186
 msgid "_Write DVD folder"
 msgstr ""
 
-#: src/mgui/author/output.cpp:186
+#: src/mgui/author/output.cpp:187
 msgid "Write disk _image"
 msgstr ""
 
-#: src/mgui/author/output.cpp:195
+#: src/mgui/author/output.cpp:196
 msgid "Disc label"
 msgstr ""
 
-#: src/mgui/author/output.cpp:200
+#: src/mgui/author/output.cpp:201
 msgid "Burn to _DVD"
 msgstr ""
 
-#: src/mgui/author/output.cpp:208
+#: src/mgui/author/output.cpp:209
 msgid "DVD drive"
 msgstr ""
 
-#: src/mgui/author/output.cpp:214
+#: src/mgui/author/output.cpp:215
 msgid "Writing speed"
 msgstr ""
 
-#: src/mgui/author/output.cpp:225
+#: src/mgui/author/output.cpp:226
 msgid "_Rendering only"
 msgstr ""
 
-#: src/mgui/author/output.cpp:278
+#: src/mgui/author/output.cpp:279
 msgid "Rendering"
 msgstr ""
 
-#: src/mgui/author/output.cpp:356
+#: src/mgui/author/output.cpp:363
 msgid "DVD Burning"
 msgstr ""
 
-#: src/mgui/author/output.cpp:400
+#: src/mgui/author/output.cpp:407
 msgid "The result is here"
 msgstr ""
 
-#: src/mgui/author/output.cpp:402
+#: src/mgui/author/output.cpp:409
 msgid ""
 "You can run authoring manually by executing command \"scons\" at the "
 "specified folder. Also, see README file for other options over there."
 msgstr ""
 
 #. Translators: impossible to go on!
-#: src/mgui/author/output.cpp:426
+#: src/mgui/author/output.cpp:433
 msgid "Authoring is cancelled."
 msgstr ""
 
-#: src/mgui/author/output.cpp:437
+#: src/mgui/author/output.cpp:444
 #, boost-format
 msgid "%1% is not a folder"
 msgstr ""
 
-#: src/mgui/author/output.cpp:448
+#: src/mgui/author/output.cpp:455
 #, boost-format
 msgid "Can't have full access to folder %1% (read, write)"
 msgstr ""
 
-#: src/mgui/author/output.cpp:456
+#: src/mgui/author/output.cpp:463
 #, boost-format
 msgid ""
 "Folder %1% is not empty. We need to remove all files in it before "
@@ -450,33 +450,33 @@ msgid ""
 "Continue?"
 msgstr ""
 
-#: src/mgui/author/output.cpp:462
+#: src/mgui/author/output.cpp:469
 #, boost-format
 msgid "Error during removing files: %1%"
 msgstr ""
 
-#: src/mgui/author/output.cpp:653
+#: src/mgui/author/output.cpp:660
 #, boost-format
 msgid "%1% cancelled."
 msgstr ""
 
-#: src/mgui/author/output.cpp:655
+#: src/mgui/author/output.cpp:662
 #, boost-format
 msgid "%1% broken."
 msgstr ""
 
 #. Translators: can be tranlated as "Operation "%1%" ..."
-#: src/mgui/author/output.cpp:662
+#: src/mgui/author/output.cpp:669
 #, boost-format
 msgid "%1% successfully completed."
 msgstr ""
 
-#: src/mgui/author/output.cpp:702 src/mgui/timeline/select.cpp:237
+#: src/mgui/author/output.cpp:709 src/mgui/timeline/select.cpp:237
 #, boost-format
 msgid "_Play in %1%"
 msgstr ""
 
-#: src/mgui/author/output.cpp:703
+#: src/mgui/author/output.cpp:710
 msgid "_Burn to DVD"
 msgstr ""
 
@@ -494,11 +494,11 @@ msgstr ""
 msgid "command not found"
 msgstr ""
 
-#: src/mgui/author/script.cpp:507
+#: src/mgui/author/script.cpp:511
 msgid "There is no media (video or menu)."
 msgstr ""
 
-#: src/mgui/author/script.cpp:918
+#: src/mgui/author/script.cpp:945
 #, boost-format
 msgid "external command failure: %1%"
 msgstr ""
@@ -636,11 +636,11 @@ msgstr ""
 msgid "no"
 msgstr ""
 
-#: src/mgui/project/add.cpp:107 src/mgui/project/media-browser.cpp:415
+#: src/mgui/project/add.cpp:107 src/mgui/project/media-browser.cpp:416
 msgid "Video bitrate"
 msgstr ""
 
-#: src/mgui/project/add.cpp:108 src/mgui/project/media-browser.cpp:417
+#: src/mgui/project/add.cpp:108 src/mgui/project/media-browser.cpp:418
 msgid "kbps"
 msgstr ""
 
@@ -667,11 +667,11 @@ msgstr ""
 msgid "Video size"
 msgstr ""
 
-#: src/mgui/project/add.cpp:154 src/mgui/project/media-browser.cpp:451
+#: src/mgui/project/add.cpp:154 src/mgui/project/media-browser.cpp:452
 msgid "Frame rate"
 msgstr ""
 
-#: src/mgui/project/add.cpp:155 src/mgui/project/media-browser.cpp:452
+#: src/mgui/project/add.cpp:155 src/mgui/project/media-browser.cpp:453
 msgid "fps"
 msgstr ""
 
@@ -869,30 +869,31 @@ msgctxt "MainTabs"
 msgid "_Output"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:403
-#: src/mgui/project/media-browser.cpp:651
+#. калькулятор
+#: src/mgui/project/media-browser.cpp:404
+#: src/mgui/project/media-browser.cpp:668
 msgid "Bitrate Calculator"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:426
-#: src/mgui/project/media-browser.cpp:448
+#: src/mgui/project/media-browser.cpp:427
+#: src/mgui/project/media-browser.cpp:449
 msgid "Dimensions"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:431
-msgid "Result file size"
+#: src/mgui/project/media-browser.cpp:432
+msgid "Expected file size"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:437
+#: src/mgui/project/media-browser.cpp:438
 msgid "_Restore default bitrate"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:446
+#: src/mgui/project/media-browser.cpp:447
 msgid "Original file info"
 msgstr ""
 
 #. :TODO: убрать подчеркивание
-#: src/mgui/project/media-browser.cpp:450
+#: src/mgui/project/media-browser.cpp:451
 #: src/mgui/project/menu-browser.cpp:355
 msgid "_Duration (in seconds)"
 msgstr ""
@@ -905,77 +906,77 @@ msgstr ""
 #. он хоть адекватен
 #. AppendNamedValue(vbox, SMCLN_("Video bitrate"),
 #. boost::format("%1% %2%") % (GetVideoCtx(ffv)->bit_rate/1000) % kbps_txt % bf::stop);
-#: src/mgui/project/media-browser.cpp:461
+#: src/mgui/project/media-browser.cpp:462
 msgid "Display aspect ratio"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:463
+#: src/mgui/project/media-browser.cpp:464
 msgid "Audio stream number"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:464
+#: src/mgui/project/media-browser.cpp:465
 msgid "File size"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:476
-#: src/mgui/project/media-browser.cpp:653
+#: src/mgui/project/media-browser.cpp:477
+#: src/mgui/project/media-browser.cpp:670
 msgid "Reason For Transcoding"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:480
+#: src/mgui/project/media-browser.cpp:481
 msgid "The video is DVD compliant."
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:482
+#: src/mgui/project/media-browser.cpp:483
 msgid "The video is not MPEG2."
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:527
+#: src/mgui/project/media-browser.cpp:543
 msgid "Do you want to adjust disc usage?"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:554
+#: src/mgui/project/media-browser.cpp:570
 msgid ""
 "Too many videos for this disc size. Please select a bigger disc size or "
 "remove some videos."
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:557
+#: src/mgui/project/media-browser.cpp:573
 #, boost-format
 msgid "Disc usage is %1%%% now."
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:601
-#: src/mgui/project/media-browser.cpp:607
+#: src/mgui/project/media-browser.cpp:617
+#: src/mgui/project/media-browser.cpp:623
 msgid "Select subtitles"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:602
+#: src/mgui/project/media-browser.cpp:618
 msgid "_Turn on subtitles by default"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:623
+#: src/mgui/project/media-browser.cpp:639
 msgid "_Encoding"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:635
+#: src/mgui/project/media-browser.cpp:651
 msgid "Add Subtitles"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:641
+#: src/mgui/project/media-browser.cpp:657
 #: src/mgui/project/menu-browser.cpp:391
 msgid "End Action"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:654
+#: src/mgui/project/media-browser.cpp:666
 msgid "Adjust Bitrate to Fit to Disc"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:679
+#: src/mgui/project/media-browser.cpp:695
 msgid "Still Picture"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:711
+#: src/mgui/project/media-browser.cpp:727
 msgid "Type"
 msgstr ""
 
@@ -985,20 +986,20 @@ msgstr ""
 #. vbox.pack_start(label, Gtk::PACK_SHRINK);
 #. Gtk::Requisition req = label.size_request();
 #. label.set_size_request(0, req.height+10);
-#: src/mgui/project/media-browser.cpp:767
+#: src/mgui/project/media-browser.cpp:783
 #: src/mgui/project/menu-browser.cpp:775
 msgid "Media List"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:807
+#: src/mgui/project/media-browser.cpp:823
 msgid "Add Media from File Browser"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:816
+#: src/mgui/project/media-browser.cpp:832
 msgid "Remove Media"
 msgstr ""
 
-#: src/mgui/project/media-browser.cpp:827
+#: src/mgui/project/media-browser.cpp:843
 msgid "Make Chapters for Video"
 msgstr ""
 

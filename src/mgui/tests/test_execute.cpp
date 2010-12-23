@@ -213,27 +213,28 @@ BOOST_AUTO_TEST_CASE( TestInteractiveExecute )
 BOOST_AUTO_TEST_CASE( TestIndicator )
 {
     InitGtkmm();
-    // веса 1+1+3+4=9
-    InitStageMap(modBURN);
+    // веса 0+1+3+4=8
+    InitStageMap(modBURN, 0);
     Gtk::ProgressBar& bar = GetES().prgBar;
     //bar.set_fraction(percent/100.);
-    double stage_step = 1/9.0;
+    double stage_step = 1/8.0;
+    double trans_dur  = 0.;
 
     SetStage(stTRANSCODE);
     BOOST_CHECK_EQUAL( bar.get_fraction(), 0 );
     SetStage(stRENDER);
-    BOOST_CHECK_EQUAL( bar.get_fraction(), stage_step );
-    SetStageProgress(50);
-    BOOST_CHECK_CLOSE( bar.get_fraction(), stage_step * (1 + 0.5), 0.001 );
+    BOOST_CHECK_EQUAL( bar.get_fraction(), trans_dur );
+    SetStageProgress(0.5);
+    BOOST_CHECK_CLOSE( bar.get_fraction(), trans_dur + stage_step * 0.5, 0.001 );
 
     SetStage(stDVDAUTHOR);
-    BOOST_CHECK_CLOSE( bar.get_fraction(), stage_step * 2, 0.001 );
-    SetStageProgress(80);
-    BOOST_CHECK_CLOSE( bar.get_fraction(), stage_step * (2 + 3*0.8), 0.001 );
+    BOOST_CHECK_CLOSE( bar.get_fraction(), trans_dur + stage_step, 0.001 );
+    SetStageProgress(0.8);
+    BOOST_CHECK_CLOSE( bar.get_fraction(), trans_dur + stage_step * (1 + 3*0.8), 0.001 );
 
     SetStage(stBURN);
-    BOOST_CHECK_CLOSE( bar.get_fraction(), stage_step * 5, 0.001 );
-    SetStageProgress(100);
+    BOOST_CHECK_CLOSE( bar.get_fraction(), trans_dur + stage_step * 4, 0.001 );
+    SetStageProgress(1.0);
     BOOST_CHECK_EQUAL( bar.get_fraction(), 1 );
 }
 
