@@ -37,18 +37,6 @@ void PackMBWindow(Gtk::HPaned& fcw_hpaned, Timeline::DAMonitor& mon, TrackLayout
 
 io::pos DVDPayloadSize();
 
-// кэш для расчетов по транскодированию и т.д.
-struct RTCache
-{
-      bool  isCalced;
-
-      bool  reqTrans;
-    double  duration;
-     Point  vidSz;
-
-    RTCache(): isCalced(false), reqTrans(false) {}
-};
-
 } // namespace Project
 
 #endif // #ifndef __MGUI_PROJECT_MB_ACTIONS_H__

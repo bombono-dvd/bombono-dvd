@@ -647,10 +647,10 @@ static void CheckHomeSpumuxFont()
 }
 
 std::string FFmpegToDVDTranscode(const std::string& src_fname, const std::string& dst_fname,
-                                 bool is_4_3, bool is_pal, const DVDTransData& td)
+                                 const AutoDVDTransData& atd, bool is_pal, const DVDTransData& td)
 {
     return boost::format("ffmpeg -i %1% %2%") % FilenameForCmd(src_fname) 
-        % FFmpegToDVDArgs(dst_fname, is_4_3, is_pal, td) % bf::stop;
+        % FFmpegToDVDArgs(dst_fname, atd, is_pal, td) % bf::stop;
 }
 
 static void AuthorImpl(const std::string& out_dir)
@@ -673,7 +673,11 @@ static void AuthorImpl(const std::string& out_dir)
         // разных форматов вроде как противоречит спекам. Причина: вроде и так работает (на
         // доступных мне железных и софтовых плейерах), а если будут проблемы - лучше мультиформат
         // реализовать
-        std::string ffmpeg_cmd = FFmpegToDVDTranscode(src_fname, dst_fname, Is4_3(vi), IsPALProject(), 
+        RTCache& rtc = GetRTC(vi);
+        AutoDVDTransData atd(Is4_3(vi));
+        atd.audioNum  = OutAudioNum(rtc.audioNum);
+        atd.srcAspect = rtc.dar;
+        std::string ffmpeg_cmd = FFmpegToDVDTranscode(src_fname, dst_fname, atd, IsPALProject(), 
                                                       GetRealTransData(vi));
         RunExtCmd(ffmpeg_cmd);
     }

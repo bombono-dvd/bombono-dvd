@@ -48,114 +48,6 @@
 #include <gtk/gtkaboutdialog.h>
 #include <gtk/gtklinkbutton.h> // gtk_button_set_relief
 
-
-namespace Project
-{
-
-void PackMediasWindow(Gtk::Container& contr, RefPtr<MediaStore> ms, MediasWindowPacker pack_fnr)
-{
-    MediaBrowser& brw = NewManaged<MediaBrowser>(ms);
-    pack_fnr(contr, brw);
-}
-
-void PackFullMBrowser(Gtk::Container& contr, MediaBrowser& brw)
-{
-    PackTrackWindow(contr, bb::bind(&PackMBWindow, _1, _2, _3, boost::ref(brw)));
-}
-
-void PackMediasWindow(Gtk::Container& contr, RefPtr<MediaStore> ms)
-{
-    PackMediasWindow(contr, ms, &Project::PackFullMBrowser);
-}
-
-AStores& GetAStores()
-{
-    return AData().GetData<AStores>();
-}
-
-static void ClearPA(PostAction& pa, MediaItem del_mi)
-{
-    if( pa.paLink == del_mi )
-    {
-        pa.paLink = 0;
-        pa.paTyp  = patAUTO;
-    }
-}
-
-static bool ClearEndAction(VideoItem vi, MediaItem mi)
-{
-    ClearPA(vi->PAction(), mi);
-    return true;
-}
-
-static bool ClearEndActionM(Menu mn, MediaItem mi)
-{
-    ClearPA(mn->MtnData().pAct, mi);
-    return true;
-}
-
-static void OnDeleteEndAction(MediaItem mi, const char* action)
-{
-    if( mi && (strcmp("OnDelete", action) == 0) )
-    {
-        ForeachVideo(bb::bind(ClearEndAction, _1, mi));
-        ForeachMenu(bb::bind(ClearEndActionM, _1, mi));
-    }
-}
-
-// создать списки медиа и меню
-AStores& InitAStores()
-{
-    RefPtr<MediaStore> md_store = CreateEmptyMediaStore();
-    RefPtr<MenuStore>  mn_store = CreateEmptyMenuStore();
-
-    AStores& as = GetAStores();
-    as.mdStore  = md_store;
-    as.mnStore  = mn_store;
-
-    // для ForeachVideo требуется готовый as.mdStore
-    RegisterHook(&OnDeleteEndAction);
-    return as;
-}
-
-Rect GetAllocation(Gtk::Widget& wdg)
-{
-    return MakeRect(*wdg.get_allocation().gobj());
-}
-
-static bool EraseTabLineOnExpose(Gtk::Notebook& nbook, GdkEventExpose* event, bool erase_down,
-				 Gtk::Notebook* book_tabs)
-{
-    Rect plc = GetAllocation(nbook);
-    if( !plc.IsNull() )
-    {
-        plc.lft += 1;
-        if( erase_down )
-    	{
-    	    plc.rgt -= 1;
-    	    plc.top = plc.btm-1;
-    	}
-        else
-    	{
-            // стираем верхнюю линию рамки только до окончания верхних табов
-    	    plc.rgt = std::min(plc.rgt, GetAllocation(*book_tabs).rgt)-1;
-    	    plc.btm = plc.top+1;
-    	}
-        if( plc.Intersects(MakeRect(event->area)) )
-        {
-            Cairo::RefPtr<Cairo::Context> cr = nbook.get_window()->create_cairo_context();
-            cr->set_line_width(erase_down ? 1.0 : 2.0);
-            CR::SetColor(cr, GetBGColor(nbook));
-
-            double y = plc.top + (erase_down ? H_P : 1);
-            cr->move_to(plc.lft, y);
-            cr->line_to(plc.rgt, y);
-            cr->stroke();
-        }
-    }
-    return true;
-}
-
 //
 // COPY_N_PASTE_ETALON из go-file.c, проект Gnumeric, http://projects.gnome.org/gnumeric/
 //
@@ -268,6 +160,118 @@ go_url_show(GtkAboutDialog*, const gchar* url, gpointer)
 // COPY_N_PASTE_ETALON_END из go-file.c, проект Gnumeric, http://projects.gnome.org/gnumeric/
 //
 
+void GoUrl(const gchar* url)
+{
+    go_url_show(0, url, 0);
+}
+
+namespace Project
+{
+
+void PackMediasWindow(Gtk::Container& contr, RefPtr<MediaStore> ms, MediasWindowPacker pack_fnr)
+{
+    MediaBrowser& brw = NewManaged<MediaBrowser>(ms);
+    pack_fnr(contr, brw);
+}
+
+void PackFullMBrowser(Gtk::Container& contr, MediaBrowser& brw)
+{
+    PackTrackWindow(contr, bb::bind(&PackMBWindow, _1, _2, _3, boost::ref(brw)));
+}
+
+void PackMediasWindow(Gtk::Container& contr, RefPtr<MediaStore> ms)
+{
+    PackMediasWindow(contr, ms, &Project::PackFullMBrowser);
+}
+
+AStores& GetAStores()
+{
+    return AData().GetData<AStores>();
+}
+
+static void ClearPA(PostAction& pa, MediaItem del_mi)
+{
+    if( pa.paLink == del_mi )
+    {
+        pa.paLink = 0;
+        pa.paTyp  = patAUTO;
+    }
+}
+
+static bool ClearEndAction(VideoItem vi, MediaItem mi)
+{
+    ClearPA(vi->PAction(), mi);
+    return true;
+}
+
+static bool ClearEndActionM(Menu mn, MediaItem mi)
+{
+    ClearPA(mn->MtnData().pAct, mi);
+    return true;
+}
+
+static void OnDeleteEndAction(MediaItem mi, const char* action)
+{
+    if( mi && (strcmp("OnDelete", action) == 0) )
+    {
+        ForeachVideo(bb::bind(ClearEndAction, _1, mi));
+        ForeachMenu(bb::bind(ClearEndActionM, _1, mi));
+    }
+}
+
+// создать списки медиа и меню
+AStores& InitAStores()
+{
+    RefPtr<MediaStore> md_store = CreateEmptyMediaStore();
+    RefPtr<MenuStore>  mn_store = CreateEmptyMenuStore();
+
+    AStores& as = GetAStores();
+    as.mdStore  = md_store;
+    as.mnStore  = mn_store;
+
+    // для ForeachVideo требуется готовый as.mdStore
+    RegisterHook(&OnDeleteEndAction);
+    return as;
+}
+
+Rect GetAllocation(Gtk::Widget& wdg)
+{
+    return MakeRect(*wdg.get_allocation().gobj());
+}
+
+static bool EraseTabLineOnExpose(Gtk::Notebook& nbook, GdkEventExpose* event, bool erase_down,
+				 Gtk::Notebook* book_tabs)
+{
+    Rect plc = GetAllocation(nbook);
+    if( !plc.IsNull() )
+    {
+        plc.lft += 1;
+        if( erase_down )
+    	{
+    	    plc.rgt -= 1;
+    	    plc.top = plc.btm-1;
+    	}
+        else
+    	{
+            // стираем верхнюю линию рамки только до окончания верхних табов
+    	    plc.rgt = std::min(plc.rgt, GetAllocation(*book_tabs).rgt)-1;
+    	    plc.btm = plc.top+1;
+    	}
+        if( plc.Intersects(MakeRect(event->area)) )
+        {
+            Cairo::RefPtr<Cairo::Context> cr = nbook.get_window()->create_cairo_context();
+            cr->set_line_width(erase_down ? 1.0 : 2.0);
+            CR::SetColor(cr, GetBGColor(nbook));
+
+            double y = plc.top + (erase_down ? H_P : 1);
+            cr->move_to(plc.lft, y);
+            cr->line_to(plc.rgt, y);
+            cr->stroke();
+        }
+    }
+    return true;
+}
+
 static void HookUpURLs()
 {
     static bool is_init = false;
@@ -291,6 +295,12 @@ static void OnCloseAboutDlg(Gtk::AboutDialog* dlg, int reps)
 {
     if( reps == Gtk::RESPONSE_CANCEL )
         dlg->hide();
+}
+
+static void OnlineHelp()
+{
+    //GoUrl("http://www.bombono.org/Documentation");
+    GoUrl("http://www.bombono.org/Bombono_Tutorial");
 }
 
 static void OnDlgAbout()
@@ -709,9 +719,16 @@ ConstructorApp::ConstructorApp(): askSaveOnExit(true), isProjectChanged(false)
         goMenu.append(CreateGoMenuItem(grp, *this)); // первый вставляем сразу
         
         // Help
-        Gtk::Menu& hlp_menu     = MakeSubmenu(AppendMI(main_bar, NewManaged<Gtk::MenuItem>(_("_Help"), true)));
-        Gtk::MenuItem& about_mi = AppendMI(hlp_menu, *Gtk::manage(new Gtk::ImageMenuItem(Gtk::Stock::ABOUT)));
-        about_mi.signal_activate().connect(&OnDlgAbout);
+        {
+            Gtk::Menu& hlp_menu = MakeSubmenu(AppendMI(main_bar, NewManaged<Gtk::MenuItem>(_("_Help"), true)));
+
+            Gtk::Image& hlp_img   = NewManaged<Gtk::Image>(Gtk::Stock::HELP, Gtk::ICON_SIZE_MENU);
+            Gtk::MenuItem& hlp_mi = AppendMI(hlp_menu, 
+                                             *Gtk::manage(new Gtk::ImageMenuItem(hlp_img, _("_Online Help"), true)));
+            hlp_mi.signal_activate().connect(&OnlineHelp);
+            Gtk::MenuItem& about_mi = AppendMI(hlp_menu, *Gtk::manage(new Gtk::ImageMenuItem(Gtk::Stock::ABOUT)));
+            about_mi.signal_activate().connect(&OnDlgAbout);
+        }
 
         // разведем меню и закладки на небольшое расстояние
         main_bar.show_all();
@@ -923,7 +940,3 @@ void InitI18n()
     }
 }
 
-void GoUrl(const gchar* url)
-{
-    Project::go_url_show(0, url, 0);
-}

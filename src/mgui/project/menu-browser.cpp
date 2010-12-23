@@ -43,13 +43,6 @@
 
 #include <gtk/gtkversion.h>
 
-guint64 FFmpegSizeForDVD(double sec, int vrate)
-{
-    int arate = 448; // kbit/s, умолчание в ffmpeg для -target *-dvd
-    int snum  = 0;   // DeVeDe учитывает и субтитры (по 8kbit/s), но ИМХО ерунда 
-    return (gint64)sec * (vrate + arate + snum*8) * 125; // 1000/8 (бит в байте)
-}
-
 namespace Project
 {
 

@@ -57,7 +57,7 @@ io::pos ProjectSizeSum(bool fixed_part = false);
 
 // vrate - в kbit/s
 // 6000 - умолчание в ffmpeg для -target *-dvd
-guint64 FFmpegSizeForDVD(double sec, int vrate = 6000);
+guint64 FFmpegSizeForDVD(double sec, int vrate = 6000, int anum = 1);
 
 namespace Author
 {

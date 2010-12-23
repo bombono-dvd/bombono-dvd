@@ -222,6 +222,7 @@ Gtk::ResponseType MessageBoxEx(const std::string& msg_str, Gtk::MessageType typ,
 static void SetOKDefault(Gtk::MessageDialog& mdlg)
 {
     mdlg.set_default_response(Gtk::RESPONSE_OK);
+    mdlg.set_default_response(Gtk::RESPONSE_YES);
 }
 
 Gtk::ResponseType MessageBox(const std::string& msg_str, Gtk::MessageType typ,

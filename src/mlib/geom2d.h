@@ -317,6 +317,30 @@ RectT<T> CenterRect(const RectT<T>& src_rct, const RectT<T>& center_rct, bool is
     return RectASz(a, sz);
 }
 
+// уместить obj_sz в 1x1 так, что растяжении последнего до (соотношения) win_sz 
+// obj_sz вернет свою форму
+template<typename T>
+static DPoint FitInto1(const PointT<T>& win_sz, const PointT<T>& obj_sz)
+{
+    double win_a = (double)win_sz.x/win_sz.y; 
+    double obj_a = (double)obj_sz.x/obj_sz.y; 
+
+    DPoint res;
+    if( obj_a < win_a )
+    {
+        // по ширине
+        res.x = obj_a/win_a;
+        res.y = 1.0;
+    }
+    else
+    {
+        // по высоте
+        res.x = 1.0;
+        res.y = win_a/obj_a;
+    }
+
+    return res;
+}
 
 //
 //

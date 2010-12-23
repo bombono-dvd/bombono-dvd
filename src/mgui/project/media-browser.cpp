@@ -48,6 +48,12 @@
 
 #include <glib/gstdio.h> // g_stat
 
+guint64 FFmpegSizeForDVD(double sec, int vrate, int anum)
+{
+    int snum = 0; // DeVeDe учитывает и субтитры (по 8kbit/s), но ИМХО ерунда 
+    return (gint64)sec * (vrate + TRANS_AUDIO_BITRATE*anum + snum*8) * 125; // 1000/8 (бит в байте)
+}
+
 namespace Project
 {
 
@@ -212,6 +218,17 @@ RTCache& GetRTC(VideoItem vi)
         FFInfo ffi(GetFilename(*vi).c_str());
         rtc.duration = Duration(ffi);
         rtc.vidSz    = ffi.vidSz;
+        rtc.dar      = DAspectRatio(ffi);
+        // расчет числа аудио
+        AVFormatContext* ic = ffi.iCtx;
+        // :TODO: отрефакторить цикл
+        rtc.audioNum = 0;
+        for( int i=0; i < (int)ic->nb_streams; i++ )
+        {
+            AVCodecContext* avctx = ic->streams[i]->codec;
+            if( avctx->codec_type == CODEC_TYPE_AUDIO )
+                rtc.audioNum++;
+        }
 
         rtc.isCalced = true;
     }
@@ -330,9 +347,15 @@ static DVDDims Dimensions(BitrateControls& bc)
     return Index2Dimension(bc.cmbDims.get_active_row_number());
 }
 
+int OutAudioNum(int i_anum)
+{
+    ASSERT( i_anum >= 0 );
+    return std::min(i_anum, 8);
+}
+
 static gint64 CalcTransSize(RTCache& rtc, int vrate)
 {
-    return FFmpegSizeForDVD(rtc.duration, vrate);
+    return FFmpegSizeForDVD(rtc.duration, vrate, OutAudioNum(rtc.audioNum));
 }
 
 gint64 CalcTransSize(VideoItem vi)
@@ -382,7 +405,8 @@ static void RunBitrateCalc(VideoItem vi, Gtk::Dialog& dlg)
     DialogVBox& vbox = AddHIGedVBox(dlg);
     RefPtr<Gtk::SizeGroup> sg = vbox.labelSg;
 
-    BitrateControls bc(GetRTC(vi));
+    RTCache& rtc = GetRTC(vi);
+    BitrateControls bc(rtc);
     DVDTransData td = GetRealTransData(vi);
     {
         Gtk::VBox& bc_box = PackParaBox(vbox);
@@ -434,6 +458,9 @@ static void RunBitrateCalc(VideoItem vi, Gtk::Dialog& dlg)
         // он хоть адекватен
         //AppendNamedValue(vbox, SMCLN_("Video bitrate"),
         //                 boost::format("%1% %2%") % (GetVideoCtx(ffv)->bit_rate/1000) % kbps_txt % bf::stop);
+        AppendNamedValue(info_box, sg, SMCLN_("Display aspect ratio"), 
+                         boost::format("%1% : %2%") % rtc.dar.x % rtc.dar.y % bf::stop);
+        AppendNamedValue(info_box, sg, SMCLN_("Audio stream number"), Int2Str(rtc.audioNum));
         AppendNamedValue(info_box, sg, SMCLN_("File size"), ShortSizeString(PhisSize(fname.c_str())));
     }
 
@@ -469,11 +496,9 @@ io::pos ProjectSizeSum(bool fixed_part)
     {
         if( RequireTranscoding(vi) )
         {
-            io::pos v_sz = 0;
-            if( !fixed_part )
-                v_sz = CalcTransSize(vi);
-            else
-                v_sz = FFmpegSizeForDVD(Duration(vi), 0);
+            RTCache& rtc = GetRTC(vi);
+            int vrate    = fixed_part ? 0 : GetRealTransData(vi).vRate ;
+            io::pos v_sz = CalcTransSize(rtc, vrate);
 
             sz += v_sz * TRANS_OVER_ASSURANCE;
         }
@@ -499,6 +524,10 @@ double RelTransWeight(VideoItem vi)
 
 static void AdjustDiscUsage()
 {
+    if( MessageBox(_("Do you want to adjust disc usage?"), 
+                   Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO, "", true) != Gtk::RESPONSE_YES )
+        return;
+
     io::pos dvd_sz  = DVDPayloadSize();
     io::pos work_sz = (dvd_sz - ProjectSizeSum(true)) / TRANS_OVER_ASSURANCE;
 

@@ -29,10 +29,10 @@ typedef FFViewer VideoViewer;
 struct FFData;
 double FrameFPS(FFData& ffv);
 double Duration(FFData& ffv);
+Point DAspectRatio(FFData& ffv);
 
 void CheckOpen(VideoViewer& vwr, const std::string& fname);
 void RGBOpen(VideoViewer& viewer, const std::string& fname = std::string());
-Point DAspectRatio(VideoViewer& ffv);
 double FrameTime(VideoViewer& ffv, int fram_pos);
 RefPtr<Gdk::Pixbuf> GetFrame(RefPtr<Gdk::Pixbuf>& pix, double time, FFViewer& ffv);
 double FramesLength(FFViewer& ffv);

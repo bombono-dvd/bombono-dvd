@@ -27,6 +27,7 @@
 #include <mgui/render/editor.h> // CommonRenderVis
 #include <mgui/project/menu-render.h>
 #include <mgui/project/thumbnail.h> // Project::PrimaryShotGetter
+#include <mgui/project/video.h>
 #include <mgui/editor/text.h>   // EdtTextRenderer
 #include <mgui/editor/bind.h>   // MBind::TextRendering
 #include <mgui/redivide.h>
@@ -506,22 +507,75 @@ static void WriteAsPPM(int fd, RefPtr<Gdk::Pixbuf> pix, TrackBuf& buf)
         FFmpegError(errno2str());
 }
 
-std::string FFmpegToDVDArgs(const std::string& out_fname, bool is_4_3, bool is_pal,
+static Point DVDAspect(bool is4_3)
+{
+    return is4_3 ? Point(4, 3) : Point(16,9);
+}
+
+AutoDVDTransData::AutoDVDTransData(bool is4_3_): is4_3(is4_3_), 
+    srcAspect(DVDAspect(is4_3_)), audioNum(1) {}
+
+template<typename DstT, typename SrcT>
+static PointT<DstT> ChangePoint(const PointT<SrcT>& pnt)
+{
+    return PointT<DstT>(pnt.x, pnt.y);
+}
+
+static int PadSize(int free_space)
+{
+    // ffmpeg требует четных по размеру матов
+    return (free_space/2) & ~0x1;
+}
+
+std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData& atd, bool is_pal,
                             const DVDTransData& td)
 {
+    // *
     const char* target =  is_pal ? "pal" : "ntsc" ;
     Point DVDDimension(DVDDims dd, bool is_pal);
     Point sz = DVDDimension(td.dd, is_pal);
 
+    // * битрейт
     std::string bitrate_str;
     int vrate = td.vRate;
     ASSERT( vrate >= 0 );
     if( vrate )
-        bitrate_str = boost::format("-b %1%k ") % vrate % bf::stop; 
+        bitrate_str = boost::format("-b %1%k ") % vrate % bf::stop;
+    bitrate_str += boost::format("-ab %1%k ") % TRANS_AUDIO_BITRATE % bf::stop;
 
-    return boost::format("-target %4%-dvd -aspect %1% -s %2%x%3% %6%-y -mbd rd -trellis 2 -cmp 2 -subcmp 2 %5%")
-        % (is_4_3 ? "4:3" : "16:9") % sz.x % sz.y % target 
-        % FilenameForCmd(out_fname) % bitrate_str % bf::stop;
+    // * соотношение
+    bool is_4_3 = atd.is4_3;
+    // * размеры
+    DPoint dst_asp = ChangePoint<double>(DVDAspect(is_4_3));
+    DPoint asp = FitInto1(dst_asp, ChangePoint<double>(atd.srcAspect));
+
+    Point img_sz(asp.x * sz.x, asp.y * sz.y);
+    std::string sz_str = boost::format("-s %1%x%2%") % sz.x % sz.y % bf::stop;
+    if( img_sz.x < sz.x )
+    {
+        // справа и слева
+        int val = PadSize(sz.x - img_sz.x);
+        if( val )
+            sz_str = boost::format("-s %1%x%2% -padleft %3% -padright %3%") 
+                % (sz.x - 2*val) % sz.y % val % bf::stop;
+    }
+    else if( img_sz.y < sz.y )
+    {
+        // сверху и снизу
+        int val = PadSize(sz.y - img_sz.y);
+        if( val )
+            sz_str = boost::format("-s %1%x%2% -padtop %3% -padbottom %3%")
+                % sz.x % (sz.y - 2*val) % val % bf::stop;
+    }
+    // * дополнительные аудио
+    std::string add_audio_str;
+    for( int i=0; i<(atd.audioNum-1); i++ )
+        // ffmpeg обнуляет audio_codec_name после каждого -newaudio и -i
+        add_audio_str += " -acodec ac3 -newaudio";
+
+    return boost::format("-target %1%-dvd -aspect %2% %3% %4%-y -mbd rd -trellis 2 -cmp 2 -subcmp 2 %5%%6%")
+        % target % (is_4_3 ? "4:3" : "16:9") % sz_str
+        % bitrate_str % FilenameForCmd(out_fname) % add_audio_str % bf::stop;
 }
 
 std::string FFmpegToDVDArgs(const std::string& out_fname, bool is_4_3, bool is_pal)

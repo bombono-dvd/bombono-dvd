@@ -31,8 +31,18 @@
 namespace Project {
 
 struct DVDTransData;
-std::string FFmpegToDVDArgs(const std::string& out_fname, bool is_4_3, bool is_pal,
-                            const DVDTransData& td);
+
+struct AutoDVDTransData
+{
+     bool  is4_3;
+    Point  srcAspect;
+      int  audioNum; // для <= 1 ffmpeg сам решит
+
+    AutoDVDTransData(bool is4_3_);
+};
+
+std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData& atd,
+                            bool is_pal, const DVDTransData& td);
 std::string FFmpegToDVDArgs(const std::string& out_fname, bool is_4_3, bool is_pal);
 // для меню
 std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pal, 
@@ -40,7 +50,7 @@ std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pa
 
 // полная команда для транскодирования
 std::string FFmpegToDVDTranscode(const std::string& src_fname, const std::string& dst_fname,
-                                 bool is_4_3, bool is_pal, const DVDTransData& td);
+                                 const AutoDVDTransData& atd, bool is_pal, const DVDTransData& td);
 
 // проверка возможности кодировать совместимый с DVD материал с помощью ffmpeg
 void CheckFFDVDEncoding();

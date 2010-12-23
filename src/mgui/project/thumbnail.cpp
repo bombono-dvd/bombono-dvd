@@ -23,6 +23,7 @@
 
 #include "thumbnail.h"
 #include "menu-browser.h"
+#include "video.h"
 
 #include <mgui/render/menu.h>
 #include <mgui/sdk/browser.h>
@@ -165,8 +166,9 @@ void ThumbSizeCalcer::Visit(StillImageMD& obj)
 
 Point CalcAspectSize(VideoMD& vi)
 {
-    VideoViewer& player = OpenCachePlayer(&vi);
-    return DAspectRatio(player);
+    //VideoViewer& player = OpenCachePlayer(&vi);
+    //return DAspectRatio(player);
+    return GetRTC(&vi).dar;
 }
 
 void ThumbSizeCalcer::Visit(VideoMD& obj)

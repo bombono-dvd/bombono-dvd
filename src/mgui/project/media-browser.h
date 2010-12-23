@@ -103,7 +103,6 @@ RefPtr<MediaStore> CreateMediaStore();
 
 io::pos PhisSize(const char* fname);
 bool RequireTranscoding(VideoItem vi);
-gint64 CalcTransSize(VideoItem vi);
 
 } // namespace Project
 

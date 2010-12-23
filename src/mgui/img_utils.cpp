@@ -397,23 +397,11 @@ void VideoArea::OnConfigure(const Point& win_sz, bool force_init)
 // уместить один прямоугольник в другой с сохранением пропорций
 Rect FitIntoRect(const Point& win_sz, const Point& obj_sz)
 {
-    Rect rct;
-    if( (double)win_sz.x/obj_sz.x < (double)win_sz.y/obj_sz.y )
-    {
-        // по wdh
-        rct.rgt = win_sz.x;
-        rct.btm = int(win_sz.x*obj_sz.y / (double)obj_sz.x);
-    }
-    else
-    {
-        // по hgt
-        rct.rgt = int(win_sz.y*obj_sz.x / (double)obj_sz.y);
-        rct.btm = win_sz.y;
-    }
+    DPoint asp = FitInto1(win_sz, obj_sz);
 
-    Point dis_pnt((win_sz.x - rct.rgt)/2, (win_sz.y - rct.btm)/2);
-    rct += dis_pnt;
-    return rct;
+    Point sz(asp.x*win_sz.x, asp.y*win_sz.y);
+    Point a((win_sz.x - sz.x)/2, (win_sz.y - sz.y)/2);
+    return RectASz(a, sz);
 }
 
 Rect VideoArea::CalcFramPlc(const Point& win_sz)//int wdh, int hgt)

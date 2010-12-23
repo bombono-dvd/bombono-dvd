@@ -30,7 +30,7 @@ AVCodecContext* GetVideoCtx(FFData& ffv)
     return VideoStream(ffv)->codec;
 }
 
-Point DAspectRatio(VideoViewer& ffv)
+Point DAspectRatio(FFData& ffv)
 {
     if( !ffv.IsOpened() )
         return Point(4, 3);

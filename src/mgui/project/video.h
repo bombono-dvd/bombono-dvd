@@ -20,8 +20,31 @@ DVDTransData DVDDims2TDAuto(DVDDims dd);
 
 Point DVDDimension(DVDDims dd);
 DVDDims CalcDimsAuto(VideoItem vi);
+//
+int OutAudioNum(int i_anum);
+
+// кэш для расчетов по транскодированию и т.д.
+struct RTCache
+{
+      bool  isCalced;
+
+      bool  reqTrans;
+    double  duration;
+     Point  vidSz;
+     Point  dar;
+       int  audioNum; // число аудиоканалов
+
+    RTCache(): isCalced(false) {}
+};
+
+RTCache& GetRTC(VideoItem vi);
 
 } // namespace Project
+
+// kbit/s 
+// 448 - умолчание в ffmpeg для -target *-dvd
+// выбор возможен из ff_ac3_bitrate_tab
+const int TRANS_AUDIO_BITRATE = 320;
 
 #endif // #ifndef __MGUI_PROJECT_VIDEO_H__
 
