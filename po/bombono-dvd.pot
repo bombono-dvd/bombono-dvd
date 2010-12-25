@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-24 02:05+0300\n"
+"POT-Creation-Date: 2010-12-25 21:14+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -123,12 +123,12 @@ msgstr ""
 msgid "You are about to cancel %1%. Are you sure?"
 msgstr ""
 
-#: src/mgui/execution.cpp:480
+#: src/mgui/execution.cpp:502
 #, boost-format
 msgid "exit code = %1%"
 msgstr ""
 
-#: src/mgui/execution.cpp:482
+#: src/mgui/execution.cpp:504
 #, boost-format
 msgid "broken by signal %1%"
 msgstr ""
@@ -480,17 +480,12 @@ msgstr ""
 msgid "_Burn to DVD"
 msgstr ""
 
-#: src/mgui/author/render.cpp:445
-#, boost-format
-msgid "ffmpeg failure: %1%"
-msgstr ""
-
-#: src/mgui/author/render.cpp:617
+#: src/mgui/author/render.cpp:613
 #, boost-format
 msgid "no audio stream in %1%"
 msgstr ""
 
-#: src/mgui/author/render.cpp:935
+#: src/mgui/author/render.cpp:937
 msgid "command not found"
 msgstr ""
 
@@ -498,7 +493,13 @@ msgstr ""
 msgid "There is no media (video or menu)."
 msgstr ""
 
-#: src/mgui/author/script.cpp:945
+#: src/mgui/author/script.cpp:931
+#, boost-format
+msgid "%1% failure: %2%"
+msgstr ""
+
+#. ApplicationError("", ed);
+#: src/mgui/author/script.cpp:946
 #, boost-format
 msgid "external command failure: %1%"
 msgstr ""

@@ -153,34 +153,45 @@ static ExecOutput& GetEO(ProgramOutput& po, bool is_out)
     return is_out ? po.outEO : po.errEO ;
 }
 
+static ReadDest& GetRD(ProgramOutput& po, bool is_out)
+{
+    return is_out ? po.outRd : po.errRd ;
+}
+
 static bool ReadPendingData(ProgramOutput& po, bool is_out)
 {
     LOG_INF << "ReadPendingData(" << is_out << ")" << io::endl;
-
     bool res = true;
-    RefPtr<Glib::IOChannel> chnnl = GetEO(po, is_out).outChnl;
+
     char buf[256];
     gsize nbytes;
-
-    Glib::ustring dat;
-    ReadDest& rd = is_out ? po.outRd : po.errRd;
-    for( Glib::IOStatus st; st = chnnl->read(buf, ARR_SIZE(buf), nbytes), true; )
+    ReadDest& rd = GetRD(po, is_out);
+    RefPtr<Glib::IOChannel> chnnl = GetEO(po, is_out).outChnl;
+    try
     {
-        LOG_INF << "IOStatus = " << st << io::endl;
-        if( st == Glib::IO_STATUS_NORMAL )
-        {
-            ASSERT_RTL( nbytes>0 ); // иначе должно быть IO_STATUS_EOF
-            rd.PutData(buf, nbytes);
-        }
-        else
-        {
-            if( st != Glib::IO_STATUS_AGAIN )
-                res = false;
-            break;
-        }
+	for( Glib::IOStatus st; st = chnnl->read(buf, ARR_SIZE(buf), nbytes), true; )
+	{
+	    LOG_INF << "IOStatus = " << st << io::endl;
+	    if( st == Glib::IO_STATUS_NORMAL )
+	    {
+		ASSERT_RTL( nbytes>0 ); // иначе должно быть IO_STATUS_EOF
+		rd.PutData(buf, nbytes);
+	    }
+	    else
+	    {
+		if( st != Glib::IO_STATUS_AGAIN )
+		    res = false;
+		break;
+	    }
+	}
     }
-    if( !res )
-        rd.OnEnd();
+    catch( const Glib::ConvertError& ) 
+    {
+	// вывод запущенных программ может содержать не UTF-8 => Glib::IOChannel::read()
+	// пускает исключение, если локаль не LANG=C
+	const char* invalid_seq = "\n?invalid sequence?";
+	rd.PutData(invalid_seq, strlen(invalid_seq));
+    }
 
     LOG_INF << "ReadPendingData(): end" << io::endl;
     return res;
@@ -257,7 +268,7 @@ class RawRD: public ReadDest
               void  Put(const char* dat, int sz) { fnr(dat, sz, isOut); }
 };
 
- class LinedRD: public RawRD
+class LinedRD: public RawRD
 {
     typedef RawRD MyParent;
     public:
@@ -327,10 +338,21 @@ OutErrBlock::OutErrBlock(int out_err[2], const ReadReadyFnr& fnr,
     SetupEO(po, out_err[1], false);
 }
 
+static void EndExecOutput(ProgramOutput& po, bool is_out)
+{
+    // :TRICKY: дополнительный ReadPendingData() может быть
+    // лишним, если до этого в ReadPendingData() произошла
+    // ошибка/"закрытие трубы с той стороны" и наблюдение было 
+    // прекращено; считаем, что повторное "ошибочное" обращение 
+    // разрешено, иначе придется хранить состояние
+    ReadPendingData(po, is_out);
+    GetRD(po, is_out).OnEnd();
+}
+
 OutErrBlock::~OutErrBlock()
 {
-    ReadPendingData(po, true);
-    ReadPendingData(po, false);
+    EndExecOutput(po, true);
+    EndExecOutput(po, false);
 }
 
 static ExitData GUIWaitForExit(GPid pid)

@@ -440,19 +440,15 @@ static Rect RealPosition(Comp::MediaObj& obj, const Planed::Transition& trans)
     return AbsToRel(trans, obj.Placement());
 }
 
-static const char* FFmpegErrorTemplate()
-{
-    return _("ffmpeg failure: %1%");
-}
-
 static void FFmpegError(const ExitData& ed)
 {
-    Author::ErrorByED(FFmpegErrorTemplate(), ed);
+    //Author::ErrorByED(FFmpegErrorTemplate(), ed);
+    Author::ApplicationError("ffmpeg", ed);
 }
 
 static void FFmpegError(const std::string& msg)
 {
-    Author::Error(FFmpegErrorTemplate(), msg);
+    Author::ApplicationError("ffmpeg", msg);
 }
 
 static std::string errno2str()
@@ -791,7 +787,8 @@ static Gtk::TextView& PrintCmdToDetails(const std::string& cmd)
     return tv;
 }
 
-void RunExtCmd(const std::string& cmd, const ReadReadyFnr& add_fnr)
+void RunExtCmd(const std::string& cmd, const char* app_name, 
+               const ReadReadyFnr& add_fnr)
 {
     ExitData ed;
     if( Execution::ConsoleMode::Flag )
@@ -805,7 +802,12 @@ void RunExtCmd(const std::string& cmd, const ReadReadyFnr& add_fnr)
         ed = Author::AsyncCall(0, cmd.c_str(), TextViewAppender(tv, add_fnr));
     }
     if( !ed.IsGood() )
-        FFmpegError(ed);
+        Author::ApplicationError(app_name, ed);
+}
+
+void RunFFmpegCmd(const std::string& cmd, const ReadReadyFnr& add_fnr)
+{
+    RunExtCmd(cmd, "ffmpeg", add_fnr);
 }
 
 static void SaveStillMenuMpg(const std::string& mn_dir, Menu mn)
@@ -817,7 +819,7 @@ static void SaveStillMenuMpg(const std::string& mn_dir, Menu mn)
     std::string ffmpeg_cmd = boost::format("ffmpeg -t %3$.2f -loop_input -i \"%1%\" %2%") 
         % img_fname % MakeFFmpegPostArgs(mn_dir, mn) % MenuDuration(mn) % bf::stop;
 
-    RunExtCmd(ffmpeg_cmd);
+    RunFFmpegCmd(ffmpeg_cmd);
 }
 
 FFmpegCloser::~FFmpegCloser()

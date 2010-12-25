@@ -58,8 +58,9 @@ double MenuDuration(Menu mn);
 
 void ClearTaggedData(Menu mn, const char* tag);
 
-void RunExtCmd(const std::string& cmd, 
+void RunExtCmd(const std::string& cmd, const char* app_name, 
                const ReadReadyFnr& add_fnr = ReadReadyFnr());
+void RunFFmpegCmd(const std::string& cmd, const ReadReadyFnr& add_fnr = ReadReadyFnr());
 
 } // namespace Project
 
@@ -83,8 +84,9 @@ std::string SafeCall(const ActionFunctor& fnr);
 inline bool IsGood(const std::string& res) { return res.empty(); }
 
 void Error(const std::string& str);
-void Error(const std::string& msg, const std::string& reason);
-void ErrorByED(const std::string& msg, const ExitData& ed);
+void ApplicationError(const char* app_name, const std::string& reason);
+void ApplicationError(const char* app_name, const ExitData& ed);
+
 void CheckAbortByUser();
 
 } // namespace Author

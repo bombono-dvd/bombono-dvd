@@ -704,7 +704,7 @@ static void AuthorImpl(const std::string& out_dir)
 
         std::string ffmpeg_cmd = FFmpegToDVDTranscode(src_fname, dst_fname, atd, IsPALProject(), td);
         io::pos trans_val      = CalcTransSize(rtc, td.vRate);
-        RunExtCmd(ffmpeg_cmd, bb::bind(&OnTranscodePrintParse, _1, _2, trans_total, trans_done, trans_val));
+        RunFFmpegCmd(ffmpeg_cmd, bb::bind(&OnTranscodePrintParse, _1, _2, trans_total, trans_done, trans_val));
 
         trans_done += trans_val;
     }
@@ -759,7 +759,7 @@ static void AuthorImpl(const std::string& out_dir)
             std::string spumux_cmd = boost::format("spumux -m dvd %1% < %2% > %3%") 
                 % FilenameForCmd(xml_fname) % FilenameForCmd(DVDCompliantFilename(vi, out_dir))
                 % FilenameForCmd(DVDFilename(vi, out_dir)) % bf::stop;
-            RunExtCmd(spumux_cmd);
+            RunExtCmd(spumux_cmd, "spumux");
         }
 
     Author::ExecState& es = Author::GetES();
@@ -926,14 +926,14 @@ void Error(const std::string& str)
     throw std::runtime_error(str);
 }
 
-void Error(const std::string& msg, const std::string& reason)
+void ApplicationError(const char* app_name, const std::string& reason)
 {
-    Error(boost::format(msg) % reason % bf::stop);
+    Author::Error(BF_("%1% failure: %2%") % app_name % reason % bf::stop);
 }
 
-void ErrorByED(const std::string& msg, const ExitData& ed)
+void ApplicationError(const char* app_name, const ExitData& ed)
 {
-    Error(msg, ExitDescription(ed));
+    ApplicationError(app_name, ExitDescription(ed));
 }
 
 void ExecuteSconsCmd(const std::string& out_dir, OutputFilter& of, 
@@ -942,7 +942,8 @@ void ExecuteSconsCmd(const std::string& out_dir, OutputFilter& of,
     std::string cmd = "scons" + scons_options.str() + " " + SconsTarget(mod);
     ExitData ed = AsyncCall(out_dir.c_str(), cmd.c_str(), OF2RRF(of));
     if( !ed.IsGood() )
-        ErrorByED(_("external command failure: %1%"), ed);
+        //ApplicationError("", ed);
+        Error(BF_("external command failure: %1%") % ExitDescription(ed) % bf::stop);
 }
 
 std::string SafeCall(const ActionFunctor& fnr)
