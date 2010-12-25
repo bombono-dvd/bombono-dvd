@@ -7,7 +7,7 @@
 # So, maybe adjustments required for other RPM-based distros. 
 
 Name:		bombono-dvd
-Version:	0.8.1
+Version:	0.9.0
 Summary:	DVD authoring program with nice and clean GUI
 License:	GPL
 Release:	0
