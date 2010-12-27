@@ -30,13 +30,32 @@
 /////////////////////////////////////////
 // :KLUDGE: потому что riff.h не копируют
 C_LINKAGE_BEGIN
+
 typedef struct AVCodecTag {
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52,39,00)
+    enum CodecID id;
+#else
     int id;
+#endif
     unsigned int tag;
 } AVCodecTag;
 
-unsigned int codec_get_tag(const AVCodecTag *tags, int id);
-extern const AVCodecTag codec_bmp_tags[];
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52,34,00)
+static uint FFCodecID2Tag(CodecID codec_id) 
+{
+    unsigned int ff_codec_get_tag(const AVCodecTag *tags, int id);
+    extern const AVCodecTag ff_codec_bmp_tags[];
+    return ff_codec_get_tag(ff_codec_bmp_tags, codec_id);
+}
+#else
+static uint FFCodecID2Tag(CodecID codec_id) 
+{
+    unsigned int codec_get_tag(const AVCodecTag *tags, int id);
+    extern const AVCodecTag codec_bmp_tags[];
+    return codec_get_tag(codec_bmp_tags, codec_id);
+}
+#endif
+
 C_LINKAGE_END
 /////////////////////////////////////////
 
@@ -383,7 +402,7 @@ bool OpenInfo(FFData& ffi, const char* fname, std::string& err_str)
         //dec->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
         //dec->error_recognition = FF_ER_CAREFUL;
     
-        uint tag = codec_get_tag(codec_bmp_tags, dec->codec_id);
+        uint tag = FFCodecID2Tag(dec->codec_id);
         std::string tag_str = boost::format("0x%1$04x") % tag % bf::stop;
         unsigned char c0 = GetChar(tag, 0), c8 = GetChar(tag, 8), 
             c16 = GetChar(tag, 16), c24 = GetChar(tag, 24);
@@ -459,11 +478,18 @@ bool FFViewer::Open(const char* fname, std::string& err_str)
         //     opt_default(); // обновление sws_opts по -sws_flags
         //     sws_flags = av_get_int(sws_opts, "sws_flags", NULL); // = sws_opts.flags    
         int sws_flags = SWS_BICUBIC;
+        // при сборке с --enable-runtime-cpudetect (появилось после 0.5), который полюбили пакетировщики,
+        // лучшая оптимизация выбирается на этапе выполнения, а не сборке; однако для 0.6 времени
+        // maverick оно еще не доделано, см. http://ffmpeg.arrozcru.org/forum/viewtopic.php?f=1&t=1185
+        // :KLUDGE: потому добавляем явно
+        sws_flags |= SWS_CPU_CAPS_MMX|SWS_CPU_CAPS_MMX2;
+
         // :TRICKY: почему-то ffmpeg'у "нравится" BGR24 и не нравиться RGB24 в плане использования
         // MMX (ускорения); цена по времени неизвестна,- используем только ради того, чтобы не было 
         // предупреждений
         // Другой вариант - PIX_FMT_RGB32, но там зависимый порядок байтов (в GdkPixbuf - нет) и
         // мы нацелены на RGB24
+        // :TODO: с версии LIBSWSCALE_VERSION_INT >= 0.8.11 появился прямой yuv -> rgb24, поправить
         PixelFormat dst_pf = PIX_FMT_BGR24; // PIX_FMT_RGB24;
         rgbCnvCtx = sws_getContext(sz.x, sz.y, GetVideoCtx(*this)->pix_fmt, sz.x, sz.y,
             dst_pf, sws_flags, 0, 0, 0);
@@ -554,6 +580,24 @@ struct CodecDebugEnabler
 
 static void DoVideoDecode(FFViewer& ffv, int& got_picture, AVPacket* pkt)
 {
+    // FF_DEBUG_PICT_INFO - вывод типов декодируемых картинок
+    // FF_DEBUG_MMCO - (h.264) управление зависимыми кадрами + порядок кадров (poc) 
+    //CodecDebugEnabler cde(GetVideoCtx(ffv), FF_DEBUG_PICT_INFO);
+
+    AVFrame& picture = ffv.srcFrame;
+    avcodec_get_frame_defaults(&picture); // ffmpeg.c очищает каждый раз
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(52,25,00)
+    if( !pkt )
+    {
+        // никогда бы не использовал alloca(), но не хочется создавать 
+        // на стеке лишние байты для исключительных случаев 
+        pkt = (AVPacket*)alloca(sizeof(AVPacket));
+        av_init_packet(pkt);
+        pkt->data = 0;
+        pkt->size = 0;
+    }
+    int av_res = avcodec_decode_video2(GetVideoCtx(ffv), &picture, &got_picture, pkt);
+#else
     const uint8_t* buf = 0;
     int buf_sz = 0;
     if( pkt )
@@ -561,14 +605,8 @@ static void DoVideoDecode(FFViewer& ffv, int& got_picture, AVPacket* pkt)
         buf = pkt->data;
         buf_sz = pkt->size;
     }
-
-    // FF_DEBUG_PICT_INFO - вывод типов декодируемых картинок
-    // FF_DEBUG_MMCO - (h.264) управление зависимыми кадрами + порядок кадров (poc) 
-    //CodecDebugEnabler cde(GetVideoCtx(ffv), FF_DEBUG_PICT_INFO);
-
-    AVFrame& picture = ffv.srcFrame;
-    avcodec_get_frame_defaults(&picture); // ffmpeg.c очищает каждый раз
     int av_res = avcodec_decode_video(GetVideoCtx(ffv), &picture, &got_picture, buf, buf_sz);
+#endif
     if( av_res < 0 )
         // ничего не требуется делать в случае ошибок
         LOG_WRN << "Error while decoding frame!" << io::endl;
