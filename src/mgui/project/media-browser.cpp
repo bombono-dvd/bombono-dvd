@@ -626,7 +626,7 @@ static void SetSubtitles(VideoItem vi, Gtk::Dialog& dlg)
     // взято у DeVeDe с минимальными изменениями
     // :TRICKY: держим список строк в формате iconv (что и понимает spumux), и
     // при помощи enca надеемся на совпадение алиасов кодировок
-    io::stream strm(DataDirPath("copy-n-paste/codepages.lst").c_str());
+    io::stream strm(DataDirPath("copy-n-paste/codepages.lst").c_str(), iof::in);
     std::string enc_str;
     for( int i=0; std::getline(strm, enc_str), strm; i++ )
     {
