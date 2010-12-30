@@ -43,7 +43,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/convenience.hpp> // fs::create_directories()
 
-static std::string PreferencesPath(const char* fname)
+std::string PreferencesPath(const char* fname)
 {
     return GetConfigDir() + "/" + fname;
 }

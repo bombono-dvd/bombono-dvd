@@ -84,5 +84,7 @@ void SaveUnnamedPrefs();
 
 void SetUpdatePos(Gtk::HPaned& hpaned, int& saved_pos);
 
+std::string PreferencesPath(const char* fname);
+
 #endif // #ifndef __MGUI_PREFS_H__
 

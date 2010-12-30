@@ -35,6 +35,7 @@
 #include <mgui/sdk/ioblock.h>
 #include <mgui/sdk/textview.h>  // AppendCommandText()
 #include <mgui/ffviewer.h>
+#include <mgui/prefs.h> // PreferencesPath()
 
 #include <mbase/project/table.h>
 
@@ -569,9 +570,21 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData
         // ffmpeg обнуляет audio_codec_name после каждого -newaudio и -i
         add_audio_str += " -acodec ac3 -newaudio";
 
-    return boost::format("-target %1%-dvd -aspect %2% %3% %4%-y -mbd rd -trellis 2 -cmp 2 -subcmp 2 %5%%6%")
+    // * доп. опции
+    std::string add_opts("-mbd rd -trellis 2 -cmp 2 -subcmp 2");
+    {
+        std::string user_opts = ReadAllStream(PreferencesPath("ffmpeg_options"));
+        // только первая строка
+        size_t eol = user_opts.find_first_of("\n\r");
+        if( eol != std::string::npos )
+            user_opts = std::string(user_opts.c_str(), eol);
+        if( !user_opts.empty() )
+            add_opts += " " + user_opts;
+    }
+
+    return boost::format("-target %1%-dvd -aspect %2% %3% %4%-y %7% %5%%6%")
         % target % (is_4_3 ? "4:3" : "16:9") % sz_str
-        % bitrate_str % FilenameForCmd(out_fname) % add_audio_str % bf::stop;
+        % bitrate_str % FilenameForCmd(out_fname) % add_audio_str % add_opts % bf::stop;
 }
 
 std::string FFmpegToDVDArgs(const std::string& out_fname, bool is_4_3, bool is_pal)
