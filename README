@@ -67,6 +67,13 @@ For instance:
     $ scons TEST=1              # run tests
 
 III. Packaging Bombono DVD:
+ - for those who is accustomed to 'configure; make; make install' sequence:
+   $ scons PREFIX=/usr DESTDIR=$(CURDIR)/debian/bombono-dvd
+   ...
+   # fixing build errors
+   $ scons
+   ...
+   $ scons install
  - see ./debian for Debian-based distros
  - see ./tools/scripts/bombono-dvd.spec for RPM-based distros
 
