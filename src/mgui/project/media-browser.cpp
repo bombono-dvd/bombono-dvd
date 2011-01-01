@@ -461,7 +461,7 @@ static void RunBitrateCalc(VideoItem vi, Gtk::Dialog& dlg)
         //                 boost::format("%1% %2%") % (GetVideoCtx(ffv)->bit_rate/1000) % kbps_txt % bf::stop);
         AppendNamedValue(info_box, sg, SMCLN_("Display aspect ratio"), 
                          boost::format("%1% : %2%") % rtc.dar.x % rtc.dar.y % bf::stop);
-        AppendNamedValue(info_box, sg, SMCLN_("Audio stream number"), Int2Str(rtc.audioNum));
+        AppendNamedValue(info_box, sg, SMCLN_("Number of audio streams"), Int2Str(rtc.audioNum));
         AppendNamedValue(info_box, sg, SMCLN_("File size"), ShortSizeString(PhisSize(fname.c_str())));
     }
 
