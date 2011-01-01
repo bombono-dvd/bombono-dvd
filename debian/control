@@ -13,8 +13,11 @@ Suggests: totem
 Description: DVD authoring program with nice and clean GUI
  Bombono DVD is easy to use program for making DVD-Video.
  The main features of Bombono DVD are:
-  * Excellent MPEG viewer: Timeline and Monitor
+  * Excellent video viewer: Timeline and Monitor
   * Real WYSIWYG Menu Editor with live thumbnails
   * Comfortable Drag-N-Drop support
+  * Transcoding, if necessary (from AVI/MKV/MOV/MPEG4...)
+  * Motion menus
+  * Subtitles support
   * You can author to folder, make ISO-image or burn directly to DVD
   * Reauthoring: you can import video from DVD discs.
