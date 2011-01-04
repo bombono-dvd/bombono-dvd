@@ -52,9 +52,6 @@ std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pa
 std::string FFmpegToDVDTranscode(const std::string& src_fname, const std::string& dst_fname,
                                  const AutoDVDTransData& atd, bool is_pal, const DVDTransData& td);
 
-// проверка возможности кодировать совместимый с DVD материал с помощью ffmpeg
-void CheckFFDVDEncoding();
-
 struct FFmpegCloser
 {
                 GPid  pid;
@@ -74,6 +71,32 @@ struct PPMWriter
     PPMWriter(int in_fd);
     void Write(RefPtr<Gdk::Pixbuf> img);
 };
+
+// :TRICKY: в sys/sysmacros.h (glibc) определены нижеуказанные макросы, например,
+// при установленном __GNUC__ => __GLIBC_HAVE_LONG_LONG (полная х**та)!!
+// Дискуссия здесь (нормально чинить не хотят): https://bugzilla.redhat.com/show_bug.cgi?id=130601 
+#undef major
+#undef minor
+
+struct TripleVersion
+{
+    int major;
+    int minor;
+    int micro;
+
+    TripleVersion(int maj=0, int min=0, int mic=0)
+        : major(maj), minor(min), micro(mic) {}
+};
+
+struct FFmpegVersion
+{
+    TripleVersion avfilter;
+};
+
+// conts - вывод ffmpeg -formats
+FFmpegVersion TestFFmpegForDVDEncoding(const std::string& conts);
+// проверка возможности кодировать совместимый с DVD материал с помощью ffmpeg
+FFmpegVersion CheckFFDVDEncoding();
 
 } // namespace Project
 

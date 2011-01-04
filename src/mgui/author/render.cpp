@@ -524,9 +524,64 @@ static int PadSize(int free_space)
     return (free_space/2) & ~0x1;
 }
 
+bool IsVersionGE(const TripleVersion& big_v, const TripleVersion& v)
+{
+    bool cmp_res;
+    if( CompareComponent(v.major, big_v.major, cmp_res) ||
+        CompareComponent(v.minor, big_v.minor, cmp_res) || 
+        CompareComponent(v.micro, big_v.micro, cmp_res)    )
+        return cmp_res;
+
+    // версии равны
+    return true;
+}
+
+static std::string FFSizeOption(const Point& sz)
+{
+    return boost::format("-s %1%x%2%") % sz.x % sz.y % bf::stop;
+}
+
+static std::string FFImgSizeOption(const Point& sz, int val, bool is_left_right)
+{
+    Point img_sz = is_left_right ? Point(sz.x - 2*val, sz.y) : Point(sz.x, sz.y - 2*val);
+    return FFSizeOption(img_sz);
+}
+
+static std::string FFPadFilterSet(const Point& sz, int val, bool is_left_right)
+{
+    int x = 0, y = 0;
+    if( is_left_right )
+        x = val;
+    else
+        y = val;
+
+    return boost::format("%1% -vf pad=%2%:%3%:%4%:%5%:black") 
+        % FFImgSizeOption(sz, val, is_left_right) % sz.x % sz.y % x % y % bf::stop;
+}
+
+static std::string FFSizeSet(const Point& sz, int val, 
+                                  bool is_left_right, bool is_vf)
+{
+    std::string sz_str;
+    if( is_vf )
+        sz_str = FFPadFilterSet(sz, val, is_left_right);
+    else
+    {
+        const char* fmt = is_left_right ? "%1% -padleft %2% -padright %2%" : "%1% -padtop %2% -padbottom %2%" ;
+        sz_str = boost::format(fmt) % FFImgSizeOption(sz, val, is_left_right) % val % bf::stop;
+    }
+    return sz_str;
+}
+
 std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData& atd, bool is_pal,
                             const DVDTransData& td)
 {
+    // * предполагается после создания команды ее вызов => требуется
+    // проверка такой возможности
+    TripleVersion filter_ver = CheckFFDVDEncoding().avfilter;
+    // вместо -padX использовать -vf pad=w:h:x:y:black
+    bool is_vf = IsVersionGE(filter_ver, TripleVersion(1, 20, 0));
+
     // *
     const char* target =  is_pal ? "pal" : "ntsc" ;
     Point DVDDimension(DVDDims dd, bool is_pal);
@@ -547,22 +602,20 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData
     DPoint asp = FitInto1(dst_asp, ChangePoint<double>(atd.srcAspect));
 
     Point img_sz(asp.x * sz.x, asp.y * sz.y);
-    std::string sz_str = boost::format("-s %1%x%2%") % sz.x % sz.y % bf::stop;
+    std::string sz_str = FFSizeOption(sz);
     if( img_sz.x < sz.x )
     {
         // справа и слева
         int val = PadSize(sz.x - img_sz.x);
         if( val )
-            sz_str = boost::format("-s %1%x%2% -padleft %3% -padright %3%") 
-                % (sz.x - 2*val) % sz.y % val % bf::stop;
+            sz_str = FFSizeSet(sz, val, true, is_vf);
     }
     else if( img_sz.y < sz.y )
     {
         // сверху и снизу
         int val = PadSize(sz.y - img_sz.y);
         if( val )
-            sz_str = boost::format("-s %1%x%2% -padtop %3% -padbottom %3%")
-                % sz.x % (sz.y - 2*val) % val % bf::stop;
+            sz_str = FFSizeSet(sz, val, false, is_vf);
     }
     // * дополнительные аудио
     std::string add_audio_str;
@@ -922,9 +975,24 @@ static void CheckNoCodecs(bool res)
         FFmpegError("no codec is found");
 }
 
-// conts - вывод ffmpeg -formats
-void TestFFmpegForDVDEncoding(const std::string& conts)
+int AsInt(const re::match_results& what, int idx)
 {
+    return boost::lexical_cast<int>(what.str(idx));
+}
+
+// conts - вывод ffmpeg -formats
+FFmpegVersion TestFFmpegForDVDEncoding(const std::string& conts)
+{
+    // ищем версию libavfilter
+    // пример: " libavfilter    0. 4. 0 / "
+#define RG_PADNUM RG_SPS RG_NUM
+    static re::pattern avfilter_version(RG_BW"libavfilter"RG_PADNUM"\\."RG_PADNUM"\\."RG_PADNUM" / ");
+    re::match_results what;
+    if( !re::search(conts, what, avfilter_version) )
+        FFmpegError(boost::format("can't parse %1% version") % "libavfilter" % bf::stop);
+    FFmpegVersion ff_ver;
+    ff_ver.avfilter = TripleVersion(AsInt(what, 1), AsInt(what, 2), AsInt(what, 3));
+
     CheckNoCodecs(CheckForCodecList(conts));
 
     static re::pattern dvd_format("^ .E dvd"RG_EW);
@@ -936,10 +1004,13 @@ void TestFFmpegForDVDEncoding(const std::string& conts)
     // по факту ffmpeg всегда использует ac3, однако mp2 тоже возможен
     static re::pattern ac3_codec("^ .EA... ac3"RG_EW);
     CheckStrippedFFmpeg(ac3_codec, conts, "ac3 audio encoder");
+
+    return ff_ver;
 }
 
-void CheckFFDVDEncoding()
+FFmpegVersion CheckFFDVDEncoding()
 {
+    FFmpegVersion ff_ver;
     // наличие полного ffmpeg
     std::string ff_formats;
     ExitData ed = PipeOutput("ffmpeg -formats", ff_formats);
@@ -966,8 +1037,9 @@ void CheckFFDVDEncoding()
             ff_formats += ff_codecs;
         }
 
-        TestFFmpegForDVDEncoding(ff_formats);
+        ff_ver = TestFFmpegForDVDEncoding(ff_formats);
     }
+    return ff_ver;
 }
 
 bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
@@ -977,8 +1049,6 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
 
     if( IsMotion(mn) )
     {
-        CheckFFDVDEncoding();
-
         if( mn->MtnData().isStillPicture )
             SaveStillMenuMpg(mn_dir, mn);
         else

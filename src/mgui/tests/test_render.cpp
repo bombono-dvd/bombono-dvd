@@ -25,7 +25,6 @@
 #include "test_mbrowser.h"
 
 //#include <mgui/sdk/player_utils.h>
-#include <mgui/execution.h>
 #include <mgui/init.h>
 #include <mgui/author/ffmpeg.h>
 #include <mgui/project/video.h>
@@ -132,8 +131,10 @@ BOOST_AUTO_TEST_CASE( TestCheckFFmpeg )
     //std::string conts = Glib::file_get_contents("/home/ilya/opt/programming/atom-project/hardy_formats_.txt");
     //std::string conts = Glib::file_get_contents("/home/ilya/opt/programming/atom-project/lucid_formats.txt");
 
-    void TestFFmpegForDVDEncoding(const std::string& conts);
-    TestFFmpegForDVDEncoding(conts);
+    TripleVersion filter_ver = TestFFmpegForDVDEncoding(conts).avfilter;
+    BOOST_CHECK_EQUAL(filter_ver.major, 0);
+    BOOST_CHECK_EQUAL(filter_ver.minor, 4);
+    BOOST_CHECK_EQUAL(filter_ver.micro, 0);
 }
 
 BOOST_AUTO_TEST_CASE( TestSetSubtitles )

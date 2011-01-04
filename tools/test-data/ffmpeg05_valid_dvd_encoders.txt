@@ -1,3 +1,13 @@
+FFmpeg version SVN-r19352-4:0.5+svn20090706-2ubuntu2.2, Copyright (c) 2000-2009 Fabrice Bellard, et al.
+  configuration: --extra-version=4:0.5+svn20090706-2ubuntu2.2 --prefix=/usr --enable-avfilter --enable-avfilter-lavf --enable-vdpau --enable-bzlib --enable-libgsm --enable-libschroedinger --enable-libspeex --enable-libtheora --enable-libvorbis --enable-pthreads --enable-zlib --disable-stripping --disable-vhook --enable-gpl --enable-postproc --enable-swscale --enable-x11grab --enable-libdc1394 --extra-cflags=-I/build/buildd/ffmpeg-0.5+svn20090706/debian/include --enable-shared --disable-static
+  libavutil     49.15. 0 / 49.15. 0
+  libavcodec    52.20. 0 / 52.20. 0
+  libavformat   52.31. 0 / 52.31. 0
+  libavdevice   52. 1. 0 / 52. 1. 0
+  libavfilter    0. 4. 0 /  0. 4. 0
+  libswscale     0. 7. 1 /  0. 7. 1
+  libpostproc   51. 2. 0 / 51. 2. 0
+  built on Apr 23 2010 15:05:49, gcc: 4.4.1
 File formats:
   E 3g2             3GP2 format
   E 3gp             3GP format

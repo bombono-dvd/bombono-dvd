@@ -84,22 +84,6 @@ MILink::MILink(Project::MediaItem ref_, bool is_lower)
     ASSERT( ref );
 }
 
-// сравнение одной компоненты, если неравенство (!) не достигается,
-// то ворачивает false
-template<typename T>
-bool CompareComponent(const T& e1, const T& e2, bool& cmp_res)
-{
-    bool res = true;
-    if( e1 < e2 )
-        cmp_res = true;
-    else if( e2 < e1 )
-        cmp_res = false;
-    else
-        res = false;
-
-    return res;
-}
-
 bool MILinkLessOp::operator()(const MILink& e1, const MILink& e2) const
 {
     bool cmp_res;
