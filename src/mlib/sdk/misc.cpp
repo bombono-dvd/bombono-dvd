@@ -26,6 +26,8 @@
 #include <mlib/regex.h>
 #include <mlib/string.h>
 
+#include <boost/lexical_cast.hpp>
+
 // = НОД
 int GCD(int a, int b)
 {
@@ -118,6 +120,27 @@ bool TryConvertParams(MpegDP& dst, const DisplayParams& src)
 }
 
 namespace Str {
+
+template<typename T>
+bool GetType(T& val, const char* str)
+{
+    bool res = true;
+    try
+    {
+        val = boost::lexical_cast<T>(str);
+    }
+    catch( const boost::bad_lexical_cast& )
+    {
+        res = false;
+    }
+    return res;
+}
+
+#define INST_STR_GET_TYPE(Type) template bool GetType<Type>(Type& val, const char* str);
+INST_STR_GET_TYPE(int)
+INST_STR_GET_TYPE(double)
+INST_STR_GET_TYPE(bool)
+INST_STR_GET_TYPE(long long) // = io::pos
 
 // считать целое из строки
 bool GetLong(long& res, const char* str)

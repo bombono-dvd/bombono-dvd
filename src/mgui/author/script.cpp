@@ -45,8 +45,6 @@
 #include <mlib/sdk/logger.h>
 #include <mlib/regex.h>
 
-#include <boost/lexical_cast.hpp>
-
 namespace Project 
 {
 
@@ -670,9 +668,13 @@ static void OnTranscodePrintParse(const char* dat, int sz, const io::pos trans_t
     {
         // :KLUDGE: вроде и нецелые могут быть, но precision=0
         // как-то не в тему
-        io::pos sz = 1024 * boost::lexical_cast<io::pos>(what.str(1));
-        double per = (std::min(sz, trans_val) + trans_done)/double(trans_total);
-        Author::SetStageProgress(per);
+        // У пользователей случалось вообще не число, потому гасим возможные исключения
+        io::pos sz;
+        if( Str::GetType(sz, what.str(1).c_str()) )
+        {
+            double per = (std::min(sz * 1024, trans_val) + trans_done)/double(trans_total);
+            Author::SetStageProgress(per);
+        }
     }
 }
 

@@ -64,9 +64,14 @@ class stream: public std::stringstream
 namespace Str
 {
 
+// считать int, double, bool, long long, ... из строки
+// в отличие от boost::lexical_cast() - без исключений
+template<typename T>
+bool GetType(T& val, const char* str);
+
+// Устаревшее
 // считать целое из строки
 bool GetLong(long& res, const char* str);
-// 
 bool GetDouble(double& res, const char* str);
 
 typedef std::vector<std::string> List;

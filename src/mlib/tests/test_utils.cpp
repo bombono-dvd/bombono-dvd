@@ -180,3 +180,15 @@ BOOST_AUTO_TEST_CASE( TestStringstream )
     BOOST_CHECK_EQUAL( strm.str(), "aaa" );
 }
 
+BOOST_AUTO_TEST_CASE( TestStrGetType )
+{
+    int i = 0;
+    BOOST_CHECK( Str::GetType(i, "5") );
+    BOOST_CHECK_EQUAL( i, 5 );
+    BOOST_CHECK( !Str::GetType(i, "no4") );
+
+    long long l = 0;
+    BOOST_CHECK( Str::GetType(l, "123456789000") );
+    BOOST_CHECK_EQUAL( l, 123456789000LL );
+}
+
