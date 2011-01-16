@@ -138,6 +138,7 @@ bool GetType(T& val, const char* str)
 
 #define INST_STR_GET_TYPE(Type) template bool GetType<Type>(Type& val, const char* str);
 INST_STR_GET_TYPE(int)
+INST_STR_GET_TYPE(long)
 INST_STR_GET_TYPE(double)
 INST_STR_GET_TYPE(bool)
 INST_STR_GET_TYPE(long long) // = io::pos
