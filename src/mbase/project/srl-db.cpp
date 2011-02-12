@@ -92,7 +92,7 @@ void DbSerializeProjectImpl(Archieve& ar)
     {
         ArchieveStackFrame asf(ar, "Globals");
 
-        ar & NameValue("PAL", IsPALProject());
+        ar & NameValue("PAL", AData().PalTvSystem());
         ar & NameValue("DefMenuParams", AData().GetDefMP());
         SerializeReference(ar, "First-Play", AData().FirstPlayItem());
     }

@@ -50,11 +50,8 @@ namespace Project
 
 static xmlpp::Element* AddVideoTag(xmlpp::Element* node, bool is_4_3 = true)
 {
-    ADatabase& db = AData();
     xmlpp::Element* vnode = node->add_child("video");
-    vnode->set_attribute("format", db.PalTvSystem() ? "pal" : "ntsc");
-    //Point aspect = db.GetDefMP().DisplayAspect();
-    //vnode->set_attribute("aspect", (str::stream() << aspect.x << ":" << aspect.y).str());
+    vnode->set_attribute("format", IsPALProject() ? "pal" : "ntsc");
     vnode->set_attribute("aspect", is_4_3 ? "4:3" : "16:9");
 
     return vnode;
