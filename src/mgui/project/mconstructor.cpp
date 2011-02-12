@@ -352,7 +352,7 @@ static void OnDlgAbout()
     
         dlg->set_name(APROJECT_NAME);
         dlg->set_version(APROJECT_VERSION);
-        dlg->set_copyright("Copyright \xc2\xa9 2007-2010 Ilya Murav'jov");
+        dlg->set_copyright("Copyright \xc2\xa9 2007-2011 Ilya Murav'jov");
         //dlg->set_license(license);
         dlg->set_website("http://www.bombono.org");
         dlg->set_comments(_("Bombono DVD is a DVD authoring program with nice and clean GUI"));
