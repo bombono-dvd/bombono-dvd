@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-25 21:14+0300\n"
+"POT-Creation-Date: 2011-02-12 16:27+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -135,40 +135,40 @@ msgstr ""
 
 #. :TODO: решить, ставить в конце точки или нет (сообщения пользователю
 #. показывается не HIG-ого)
-#: src/mgui/ffviewer.cpp:282
+#: src/mgui/ffviewer.cpp:321
 msgid "No such file"
 msgstr ""
 
-#: src/mgui/ffviewer.cpp:285
+#: src/mgui/ffviewer.cpp:324
 msgid "Unknown file format"
 msgstr ""
 
 #. например .webm для FFmpeg <= 0.5
-#: src/mgui/ffviewer.cpp:304
+#: src/mgui/ffviewer.cpp:343
 #, boost-format
 msgid "Can't find stream information: %1%"
 msgstr ""
 
-#: src/mgui/ffviewer.cpp:326
+#: src/mgui/ffviewer.cpp:365
 msgid "No video stream found"
 msgstr ""
 
-#: src/mgui/ffviewer.cpp:338
+#: src/mgui/ffviewer.cpp:377
 msgid "Can't find the file duration"
 msgstr ""
 
 #. в 99% отсутствие нач. времени - элементарный поток = без контейнера;
 #. см. особенности ffmpeg, update_initial_timestamps()
-#: src/mgui/ffviewer.cpp:346
+#: src/mgui/ffviewer.cpp:385
 msgid "Start time of the file is unknown"
 msgstr ""
 
 #. проверка индекса/возможности перемещения
-#: src/mgui/ffviewer.cpp:353
+#: src/mgui/ffviewer.cpp:392
 msgid "Can't seek through the file"
 msgstr ""
 
-#: src/mgui/ffviewer.cpp:379
+#: src/mgui/ffviewer.cpp:418
 #, boost-format
 msgid "No decoder found for the stream: %1%"
 msgstr ""
@@ -480,26 +480,26 @@ msgstr ""
 msgid "_Burn to DVD"
 msgstr ""
 
-#: src/mgui/author/render.cpp:613
+#: src/mgui/author/render.cpp:687
 #, boost-format
 msgid "no audio stream in %1%"
 msgstr ""
 
-#: src/mgui/author/render.cpp:937
+#: src/mgui/author/render.cpp:1029
 msgid "command not found"
 msgstr ""
 
-#: src/mgui/author/script.cpp:511
+#: src/mgui/author/script.cpp:506
 msgid "There is no media (video or menu)."
 msgstr ""
 
-#: src/mgui/author/script.cpp:931
+#: src/mgui/author/script.cpp:929
 #, boost-format
 msgid "%1% failure: %2%"
 msgstr ""
 
 #. ApplicationError("", ed);
-#: src/mgui/author/script.cpp:946
+#: src/mgui/author/script.cpp:944
 #, boost-format
 msgid "external command failure: %1%"
 msgstr ""
@@ -912,7 +912,7 @@ msgid "Display aspect ratio"
 msgstr ""
 
 #: src/mgui/project/media-browser.cpp:464
-msgid "Audio stream number"
+msgid "Number of audio streams"
 msgstr ""
 
 #: src/mgui/project/media-browser.cpp:465
