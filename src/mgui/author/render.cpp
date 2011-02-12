@@ -148,7 +148,15 @@ class SubtitleWrapper
      Cairo::FontOptions  fOpt;  // поэтому убираем сглаживание
 
     void SetAntialias(Cairo::Antialias alias_type)
-    { 
+    {
+        // не меняем сглаживание, потому что:
+        // 1) все равно приходится дискретизировать, DiscreteByAlpha()
+        // 2) побочный эффект - в некоторых случаях настроек шрифтов (системным образом,
+        //  точно не определил) помимо антиалиасинга изменяется ширина результата рендеринга,
+        //  что выражается визуально, в расхождении текста и его субкартинки (в dvd-меню)
+        //  => ошибка; об этом же говорит справка к pango_cairo_context_set_font_options()
+        //  (не знаю, что конкретно на это влияет,- один из атрибутов _cairo_font_options)
+        return; 
         fOpt.set_antialias(alias_type);
         pCont->set_cairo_font_options(fOpt);
     }
