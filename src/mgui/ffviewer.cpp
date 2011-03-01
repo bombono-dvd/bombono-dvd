@@ -24,8 +24,11 @@
 #include "ffviewer.h"
 #include "img_utils.h"
 #include "render/common.h" // FillEmpty()
+#include "prefs.h"
 
 #include <mlib/gettext.h>
+#include <mlib/read_stream.h> // ReadAllStream()
+#include <mlib/string.h>
 
 /////////////////////////////////////////
 // :KLUDGE: потому что riff.h не копируют
@@ -866,14 +869,46 @@ static bool CanByteSeek(AVFormatContext* ic)
     return res;
 }
 
+std::string PrefContents(const char* fname)
+{
+    std::string user_opts = ReadAllStream(PreferencesPath(fname));
+    // только первая строка
+    size_t eol = user_opts.find_first_of("\n\r");
+    if( eol != std::string::npos )
+        user_opts = std::string(user_opts.c_str(), eol);
+    return user_opts;
+}
+
 static bool SeekSetTime(FFViewer& ffv, double time)
 {
     bool is_begin = false;
     double start_time = StartTime(ffv);
     for( int i=0; i<4 && !is_begin; i++ )
     {
+        static double seek_shift  = 0.;
+        static bool is_shift_read = false;
+        if( !is_shift_read )
+        {
+            is_shift_read = true;
+            std::string str = PrefContents("av_seek_shift");
+            if ( !str.empty() )
+            {
+                double val;
+                if ( Str::GetType<double>(val, str.c_str()) )
+                {
+                    const double max_val = 15;
+                    if ( (val < -max_val) || (val > max_val) )
+                        LOG_WRN << "Value from av_seek_shift is out of range: " << max_val << io::endl;
+                    else
+                        seek_shift = val;
+                }
+                else
+                    LOG_WRN << "Can't read float from av_seek_shift" << io::endl;
+            }
+        }
+
         int n = (1 << i) - 1; // 0, 1, 3, 7
-        double seek_time = time - n;
+        double seek_time = time + seek_shift - n;
 
         if( seek_time <= start_time )
         {

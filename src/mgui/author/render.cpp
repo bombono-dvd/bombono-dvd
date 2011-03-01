@@ -35,12 +35,10 @@
 #include <mgui/sdk/ioblock.h>
 #include <mgui/sdk/textview.h>  // AppendCommandText()
 #include <mgui/ffviewer.h>
-#include <mgui/prefs.h> // PreferencesPath()
 
 #include <mbase/project/table.h>
 
 #include <mlib/filesystem.h>
-#include <mlib/string.h>
 #include <mlib/read_stream.h> // ReadAllStream()
 #include <mlib/sdk/system.h> // GetClockTime()
 #include <mlib/gettext.h>
@@ -634,11 +632,7 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData
     // * доп. опции
     std::string add_opts("-mbd rd -trellis 2 -cmp 2 -subcmp 2");
     {
-        std::string user_opts = ReadAllStream(PreferencesPath("ffmpeg_options"));
-        // только первая строка
-        size_t eol = user_opts.find_first_of("\n\r");
-        if( eol != std::string::npos )
-            user_opts = std::string(user_opts.c_str(), eol);
+        std::string user_opts = PrefContents("ffmpeg_options");
         if( !user_opts.empty() )
             add_opts += " " + user_opts;
     }

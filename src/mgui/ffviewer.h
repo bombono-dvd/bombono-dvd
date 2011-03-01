@@ -102,5 +102,8 @@ struct FFViewer: public FFData
 
 AVCodecContext* GetVideoCtx(FFData& ffv);
 
+// однострочная настройка
+std::string PrefContents(const char* fname);
+
 #endif // #ifndef __MGUI_FFVIEWER_H__
 
