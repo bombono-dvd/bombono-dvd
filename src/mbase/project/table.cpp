@@ -31,7 +31,7 @@
 #include <mbase/resources.h>
 
 
-const char* APROJECT_VERSION = "1.0.1";
+const char* APROJECT_VERSION = "1.0.2";
 
 namespace Project
 {
