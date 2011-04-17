@@ -157,14 +157,30 @@ static void AcceptNode(Archieve& ar, xmlpp::Element* elem, bool is_parent)
     ar.AcceptNode(elem);
 }
 
+#define TEST_NUM_COND(PREFIX, num, COND) \
+    (PREFIX##_VERSION > (num) || (PREFIX##_VERSION == (num) && (COND)))
+
+// обобщение GTK_CHECK_VERSION
+#define	IS_VERSION_GE(PREFIX, major, minor, micro) \
+    TEST_NUM_COND(PREFIX##_MAJOR, major, TEST_NUM_COND(PREFIX##_MINOR, minor, PREFIX##_MICRO_VERSION >= (micro)))
+
 static void OpenFirstChild(Archieve& ar)
 {
     xmlpp::Element* node = ar.Node();
 
+    // :KLUDGE: у libxml++ нет оф. возможности получить только одного, первого потомка,
+    // потому используем неофиц. доступ
     xmlNode* children = node->cobj()->children;
     if( !children )
         Error(boost::format("No content in %1%") % QuotedNodeName(node) % bf::stop);
 
+    // С 2.33.1 С++-обертки создаются по требованию (прозрачно, для не использующих
+    // неофиц. доступ)
+    // :KLUDGE: libxml++ не публикует в заголовках свою версию (а усложнение сборки
+    // через pkg-config --modversion libxml++-2.6 не стоит делать,- игра не стоит свеч)
+#if IS_VERSION_GE(GLIBMM, 2, 27, 4)
+    xmlpp::Node::create_wrapper(children);
+#endif
     xmlpp::Node* child = reinterpret_cast<xmlpp::Node*>(children->_private);
     AcceptNode(ar, FindNextElement(child), true);
 }
