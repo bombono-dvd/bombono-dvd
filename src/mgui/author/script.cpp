@@ -48,10 +48,15 @@
 namespace Project 
 {
 
+static void AddFormatAttr(xmlpp::Element* node)
+{
+    node->set_attribute("format", IsPALProject() ? "pal" : "ntsc");
+}
+
 static xmlpp::Element* AddVideoTag(xmlpp::Element* node, bool is_4_3 = true)
 {
     xmlpp::Element* vnode = node->add_child("video");
-    vnode->set_attribute("format", IsPALProject() ? "pal" : "ntsc");
+    AddFormatAttr(vnode);
     vnode->set_attribute("aspect", is_4_3 ? "4:3" : "16:9");
 
     return vnode;
@@ -712,7 +717,17 @@ static void AuthorImpl(const std::string& out_dir)
         if( IsToAddSubtitles(vi) )
         {
             xmlpp::Document doc;
-            xmlpp::Element* ts = doc.create_root_node("subpictures")->add_child("stream")->add_child("textsub");
+            xmlpp::Element* sp = doc.create_root_node("subpictures");
+            // определяем версию, потому что:
+            // 1) с 0.7.0 необходим доп. атрибут "format"
+            // 2) парсер dvdauthor не любит незнакомые ему атрибуты => spumux < 0.7 не работает
+            std::string help_str;
+            PipeOutput("spumux -h", help_str);
+            static re::pattern spumux_version("DVDAuthor::spumux, version "RG_NUM"\\."RG_NUM"\\."RG_NUM"\\.\n");
+            if( IsVersionGE(FindVersion(help_str, spumux_version, "spumux"), TripleVersion(0, 7, 0)) )
+                AddFormatAttr(sp);
+
+            xmlpp::Element* ts = sp->add_child("stream")->add_child("textsub");
 
             SubtitleData& dat = vi->subDat;
             ts->set_attribute("filename", dat.pth);

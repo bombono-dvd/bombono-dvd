@@ -982,6 +982,18 @@ int AsInt(const re::match_results& what, int idx)
     return boost::lexical_cast<int>(what.str(idx));
 }
 
+TripleVersion FindVersion(const std::string& conts, const re::pattern& ver_pat,
+                          const char* app_name, const char* target_name)
+{
+    re::match_results what;
+    if( !re::search(conts, what, ver_pat) )
+    {
+        const char* target = target_name ? target_name : app_name ;
+        Author::ApplicationError(app_name, boost::format("can't parse %1% version") % target % bf::stop);
+    }
+    return TripleVersion(AsInt(what, 1), AsInt(what, 2), AsInt(what, 3));
+}
+
 // conts - вывод ffmpeg -formats
 FFmpegVersion TestFFmpegForDVDEncoding(const std::string& conts)
 {
@@ -989,11 +1001,8 @@ FFmpegVersion TestFFmpegForDVDEncoding(const std::string& conts)
     // пример: " libavfilter    0. 4. 0 / "
 #define RG_PADNUM RG_SPS RG_NUM
     static re::pattern avfilter_version(RG_BW"libavfilter"RG_PADNUM"\\."RG_PADNUM"\\."RG_PADNUM" / ");
-    re::match_results what;
-    if( !re::search(conts, what, avfilter_version) )
-        FFmpegError(boost::format("can't parse %1% version") % "libavfilter" % bf::stop);
     FFmpegVersion ff_ver;
-    ff_ver.avfilter = TripleVersion(AsInt(what, 1), AsInt(what, 2), AsInt(what, 3));
+    ff_ver.avfilter = FindVersion(conts, avfilter_version, "ffmpeg", "libavfilter");
 
     CheckNoCodecs(CheckForCodecList(conts));
 

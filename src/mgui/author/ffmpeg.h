@@ -26,6 +26,8 @@
 
 #include <mdemux/trackbuf.h>
 
+#include <mlib/regex.h>
+
 #include <string>
 
 namespace Project {
@@ -97,6 +99,10 @@ struct FFmpegVersion
 FFmpegVersion TestFFmpegForDVDEncoding(const std::string& conts);
 // проверка возможности кодировать совместимый с DVD материал с помощью ffmpeg
 FFmpegVersion CheckFFDVDEncoding();
+
+TripleVersion FindVersion(const std::string& conts, const re::pattern& ver_pat,
+                          const char* app_name, const char* target_name = 0);
+bool IsVersionGE(const TripleVersion& big_v, const TripleVersion& v);
 
 } // namespace Project
 
