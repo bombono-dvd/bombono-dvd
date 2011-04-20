@@ -426,8 +426,11 @@ void GetThemeList(Str::List& t_lst)
         if( fs::is_directory(dir) )
         {
             for( fs::directory_iterator itr(dir), end; itr != end; ++itr )
-                if( IsFrameDir(*itr) )
-                    t_lst.push_back(itr->leaf());
+            {
+                const fs::path& fname = *itr;
+                if( IsFrameDir(fname) )
+                    t_lst.push_back(fs::name_str(fname));
+            }
         }
     }
 

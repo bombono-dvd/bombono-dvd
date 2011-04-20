@@ -22,8 +22,7 @@
 #ifndef __MBASE_FILESYSTEM_H__
 #define __MBASE_FILESYSTEM_H__
 
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
+#include "sdk/bfs.h"
 
 #include <string>
 
@@ -35,6 +34,9 @@ bool is_empty_directory(const path & dir_path);
 //        path/fs::to_str 
 enum to_string_enum { to_str };
 std::string operator / (const path& f, to_string_enum /*to_str*/);
+
+std::string name_str(const path& pth);
+std::string name_str(const std::string& pth);
 
 } } // namepspace filesystem, boost
 namespace fs = boost::filesystem;

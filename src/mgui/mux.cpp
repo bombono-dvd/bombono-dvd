@@ -72,7 +72,7 @@ void SetDialogStrict(Gtk::Dialog& dlg, int min_wdh, int min_hgt, bool set_resiza
 
 static bool RunMuxing(const std::string& dest_path, const std::string& args)
 {
-    Gtk::Dialog dlg(BF_("Muxing \"%1%\"") % fs::path(dest_path).leaf() % bf::stop);
+    Gtk::Dialog dlg(BF_("Muxing \"%1%\"") % fs::name_str(dest_path) % bf::stop);
     SetDialogStrict(dlg, 400, -1);
 
     Gtk::TextView& txt_view = NewManaged<Gtk::TextView>();
@@ -141,18 +141,25 @@ SaveChooser::SaveChooser(const char* type):
     attach(fcb, 1, 2, 1, 2);
 }
 
+fs::path GetFilename(Gtk::FileChooser& fc)
+{
+    // fs::path v3 не понимает ustring
+    // однако в gtkmm >= будет возвращать std::string, и это не понадобится
+    return fs::path(fc.get_filename().raw());
+}
+
 std::string GetFilename(SaveChooser& sc)
 {
     std::string fname = sc.ent.get_text();
     if( !fname.empty() )
-        fname = (fs::path(sc.fcb.get_filename())/fname).string();
+        fname = (GetFilename(sc.fcb)/fname).string();
     
     return fname;
 }
 
 static void OnVideoSelected(Gtk::FileChooserButton& v_btn, Gtk::FileChooserButton& a_btn, SaveChooser& sc)
 {
-    fs::path pth = fs::path(v_btn.get_filename());
+    fs::path pth = GetFilename(v_btn);
     if( pth.empty() )
         return;
     std::string folder = pth.branch_path().string();

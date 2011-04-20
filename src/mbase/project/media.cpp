@@ -27,8 +27,6 @@
 #include <mlib/filesystem.h> // MakeAbsolutePath()
 #include <mlib/gettext.h>
 
-#include <boost/filesystem/convenience.hpp> // fs::create_directories()
-
 namespace Project
 {
 

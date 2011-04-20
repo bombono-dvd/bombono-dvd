@@ -44,7 +44,6 @@
 #include <mlib/sigc.h>
 
 #include <boost/lexical_cast.hpp>
-#include <boost/filesystem/convenience.hpp> // fs::create_directories()
 
 std::string PreferencesPath(const char* fname)
 {

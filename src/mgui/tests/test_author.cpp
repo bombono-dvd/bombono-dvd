@@ -27,8 +27,6 @@
 #include <mgui/init.h>
 #include <mgui/author/script.h>
 
-#include <boost/filesystem/convenience.hpp> // fs::create_directories()
-
 namespace Project 
 {
 

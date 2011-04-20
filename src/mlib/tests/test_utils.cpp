@@ -103,6 +103,20 @@ BOOST_AUTO_TEST_CASE( TestDisplayParams )
     CheckConvert(dp, af221_100);
 }
 
+static std::string MakeRootComplete(const char* str)
+{
+#ifdef _WIN32
+    return std::string("c:") + str;
+#else
+    return str;
+#endif
+}
+
+#ifdef NDEBUG
+// не включаем при отладке чтобы каждый раз на подобных тестах не останавливаться
+#define NO_SKIP_THROW_TEST
+#endif
+
 BOOST_AUTO_TEST_CASE( TestFilesystem )
 {
     // файлы в utf-8
@@ -116,6 +130,9 @@ BOOST_AUTO_TEST_CASE( TestFilesystem )
         fs::path author_path(path);
         std::string base = get_basename(author_path);
         BOOST_CHECK_EQUAL(str, base);
+
+        fs::path cyr_fname(GetTestFileName("абвгд.txt"));
+        BOOST_CHECK( fs::exists(cyr_fname) );
     }
 
     // is_complete
@@ -127,34 +144,33 @@ BOOST_AUTO_TEST_CASE( TestFilesystem )
         fs::path apth = Project::MakeAbsolutePath(pth);
         //LOG_INF << "Making abs path: " << pth.string() << " => " << apth.string() << io::endl;
 
-        BOOST_CHECK( Project::MakeAbsolutePath(pth, "/").is_complete() );
+        BOOST_CHECK( Project::MakeAbsolutePath(pth, MakeRootComplete("/")).is_complete() );
         BOOST_CHECK( !Project::MakeAbsolutePath(pth, "./").is_complete() );
     }
 
     // MakeRelativeToDir
     {
-        fs::path dir("/a/b/c/d/e/f");
-        fs::path pth("/a/b/c/r/s/t/u");
+        fs::path dir(MakeRootComplete("/a/b/c/d/e/f"));
+        fs::path pth(MakeRootComplete("/a/b/c/r/s/t/u"));
         fs::path res("../../../r/s/t/u");
         BOOST_CHECK( Project::MakeRelativeToDir(pth, dir) );
         BOOST_CHECK_MESSAGE( pth == res, pth.string() << " != " << res.string() );
 
-        dir  = "/";
-        pth = "/usr";
+        dir = MakeRootComplete("/");
+        pth = MakeRootComplete("/usr");
         BOOST_CHECK( Project::MakeRelativeToDir(pth, dir) && (pth == fs::path("usr")) );
 
-        dir  = "/usr/lib/ttt";
-        pth = "/usr";
+        dir = MakeRootComplete("/usr/lib/ttt");
+        pth = MakeRootComplete("/usr");
         BOOST_CHECK( Project::MakeRelativeToDir(pth, dir) && (pth == fs::path("../..")) );
 
-        dir  = "/usr/ff/../yyy";
-        pth = "/ttt";
+        dir = MakeRootComplete("/usr/ff/../yyy");
+        pth = MakeRootComplete("/ttt");
         BOOST_CHECK( Project::MakeRelativeToDir(pth, dir) && (pth == fs::path("../../ttt")) );
     }
      
     //BOOST_CHECK( !fs::exists("/root/.config") );
-#ifdef NDEBUG
-    // не включаем при отладке чтобы каждый раз здесь не останавливаться
+#if !defined(_WIN32) && defined(NO_SKIP_THROW_TEST)
     // на hardy почему-то /root доступен на чтение,- ослабляем условие до возможности
     // бросить только fs::filesystem_error
     //BOOST_CHECK_THROW( fs::exists("/root/.config"), fs::filesystem_error );
@@ -185,7 +201,9 @@ BOOST_AUTO_TEST_CASE( TestStrGetType )
     int i = 0;
     BOOST_CHECK( Str::GetType(i, "5") );
     BOOST_CHECK_EQUAL( i, 5 );
+#ifdef NO_SKIP_THROW_TEST
     BOOST_CHECK( !Str::GetType(i, "no4") );
+#endif 
 
     long long l = 0;
     BOOST_CHECK( Str::GetType(l, "123456789000") );

@@ -418,7 +418,7 @@ bool CheckKeepOrigin(const std::string& fname)
     bool res = false;
     if( fs::exists(fname) && 
         (Gtk::RESPONSE_OK != MessageBox(BF_("A file named \"%1%\" already exists. Do you want to replace it?")
-                                        % fs::path(fname).leaf() % bf::stop,
+                                        % fs::name_str(fname) % bf::stop,
                                         Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL, 
                                         _("Replacing the file overwrite its contents."),
                                         true)) )

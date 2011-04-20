@@ -19,11 +19,13 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // 
 
-#include <stdio.h>
-#include <errno.h>
-
 #include "stream.h"
 #include "sdk/stream_util.h" // msys::tell
+#include "tech.h"
+#include "string.h" // Utf8ToUcs16()
+
+#include <stdio.h>
+#include <errno.h>
 
 namespace msys {
 
@@ -90,7 +92,11 @@ bool stdio_sync_filebuf<char>::open(const char* path_str, std::ios_base::openmod
     const char* c_mode = impl::fopen_mode(mode);
     if( c_mode && !is_open() )
     {
+#ifdef _WIN32
+        FILE_type* pfile = _wfopen(Utf8ToUcs16(path_str).c_str(), Utf8ToUcs16(c_mode).c_str());
+#else
         FILE_type* pfile = fopen(path_str, c_mode);
+#endif
         if( pfile )
         {
             _M_file = pfile;

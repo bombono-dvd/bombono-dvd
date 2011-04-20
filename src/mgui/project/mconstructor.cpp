@@ -961,7 +961,7 @@ void RunConstructor(const std::string& prj_file_name, bool ask_save_on_exit)
         static const fs::directory_iterator end_itr;
         for( fs::directory_iterator itr(DataDirPath("bmd-icons"));
             itr != end_itr; ++itr )
-            pix_lst.push_back(Gdk::Pixbuf::create_from_file(itr->string()));
+            pix_lst.push_back(Gdk::Pixbuf::create_from_file(itr->path().string()));
         Gtk::Window::set_default_icon_list(pix_lst);
     
         ActionFunctor after_fnr = BuildConstructor(app, prj_file_name);

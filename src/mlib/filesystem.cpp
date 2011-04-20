@@ -23,6 +23,11 @@
 #include "tech.h"
 #include "format.h"
 
+// :TRICKY: со временем может измениться (в бусте), но создавать
+// свою хлопотнее пока, см. boost/detail/utf8_codecvt_facet.hpp
+#include <boost/filesystem/detail/utf8_codecvt_facet.hpp>
+#include <boost/filesystem/v3/path_traits.hpp> // boost::filesystem3::convert()
+
 #include <string.h> // strstr()
 
 namespace boost { namespace filesystem {
@@ -38,12 +43,47 @@ std::string operator / (const path& f, to_string_enum /*to_str*/)
     return f.string();
 }
 
+#ifdef BFS_VERSION_3
+
+std::string name_str(const path& pth)
+{
+    return pth.filename().string();
+}
+
+#else
+
+std::string name_str(const path& pth)
+{
+    return pth.leaf();
+}
+
+#endif // BFS_VERSION_3
+
+std::string name_str(const std::string& pth)
+{
+    return name_str(path(pth));
+}
+
 } } // namepspace filesystem, boost
 
 const char* FindExtDot(const char* name)
 {
     return strrchr(name, '.');
 }
+
+#ifdef BFS_VERSION_3
+
+std::string get_basename(const fs::path& pth)
+{
+    return pth.stem().string();
+}
+
+std::string get_extension(const fs::path& pth)
+{
+    return pth.extension().string();
+}
+
+#else
 
 std::string get_basename(const fs::path& pth)
 {
@@ -65,16 +105,38 @@ std::string get_extension(const fs::path& pth)
     return std::string();
 }
 
-// глобальная установка проверки имен файлов
+#endif // BFS_VERSION_3
+
 class tune_boost_filesystem
 {
     public:
     tune_boost_filesystem()
     {
-        // чтоб любые символы в именах файлов позволялись, для utf8
-        fs::path::default_name_check(fs::native);
+        // B.FS: отказались от проверок в ver>=2
+        //// глобальная установка проверки имен файлов
+        //// чтоб любые символы в именах файлов позволялись, для utf8
+        //fs::path::default_name_check(fs::native);
+
+#if defined(_WIN32) && defined(BFS_VERSION_3)
+        // внутри используем utf-8 => меняем конвертор
+        std::locale utf8_loc(std::locale(), new fs::detail::utf8_codecvt_facet);
+        fs::path::imbue(utf8_loc);
+#endif
     }
 } tune_boost_filesystem_obj;
+
+std::wstring Utf8ToUcs16(const char* utf8_str)
+{
+    std::wstring res;
+#ifdef _WIN32
+    // можно напрямую использовать utf8_codecvt_facet, но так проще
+    // (будет работать при fs::path::imbue(utf8_loc);)
+    boost::filesystem3::path_traits::convert(utf8_str, 0, res, fs::path::codecvt());
+#else
+    ASSERT(0);
+#endif
+    return res;
+}
 
 namespace Project
 {

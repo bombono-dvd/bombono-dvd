@@ -370,7 +370,7 @@ static std::string SrcFilename(VideoItem vi)
 static std::string PrefixCnvPath(VideoItem vi, const std::string& out_dir)
 {
     std::string dst_fname = boost::format("%1%.%2%") % GetAuthorNumber(vi) 
-        % fs::path(SrcFilename(vi)).leaf() % bf::stop;
+        % fs::name_str(SrcFilename(vi)) % bf::stop;
     return AppendPath(out_dir, dst_fname);
 }
 

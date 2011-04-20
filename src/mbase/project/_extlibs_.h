@@ -58,9 +58,7 @@
 // Boost
 //
 #include <boost/function.hpp>
-
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
+#include <mlib/sdk/bfs.h>
 
 //#include <boost/lexical_cast.hpp>
 

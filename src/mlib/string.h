@@ -89,5 +89,7 @@ bool Fnmatch(const std::string& str, const std::string& glob_pat);
 
 std::string QuotedName(const std::string& str);
 
+std::wstring Utf8ToUcs16(const char* utf8_str);
+
 #endif // __MLIB_STRING_H__
 

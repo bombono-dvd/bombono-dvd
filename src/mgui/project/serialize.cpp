@@ -71,7 +71,7 @@ static std::string MakeProjectTitle(bool with_path_breakdown = false)
         return "untitled.bmd";
 
     fs::path full_path(db.GetProjectFName());
-    std::string res_str = full_path.leaf();
+    std::string res_str = fs::name_str(full_path);
     if( with_path_breakdown )
         res_str += " (" + full_path.branch_path().string() + ")";
     return res_str;

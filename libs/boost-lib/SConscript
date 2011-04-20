@@ -58,19 +58,19 @@ bfs_source_files = make_source_files(bfs_src,
     #'operations_posix_windows.cpp',
     #'path_posix_windows.cpp'
 
-    'v2/src/v2_operations.cpp',
-    'v2/src/v2_path.cpp',
-    'v2/src/v2_portability.cpp',
+    #'v2/src/v2_operations.cpp',
+    #'v2/src/v2_path.cpp',
+    #'v2/src/v2_portability.cpp',
 
-    # turn off B.F v3 because it is not mature (awkward warnings)
-    #'v3/src/operations.cpp', 
-    #'v3/src/path.cpp',
-    #'v3/src/portability.cpp',
-    #'v3/src/utf8_codecvt_facet.cpp',
-    #'v3/src/codecvt_error_category.cpp',
-    #'v3/src/path_traits.cpp',
-    #'v3/src/unique_path.cpp',
-    #'v3/src/windows_file_codecvt.cpp'
+    # v3 is needed because of better arch for win32
+    'v3/src/operations.cpp', 
+    'v3/src/path.cpp',
+    'v3/src/portability.cpp',
+    'v3/src/utf8_codecvt_facet.cpp',
+    'v3/src/codecvt_error_category.cpp',
+    'v3/src/path_traits.cpp',
+    'v3/src/unique_path.cpp',
+    'v3/src/windows_file_codecvt.cpp'
 ]) 
 # libboost_filesystem.a
 bfs_env.Library( target = lib_dir+'/boost_filesystem', source = bfs_source_files )

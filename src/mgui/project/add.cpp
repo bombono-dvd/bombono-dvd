@@ -420,7 +420,7 @@ void TryAddMediaQuiet(const std::string& fname, const std::string& desc)
 static std::string StandFNameOut(const fs::path& pth)
 {
     return "<span style=\"italic\" underline=\"low\">" + 
-                    pth.leaf() + "</span>";
+        fs::name_str(pth) + "</span>";
 }
 
 #if GTK_CHECK_VERSION(2,18,0)
@@ -454,7 +454,7 @@ StorageItem CheckExists(const fs::path& pth, RefPtr<MediaStore> ms)
 
 void OneMediaError(const fs::path& err_pth, const std::string& desc)
 {
-    AddMediaError(BF_("Can't add file \"%1%\".") % err_pth.leaf() % bf::stop, desc);
+    AddMediaError(BF_("Can't add file \"%1%\".") % fs::name_str(err_pth) % bf::stop, desc);
 }
 
 void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
@@ -465,7 +465,7 @@ void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
     {
         const std::string fname = paths[0];
         fs::path pth(fname); 
-        std::string leaf = pth.leaf();
+        std::string leaf = fs::name_str(pth);
         {
             static re::pattern dvd_video_vob("(VIDEO_TS|VTS_[0-9][0-9]_[0-9]).VOB", 
                                               re::pattern::perl|re::pattern::icase);
