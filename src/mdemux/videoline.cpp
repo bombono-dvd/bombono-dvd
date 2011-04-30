@@ -838,6 +838,7 @@ void VideoLine::TagData(Decoder&, VideoTag tag)
         {
             framLst.Setup( prsCont.dcr.seqInf );
 
+#ifdef CONFIG_GPL
             io::stream& strm = prsCont.dmx.ObjStrm();
             MpegDecodec& m2d = prsCont.m2d;
 
@@ -848,6 +849,7 @@ void VideoLine::TagData(Decoder&, VideoTag tag)
                  (it != end) && !m2d.IsInit(); ++it )
                 m2d.ReadForInit(*it, strm);
             ASSERT( m2d.IsInit() );
+#endif // CONFIG_GPL
         }
         break;
     case vtERROR:

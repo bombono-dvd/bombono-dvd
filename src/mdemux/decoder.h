@@ -23,6 +23,12 @@
 #define __MDEMUX_DECODER_H__
 
 #include <mlib/tech.h>
+
+#include <mlib/stream.h>
+#include "demuxconst.h"
+
+#ifdef CONFIG_GPL
+
 ////////////////////////////////////////////////
 // Включение libmpeg
 // 
@@ -35,9 +41,13 @@ C_LINKAGE_BEGIN
 C_LINKAGE_END
 ////////////////////////////////////////////////
 
-#include <mlib/stream.h>
-#include "demuxconst.h"
+typedef struct mpeg2dec_s mpeg2dec_t;
 
+#else
+
+typedef void mpeg2dec_t;
+
+#endif // !CONFIG_GPL
 
 namespace Mpeg {
 
@@ -52,7 +62,6 @@ struct Chunk
 struct FrameData;
 }
 
-typedef struct mpeg2dec_s mpeg2dec_t;
 
 enum FrameDecType
 {
@@ -77,7 +86,6 @@ class MpegDecodec
                         MpegDecodec();
                        ~MpegDecodec();
         
-            mpeg2dec_t* Mpeg2Dec() { return mpeg2Dec; }
                         // сама картинка - 3 массива - Y, Cb, Cr
             PlanesType  Planes();
 

@@ -25,24 +25,34 @@
 #include "decoder.h"
 #include "videoline.h"
 
+#ifdef CONFIG_GPL
+
 C_LINKAGE_BEGIN
 #include <../libs/mpeg2dec/include/config.h>
 #include <../libs/mpeg2dec/include/attributes.h>
 #include <../libs/mpeg2dec/libmpeg2/mpeg2_internal.h>
 C_LINKAGE_END
 
+#endif // CONFIG_GPL
+
 
 MpegDecodec::MpegDecodec(): mpeg2Dec(0), fofTyp(fofYCBCR)
 {
+#ifdef CONFIG_GPL
     mpeg2Dec = mpeg2_init();
     if( !mpeg2Dec )
         Error("Could not allocate a decoder object.\n");
+#endif
 }
 
 MpegDecodec::~MpegDecodec()
 {
+#ifdef CONFIG_GPL
     mpeg2_close(mpeg2Dec);
+#endif
 }
+
+#ifdef CONFIG_GPL
 
 MpegDecodec::PlanesType MpegDecodec::Planes()
 {
@@ -225,3 +235,38 @@ MpegDecodec::PlanesType MpegDecodec::FrameData(FrameDecType fdt) const
     return dat;
 }
 
+#else
+
+void MpegDecodec::SetOutputFormat(FrameOutputFrmt)
+{
+    ASSERT_RTL(0);
+}
+
+bool MpegDecodec::IsInit()
+{
+    ASSERT_RTL(0);
+    return true;
+}
+
+void MpegDecodec::Init(bool)
+{
+    ASSERT_RTL(0);
+}
+
+void MpegDecodec::ReadForInit(const Mpeg::Chunk&, io::stream&)
+{
+    ASSERT_RTL(0);
+}
+
+void MpegDecodec::ReadFrame(const Mpeg::FrameData&, io::stream&)
+{
+    ASSERT_RTL(0);
+}
+
+MpegDecodec::PlanesType MpegDecodec::FrameData(FrameDecType) const
+{
+    ASSERT_RTL(0);
+    return 0;
+}
+
+#endif // !CONFIG_GPL

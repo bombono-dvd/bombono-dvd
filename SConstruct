@@ -26,6 +26,9 @@ RequiredLibs = ['glibmm-2.4', 'libxml++-2.6', 'gtkmm-2.4']
 FFmpegLibs   = ['libavformat', 'libavcodec', 'libswscale', 'libavutil']
 RequiredLibs += FFmpegLibs
 
+# :TODO: convert to config.opts option
+ConfigGPL = False
+
 # define path to libs
 def SetLibraries(config, user_options_dict):
     for lib in RequiredLibs:
@@ -435,9 +438,10 @@ Export('mlib_tests_env')
 user_options_dict['DVDREAD_DICT']['LIBS'] = ['dvdread']
 ffmpeg_dcts = [GetDict(pkg) for pkg in FFmpegLibs]
 def AddMovieDicts(env):
-    env.AppendUnique(**user_options_dict['LIBMPEG2_DICT'])
     env.AppendUnique(**user_options_dict['DVDREAD_DICT'])
-    
+    if ConfigGPL:
+        env.AppendUnique(**user_options_dict['LIBMPEG2_DICT'])
+
     for dct in ffmpeg_dcts:
         env.AppendUnique(**dct)
 # 

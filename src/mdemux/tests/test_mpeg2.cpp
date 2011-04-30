@@ -611,6 +611,9 @@ void ShowImage(Mpeg::Player& plyr)
     ShowFile(fname);
 }
 
+// Mpeg::Player без libmpeg2 нет
+#ifdef CONFIG_GPL
+
 void PlayerViewTestImpl(const char* fname)
 {
     Mpeg::FwdPlayer plyr;
@@ -724,3 +727,4 @@ BOOST_AUTO_TEST_CASE( PlayerOpenClose )
     BOOST_CHECK( !plyr.IsOpened() );
 }
 
+#endif // CONFIG_GPL
