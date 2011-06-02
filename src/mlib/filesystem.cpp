@@ -80,7 +80,17 @@ std::string get_basename(const fs::path& pth)
 
 std::string get_extension(const fs::path& pth)
 {
-    return pth.extension().string();
+    // path("/foo/bar.txt").extension() => ".txt"
+    // path("foo.bar.baz.tar").extension() => ".tar"
+    // а нам нужно без точки
+    std::string ext = pth.extension().string();
+    if( !ext.empty() )
+    {
+        const char* ext_c = ext.c_str();
+        ASSERT_RTL( ext_c[0] == '.' );
+        std::string(ext_c + 1).swap(ext);
+    }
+    return ext;
 }
 
 #else
