@@ -325,17 +325,25 @@ StorageItem CreateMedia(const char* fname, std::string& err_string)
 
     // Сейчас открытие с помощью CanOpenAsFFmpegVideo()/FFData считаем 
     // эталоном в плане принятия материалов; в частности:
-    // - ошибка возвращается с темы, если не смогли открыть как изображение
+    // - ошибка возвращается с темы, если не смогли открыть как видео
     // - тема не должна открывать аудио или картинки, чтоб был правильный тип
     // Вроде как GdkPixbuf умел открывать видео (его первый кадр) и ради этого
     // был поставлен доп. заслон в виде must_be_video (сейчас не повторяется на
     // mpeg/m2v/..); если повторится, то улучшаем проверку (проверяем по кодеку 
     // у FFmpeg,- для картинок он "image2" не должен быть)
-    Point sz;
-    if( CanOpenAsFFmpegVideo(fname, err_string) )
+    FFInfo ffi;
+    FFDiagnosis ff_diag;
+    if( OpenInfo(ffi, fname, ff_diag) )
         md = new VideoMD;
-    else if( GetPicDimensions(fname, sz) )
-        md = new StillImageMD;
+    else
+    {
+        bool must_be_video = ff_diag.isElemStream; // всякие .m2v
+        err_string = ff_diag.errStr;
+
+        Point sz;
+        if( !must_be_video && GetPicDimensions(fname, sz) )
+            md = new StillImageMD;
+    }
 
     if( md )
         md->MakeByPath(fname);

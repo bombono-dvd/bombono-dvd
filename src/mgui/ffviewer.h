@@ -78,8 +78,6 @@ struct FFInfo: public FFData
     ~FFInfo();
 };
 
-bool CanOpenAsFFmpegVideo(const char* fname, std::string& err_str);
-
 struct FFViewer: public FFData
 {
                      // время текущего кадра
@@ -104,6 +102,18 @@ AVCodecContext* GetVideoCtx(FFData& ffv);
 
 // однострочная настройка
 std::string PrefContents(const char* fname);
+
+
+// в дополнение к отрицательному значению OpenInfo()
+struct FFDiagnosis
+{
+    std::string  errStr;
+           bool  isElemStream; // элементарный видеопоток
+
+    FFDiagnosis(): isElemStream(false) {}
+};
+
+bool OpenInfo(FFData& ffi, const char* fname, FFDiagnosis& diag);
 
 #endif // #ifndef __MGUI_FFVIEWER_H__
 

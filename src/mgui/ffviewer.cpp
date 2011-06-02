@@ -296,8 +296,26 @@ static bool SetIndex(int& idx, int i, bool b)
     return res;
 }
 
-bool OpenInfo(FFData& ffi, const char* fname, std::string& err_str)
+static std::string CodecID2Str(CodecID codec_id)
 {
+#ifdef _MSC_VER
+    std::string tag_str = boost::format("%1%") % codec_id % bf::stop;
+#else // _MSC_VER
+    uint tag = FFCodecID2Tag(codec_id);
+    std::string tag_str = boost::format("0x%1$04x") % tag % bf::stop;
+    unsigned char c0 = GetChar(tag, 0), c8 = GetChar(tag, 8), 
+        c16 = GetChar(tag, 16), c24 = GetChar(tag, 24);
+    if( isprint(c0) && isprint(c8) && isprint(c16) && isprint(c24) )
+        tag_str = boost::format("%1%%2%%3%%4% / %5%") 
+            % c0 % c8 % c16 % c24 % tag_str % bf::stop;
+#endif // !_MSC_VER
+    return tag_str;
+}
+
+bool OpenInfo(FFData& ffi, const char* fname, FFDiagnosis& diag)
+{
+    std::string& err_str = diag.errStr;
+
     av_register_all();
 
     ASSERT( !ffi.IsOpened() );
@@ -394,6 +412,7 @@ bool OpenInfo(FFData& ffi, const char* fname, std::string& err_str)
             // в 99% отсутствие нач. времени - элементарный поток = без контейнера;
             // см. особенности ffmpeg, update_initial_timestamps()
             err_str = _("Start time of the file is unknown");
+            diag.isElemStream = true;
             return false;
         }
 
@@ -413,14 +432,7 @@ bool OpenInfo(FFData& ffi, const char* fname, std::string& err_str)
         //dec->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
         //dec->error_recognition = FF_ER_CAREFUL;
     
-        uint tag = FFCodecID2Tag(dec->codec_id);
-        std::string tag_str = boost::format("0x%1$04x") % tag % bf::stop;
-        unsigned char c0 = GetChar(tag, 0), c8 = GetChar(tag, 8), 
-            c16 = GetChar(tag, 16), c24 = GetChar(tag, 24);
-        if( isprint(c0) && isprint(c8) && isprint(c16) && isprint(c24) )
-            tag_str = boost::format("%1%%2%%3%%4% / %5%") 
-                % c0 % c8 % c16 % c24 % tag_str % bf::stop;
-                            
+        std::string tag_str = CodecID2Str(dec->codec_id);
         // AVCodec - это одиночка, а AVCodecContext - состояние для него
         // в соответ. потоке контейнера 
         AVCodec* codec = avcodec_find_decoder(dec->codec_id);
@@ -454,6 +466,15 @@ bool OpenInfo(FFData& ffi, const char* fname, std::string& err_str)
     return res;
 }
 
+bool OpenInfo(FFData& ffi, const char* fname, std::string& err_str)
+{
+    FFDiagnosis diag;
+    bool res = OpenInfo(ffi, fname, diag);
+
+    err_str.swap(diag.errStr);
+    return res;
+}
+
 FFInfo::FFInfo() {}
 
 FFInfo::FFInfo(const std::string& fname)
@@ -466,12 +487,6 @@ FFInfo::FFInfo(const std::string& fname)
 FFInfo::~FFInfo()
 {
     CloseInfo(*this);
-}
-
-bool CanOpenAsFFmpegVideo(const char* fname, std::string& err_str)
-{
-    FFInfo ffi;
-    return OpenInfo(ffi, fname, err_str);
 }
 
 bool FFViewer::Open(const char* fname, std::string& err_str)
