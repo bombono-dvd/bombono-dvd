@@ -230,6 +230,32 @@ void FrameList::Init()
     flStt = &RawFL::Instance();
 }
 
+void FrameList::Setup( SequenceData& seq )
+{
+    // смена последовательности - плохой признак
+    if( IsInit() )
+    {
+        // DVBcut_seq_change.mpg - смена с прогрессивной на чересстрочную (DVBcut разрешает
+        // соединять подобное без перекодирования, что само по себе нехорошо);
+        // TMPG Author принял молча, без возражений => выдаем только предупреждение
+
+        // :TODO: размеры, sar и частота кадров - слишком чувствительны для смены =>
+        // (запрещать в VideoLine::TagData(), собственно пред. prevSeq хранить в Decoder)
+        LOG_WRN << "Sequence change: (wdh, hgt) = " << Point(seq.wdh, seq.hgt) 
+            << "; sample aspect ratio = " << seq.sarCode 
+            << "; frame rate = " << seq.framRat 
+            << "; vbvBufSz = " << seq.vbvBufSz 
+            << "; profile = " << seq.plId
+            << "; is progressive = " << seq.isProgr
+            << "; chroma format = " << seq.chromaFrmt
+            << "; lowDelay = " << seq.lowDelay
+            << io::endl;
+    }
+
+    if( seq.IsInit() )
+        timeShift = seq.framRat.y/(double)seq.framRat.x;
+}
+
 void FrameList::Bind(Itr* it)
 {
     it->itrPos = iterLst.insert(iterLst.end(), it);

@@ -248,13 +248,7 @@ class FrameList: protected FrameListCont,
 
                        void  Init();
                        bool  IsInit() { return timeShift != 0.; }
-                       void  Setup( SequenceData& seq )
-                             {
-                                 // даем только один раз инициализировать последовательность
-                                 ASSERT( !IsInit() );
-                                 if( seq.IsInit() )
-                                     timeShift = seq.framRat.y/(double)seq.framRat.x;
-                             }
+                       void  Setup( SequenceData& seq );
 
                              // после добавления кадров следует обновить индекс и время новых кадров
                              // time_shift - время между двумя кадрами (из частоты кадров)
