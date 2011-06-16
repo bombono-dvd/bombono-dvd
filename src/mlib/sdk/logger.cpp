@@ -45,47 +45,47 @@ void InitLogFunc()
     //AppLogger->writer().add_formatter( formatter::append_newline_if_needed() );
 
     // 2 - установка фильтра и выводов
-    if( char* log_val = getenv("ATOM_LOG") )
+    const char* log_val = getenv("ATOM_LOG");
+    if( !log_val )
+        log_val = "Warn";
+    std::stringstream strm(log_val);
+
+    std::string str_val;
+    strm >> str_val;
+
+    Log::LogLevel lvl = Log::Off;
+    if( strcasecmp(str_val.c_str(), "Debug2") == 0 )
+        lvl = Log::Debug2;
+    else if( strcasecmp(str_val.c_str(), "Debug") == 0 )
+        lvl = Log::Debug;
+    else if( strcasecmp(str_val.c_str(), "Info") == 0 )
+        lvl = Log::Info;
+    else if( strcasecmp(str_val.c_str(), "Warn") == 0 )
+        lvl = Log::Warn;
+    else if( strcasecmp(str_val.c_str(), "Error") == 0 )
+        lvl = Log::Error;
+    else if( strcasecmp(str_val.c_str(), "Fatal") == 0 )
+        lvl = Log::Fatal;
+    else
+        std::cerr << "Bad ATOM_LOG environment variable!" << std::endl;
+    LogFilter->SetLevel(lvl);
+
+    bool set_cerr = lvl != Log::Off;
+    while( strm >> str_val )
     {
-        std::stringstream strm(log_val);
-
-        std::string str_val;
-        strm >> str_val;
-
-        Log::LogLevel lvl = Log::Off;
-        if( strcasecmp(str_val.c_str(), "Debug2") == 0 )
-            lvl = Log::Debug2;
-        else if( strcasecmp(str_val.c_str(), "Debug") == 0 )
-            lvl = Log::Debug;
-        else if( strcasecmp(str_val.c_str(), "Info") == 0 )
-            lvl = Log::Info;
-        else if( strcasecmp(str_val.c_str(), "Warn") == 0 )
-            lvl = Log::Warn;
-        else if( strcasecmp(str_val.c_str(), "Error") == 0 )
-            lvl = Log::Error;
-        else if( strcasecmp(str_val.c_str(), "Fatal") == 0 )
-            lvl = Log::Fatal;
-        else
-            std::cerr << "Bad ATOM_LOG environment variable!" << std::endl;
-        LogFilter->SetLevel(lvl);
-
-        bool set_cerr = lvl != Log::Off;
-        while( strm >> str_val )
-        {
-            set_cerr = false;
-            if( strcasecmp(str_val.c_str(), "cout") == 0 )
-                AppLogger->writer().add_destination( destination::cout() );
-            else if( strcasecmp(str_val.c_str(), "cerr") == 0 )
-                AppLogger->writer().add_destination( CerrDest() );
-            else
-                AppLogger->writer().add_destination( 
-                    destination::file(str_val, destination::
-                                      file_settings().initial_overwrite(true).do_append(false)) );
-        }
-        // по умолчанию пишем в cerr
-        if( set_cerr )
+        set_cerr = false;
+        if( strcasecmp(str_val.c_str(), "cout") == 0 )
+            AppLogger->writer().add_destination( destination::cout() );
+        else if( strcasecmp(str_val.c_str(), "cerr") == 0 )
             AppLogger->writer().add_destination( CerrDest() );
+        else
+            AppLogger->writer().add_destination( 
+                destination::file(str_val, destination::
+                                  file_settings().initial_overwrite(true).do_append(false)) );
     }
+    // по умолчанию пишем в cerr
+    if( set_cerr )
+        AppLogger->writer().add_destination( CerrDest() );
 }
 
 namespace 
