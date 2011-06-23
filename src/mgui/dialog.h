@@ -53,6 +53,9 @@ inline void ErrorBox(const std::string& err_msg, const std::string& desc_str = s
 void AddCancelDoButtons(Gtk::Dialog& dialog, Gtk::BuiltinStockID do_id);
 inline void AddCancelSaveButtons(Gtk::Dialog& dialog)
 { AddCancelDoButtons(dialog, Gtk::Stock::SAVE); }
+inline void AddCancelOKButtons(Gtk::Dialog& dialog)
+{ AddCancelDoButtons(dialog, Gtk::Stock::OK); }
+
 void BuildChooserDialog(Gtk::FileChooserDialog& dialog, bool is_open, Gtk::Widget& for_wdg);
 
 std::string MakeMessageBoxTitle(const std::string& title);

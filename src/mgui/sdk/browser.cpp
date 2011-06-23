@@ -23,6 +23,7 @@
 
 #include <mlib/ptr.h> 
 #include <mgui/img_utils.h>
+#include <mgui/dialog.h>
 
 //#include "magick_pixbuf.h"
 #include "browser.h"
@@ -69,8 +70,7 @@ bool OpenMediaFile(std::string& fname, Gtk::Window& par_win)
     dialog.set_transient_for(par_win);
 
     // кнопки
-    dialog.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
-    dialog.add_button(Gtk::Stock::OPEN, Gtk::RESPONSE_OK);
+    AddCancelOKButtons(dialog);
 
     // картинки "png", "jpg", "jpeg", "bmp"
     Gtk::FileFilter filter_img;

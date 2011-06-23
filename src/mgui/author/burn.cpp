@@ -376,10 +376,8 @@ bool CheckDVDBlank()
                                         " We need to remove its contents before writing new one. Continue?") % inf.name % bf::stop;
                     Gtk::MessageDialog dlg(MakeMessageBoxTitle(title), true, Gtk::MESSAGE_INFO, Gtk::BUTTONS_NONE);
 
-                    dlg.add_button(_("_Cancel"),    Gtk::RESPONSE_CANCEL);
                     dlg.add_button(_("_Try again"), Gtk::RESPONSE_REJECT);
-                    dlg.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
-                    dlg.set_default_response(Gtk::RESPONSE_OK);
+                    AddCancelOKButtons(dlg);
 
                     Gtk::ResponseType resp = (Gtk::ResponseType)dlg.run();
                     switch( resp )

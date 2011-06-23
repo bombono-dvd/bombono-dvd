@@ -278,8 +278,15 @@ Gtk::Button* CreateButtonWithIcon(const char* label, const Gtk::BuiltinStockID& 
 
 void AddCancelDoButtons(Gtk::Dialog& dialog, Gtk::BuiltinStockID do_id)
 {
+    // в стандартных диалогах вроде Открыть/Сохранить порядок
+    // кнопок определяется настройкой gtk-alternative-button-order = [1|0]
+#ifdef _WIN32
+    dialog.add_button(do_id, Gtk::RESPONSE_OK);
+    dialog.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+#else
     dialog.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
     dialog.add_button(do_id, Gtk::RESPONSE_OK);
+#endif
     dialog.set_default_response(Gtk::RESPONSE_OK);
 }
 
@@ -490,7 +497,7 @@ void CompleteDialog(Gtk::Dialog& dlg, bool close_style)
     if( close_style )
         dlg.add_button(Gtk::Stock::CLOSE, Gtk::RESPONSE_CLOSE);
     else
-        AddCancelDoButtons(dlg, Gtk::Stock::OK);
+        AddCancelOKButtons(dlg);
     dlg.get_vbox()->show_all();
 }
 
