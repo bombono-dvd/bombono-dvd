@@ -28,6 +28,8 @@
 #include <mgui/sdk/window.h>
 #include <mgui/sdk/widget.h> // ForAllWidgets()
 #include <mgui/gettext.h>
+#include <mgui/timeline/mviewer.h> // FileFilterList
+#include <mgui/sdk/win32filesel.h> // CallWinFileDialog
 
 #include <mbase/project/table.h> // Project::ConvertPathToUtf8()
 #include <mbase/resources.h>
@@ -298,26 +300,68 @@ void BuildChooserDialog(Gtk::FileChooserDialog& dialog, bool is_open, Gtk::Widge
     AddCancelDoButtons(dialog, is_open ? Gtk::Stock::OPEN : Gtk::Stock::SAVE );
 }
 
+bool RunFileDialog(const char* title, bool open_file, Str::List& chosen_paths, 
+                   Gtk::Widget& for_wdg, const FileFilterList& pat_lst,
+                   bool multiple_choice, const FCDFunctor& fnr)
+{
+    bool res;
+#ifdef _WIN32
+    bool is_win32 = true;
+#else
+    bool is_win32 = false;
+#endif
+    if( is_win32 && !fnr )
+        // используем нативный диалог, по возможности
+        // :TODO: соответственно, кастомизировать диалоги пока невозможно
+        res = CallWinFileDialog(title, open_file, chosen_paths, &for_wdg, pat_lst, multiple_choice);
+    else
+    {
+        Gtk::FileChooserDialog dialog(title, open_file ? Gtk::FILE_CHOOSER_ACTION_OPEN : Gtk::FILE_CHOOSER_ACTION_SAVE);
+        if( chosen_paths.size() )
+            dialog.set_current_name(chosen_paths[0]);
+
+        BuildChooserDialog(dialog, open_file, for_wdg);
+
+        boost_foreach( const FileFilter& ff, pat_lst )
+        {
+            Gtk::FileFilter gff;
+            gff.set_name(ff.title);
+            boost_foreach( const std::string& glob_pat, ff.extPatLst )
+            {
+                //gff.add_pattern(ext);
+                AddGlobFilter(gff, glob_pat);
+            }
+
+            dialog.add_filter(gff);
+        }
+
+        if( fnr )
+            fnr(dialog);
+        dialog.set_select_multiple(multiple_choice);
+
+        std::string fname;
+        for( ; res = Gtk::RESPONSE_OK == dialog.run(), res; )
+        {
+            fname = dialog.get_filename();
+            if( !open_file && CheckKeepOrigin(fname) )
+                continue;
+
+            chosen_paths = GetFilenames(dialog);
+            break;
+        }
+    }
+
+    return res;
+}
+
 bool ChooseFileSaveTo(std::string& fname, const std::string& title, Gtk::Widget& for_wdg,
                       const FCDFunctor& fnr)
 {
-    Gtk::FileChooserDialog dialog(title, Gtk::FILE_CHOOSER_ACTION_SAVE);
-    BuildChooserDialog(dialog, false, for_wdg);
-
-    dialog.set_current_name(fname);
-    if( fnr )
-        fnr(dialog);
-
-    bool res;
-    for( ; res = Gtk::RESPONSE_OK == dialog.run(), res; )
-    {
-        fname = dialog.get_filename();
-        if( CheckKeepOrigin(fname) )
-            continue;
-
-        break;
-    }
-
+    Str::List paths;
+    paths.push_back(fname);
+    bool res = RunFileDialog(title.c_str(), false, paths, for_wdg, FileFilterList(), false, fnr);
+    if( res )
+        fname = paths[0];
     return res;
 }
 

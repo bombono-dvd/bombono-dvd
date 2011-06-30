@@ -549,20 +549,8 @@ void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
         GoToPos(brw, goto_path);
 }
 
-Str::List GetFilenames(Gtk::FileChooser& fc)
+void MediaBrowserAdd(MediaBrowser& brw, Str::List& paths)
 {
-    // я знаю, что это жутко неэффективно (2+1 копирования), но не актуально
-    typedef Glib::SListHandle<Glib::ustring> UList;
-    UList ulist = fc.get_filenames();
-
-    Str::List list;
-    std::copy(ulist.begin(), ulist.end(), std::back_inserter(list));
-    return list;
-}
-
-void MediaBrowserAdd(MediaBrowser& brw, Gtk::FileChooser& fc)
-{
-    Str::List paths(GetFilenames(fc));
     // * куда
     Gtk::TreePath brw_pth = GetCursor(brw);
     ValidateMediaInsertionPos(brw_pth);

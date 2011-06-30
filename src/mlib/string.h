@@ -84,6 +84,8 @@ std::string Double2Str(double val);
 std::string Int2Str(int val);
 
 bool ExtMatch(const char* display_name, const char* ext);
+std::string GlobToRegex(const char* str);
+bool Fnmatch(const std::string& str, const std::string& glob_pat);
 
 std::string QuotedName(const std::string& str);
 

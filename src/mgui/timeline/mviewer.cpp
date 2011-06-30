@@ -54,24 +54,42 @@ struct Bunch: public Singleton<Bunch>
 
 //////////////////////////////////////////////////////////////////
 
-static void OpenFile(Gtk::FileChooserWidget& fcw, OpenFileFnr fnr)
+template<class Cont1, class Cont2>
+void CopyContainer(Cont1& cont1, Cont2& cont2)
+{
+    std::copy(cont1.begin(), cont1.end(), std::back_inserter(cont2));
+}
+
+Str::List GetFilenames(Gtk::FileChooser& fc)
+{
+    // я знаю, что это жутко неэффективно (2+1 копирования), но не актуально
+    typedef Glib::SListHandle<Glib::ustring> UList;
+    UList ulist = fc.get_filenames();
+
+    Str::List list;
+    CopyContainer(ulist, list);
+    return list;
+}
+
+void OpenFile(Gtk::FileChooser& fc, OpenFileFnr fnr)
 {
     try
     {
-        Glib::ustring fname_ = fcw.get_filename();
+        Glib::ustring fname_ = fc.get_filename();
         const char*   fname  = fname_.c_str();
 
         if( fs::exists(fname) && fs::is_directory(fname) )
         {
             // просто откроем директорию, если выделена только она
-            if( fcw.get_filenames().size() == 1 )
+            if( fc.get_filenames().size() == 1 )
             {
-                fcw.set_current_folder(fname);
+                fc.set_current_folder(fname);
                 return;
             }
         }
 
-        fnr(fname, fcw);
+        Str::List paths(GetFilenames(fc));
+        fnr(fname, paths);
     }
     catch( const fs::filesystem_error& fe )
     {
@@ -135,9 +153,9 @@ static void HideBookMarks(GtkWidget* wdt)
     }
 }
 
-Gtk::Container& PackAlignedForBrowserTB(Gtk::Container& par_contr)
+Gtk::Container& PackAlignedForBrowserTB(Gtk::Container& par_contr, bool left_padding)
 {
-    return Add(par_contr, NewPaddingAlg(WDG_BORDER_WDH, WDG_BORDER_WDH, 0, 0));
+    return Add(par_contr, NewPaddingAlg(WDG_BORDER_WDH, WDG_BORDER_WDH, left_padding ? WDG_BORDER_WDH : 0, 0));
 }
 
 Gtk::HButtonBox& InsertButtonArea(Gtk::VBox& vbox, Gtk::ButtonBoxStyle style)
@@ -172,15 +190,15 @@ enum FCWFilterType
     fftALL
 };
 
-static bool ExtMatchFF(const Gtk::FileFilter::Info& inf, const char* ext)
+static bool OnGlobMatch(const Gtk::FileFilter::Info& inf, const std::string& pat)
 {
-    return ExtMatch(inf.display_name.c_str(), ext);
+    return Fnmatch(inf.display_name, pat);
 }
 
-static void AddExtensionFilter(Gtk::FileFilter& ff, const char* ext)
+void AddGlobFilter(Gtk::FileFilter& ff, const std::string& pat)
 {
     ff.add_custom(Gtk::FILE_FILTER_DISPLAY_NAME, 
-                  wrap_return<bool>(bb::bind(&ExtMatchFF, _1, ext)));
+                  wrap_return<bool>(bb::bind(&OnGlobMatch, _1, pat)));
 }
 
 // Список адаптирован из vlc_interface.h (плейер VLC)
@@ -199,14 +217,14 @@ static void AddVideoFilter(Gtk::FileFilter& ff)
 {
 #ifdef FFMPEG_IMPORT_POLICY
     boost_foreach( const char* ext, video_extensions )
-        AddExtensionFilter(ff, ext);
+        AddGlobFilter(ff, std::string("*.") + ext);
 #else
     ff.add_pattern("*.m2v");
     ff.add_pattern("*.mpeg");
     ff.add_pattern("*.mpg");
     //ff.add_pattern("*.vob");
     //ff.add_pattern("*.VOB");
-    AddExtensionFilter(ff, "vob");
+    AddGlobFilter(ff, "*.vob");
 #endif
 }
 
@@ -267,6 +285,16 @@ static void OnChangeFCWFilter(Gtk::ComboBoxText& combo, Gtk::FileChooserWidget& 
     SetFilter(fcw, typ);
 }
 
+std::string AudioForDVDTitle()
+{
+    return _("Audio for DVD") + std::string(" (*.mp2/mpa, *.ac3, *.dts, *.lpcm)");
+}
+
+std::string StillImagesTitle()
+{
+    return _("Still images") + std::string(" (*.png, *.jpg, *.jpeg, *.bmp)");
+}
+
 ActionFunctor PackFileChooserWidget(Gtk::Container& contr, OpenFileFnr fnr, bool is_mviewer)
 {
     Gtk::VBox& vbox = *Gtk::manage(new Gtk::VBox);
@@ -310,8 +338,8 @@ ActionFunctor PackFileChooserWidget(Gtk::Container& contr, OpenFileFnr fnr, bool
 #else
         combo.append_text(_("MPEG files") + std::string(" (*.mpeg, *.mpg, *.vob)"));
 #endif
-        combo.append_text(_("Audio for DVD") + std::string(" (*.mp2/mpa, *.ac3, *.dts, *.lpcm)"));
-        combo.append_text(_("Still images") + std::string(" (*.png, *.jpg, *.jpeg, *.bmp)"));
+        combo.append_text(AudioForDVDTitle());
+        combo.append_text(StillImagesTitle());
         combo.append_text(_("All files (*.*)"));
 
         // значение по умолчанию
@@ -324,6 +352,51 @@ ActionFunctor PackFileChooserWidget(Gtk::Container& contr, OpenFileFnr fnr, bool
     }
 
     return open_fnr;
+}
+
+FileFilter& AddFileFilter(FileFilterList& lst, const std::string& title)
+{
+    lst.push_back(title);
+    return lst.back();
+}
+
+FileFilter& AddFPs(FileFilter& ff, const char** lst)
+{
+    for( ; *lst; lst++ )
+        ff.extPatLst.push_back(*lst);
+    return ff;
+}
+
+void AddAllFF(FileFilterList& lst)
+{
+    AddFileFilter(lst, _("All files (*.*)")).extPatLst.push_back("*");
+}
+
+void FillFPLforMedias(FileFilterList& lst)
+{
+    FileFilter& all_ff = AddFileFilter(lst, _("All formats"));
+
+    FileFilter& vd_ff  = AddFileFilter(lst, _("Video files"));
+#ifdef FFMPEG_IMPORT_POLICY
+    boost_foreach( const char* ext, video_extensions )
+        vd_ff.extPatLst.push_back(std::string("*.") + ext);
+#else
+#error "Not implemented"
+#endif
+
+    FileFilter& afd_ff = AddFileFilter(lst, AudioForDVDTitle());
+    const char* afd_extensions[] = { "*.mp2", "*.mpa", "*.ac3", "*.dts", "*.lpcm", 0 };
+    AddFPs(afd_ff, afd_extensions);
+
+    FileFilter& pic_ff = AddFileFilter(lst, StillImagesTitle());
+    const char* pic_extensions[] = { "*.png", "*.jpg", "*.jpeg", "*.bmp", 0 };
+    AddFPs(pic_ff, pic_extensions);
+
+    CopyContainer(vd_ff.extPatLst, all_ff.extPatLst);
+    AddFPs(all_ff, afd_extensions);
+    AddFPs(all_ff, pic_extensions);
+
+    AddAllFF(lst);
 }
 
 static void OpenFileWithTrackLayout(TrackLayout& trk, const char* fnam)

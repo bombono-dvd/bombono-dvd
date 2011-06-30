@@ -37,6 +37,7 @@
 #include <mgui/key.h>
 #include <mgui/win_utils.h>
 #include <mgui/execution.h> // PipeOutput()
+#include <mgui/prefs.h>
 
 #include <mgui/editor/toolbar.h>
 
@@ -806,6 +807,16 @@ static void SetDefaultButtonOnEveryMap(Gtk::Button& btn)
     btn.signal_map().connect(bb::bind(&SetDefaultButton, boost::ref(btn)));
 }
 
+const char* AddFilesDialogTitle()
+{
+    return _("Add Media Files (Use Ctrl Button for Multiple Selection)");
+}
+
+const char* AddFilesTip()
+{
+    return !Prefs().showSrcFileBrowser ? AddFilesDialogTitle() : _("Add Media from File Browser") ;
+}
+
 void PackMediaBrowserAll(Gtk::Container& contr, MediaBrowser& brw, ActionFunctor add_media_fnr, 
                          ActionFunctor remove_media_fnr, ActionFunctor edit_media_fnr)
 {
@@ -819,8 +830,7 @@ void PackMediaBrowserAll(Gtk::Container& contr, MediaBrowser& brw, ActionFunctor
         Gtk::HButtonBox& hbox = CreateMListButtonBox();
         vbox->pack_start(hbox, Gtk::PACK_SHRINK);
         {
-            Gtk::Button* add_btn = CreateButtonWithIcon("", Gtk::Stock::ADD, 
-                                                        _("Add Media from File Browser"));
+            Gtk::Button* add_btn = CreateButtonWithIcon("", Gtk::Stock::ADD, AddFilesTip());
             hbox.pack_start(*add_btn);
             //bbox.pack_start(*add_btn);
             add_btn->signal_clicked().connect(add_media_fnr);

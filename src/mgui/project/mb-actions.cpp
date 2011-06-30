@@ -26,6 +26,7 @@
 
 #include "handler.h"
 #include "thumbnail.h"
+#include "mconstructor.h"
 
 #include <mgui/timeline/dvdmark.h>
 #include <mgui/timeline/mviewer.h>
@@ -323,26 +324,54 @@ void OnBrowserRowActivated(MediaBrowser& brw, MediaActionFnr fnr, const Gtk::Tre
     fnr(ms->GetMedia(itr), itr);
 }
 
+void DialogOpenMedias(OpenFileFnr fnr)
+{
+    FileFilterList pat_lst;
+    FillFPLforMedias(pat_lst);
+
+    Str::List paths;
+    if( RunFileDialog(Project::AddFilesDialogTitle(), true, paths,
+        Project::Application().win, pat_lst, true) )
+        fnr(paths.front().c_str(), paths);
+}
+
 void PackMBWindow(Gtk::HPaned& fcw_hpaned, Timeline::DAMonitor& mon, TrackLayout& layout, 
                   MediaBrowser& brw)
 {
-    ActionFunctor open_fnr = 
-        PackFileChooserWidget(fcw_hpaned, bb::bind(&MediaBrowserAdd, boost::ref(brw), _2), false);
+    OpenFileFnr open_fnr = bb::bind(&MediaBrowserAdd, boost::ref(brw), _2);
 
-    Gtk::HPaned& hpaned = *Gtk::manage(new Gtk::HPaned);
-    SetUpdatePos(hpaned, UnnamedPrefs().mdBrw1Wdh);
-    fcw_hpaned.add2(hpaned);
+    // постепенно отказываемся от браузера файлов в пользу открытия отдельного диалога,
+    // в том числе потому, что:
+    // - визуализация файлов - не наш профиль
+    // - GTK-шный диалог недоработан под Win32
+    ActionFunctor add_fnr;
+    Gtk::HPaned* hpaned = 0;
+    bool left_padding;
+    if( !Prefs().showSrcFileBrowser )
+    {
+        add_fnr = bb::bind(&DialogOpenMedias, open_fnr);
+        hpaned = &fcw_hpaned;
+        left_padding = true;
+    }
+    else
+    {
+        add_fnr = PackFileChooserWidget(fcw_hpaned, open_fnr, false);
+        hpaned = Gtk::manage(new Gtk::HPaned);
+        fcw_hpaned.add2(*hpaned);
+        left_padding = false;
+    }
+    SetUpdatePos(*hpaned, UnnamedPrefs().mdBrw1Wdh);
 
     // *
     MediaActionFnr view_fnr = bb::bind(&ViewMedia, boost::ref(layout), _1);
-    PackMediaBrowserAll(PackAlignedForBrowserTB(hpaned), brw, open_fnr, 
+    PackMediaBrowserAll(PackAlignedForBrowserTB(*hpaned, left_padding), brw, add_fnr, 
                         bb::bind(&DeleteMediaFromBrowser, boost::ref(brw)),
                         bb::bind(&ExecuteForMedia, boost::ref(brw), view_fnr));
     brw.signal_row_activated().connect( 
        bb::bind(&OnBrowserRowActivated, boost::ref(brw), view_fnr, _1) );
 
     // *
-    hpaned.add2(PackMonitorIn(mon));
+    hpaned->add2(PackMonitorIn(mon));
 }
 
 } // namespace Project

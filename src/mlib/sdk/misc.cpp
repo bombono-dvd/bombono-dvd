@@ -180,12 +180,46 @@ std::string Int2Str(int val)
     return (str::stream() << val).str();
 }
 
-bool ExtMatch(const char* display_name, const char* ext)
+static bool ICaseMatch(const std::string& str, const std::string& pat_str)
 {
     // :TODO: ради ускорения сделать словарь (map) образцов сравнения по мере
     // использования
-    re::pattern pat((std::string(".*\\.") + ext).c_str(), re::constants::icase);
-    return re::match(display_name, pat);
+    re::pattern pat(pat_str.c_str(), re::constants::icase);
+    return re::match(str, pat);
+}
+
+bool ExtMatch(const char* display_name, const char* ext)
+{
+    return ICaseMatch(display_name, std::string(".*\\.") + ext);
+}
+
+std::string GlobToRegex(const char* str)
+{
+    // :KLUDGE: только для символов ASCII 0-128
+    std::string res;
+    for( int i=0, len=strlen(str); i<len; i++ )
+    {
+        char c = str[i];
+        if( c == '*' )
+            res.append(".*");
+        else if( c == '?' )
+            res.append(".");
+        else if( c == '.' )
+            res.append("\\.");
+        else
+        {
+            // escape'им
+            if( !strchr("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890", c) )
+                res.append("\\");
+            res.push_back(c);
+        }
+    }
+    return res;
+}
+
+bool Fnmatch(const std::string& str, const std::string& glob_pat)
+{
+    return ICaseMatch(str, GlobToRegex(glob_pat.c_str()));
 }
 
 std::string QuotedName(const std::string& str)

@@ -25,6 +25,7 @@
 #include <mlib/regex.h>
 #include <mlib/stream.h>
 #include <mlib/tech.h>
+#include <mlib/string.h>
 
 BOOST_AUTO_TEST_CASE( TestFormat )
 {
@@ -129,4 +130,11 @@ BOOST_AUTO_TEST_CASE( TestExtMatch )
     BOOST_CHECK( ExtMatch("VTS_01_0.VOB", "vob") );
     BOOST_CHECK( !ExtMatch("VTS_01_0.VOB.mkv", "vob") );
     BOOST_CHECK(  ExtMatch("VTS_01_0.VOB.mkv", "mkv") );
+
+    BOOST_CHECK_EQUAL( GlobToRegex("*.bmd"), ".*\\.bmd" );
+    BOOST_CHECK_EQUAL( GlobToRegex("*.*"), ".*\\..*" );
+
+    BOOST_CHECK( Fnmatch("VTS_01_0.VOB", "*.vob") );
+    BOOST_CHECK( Fnmatch("VTS_01_0.VOB", "*.*") );
+    BOOST_CHECK( !Fnmatch("VTS_01_0.wob", "*.vob") );
 }

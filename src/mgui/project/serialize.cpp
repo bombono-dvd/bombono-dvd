@@ -35,6 +35,7 @@
 #include <mgui/prefs.h>
 #include <mgui/sdk/widget.h>
 #include <mgui/sdk/packing.h>
+#include <mgui/timeline/mviewer.h> // RunFileDialog
 
 #include <mbase/project/table.h>
 #include <mbase/resources.h>
@@ -256,31 +257,49 @@ static void OnNewProject(ConstructorApp& app)
 
 static void OnOpenProject(ConstructorApp& app)
 {
-    Gtk::FileChooserDialog dialog(_("Open Project"), Gtk::FILE_CHOOSER_ACTION_OPEN);
-    BuildChooserDialog(dialog, true, app.win);
+    //bool res = false;
+    //std::string fname;
+    //{
+    //    Gtk::FileChooserDialog dialog(_("Open Project"), Gtk::FILE_CHOOSER_ACTION_OPEN);
+    //    BuildChooserDialog(dialog, true, app.win);
 
-    Gtk::FileFilter prj_filter;
-    prj_filter.set_name(_("Project files (*.bmd)"));
-    prj_filter.add_pattern("*.bmd");
-    // старые проекты
-    prj_filter.add_pattern("*.xml");
-    dialog.add_filter(prj_filter);
+    //    Gtk::FileFilter prj_filter;
+    //    prj_filter.set_name(_("Project files (*.bmd)"));
+    //    prj_filter.add_pattern("*.bmd");
+    //    // старые проекты
+    //    prj_filter.add_pattern("*.xml");
+    //    dialog.add_filter(prj_filter);
 
-    Gtk::FileFilter all_filter;
-    all_filter.set_name(_("All Files (*.*)"));
-    all_filter.add_pattern("*");
-    dialog.add_filter(all_filter);
+    //    Gtk::FileFilter all_filter;
+    //    all_filter.set_name(_("All Files (*.*)"));
+    //    all_filter.add_pattern("*");
+    //    dialog.add_filter(all_filter);
 
-    if( Gtk::RESPONSE_OK == dialog.run() )
+
+    //    if( Gtk::RESPONSE_OK == dialog.run() )
+    //    {
+    //        //// в процессе загрузки не нужен
+    //        //dialog.hide();
+    //        //IteratePendingEvents();
+
+    //        res = true;
+    //        fname = dialog.get_filename();
+    //    }
+    //}
+
+    FileFilterList pat_lst;
+    FileFilter& bmd_ff = AddFileFilter(pat_lst, _("Project files (*.bmd)"));
+    const char* bmd_extensions[] = { "*.bmd", "*.xml", 0 };
+    AddFPs(bmd_ff, bmd_extensions);
+    AddAllFF(pat_lst);
+
+    Str::List paths;
+    if( RunFileDialog(_("Open Project"), true, paths, app.win, pat_lst) )
     {
-        // в процессе загрузки не нужен
-        dialog.hide();
-        IteratePendingEvents();
-
         NewProject();
         AData().SetOut(false);
 
-        LoadApp(dialog.get_filename());
+        LoadApp(paths[0]);
     }
 }
 

@@ -35,7 +35,7 @@ inline Gtk::Widget& PackMonitorIn(Timeline::DAMonitor& mon)
 }
 
 // для размещения браузера с выровненными верхом и низом
-Gtk::Container& PackAlignedForBrowserTB(Gtk::Container& par_contr);
+Gtk::Container& PackAlignedForBrowserTB(Gtk::Container& par_contr, bool left_padding = true);
 Gtk::HButtonBox& InsertButtonArea(Gtk::VBox& vbox, Gtk::ButtonBoxStyle style);
 
 #endif // __MGUI_TRACKWINDOW_H__

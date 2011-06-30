@@ -37,6 +37,7 @@ struct Preferences: public Singleton<Preferences>
              bool  isPAL;   // PAL vs NTSC
     PlayAuthoring  player;
       std::string  authorPath;
+             bool  showSrcFileBrowser; // добавление медиа по-старому
 
             Preferences() { Init(); }
 

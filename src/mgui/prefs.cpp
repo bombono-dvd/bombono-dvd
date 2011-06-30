@@ -59,7 +59,12 @@ void SavePrefs(Project::ArchieveFnr afnr, const char* fname, int version)
     doc.write_to_file_formatted(PreferencesPath(fname));
 }
 
-const int PREFS_VERSION = 2;
+const int PREFS_VERSION = 3;
+
+static bool CanSrl(Project::Archieve& ar, int load_ver, int req_ver)
+{
+    return ar.IsSave() || (load_ver >= req_ver);
+}
 
 void SerializePrefs(Project::Archieve& ar)
 {
@@ -71,8 +76,10 @@ void SerializePrefs(Project::Archieve& ar)
     ar("PAL",    Prefs().isPAL  )
       ("Player", Prefs().player );
 
-    if( ar.IsSave() || load_ver >= 2 )
+    if( CanSrl(ar, load_ver, 2) )
         ar("DefAuthorPath", Prefs().authorPath);
+    if( CanSrl(ar, load_ver, 3) )
+        ar("ShowSrcFileBrowser", Prefs().showSrcFileBrowser);
 }
 
 static bool LoadPrefs(const char* fname, const Project::ArchieveFnr& fnr)
@@ -103,6 +110,7 @@ void Preferences::Init()
     isPAL  = true;
     player = paTOTEM;
     authorPath = (fs::path(Glib::get_user_cache_dir()) / "bombono-dvd-video").string();
+    showSrcFileBrowser = false;
 }
 
 const char* PrefsName = "preferences.xml";
@@ -127,6 +135,11 @@ void TrySetDirectory(Gtk::FileChooser& fc, const std::string& dir_path)
     fc.set_filename(dir_path);
 }
 
+static void NotifyToRestart()
+{
+    MessageBox(_("You need to restart the application for the changes to take place"), Gtk::MESSAGE_WARNING, Gtk::BUTTONS_OK);
+}
+
 void ShowPrefs(Gtk::Window* win)
 {
     Gtk::Dialog dlg(_("Bombono DVD Preferences"), false, true);
@@ -135,6 +148,7 @@ void ShowPrefs(Gtk::Window* win)
     Gtk::ComboBoxText& tv_cmb = NewManaged<Gtk::ComboBoxText>();
     Gtk::ComboBoxText& pl_cmb = NewManaged<Gtk::ComboBoxText>();
     Gtk::FileChooserButton& a_btn = NewManaged<Gtk::FileChooserButton>("Select output folder", Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
+    Gtk::CheckButton& fb_btn = NewManaged<Gtk::CheckButton>(_("Show File Browser"));
     {
         DialogVBox& vbox = AddHIGedVBox(dlg);
 
@@ -151,6 +165,10 @@ void ShowPrefs(Gtk::Window* win)
         pl_cmb.set_active(Prefs().player);
         AppendWithLabel(vbox, pl_cmb, _("_Play authoring result in"));
 
+        fb_btn.set_active(Prefs().showSrcFileBrowser);
+        fb_btn.signal_toggled().connect(&NotifyToRestart);
+        PackStart(vbox, fb_btn);
+
         CompleteDialog(dlg, true);
     }
 
@@ -160,6 +178,7 @@ void ShowPrefs(Gtk::Window* win)
         Prefs().isPAL  = tv_cmb.get_active_row_number() == 0;
         Prefs().player = (PlayAuthoring)pl_cmb.get_active_row_number();
         Prefs().authorPath = a_btn.get_filename();
+        Prefs().showSrcFileBrowser = fb_btn.get_active();
 
         SavePrefs(&SerializePrefs, PrefsName, PREFS_VERSION);
     }

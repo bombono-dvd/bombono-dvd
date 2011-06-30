@@ -38,7 +38,7 @@ void TryAddMediaQuiet(const std::string& fname, const std::string& desc);
 // заполнить медиа в браузере
 void PublishMedia(const Gtk::TreeIter& itr, RefPtr<MediaStore> ms, MediaItem mi);
 void PublishMediaStore(RefPtr<MediaStore> ms);
-void MediaBrowserAdd(MediaBrowser& brw, Gtk::FileChooser& fc);
+void MediaBrowserAdd(MediaBrowser& brw, Str::List& paths);
 
 void MuxAddStreams(const std::string& src_fname);
 
