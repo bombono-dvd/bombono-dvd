@@ -304,8 +304,7 @@ void ReadDVD(dvd_file_t* file, char* buf,
 
 void ExtractVob(ReadFunctor& fnr, VobPtr vob, dvd_reader_t* dvd)
 {
-    VobPos& pos = vob->pos;
-    DVDFile dfile(dvd, pos.Vts());
+    VobFile dfile(vob, dvd);
     dvd_file_t* vobs = dfile.file;
 
     char buf[ABLOCK_LEN]; // переносим блоками по 256kb
@@ -333,20 +332,20 @@ bool LessPart(const Vob::Part& p1, const Vob::Part& p2)
 
 const std::streamoff ReadStreambuf::streamsize_limit = std::numeric_limits<streamsize>().max();
 
-void VobStreambuf::xsgetnImpl(char* s, streamsize n)
+void ReadVob(char* s, int n, VobFile& vf, int64_t cur_pos)
 {
     ASSERT( n >= 0 );
     if( n )
     {
-        uint32_t beg_sec = pos >> 11;
-        int      beg_off = pos & 0x7ff;
-        pos_type end_pos = pos + pos_type(n);
+        uint32_t beg_sec = cur_pos >> 11;
+        int      beg_off = cur_pos & 0x7ff;
+        int64_t  end_pos = cur_pos + n;
         uint32_t end_sec = end_pos >> 11;
         int      end_off = end_pos & 0x7ff;
         if( end_off )
             end_sec += 1;
-    
-        Vob::LocationArr& arr = vob->locations;
+
+        Vob::LocationArr& arr = vf.vob->locations;
         Vob::Part tmp(0, 0, beg_sec);
         Vob::LocationArr::iterator end = arr.end();
         Vob::LocationArr::iterator itr = std::lower_bound(arr.begin(), end, tmp, LessPart);
@@ -355,7 +354,8 @@ void VobStreambuf::xsgetnImpl(char* s, streamsize n)
             --itr;
             ASSERT( itr->off < beg_sec );
         }
-        
+
+        dvd_file_t* file = vf.file;
         char* s_end = s + n;
         ReadFunctor shift_fnr = MakeBufShifter();
         for( ; (itr != end) && (itr->off < end_sec); ++itr )
@@ -370,9 +370,9 @@ void VobStreambuf::xsgetnImpl(char* s, streamsize n)
             if( is_beg_part && beg_off )
             {
                 // читаем начальный сектор в буфер, а затем нужную часть копируем в целевой
-                TryDVDReadBlocks(content.file, b_sec, 1, buf);
+                TryDVDReadBlocks(file, b_sec, 1, buf);
 
-                int cnt = (int)std::min(streamsize(DVD_VIDEO_LB_LEN-beg_off), n);
+                int cnt = (int)std::min(DVD_VIDEO_LB_LEN-beg_off, n);
                 memcpy(s, buf+beg_off, cnt);
 
                 s += cnt;
@@ -383,14 +383,19 @@ void VobStreambuf::xsgetnImpl(char* s, streamsize n)
             {
                 // сначала загоним "хвост"
                 e_sec -= 1;
-                TryDVDReadBlocks(content.file, e_sec, 1, buf);
+                TryDVDReadBlocks(file, e_sec, 1, buf);
 
                 memcpy(s_end - end_off, buf, end_off);
             }
 
-            ReadDVD(content.file, s, b_sec, e_sec, shift_fnr);
+            ReadDVD(file, s, b_sec, e_sec, shift_fnr);
         }
     }
+}
+
+void VobStreambuf::xsgetnImpl(char* s, streamsize n)
+{
+    ReadVob(s, n, content, pos);
 }
 
 } // namespace DVD

@@ -234,36 +234,40 @@ class ReadStreambuf: public io::filebuf<char>
 
 };
 
-struct DVDFile
+struct VobFile
 {
     dvd_file_t* file;
-    //DtorAction  wrp;
+        VobPtr  vob;
 
-        DVDFile(dvd_reader_t* dvd, int vts): 
-            file(DVDOpenFile(dvd, vts, DVD_READ_TITLE_VOBS)) {}
-       ~DVDFile() { DVDCloseFile(file); }
+        VobFile(VobPtr vob_, dvd_reader_t* dvd): 
+            file(DVDOpenFile(dvd, vob_->pos.Vts(), DVD_READ_TITLE_VOBS)), vob(vob_) {}
+       ~VobFile() { DVDCloseFile(file); }
 
     private:
-        DVDFile();
-        DVDFile(const DVDFile&);
+        VobFile();
+        VobFile(const VobFile&);
 };
+
+inline int64_t Size(VobFile& vf)
+{
+    int64_t sz = vf.vob->Count();
+    return sz << 11; // *2048 = 2^11 
+}
 
 class VobStreambuf: public ReadStreambuf
 {
     public:
-                      VobStreambuf(VobPtr vob_, dvd_reader_t* dvd): 
-                          vob(vob_), content(dvd, vob->pos.Vts()) {}
+                      VobStreambuf(VobPtr vob, dvd_reader_t* dvd): 
+                          content(vob, dvd) {}
 
     virtual pos_type  Size() 
     {
-        uint64_t sz = vob->Count();
-        return sz << 11; // *2048 = 2^11 
+        return DVD::Size(content);
     }
 
     protected:
 
-              VobPtr  vob;
-             DVDFile  content;
+             VobFile  content;
 
     virtual     void  xsgetnImpl(char* s, streamsize real_n);
 };
@@ -275,6 +279,7 @@ inline int CAdtSize(c_adt_t* cptr)
 
 void ExtractVob(ReadFunctor& fnr, VobPtr vob, dvd_reader_t* dvd);
 void ExtractVob(VobPtr vob, const std::string& dir_path, dvd_reader_t* dvd);
+void ReadVob(char* s, int n, VobFile& vf, int64_t cur_pos);
 
 } // namespace DVD
 

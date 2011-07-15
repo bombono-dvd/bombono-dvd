@@ -24,6 +24,7 @@
 
 #include "mguiconst.h"
 #include "timer.h"
+#include "ffviewer.h"
 
 #include <mdemux/dvdread.h>
 #include <mdemux/player.h>
@@ -52,6 +53,9 @@ inline void InitDefPreview(ImportData& id) { InitPreview(id, af4_3); }
 
 struct ImportData
 {
+    //typedef Mpeg::FwdPlayer VobViewer;
+    typedef FFViewer VobViewer;
+    
             Gtk::Assistant  ast;
                       bool  addToProject;
                 ImportPage  curPage; // текущая страница
@@ -64,7 +68,7 @@ struct ImportData
      RefPtr<Gtk::ListStore> vobList;
 
                             // для расчета изображений
-           Mpeg::FwdPlayer  thumbPlyr;
+                 VobViewer  thumbPlyr;
                        int  numToThumb; // номер для получения миниатюры plyr'ом
                EventSource  thumbIdler;
 
@@ -73,7 +77,7 @@ struct ImportData
                 Gtk::Image  previewImg;
                             // в принципе можно одним плейером обойтись, но тогда
                             // придется вводить состояние - чем из 2 дел в idle заниматься
-           Mpeg::FwdPlayer  previewPlyr;
+                 VobViewer  previewPlyr;
                EventSource  previewIdler;
 
                std::string  destPath;

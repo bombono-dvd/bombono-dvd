@@ -138,16 +138,18 @@ static void OnSelVob(ImportData& id)
     CompleteSelection(id, res);    
 }
 
-static bool OpenVob(VobPtr vob, Mpeg::FwdPlayer& plyr, dvd_reader_t* dvd)
-{
-    ptr::shared<VobStreambuf> strm_buf = new VobStreambuf(vob, dvd);
-    return plyr.OpenFBuf(strm_buf);
-}
+bool OpenVob(FFViewer& ffv, VobPtr vob, dvd_reader_t* dvd, std::string& err_str);
 
-static Project::VideoPE MakeMpegPlayerPE(Mpeg::FwdPlayer& plyr, double time)
-{
-    return Project::VideoPE(bb::bind(&GetRawFrame, time, boost::ref(plyr)));
-}
+//static bool OpenVob(VobPtr vob, Mpeg::FwdPlayer& plyr, dvd_reader_t* dvd)
+//{
+//    ptr::shared<VobStreambuf> strm_buf = new VobStreambuf(vob, dvd);
+//    return plyr.OpenFBuf(strm_buf);
+//}
+//
+//static Project::VideoPE MakeMpegPlayerPE(Mpeg::FwdPlayer& plyr, double time)
+//{
+//    return Project::VideoPE(bb::bind(&GetRawFrame, time, boost::ref(plyr)));
+//}
 
 static bool OnSelectIdle(ImportData& id)
 {
@@ -157,22 +159,23 @@ static bool OnSelectIdle(ImportData& id)
     bool res = num < (int)arr.size();
     if ( res )
     {
-        Mpeg::FwdPlayer& plyr = id.thumbPlyr;
-        if( OpenVob(arr[num], plyr, id.reader->dvd) )
+        ImportData::VobViewer& plyr = id.thumbPlyr;
+        std::string err_str;
+        if( OpenVob(plyr, arr[num], id.reader->dvd, err_str) )
         {
             Gtk::TreeRow row = *id.vobList->get_iter(Gtk::TreePath((Gtk::TreePath::size_type)1, num));
             Point sz = PixbufSize(row[VF().thumbnail]);
 
-            double tm = Mpeg::GetMediaSize(plyr);
+            double tm = Duration(plyr);
             double preview_time = 3.0; // показываем кадр третьей (или первой?) секунды, иначе - середину
             if( preview_time >= tm )
                 preview_time = tm / 2;
-            row[VF().thumbnail] = MakeMpegPlayerPE(plyr, preview_time).Make(sz).RWPixbuf();
+            row[VF().thumbnail] = Project::VideoPE(plyr, preview_time).Make(sz).RWPixbuf(); //MakeMpegPlayerPE(plyr, preview_time).Make(sz).RWPixbuf();
         }
         else
-            LOG_INF << "OpenFBuf() failed: " << plyr.MInfo().ErrorReason() << io::endl;
+            LOG_INF << "OpenFBuf() failed: " << err_str/*plyr.MInfo().ErrorReason()*/ << io::endl;
 
-        plyr.CloseFBuf();
+        plyr.Close(); // CloseFBuf();
     }
     return res;
 }
@@ -316,19 +319,19 @@ void InitPreview(ImportData& id, AspectFormat af)
     id.previewAdj.set_upper(0);
     id.previewAdj.set_value(0);
 
-    id.previewPlyr.CloseFBuf();
+    id.previewPlyr.Close(); //CloseFBuf();
     id.previewIdler.Disconnect();
 }
 
 static bool UpdatePreview(ImportData& id)
 {
-    Mpeg::FwdPlayer& plyr = id.previewPlyr;
+    ImportData::VobViewer& plyr = id.previewPlyr;
     if( plyr.IsOpened() )
     {
-        double tm = GetFrameTime(plyr, (int)id.previewAdj.get_value());
+        double tm = FrameTime(plyr, (int)id.previewAdj.get_value());
         RefPtr<Gdk::Pixbuf> pix = id.previewImg.get_pixbuf();
 
-        MakeMpegPlayerPE(plyr, tm).Fill(pix);
+        Project::VideoPE(plyr, tm).Fill(pix); //MakeMpegPlayerPE(plyr, tm).Fill(pix);
         id.previewImg.queue_draw();
     }
     return false;
@@ -345,10 +348,11 @@ static void OnVobActivate(const Gtk::TreePath& pth, ImportData& id)
     VobPtr vob = id.dvdVobs[pth[0]];
 
     InitPreview(id, vob->aspect);
-    Mpeg::FwdPlayer& plyr = id.previewPlyr;
-    if( OpenVob(vob, id.previewPlyr, id.reader->dvd) )
+    ImportData::VobViewer& plyr = id.previewPlyr;
+    std::string err_str;
+    if( OpenVob(id.previewPlyr, vob, id.reader->dvd, err_str) )
     {
-        int upper = plyr.MInfo().FramesCount();
+        int upper = FramesLength(plyr);// plyr.MInfo().FramesCount();
         id.previewAdj.set_upper(upper);
     
         OnPreviewValueChanged(id);

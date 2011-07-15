@@ -26,6 +26,8 @@
 #include "render/common.h" // FillEmpty()
 #include "prefs.h"
 
+#include <mdemux/dvdread.h>
+
 #include <mlib/gettext.h>
 #include <mlib/read_stream.h> // ReadAllStream()
 #include <mlib/string.h>
@@ -1003,4 +1005,128 @@ RefPtr<Gdk::Pixbuf> GetRawFrame(double time, FFViewer& ffv)
         res_pix = CreateFromData(ffv.rgbFrame.data[0], ffv.vidSz, false);
     return res_pix;
 }
+
+namespace DVD {
+
+struct VobCtx
+{
+   int64_t  curPos;
+   VobFile  vFile;
+   
+   VobCtx(VobPtr vob, dvd_reader_t* dvd): curPos(0), vFile(vob, dvd) {}
+};
+    
+// только для передачи параметров для протокола bmdvob
+static VobPtr BmdVob;    
+static dvd_reader_t* BmdDVD = 0;    
+
+static int VobOpen(URLContext *h, const char *filename, int flags)
+{
+    // параметры передаем внешним образом
+    ASSERT( strcmp(filename, "bmdvob:") == 0 );
+    ASSERT( flags == URL_RDONLY );
+    
+    VobCtx* vc = new VobCtx(BmdVob, BmdDVD);
+    h->priv_data = (void*) vc;
+    return 0;
+}
+
+static int64_t DoSeek(VobCtx* vc, int64_t n_pos, int whence)
+{
+    int64_t cnt  = Size(vc->vFile);
+    int64_t& pos = vc->curPos;
+    switch( whence )
+    {
+    case SEEK_SET:
+        pos = n_pos;
+        break;
+    case SEEK_CUR:
+        pos += n_pos;
+        break;
+    case SEEK_END:
+        pos = cnt + n_pos;
+        break;
+    default:
+        ASSERT(0);
+    }
+    pos = std::max(int64_t(0), pos);
+    pos = std::min(pos, cnt);
+    return pos;
+}
+
+static int VobRead(URLContext *h, unsigned char *buf, int sz)
+{
+    VobCtx* vc = (VobCtx*)h->priv_data;
+    int ret = -1;
+    if( sz > 0 )
+    {
+        int64_t old_pos = vc->curPos;
+        ret = DoSeek(vc, sz, SEEK_CUR) - old_pos;
+        
+        try
+        {
+            ReadVob((char*)buf, ret, vc->vFile, old_pos);
+        }
+        catch( const std::exception& exc )
+        {
+            LOG_INF << "VobRead fail: " << exc.what() << io::endl;
+            ret = -1;
+        }
+    }
+    return ret;
+}
+
+static int64_t VobSeek(URLContext *h, int64_t n_pos, int whence)
+{
+    VobCtx* vc = (VobCtx*)h->priv_data;
+    
+    int64_t ret = 0;
+    if( whence == AVSEEK_SIZE )
+        ret = Size(vc->vFile);
+    else
+        ret = DoSeek(vc, n_pos, whence);
+    
+    return ret;
+}
+
+static int VobClose(URLContext *h)
+{
+    delete (VobCtx*)h->priv_data;
+    return 0;
+}
+    
+static void RegisterVobProt()
+{
+    static bool is_init = false;
+    if( !is_init )
+    {
+        is_init = true;
+        
+        static URLProtocol bmdvob_protocol = {
+            "bmdvob",
+            VobOpen,
+            VobRead,
+            0, //file_write,
+            VobSeek,
+            VobClose,
+            0,0,0,0
+        };
+        
+        av_register_protocol(&bmdvob_protocol);
+    }
+}
+   
+bool OpenVob(FFViewer& ffv, VobPtr vob, dvd_reader_t* dvd, std::string& err_str)
+{
+    RegisterVobProt();
+    
+    BmdVob = vob;
+    BmdDVD = dvd;
+    bool res = ffv.Open("bmdvob:", err_str);
+    BmdVob = 0;
+    BmdDVD = 0;
+    return res;
+}
+
+} // namespace DVD
 

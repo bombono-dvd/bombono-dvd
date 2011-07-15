@@ -350,6 +350,7 @@ static PixbufGetterFunctor MakePGF(VideoViewer& plyr, double time)
 }
 
 VideoPE::VideoPE(VideoStart vs): pgFnr(MakePGF(OpenCachePlayer(vs.first), vs.second)) {}
+VideoPE::VideoPE(VideoViewer& plyr_, double time_): pgFnr(MakePGF(plyr_, time_)) {}
 
 PixbufSource VideoPE::Make(const Point& sz)
 {
