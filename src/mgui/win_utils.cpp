@@ -27,6 +27,7 @@
 #include <mgui/sdk/packing.h>
 #include <mgui/sdk/window.h>
 #include <mgui/sdk/widget.h> // ForAllWidgets()
+#include <mgui/prefs.h> // fcMap
 #include <mgui/gettext.h>
 #include <mgui/timeline/mviewer.h> // FileFilterList
 #include <mgui/sdk/win32filesel.h> // CallWinFileDialog
@@ -306,25 +307,38 @@ bool RunFileDialog(const char* title, bool open_file, Str::List& chosen_paths,
 {
     bool res;
 #ifdef _WIN32
-    bool is_win32 = true;
-#else
-    bool is_win32 = false;
-#endif
-    if( is_win32 && !fnr )
+    if( !fnr )
         // используем нативный диалог, по возможности
         // :TODO: соответственно, кастомизировать диалоги пока невозможно
         res = CallWinFileDialog(title, open_file, chosen_paths, &for_wdg, pat_lst, multiple_choice);
     else
+#endif
     {
         Gtk::FileChooserDialog dialog(title, open_file ? Gtk::FILE_CHOOSER_ACTION_OPEN : Gtk::FILE_CHOOSER_ACTION_SAVE);
+        
+        FCMap& fc_map = UnnamedPrefs().fcMap;
+        // :TODO: (субъективно) чтобы локализация title не мешала, необходимо
+        // gettext() делать здесь, а при вызове,- C_()
+        FCMap::iterator itr = fc_map.find(title);
+        int last_flt = 0;
+        if( itr != fc_map.end() )
+        {
+            FCState& fcs = itr->second;
+            dialog.set_current_folder(fcs.lastDir);
+            last_flt = fcs.lastFilter;
+        }
+
         if( chosen_paths.size() )
             dialog.set_current_name(chosen_paths[0]);
 
         BuildChooserDialog(dialog, open_file, for_wdg);
 
+        int idx = 0;
         boost_foreach( const FileFilter& ff, pat_lst )
         {
-            Gtk::FileFilter gff;
+            // :TRICKY: если на стеке создать, то повторного доступа к С++-оболочкам
+            // потом не будет
+            Gtk::FileFilter& gff = NewManaged<Gtk::FileFilter>();
             gff.set_name(ff.title);
             boost_foreach( const std::string& glob_pat, ff.extPatLst )
             {
@@ -333,6 +347,9 @@ bool RunFileDialog(const char* title, bool open_file, Str::List& chosen_paths,
             }
 
             dialog.add_filter(gff);
+            if( last_flt && (idx == last_flt) )
+                dialog.set_filter(gff);
+            idx++;
         }
 
         if( fnr )
@@ -348,6 +365,21 @@ bool RunFileDialog(const char* title, bool open_file, Str::List& chosen_paths,
 
             chosen_paths = GetFilenames(dialog);
             break;
+        }
+        
+        // сохраняем последние настройки
+        if( res )
+        {
+            // приходиться перебором находить
+            last_flt = 0;
+            Gtk::FileFilter* cur_ff = dialog.get_filter();
+            boost_foreach( const Gtk::FileFilter* ff, dialog.list_filters() )
+            {
+                if( cur_ff == ff )
+                    break;
+                last_flt++;
+            }
+            fc_map[title] = FCState(dialog.get_current_folder(), last_flt);
         }
     }
 

@@ -22,8 +22,10 @@
 #ifndef __MBASE_PROJECT_ARCHIEVE_H__
 #define __MBASE_PROJECT_ARCHIEVE_H__
 
-#include <mlib/ptr.h>
 #include "archieve_base.h"
+#include "archieve-fwd.h"
+
+#include <mlib/ptr.h>
 
 namespace Project
 {
@@ -60,6 +62,7 @@ ArchieveFunctor<T> MakeArchieveFunctor(typename ArchieveFunctor<T>::FunctorType 
     return ArchieveFunctor<T>(fnr);
 }
 
+// :TODO: избавиться в пользу второго LoadArray(), так как проще (nv.Name() всегда одно и тоже)
 template<class T>
 void LoadArray(Archieve& ar, ArchieveFunctor<T> fnr)
 {
@@ -79,6 +82,8 @@ void LoadArray(Archieve& ar, ArchieveFunctor<T> fnr)
         }
     }
 }
+
+void LoadArray(Archieve& ar, const ArchieveFnr& fnr, const char* req_name);
 
 //
 // Сериализовать "виртуально" блок с именем name, 

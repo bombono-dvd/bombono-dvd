@@ -216,4 +216,23 @@ void Archieve::DoStack(bool is_in)
     isSubNode = !is_in;
 }
 
+void LoadArray(Archieve& ar, const ArchieveFnr& fnr, const char* req_name)
+{
+    ArchieveSave as(ar);
+
+    typedef xmlpp::Node::NodeList NodeList;
+    NodeList list = ar.Node()->get_children();
+    for(NodeList::iterator itr = list.begin(), end = list.end(); itr != end; ++itr, ar.Norm() )
+    {
+        xmlpp::Element* node = GetAsElement(*itr);
+        if( node )
+        {
+            ar.AcceptNode(node);
+
+            CheckNodeName(ar, req_name);
+            fnr(ar);
+        }
+    }
+}
+
 } // namespace Project

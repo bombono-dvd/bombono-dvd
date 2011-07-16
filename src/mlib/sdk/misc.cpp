@@ -27,6 +27,7 @@
 #include <mlib/string.h>
 
 #include <boost/lexical_cast.hpp>
+#include <string.h>
 
 // = НОД
 int GCD(int a, int b)

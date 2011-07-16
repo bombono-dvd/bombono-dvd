@@ -469,7 +469,7 @@ void PackTrackWindow(Gtk::Container& contr, TWFunctor tw_fnr)
         vpaned.add1(vbox);
 
         Gtk::HPaned& hpaned = *Gtk::manage(new Gtk::HPaned);
-        SetUpdatePos(hpaned, UnnamedPrefs().fbWdh);
+        SetUpdatePos(hpaned, UnnamedPrefs().srcBrw1Wdh);
         vbox.pack_start(hpaned, true, true, 0);
 
         tw_fnr(hpaned, mon, layout);

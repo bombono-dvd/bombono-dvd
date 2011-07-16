@@ -360,7 +360,7 @@ void PackMBWindow(Gtk::HPaned& fcw_hpaned, Timeline::DAMonitor& mon, TrackLayout
         fcw_hpaned.add2(*hpaned);
         left_padding = false;
     }
-    SetUpdatePos(*hpaned, UnnamedPrefs().mdBrw1Wdh);
+    SetUpdatePos(*hpaned, UnnamedPrefs().srcBrw2Wdh);
 
     // *
     MediaActionFnr view_fnr = bb::bind(&ViewMedia, boost::ref(layout), _1);

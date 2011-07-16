@@ -24,6 +24,7 @@
 
 #include <mlib/patterns.h>
 #include <string>
+#include <map>
 
 enum PlayAuthoring
 {
@@ -64,8 +65,18 @@ inline void TryDefaultAuthorPath(Gtk::FileChooser& fc)
 }
 
 //
-// Восстановление размеров с прошлого запуска
+// Автонастройки с прошлого запуска: восстановление размеров и др.
 // 
+
+struct FCState
+{
+    std::string  lastDir;
+            int  lastFilter;
+
+    FCState(const std::string& ld = std::string(), int lf = 0): lastDir(ld), lastFilter(lf) {}
+};
+
+typedef std::map<std::string, FCState> FCMap;
 
 struct UnnamedPreferences: public Singleton<UnnamedPreferences>
 {
@@ -73,8 +84,9 @@ struct UnnamedPreferences: public Singleton<UnnamedPreferences>
 
     Point  appSz; // размеры и положение приложения
     Point  appPos; 
-      int  fbWdh; // ширина File Browser
-      int  mdBrw1Wdh; // ширина Media Browser на Sources
+      int  srcBrw1Wdh; // ширина первого браузера (Media Browser, File Browser)
+      int  srcBrw2Wdh;  // ширина Media Browser на Sources
+    FCMap  fcMap; // последние открытые папки
 
         UnnamedPreferences() { Init(); }
   void  Init();
