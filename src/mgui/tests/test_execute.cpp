@@ -213,11 +213,11 @@ BOOST_AUTO_TEST_CASE( TestInteractiveExecute )
 BOOST_AUTO_TEST_CASE( TestIndicator )
 {
     InitGtkmm();
-    // веса 0+1+3+4=8
+    // веса 0+1+3+6=10
     InitStageMap(modBURN, 0);
     Gtk::ProgressBar& bar = GetES().prgBar;
     //bar.set_fraction(percent/100.);
-    double stage_step = 1/8.0;
+    double stage_step = 1/10.0;
     double trans_dur  = 0.;
 
     SetStage(stTRANSCODE);
