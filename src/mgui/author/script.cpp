@@ -657,24 +657,47 @@ std::string FFmpegToDVDTranscode(const std::string& src_fname, const std::string
         % FFmpegToDVDArgs(dst_fname, atd, is_pal, td) % bf::stop;
 }
 
-// ffmpeg выводит размер первого создаваемого файла каждые полсекунды,
+// ffmpeg выводит статистику первого создаваемого файла каждые полсекунды,
 // см. print_report() (при verbose=1, по умолчанию)
-// Формат: "size=%8.0fkB"
+// Формат размера: "size=%8.0fkB"
 re::pattern FFmpegSizePat( "size= *"RG_NUM"kB"); 
+// Формат длительности: "time=%0.2f"
+re::pattern FFmpegDurPat( "time="RG_FLT);
 
-static void OnTranscodePrintParse(const char* dat, int sz, const io::pos trans_total,
-                                  const io::pos trans_done, const io::pos trans_val)
+typedef boost::function<double(double)> PercentFunctor;
+
+static double CalcTransPercent(double cur_dur, const io::pos trans_total,
+                               const io::pos trans_done, const io::pos trans_val, 
+                               double full_dur)
+{
+    //return (std::min(sz * 1024, trans_val) + trans_done)/double(trans_total);
+    return (std::min(cur_dur/full_dur, 1.) * trans_val + trans_done)/double(trans_total);
+}
+
+static void OnTranscodePrintParse(const char* dat, int sz, const PercentFunctor& fnr)
 {
     re::match_results what;
-    if( re::search(std::string(dat, sz), what, FFmpegSizePat) )
+    // лучше вычислять не по выданному размеру, а по времени, так как итоговый размер
+    // вычисляется по битрейту (и обычно завышен для страховки), а длительность практически не
+    // меняется
+    //if( re::search(std::string(dat, sz), what, FFmpegSizePat) )
+    //{
+    //    // :KLUDGE: вроде и нецелые могут быть, но precision=0
+    //    // как-то не в тему
+    //    // У пользователей случалось вообще не число, потому гасим возможные исключения
+    //    io::pos sz;
+    //    if( Str::GetType(sz, what.str(1).c_str()) )
+    //    {
+    //        double per = fnr(sz);
+    //        Author::SetStageProgress(per);
+    //    }
+    //}
+    if( re::search(std::string(dat, sz), what, FFmpegDurPat) )
     {
-        // :KLUDGE: вроде и нецелые могут быть, но precision=0
-        // как-то не в тему
-        // У пользователей случалось вообще не число, потому гасим возможные исключения
-        io::pos sz;
-        if( Str::GetType(sz, what.str(1).c_str()) )
+        double dur;
+        if( ExtractDouble(dur, what) )
         {
-            double per = (std::min(sz * 1024, trans_val) + trans_done)/double(trans_total);
+            double per = fnr(dur);
             Author::SetStageProgress(per);
         }
     }
@@ -706,8 +729,10 @@ static void AuthorImpl(const std::string& out_dir)
         DVDTransData td = GetRealTransData(vi);
 
         std::string ffmpeg_cmd = FFmpegToDVDTranscode(src_fname, dst_fname, atd, IsPALProject(), td);
-        io::pos trans_val      = CalcTransSize(rtc, td.vRate);
-        RunFFmpegCmd(ffmpeg_cmd, bb::bind(&OnTranscodePrintParse, _1, _2, trans_total, trans_done, trans_val));
+        io::pos trans_val  = CalcTransSize(rtc, td.vRate);
+        PercentFunctor fnr = bb::bind(&CalcTransPercent, _1, trans_total, trans_done, 
+                                      trans_val, rtc.duration);
+        RunFFmpegCmd(ffmpeg_cmd, bb::bind(&OnTranscodePrintParse, _1, _2, fnr));
 
         trans_done += trans_val;
     }

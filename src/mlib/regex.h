@@ -185,7 +185,10 @@ bool search(const std::string& s,
 #define RG_EW "\\>"           // конец  слова
 #define RG_SPS "[[:space:]]*" // пробелы
 #define RG_NUM "([0-9]+)"     // число
+#define RG_FLT RG_NUM"([\\.,]"RG_NUM")" // вещ. число, в паре с ExtractDouble()
 #define RG_CMD_BEG RG_BW // "^"RG_SPS  // начало команды
+
+bool ExtractDouble(double& val, const re::match_results& what, int idx = 1);
 
 #endif // #ifndef __MLIB_REGEX_H__
 

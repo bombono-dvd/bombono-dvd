@@ -20,6 +20,7 @@
 // 
 
 #include "regex.h"
+#include "string.h"
 
 #include <boost/regex.hpp>
 
@@ -94,4 +95,9 @@ bool search(const_iterator beg, const_iterator end,
 
 } // namespace re
 
+bool ExtractDouble(double& val, const re::match_results& what, int idx)
+{
+    std::string p_str = what.str(idx) + "." + (what[idx+2].matched ? what.str(idx+2) : std::string("0"));
+    return Str::GetType(val, p_str.c_str());
+}
 

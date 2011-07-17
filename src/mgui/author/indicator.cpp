@@ -73,8 +73,8 @@ StageMap[stLAST] =
     { N_("Transcoding videos"),   true, true, 0, 0.0 }, 
     { N_("Rendering menus"),      true, true, 1, 0.0 }, 
     { N_("Generating DVD-Video"), true, true, 3, 0.0 }, 
-    { N_("Creating ISO image"),   true, true, 2, 0.0 }, 
-    { N_("Burning DVD"),          true, true, 4, 0.0 }, 
+    { N_("Creating ISO image"),   true, true, 2, 0.0 },
+    { N_("Burning DVD"),          true, true, 6, 0.0 }, 
 };
 // текущий этап
 Stage CurStage = stNO_STAGE;
@@ -85,12 +85,12 @@ void InitStageMap(Mode mod, double trans_ratio)
 {
     // * расчет веса для транскодирования
     // ffmpeg приблизительно в 2 раза быстрее реалки
-    const double ffmpeg_trans_mult = 0.5;
+    const double ffmpeg_trans_mult = 0.67;
     // обычный мультипликатор записи dvd;
     // предположительный битрейт DVD-Video (11Mbit/s)
     // равен 1x скорости чтения DVD
     const double dvd_write_mult = 4.0;
-    // ~8 для, если транскодировать все
+    // x2.7 времени прожига, если транскодировать все
     StageMap[stTRANSCODE].weight = trans_ratio * ffmpeg_trans_mult 
         * dvd_write_mult * StageMap[stBURN].weight;
 
@@ -161,9 +161,9 @@ void SetStageProgress(double percent, bool is_percent)
             {
                 time_t h = min / 60;
                 if( h )
-                    remaining_str = BF_("%1% hour %2% min remaining") % h % (min % 60) % bf::stop;
+                    remaining_str = BF_("%1% hour %2$02d min remaining") % h % (min % 60) % bf::stop;
                 else
-                    remaining_str = BF_("%1% min %2% sec remaining") % min % (tm % 60) % bf::stop;
+                    remaining_str = BF_("%1% min %2$02d sec remaining") % min % (tm % 60) % bf::stop;
             }
             else
                 remaining_str = BF_("%1% sec remaining") % tm % bf::stop;

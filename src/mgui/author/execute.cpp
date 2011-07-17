@@ -97,7 +97,7 @@ class MkIsoFsPP: public ProgressParser
     virtual void  Filter(const std::string& line);
 };
 
-re::pattern MkIsoFsPercent_RE( RG_NUM"([\\.,]"RG_NUM")?% done"); 
+re::pattern MkIsoFsPercent_RE( RG_FLT"?% done");
 
 void MkIsoFsPP::Filter(const std::string& line)
 {
@@ -105,9 +105,9 @@ void MkIsoFsPP::Filter(const std::string& line)
     if( re::search(line.begin(), line.end(), what, MkIsoFsPercent_RE) )
     {
         ASSERT( what[1].matched );
-        std::string p_str = what.str(1) + "." + (what[3].matched ? what.str(3) : std::string("0"));
-        double p = boost::lexical_cast<double>(p_str);
-        of.SetProgress(p);
+        double val;
+        if( ExtractDouble(val, what) )
+            of.SetProgress(val);
     }
 }
 
