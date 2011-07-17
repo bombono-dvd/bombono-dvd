@@ -26,7 +26,7 @@
 
 #include <mlib/function.h>
 
-void SetPercent(Gtk::ProgressBar& bar, double percent);
+void SetPercent(Gtk::ProgressBar& bar, double percent, const std::string& info = std::string());
 
 // "прокрутить" очередь сообщений
 void IteratePendingEvents();

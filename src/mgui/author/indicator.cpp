@@ -25,7 +25,11 @@
 
 #include <mgui/img_utils.h> // Round()
 #include <mgui/gettext.h>
+#include <mgui/sdk/widget.h>
+
 #include <mlib/string.h>
+
+#include <time.h> // time()
 
 static std::string PercentString(double p)
 {
@@ -39,12 +43,15 @@ static std::string PercentString(double p)
     return (strm << Round(p) << "%").str();
 }
 
-void SetPercent(Gtk::ProgressBar& bar, double percent)
+void SetPercent(Gtk::ProgressBar& bar, double percent, const std::string& info)
 {
     if( (0 <= percent) && (percent <= 100.) )
     {
         bar.set_fraction(percent/100.);
-        bar.set_text(PercentString(percent));
+        std::string text = PercentString(percent);
+        if( !info.empty() )
+            text += " (" + info + ")";
+        bar.set_text(text);
     }
 }
 
@@ -71,6 +78,8 @@ StageMap[stLAST] =
 };
 // текущий этап
 Stage CurStage = stNO_STAGE;
+time_t BegTime = 0;
+time_t PrevTime = NO_HNDL;
 
 void InitStageMap(Mode mod, double trans_ratio)
 {
@@ -103,6 +112,8 @@ void InitStageMap(Mode mod, double trans_ratio)
         StageMap[i].dWeight = StageMap[i].weight / sum;
 
     CurStage = stBEG_STAGE;
+    BegTime  = time(0);
+    PrevTime = NO_HNDL; // неопределено
 }
 
 void ExecState::SetIndicator(double percent)
@@ -130,7 +141,36 @@ void SetStageProgress(double percent, bool is_percent)
     if( !is_percent )
         percent *= 100.;
     sum = sum * 100. + cur_s.dWeight * percent;
-    GetES().SetIndicator(sum);
+    
+    std::string remaining_str;
+    if( sum >= 0.5 ) // >= 0.5%
+    {
+        time_t elapsed = time(0) - BegTime;
+        time_t tm      = elapsed * (100 - sum) / sum;
+        
+        time_t prev_tm = PrevTime;
+        PrevTime = tm;
+        // усредняем с пред. временем, чтобы меньше дергалось
+        if( prev_tm != NO_HNDL )
+            tm = (prev_tm + tm) / 2;
+                
+        if( (tm > 0) && (tm < 3600 * 100) ) // в пределах 100 часов
+        {
+            time_t min = tm / 60;
+            if( min )
+            {
+                time_t h = min / 60;
+                if( h )
+                    remaining_str = BF_("%1% hour %2% min remaining") % h % (min % 60) % bf::stop;
+                else
+                    remaining_str = BF_("%1% min %2% sec remaining") % min % (tm % 60) % bf::stop;
+            }
+            else
+                remaining_str = BF_("%1% sec remaining") % tm % bf::stop;
+        }
+    }
+    
+    SetPercent(GetES().prgBar, sum, remaining_str);
 }
 
 std::string StageToStr(Stage st)
