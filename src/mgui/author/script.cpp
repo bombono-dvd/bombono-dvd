@@ -58,6 +58,13 @@ static xmlpp::Element* AddVideoTag(xmlpp::Element* node, bool is_4_3 = true)
     xmlpp::Element* vnode = node->add_child("video");
     AddFormatAttr(vnode);
     vnode->set_attribute("aspect", is_4_3 ? "4:3" : "16:9");
+    if( !is_4_3 )
+        // в режиме 16:9 ресурсы (36) тратятся на 3 режима: основной (widescreen),
+        // letterbox и pan&scan; последний дефакто не используется + кол-во
+        // кнопок для меню увеличиваем до 16; см. также
+        // http://forum.videohelp.com/threads/298871-More-than-12-buttons-with-dvdauthor
+        // :TRICKY: нужно для меню, для видео факт неочевиден
+        vnode->set_attribute("widescreen", "nopanscan");
 
     return vnode;
 }
