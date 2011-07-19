@@ -55,13 +55,48 @@ void IteratePendingEvents()
 namespace Project 
 {
 
+struct ShiftPCB: public PixCanvasBuf
+{
+    Point shift;
+    
+ virtual RefPtr<Gdk::Pixbuf> Canvas();
+};
+
+RefPtr<Gdk::Pixbuf> ShiftPCB::Canvas()
+{
+    RefPtr<Gdk::Pixbuf> res;
+    if( canvPix )
+    {
+        Point sz = PixbufSize(canvPix);
+        Rect rct(shift, sz);
+        ASSERT( rct.IsValid() );
+        res = MakeSubPixbuf(canvPix, Rect(shift, sz));
+    }
+    return res;
+}
+
+static const char* SubPicTag(bool not_letterbox16_9)
+{
+    return not_letterbox16_9 ? AUTHOR_TAG : AUTHOR_LB_TAG;
+}
+
 PixCanvasBuf& GetTaggedPCB(Menu mn, const char* tag)
 {
-    PixCanvasBuf& pcb = mn->GetData<PixCanvasBuf>(tag);
+    bool is_lb_tag = strcmp(AUTHOR_LB_TAG, tag) == 0;
+
+    PixCanvasBuf& pcb = !is_lb_tag ? mn->GetData<PixCanvasBuf>(tag) : mn->GetData<ShiftPCB>(tag) ;
     if( !pcb.Canvas() )
     {
         Point sz(mn->Params().Size());
-        pcb.Set(CreatePixbuf(sz), Planed::Transition(Rect0Sz(sz), sz));
+        Rect plc(Rect0Sz(sz));
+        if( is_lb_tag )
+        {
+            // сжимаем 4:3 до 16:9 = *3/4
+            plc.btm = Round(3./4. * sz.y);
+            static_cast<ShiftPCB&>(pcb).shift = Point(0, (sz.y - plc.btm)/2);
+        }
+        pcb.Set(CreatePixbuf(sz), Planed::Transition(plc, sz));
+
         pcb.DataTag() = tag;
     }
     return pcb;
@@ -97,8 +132,8 @@ class SPRenderVis: public CommonMenuRVis
 {
     typedef CommonMenuRVis MyParent;
     public:
-                  SPRenderVis(RectListRgn& r_lst, xmlpp::Element* spu_node)
-                    : MyParent(AUTHOR_TAG, r_lst), isSelect(false), spuNode(spu_node) {}
+                  SPRenderVis(RectListRgn& r_lst, xmlpp::Element* spu_node, bool not_letterbox16_9)
+                    : MyParent(SubPicTag(not_letterbox16_9), r_lst), isSelect(false), spuNode(spu_node) {}
 
             void  SetSelect(bool is_select) { isSelect = is_select; }
 
@@ -160,16 +195,21 @@ class SubtitleWrapper
     }
 };
 
-static void ScriptButton(xmlpp::Element* spu_node, bool is_select, const Rect& plc)
+static void ScriptButton(xmlpp::Element* spu_node, bool is_select, const Rect& plc,
+                         CanvasBuf* cnv_buf)
 {
     if( !is_select )
     {
         xmlpp::Element* btn_node = spu_node->add_child("button");
         // :KLUDGE: должны быть четными
-        btn_node->set_attribute("x0", boost::lexical_cast<std::string>(plc.lft));
-        btn_node->set_attribute("y0", boost::lexical_cast<std::string>(plc.top));
-        btn_node->set_attribute("x1", boost::lexical_cast<std::string>(plc.rgt));
-        btn_node->set_attribute("y1", boost::lexical_cast<std::string>(plc.btm));
+        Rect rct(plc);
+        // для letterbox & 16:9
+        if( ShiftPCB* s_pcb = dynamic_cast<ShiftPCB*>(cnv_buf) )
+            rct += s_pcb->shift;
+        btn_node->set_attribute("x0", boost::lexical_cast<std::string>(rct.lft));
+        btn_node->set_attribute("y0", boost::lexical_cast<std::string>(rct.top));
+        btn_node->set_attribute("x1", boost::lexical_cast<std::string>(rct.rgt));
+        btn_node->set_attribute("y1", boost::lexical_cast<std::string>(rct.btm));
     }
 }
 
@@ -220,7 +260,7 @@ void SPRenderVis::Visit(TextObj& t_obj)
         Rect plc = CalcRelPlacement(t_obj.Placement());
         DiscreteByAlpha(MakeSubPixbuf(drw->Canvas(), plc), clr);
 
-        ScriptButton(spuNode, isSelect, plc);
+        ScriptButton(spuNode, isSelect, plc, cnvBuf);
     }
 }
 
@@ -249,7 +289,7 @@ void SPRenderVis::Visit(FrameThemeObj& fto)
         RGBA::RgnPixelDrawer::DrwFunctor drw_fnr = bb::bind(&RGBA::CopyArea, drw->Canvas(), obj_pix, plc, _1);
         drw->DrawWithFunctor(plc, drw_fnr);
 
-        ScriptButton(spuNode, isSelect, plc);
+        ScriptButton(spuNode, isSelect, plc, cnvBuf);
     }
 }
 
@@ -268,11 +308,6 @@ void InitTextForTaggedPCB(Menu mn, const char* tag)
 {
     SimpleInitTextVis titv(GetTaggedPCB(mn, tag));
     GetMenuRegion(mn).Accept(titv);
-}
-
-void InitAuthorData(Menu mn)
-{
-    InitTextForTaggedPCB(mn, AUTHOR_TAG);
 }
 
 static void IterateAuthoringEvents()
@@ -296,30 +331,29 @@ static void PulseRenderProgress()
     IterateAuthoringEvents();
 }
 
-bool RenderSubPictures(const std::string& out_dir, Menu mn, int i, 
-                       std::iostream& menu_list)
+void MakeSubpictures(Menu mn, bool not_letterbox16_9, const std::string& mn_dir)
 {
-    InitAuthorData(mn);
+    const char* data_tag = SubPicTag(not_letterbox16_9);
+    InitTextForTaggedPCB(mn, data_tag);
 
     MenuRegion& m_rgn   = GetMenuRegion(mn);
-    CanvasBuf&  cnv_buf = GetAuthorPCB(mn);
-    RefPtr<Gdk::Pixbuf> cnv_pix = cnv_buf.FramePixbuf();
-    // :WARN: правильно ли обращаемся (на питоне) к файловой системе не в utf8?
-    std::string mn_dir = MenuAuthorDir(mn, i, false);
-    menu_list << "'''" << mn_dir << "''',\n"; 
-    mn_dir = AppendPath(out_dir, ConvertPathFromUtf8(mn_dir));
-    fs::create_directory(mn_dir);
-    WorkCnt++;
+    PixCanvasBuf&  cnv_buf = GetTaggedPCB(mn, data_tag);
+    RefPtr<Gdk::Pixbuf> cnv_pix = cnv_buf.Source();
 
     RectListRgn rct_lst;
     rct_lst.push_back(cnv_buf.FramePlacement());
+    
+    const char* highlight_fname = not_letterbox16_9 ? "MenuHighlight.png" : "MenuHighlightLB.png" ;
+    const char* select_fname    = not_letterbox16_9 ? "MenuSelect.png"    : "MenuSelectLB.png" ;
+    const char* spumux_fname    = not_letterbox16_9 ? "Menu.xml" : "MenuLB.xml" ;
+    
     xmlpp::Document doc;
     xmlpp::Element* root_node = doc.create_root_node("subpictures");
     xmlpp::Element* spu_node = root_node->add_child("stream")->add_child("spu");
     spu_node->set_attribute("start", "00:00:00.0");
     spu_node->set_attribute("end",   "00:00:00.0");
-    spu_node->set_attribute("highlight", "MenuHighlight.png");
-    spu_node->set_attribute("select",    "MenuSelect.png");
+    spu_node->set_attribute("highlight", highlight_fname);
+    spu_node->set_attribute("select",    select_fname);
     // используем "родной" прозрачный цвет в png
     //std::string trans_color = ColorToString(BLACK2_CLR);
     //spu_node->set_attribute("transparent", trans_color);
@@ -327,17 +361,32 @@ bool RenderSubPictures(const std::string& out_dir, Menu mn, int i,
     spu_node->set_attribute("autoorder",   "rows");
 
     // * активация
-    SPRenderVis r_vis(rct_lst, spu_node);
+    SPRenderVis r_vis(rct_lst, spu_node, not_letterbox16_9);
     m_rgn.Accept(r_vis);
-    SaveMenuPicture(mn_dir, "MenuHighlight.png", cnv_pix);
-    doc.write_to_file_formatted(AppendPath(mn_dir, "Menu.xml"));
+    SaveMenuPicture(mn_dir, highlight_fname, cnv_pix);
+    doc.write_to_file_formatted(AppendPath(mn_dir, spumux_fname));
 
     // * выбор
     r_vis.SetSelect(true);
     m_rgn.Accept(r_vis);
-    SaveMenuPicture(mn_dir, "MenuSelect.png", cnv_pix);
+    SaveMenuPicture(mn_dir, select_fname, cnv_pix);
+}
 
-    // * остальное
+bool RenderSubPictures(const std::string& out_dir, Menu mn, int i, 
+                       std::iostream& menu_list)
+{
+    // :WARN: правильно ли обращаемся (на питоне) к файловой системе не в utf8?
+    std::string mn_dir = MenuAuthorDir(mn, i, false);
+    menu_list << "'''" << mn_dir << "''',\n"; 
+    mn_dir = AppendPath(out_dir, ConvertPathFromUtf8(mn_dir));
+    fs::create_directory(mn_dir);
+    WorkCnt++;
+
+    MakeSubpictures(mn, true, mn_dir);
+    if( !IsMenuToBe4_3() )
+        MakeSubpictures(mn, false, mn_dir);
+    
+    // остальное
     //fs::copy_file(SConsAuxDir()/"menu_SConscript", fs::path(mn_dir)/"SConscript");
     std::string str = ReadAllStream(SConsAuxDir()/"menu_SConscript");
     bool is_motion  = mn->MtnData().isMotion;
@@ -345,7 +394,7 @@ bool RenderSubPictures(const std::string& out_dir, Menu mn, int i,
     WriteAllStream(fs::path(mn_dir)/"SConscript", str);
 
     // для последующего рендеринга
-    SetCBDirty(cnv_buf);
+    SetCBDirty(GetAuthorPCB(mn));
 
     return true;
 }
@@ -807,8 +856,6 @@ bool IsMotion(Menu mn)
 {
     return mn->MtnData().isMotion;
 }
-
-bool IsMenuToBe4_3();
 
 static void SaveMenuPng(const std::string& mn_dir, Menu mn)
 {

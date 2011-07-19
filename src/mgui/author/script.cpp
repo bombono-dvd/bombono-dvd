@@ -487,6 +487,13 @@ void IndexVideosForAuthoring()
         GetAuthorNumber(vi) = idx++;
 }
 
+static void AddSubpicStream(xmlpp::Element* sub_node, const char* id, const char* mode)
+{
+    xmlpp::Element* strm_node = sub_node->add_child("stream");
+    strm_node->set_attribute("id", id);
+    strm_node->set_attribute("mode", mode);
+}
+
 void GenerateDVDAuthorScript(const std::string& out_dir)
 {
     // индексируем видео в titles
@@ -565,6 +572,14 @@ void GenerateDVDAuthorScript(const std::string& out_dir)
         // * меню
         xmlpp::Element* menus_node = tts_node->add_child("menus");
         AddVideoTag(menus_node, IsMenuToBe4_3());
+        if( !IsMenuToBe4_3() )
+        {
+            // Jim Taylor, DVD Demustified - для нормального отображения меню 16:9
+            // нужны отдельные субтитры для widescreen и letterbox
+            xmlpp::Element* sub_node  = menus_node->add_child("subpicture");
+            AddSubpicStream(sub_node, "0", "widescreen");
+            AddSubpicStream(sub_node, "1", "letterbox");
+        }
         ForeachMenu(bb::bind(&ScriptMenu, menus_node, root_menu, _1, _2));
         // * список разделов (titles)
         xmlpp::Element* ts_node = tts_node->add_child("titles");
@@ -590,6 +605,7 @@ void ClearTaggedData(Menu mn, const char* tag)
 static bool AuthorClearMenu(Menu mn)
 {
     ClearTaggedData(mn, AUTHOR_TAG);
+    ClearTaggedData(mn, AUTHOR_LB_TAG);
     return true;
 }
 

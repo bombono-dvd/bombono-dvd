@@ -43,9 +43,6 @@ void OpenPublishMenu(const Gtk::TreeIter& itr, RefPtr<MenuStore> ms, Menu mn);
 // перерисовать все меню в ответ на изменения в меню changed_mn
 void RenderMenuSystem(Menu changed_mn, RectListRgn& rct_lst);
 
-bool IsMenuToBe4_3();
-bool Is4_3(Menu mn);
-
 } // namespace Project
 
 bool ReDivideRects(RectListRgn& rct_lst, MenuRegion& menu_rgn);

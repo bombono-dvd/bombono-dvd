@@ -26,14 +26,21 @@ def MakeMenu(env, is_moving):
     # очень нужно выполнить команду именно внутри каталога меню, из-за ссылок внутри Menu.xml
     cur_dir = env.Dir('.').path
     
-    def GenerateSpumuxAction(source, target, env, for_signature):
-        cd_str = 'cd "' + cur_dir + '" && '
-        spumux_str = 'spumux %s < %s > %s' % (source[0].name, source[1].name, target[0].name)
-        return cd_str + spumux_str
-    spumux_action = SConsTwin.MakeGenAction(GenerateSpumuxAction)
+    def GenerateSAFunc(stream_id):
+        def GenerateSACmd(source, target, env, for_signature):
+            cd_str = 'cd "' + cur_dir + '" && '
+            spumux_str = 'spumux -s%s %s < %s > %s' % (stream_id, source[0].name, source[1].name, target[0].name)
+            return cd_str + spumux_str
+        return GenerateSACmd
+    def GenerateSA(stream_id):
+        return SConsTwin.MakeGenAction(GenerateSAFunc(stream_id))
     
     # в версии SCons >= 0.96.90 можно пользоваться аргументом chdir (правда, будет конфликтовать с опцией -j :( )
     #Command('MenuSub.mpg', ['Menu.xml', 'Menu.mpg'], 
     #        "spumux ${SOURCES[0].file} < ${SOURCES[1].file} > ${TARGET.file}", chdir=1)
-    env.Command('MenuSub.mpg', ['Menu.xml', 'Menu.mpg'], spumux_action)
+    if ASettings.Is4_3:
+        env.Command('MenuSub.mpg', ['Menu.xml', 'Menu.mpg'], GenerateSA(0))
+    else:
+        env.Command('MenuSub0.mpg', ['Menu.xml', 'Menu.mpg'], GenerateSA(0))
+        env.Command('MenuSub.mpg', ['MenuLB.xml', 'MenuSub0.mpg'], GenerateSA(1))
 

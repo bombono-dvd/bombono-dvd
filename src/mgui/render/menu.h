@@ -41,10 +41,11 @@ class PixCanvasBuf: public CanvasBuf
                                  canvPix   = cnv;
                                  framTrans = trans;
                              }
+         RefPtr<Gdk::Pixbuf> Source() { return canvPix; }
 
  virtual RefPtr<Gdk::Pixbuf> Canvas() { return canvPix; }
          virtual       Rect  FramePlacement()
-                             { return PixbufBounds(canvPix); }
+                             { return PixbufBounds(Canvas()); }
         virtual RectListRgn& RenderList()   { return renderLst; }
 
     protected:
@@ -90,6 +91,9 @@ void SetMenuDirty(Menu mn);
 RefPtr<Gdk::Pixbuf> GetRenderedShot(Menu mn);
 
 MenuPack& UpdateMenuPack(Menu mn);
+
+bool IsMenuToBe4_3();
+bool Is4_3(Menu mn);
 
 } // namespace Project
 

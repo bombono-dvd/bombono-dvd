@@ -46,6 +46,7 @@ void AuthorMenus(const std::string& out_dir);
 std::string AuthorDVD(const std::string& out_dir);
 
 #define AUTHOR_TAG "Authoring"
+#define AUTHOR_LB_TAG "AuthoringLetterBox16_9"
 
 std::string MenuAuthorDir(Menu mn, int i, bool cnv_from_utf8 = true);
 fs::path SConsAuxDir();
