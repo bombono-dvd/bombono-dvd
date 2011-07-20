@@ -78,7 +78,7 @@ TSBegEnd BeginEnd(RefPtr<Gtk::TreeStore> store)
 
 // из-за того, что все медиа в одном браузере (включая картинки="не видео"),
 // нельзя использовать естественную нумерацию для авторинга 
-static int& GetAuthorNumber(VideoItem vi)
+int& GetAuthorNumber(VideoItem vi)
 {
     //return GetBrowserPath(&obj)[0]+1;
     return vi->GetData<int>(AUTHOR_TAG);
@@ -170,11 +170,15 @@ void TargetCommandVis::Visit(VideoMD& obj)
 
 void TargetCommandVis::Visit(VideoChapterMD& obj) 
 {
-    int v_num = GetAuthorNumber(obj.owner);
-    // :TODO: title 1 всегда равно title 1 chapter 1; при этом dvdauthor не воспринимает 
-    // главы "вблизи нуля" (<0.27секунд; задание - посмотреть точно), поэтому нужна предварительная
-    // перенумерация, как с видео
-    res = (str::stream() << "jump title " << v_num << " chapter " << ChapterPosInt(&obj) + 2 << ";").str();
+    VideoMD* owner = obj.owner;
+    int v_num = GetAuthorNumber(owner);
+    // title 1 всегда равно title 1 chapter 1 (первая ячейка всегда создавется), и максим. кол-во адресуемых 
+    // номеров <= кол-во bmd-глав+1; если 2 главы слишком близки к друг другу (внутри одного vobu=область между
+    // двумя NAV-пакетами, ~0.5 секунды), то dvdauthor их "склеивает" в одну => кол-во номеров уменьшается
+    // Потому: для удоства пользователей даем создавать нулевую главу, разрешая это здесь 
+    // (однако доп. нулевые главы будут приводить к ошибке Cannot jump to chapter N ... only M exist)
+    int c_num = ChapterPosInt(&obj) + (owner->List()[0]->chpTime ? 2 : 1) ;
+    res = (str::stream() << "jump title " << v_num << " chapter " << c_num << ";").str();
 }
 
 static std::string MakeButtonJump(MediaItem mi, bool vts_domain)
@@ -1002,6 +1006,8 @@ void ExecuteSconsCmd(const std::string& out_dir, OutputFilter& of,
 {
     std::string cmd = "scons" + scons_options.str() + " " + SconsTarget(mod);
     ExitData ed = AsyncCall(out_dir.c_str(), cmd.c_str(), OF2RRF(of));
+    if( of.firstError.size() )
+        Error(of.firstError);
     if( !ed.IsGood() )
         //ApplicationError("", ed);
         Error(BF_("external command failure: %1%") % ExitDescription(ed) % bf::stop);

@@ -42,7 +42,6 @@
 #include <mlib/read_stream.h> // ReadAllStream()
 #include <mlib/sdk/system.h> // GetClockTime()
 #include <mlib/gettext.h>
-#include <mlib/regex.h>
 
 #include <boost/lexical_cast.hpp>
 

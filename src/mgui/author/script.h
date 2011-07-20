@@ -29,6 +29,7 @@
 #include <mbase/composite/component.h>
 
 #include <mlib/filesystem.h> // fs::path
+#include <mlib/regex.h>
 
 #include <boost/function.hpp>
 
@@ -62,6 +63,9 @@ void ClearTaggedData(Menu mn, const char* tag);
 void RunExtCmd(const std::string& cmd, const char* app_name, 
                const ReadReadyFnr& add_fnr = ReadReadyFnr());
 void RunFFmpegCmd(const std::string& cmd, const ReadReadyFnr& add_fnr = ReadReadyFnr());
+
+int AsInt(const re::match_results& what, int idx);
+int& GetAuthorNumber(VideoItem vi);
 
 } // namespace Project
 

@@ -29,10 +29,7 @@
 #include <mgui/gettext.h>
 #include <mgui/sdk/textview.h>
 #include <mgui/project/handler.h> // FFmpegSizeForDVD()
-
-#include <boost/lexical_cast.hpp>
-#include <mlib/regex.h>
-
+#include <mgui/project/video.h> // AllVideos()
 
 namespace Author
 {
@@ -142,7 +139,7 @@ void DVDAuthorPP::Filter(const std::string& line)
     {
         if( re::search(line.begin(), line.end(), what, DVDAuthorVOB_RE) )
         {
-            int sz = boost::lexical_cast<int>(what.str(2));
+            int sz = Project::AsInt(what, 2);
             p = sz/(double)dvdSz * DVDAuthorRel;
         }
     }
@@ -151,7 +148,7 @@ void DVDAuthorPP::Filter(const std::string& line)
         fixStage = true;
         if( is_fix )
         {
-            p = boost::lexical_cast<int>(what.str(4))/100.;
+            p = Project::AsInt(what, 4)/100.;
             p = DVDAuthorRel + p*(1-DVDAuthorRel);
         }
     }
@@ -159,6 +156,42 @@ void DVDAuthorPP::Filter(const std::string& line)
     p *= 100.;
     if( p )
         of.SetProgress(p);
+    
+    static re::pattern ch_error_re("ERR:.*Cannot jump to chapter "RG_NUM" of title "RG_NUM", only "RG_NUM" exist");
+    if( re::search(line, what, ch_error_re) )
+    {
+        std::string& err_str = of.firstError;
+        if( !err_str.size() )
+        {
+            int tnum = Project::AsInt(what, 2);
+            boost_foreach( Project::VideoItem vi, Project::AllVideos() )
+                if( Project::GetAuthorNumber(vi) == tnum )
+                {
+                    // находим первую, самую короткую главу - проблема в ней
+                    Project::ChapterItem prev_ci;
+                    Project::ChapterItem res_ci;
+                    double duration = -1;
+                    boost_foreach( Project::ChapterItem ci, vi->List() )
+                    {
+                        if( prev_ci )
+                        {
+                            double dur = ci->chpTime - prev_ci->chpTime;
+                            if( (duration == -1) || (dur < duration) )
+                            {
+                                duration = dur;
+                                res_ci = prev_ci;
+                            }
+                        }
+                        prev_ci = ci;
+                    }
+                    ASSERT_RTL( res_ci );
+                    err_str = BF_("chapter \"%1%\" in \"%2%\" is too short (%3% sec)")
+                        % res_ci->mdName % vi->mdName % duration % bf::stop;
+                    
+                    break;
+                }
+        }
+    }
 }
 
 void OutputFilter::SetParser(ProgressParser* pp)

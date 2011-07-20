@@ -89,6 +89,9 @@ class ProgressParser
 class OutputFilter
 {
     public:
+    std::string firstError; // непустота - работа провалилась, несмотря
+                            // на код выхода
+        
              virtual ~OutputFilter() {}
                       // сигнатура равна ReadReadyFnr
                 void  OnGetLine(const char* buf, int sz, bool is_out);
