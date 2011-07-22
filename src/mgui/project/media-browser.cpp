@@ -652,9 +652,63 @@ DialogParams SubtitlesDialog(VideoItem vi, Gtk::Widget* par_wdg)
     return DialogParams(_("Add Subtitles"), bb::bind(&SetSubtitles, vi, _1), 400, par_wdg);
 }
 
+// :TRICKY: без свойства "editable" редактирования не будет вообще, с ним - 
+// будет и по левой кнопке мыши (а это не уровень); "классический" вариант отключения (nautilus) -
+// включать "editable" перед редактированием, и выключать позже, но в двух местах (на ok и cancel), что
+// некруто; а вот способ подмены start_editing не обладает этим недостатком (хотя игра на грани)
+static bool& CanRename()
+{
+    static bool can_rename = false;
+    return can_rename;
+}
+
+class MyCellRendererText: public Gtk::CellRendererText
+{
+    typedef Gtk::CellRendererText MyParent;
+    protected:
+    virtual Gtk::CellEditable* start_editing_vfunc(GdkEvent* event, Gtk::Widget& widget, const Glib::ustring& path, 
+                                                   const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags)
+    {
+        Gtk::CellEditable* res = 0;
+        if( CanRename() )
+            res = MyParent::start_editing_vfunc(event, widget, path, background_area, cell_area, flags);
+        return res;
+    }
+};
+
+Gtk::CellRendererText& MakeNameRenderer()
+{
+    return NewManaged<MyCellRendererText>();
+}
+
+static void RenameCurItem(ObjectBrowser& brw)
+{
+    // находим колонку 
+    const char* name = _("Name");
+    Gtk::TreeViewColumn* n_cln = 0;
+    boost_foreach( Gtk::TreeViewColumn* cln, brw.get_columns() )
+        if( cln->get_title() == name )
+        {
+            n_cln = cln;
+            break;
+        }
+    ASSERT_RTL( n_cln );
+    
+    CanRename() = true;
+    brw.set_cursor(GetCursor(brw), *n_cln, true);
+    CanRename() = false;
+}
+
+void AppendRenameAction(Gtk::Menu& mn, ObjectBrowser& brw)
+{
+    AddEnabledItem(mn, _("Rename"), bb::bind(&RenameCurItem, b::ref(brw)), true);
+}
+
 static void OnMBButtonPress(ObjectBrowser& brw, MediaItem mi, GdkEventButton* event)
 {
-    Gtk::Menu& mn  = NewPopupMenu(); 
+    Gtk::Menu& mn = NewPopupMenu(); 
+    AppendRenameAction(mn, brw);
+    AppendSeparator(mn);
     Gtk::MenuItem& ea_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("End Action")));
     // только видео
     VideoItem vi = IsVideo(mi);
@@ -662,7 +716,6 @@ static void OnMBButtonPress(ObjectBrowser& brw, MediaItem mi, GdkEventButton* ev
         ea_itm.set_submenu(EndActionMenuBld(vi->PAction(), boost::function_identity,
                                             VideoAddConstantChoice).Create());
 
-    AppendSeparator(mn);
     bool tr_enabled = IsTransVideo(vi);
     AddEnabledItem(mn, _("Adjust Bitrate to Fit to Disc"), &AdjustDiscUsage, tr_enabled);
     // калькулятор
@@ -716,7 +769,7 @@ void MediaBrowser::BuildStructure()
         name_cln.pack_start(trk_fields.thumbnail, false);
         
         // 2 имя
-        Gtk::CellRendererText& rndr = *Gtk::manage( new Gtk::CellRendererText() );
+        Gtk::CellRendererText& rndr = MakeNameRenderer();
         //name_cln.set_renderer(rndr, trk_fields.title);
         SetupNameRenderer(name_cln, rndr, ms);
 

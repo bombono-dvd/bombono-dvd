@@ -104,6 +104,12 @@ RefPtr<MediaStore> CreateMediaStore();
 io::pos PhisSize(const char* fname);
 bool RequireTranscoding(VideoItem vi);
 
+void AppendRenameAction(Gtk::Menu& mn, ObjectBrowser& brw);
+// измененный CellRendererText для того, чтобы редактировать можно
+// было только с помощью действия AppendRenameAction() (а не левой кнопкой мыши =>
+// приводит к конфликтам с DnD)
+Gtk::CellRendererText& MakeNameRenderer();
+
 } // namespace Project
 
 #endif // #ifndef __MGUI_PROJECT_MEDIA_BROWSER_H__

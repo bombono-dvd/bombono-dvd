@@ -446,6 +446,7 @@ static void OnRightButton(ObjectBrowser& brw, MediaItem mi, GdkEventButton* even
     ASSERT(mn);
 
     Gtk::Menu& gmn = NewPopupMenu();
+    AppendRenameAction(gmn, brw);
     AddDialogItem(gmn, MenuSettingsDialog(mn, &brw));
     Popup(gmn, event, true);
 }
@@ -464,7 +465,7 @@ MenuBrowser::MenuBrowser(RefPtr<MenuStore> ms)
         name_cln.pack_start(trk_fields.thumbnail, false);
 
         // 2 имя
-        Gtk::CellRendererText& rndr = NewManaged<Gtk::CellRendererText>();
+        Gtk::CellRendererText& rndr = MakeNameRenderer();
 
         rndr.property_size_points() = 13.0; // синхронизировать со стилем "MenuEntryStyle"
         rndr.property_xpad() = 5;
