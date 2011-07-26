@@ -205,6 +205,7 @@ inline VideoChapterMD* MakeEmptyChapter() { return new VideoChapterMD; }
 ChapterItem IsChapter(MediaItem mi);
 VideoItem   IsVideo(MediaItem mi);
 StorageItem IsStorage(MediaItem mi);
+bool IsStillImage(MediaItem mi);
 
 inline StorageItem GetAsStorage(MediaItem mi)
 {

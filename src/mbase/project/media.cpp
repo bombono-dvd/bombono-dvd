@@ -94,6 +94,11 @@ StorageItem IsStorage(MediaItem mi)
     return ptr::dynamic_pointer_cast<StorageMD>(mi);
 }
 
+bool IsStillImage(MediaItem mi)
+{
+    return ptr::dynamic_pointer_cast<StillImageMD>(mi);
+}
+ 
 std::string GetFilename(StorageMD& smd)
 {
     return ConvertPathFromUtf8(smd.GetPath());

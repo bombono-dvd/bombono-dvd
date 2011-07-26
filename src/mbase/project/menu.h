@@ -71,6 +71,21 @@ struct SubpicturePalette
     SubpicturePalette();
 };
 
+enum BackSpanType
+{
+    bstPAN_SCAN = 0,  // (по умолчанию)
+    bstLETTERBOX,     //
+    bstSTRETCH,       // растянуть, не считаясь с пропорциями
+};
+
+struct BackSettings
+{
+    BackSpanType  bsTyp;
+     RGBA::Pixel  sldClr; // "select"
+     
+     BackSettings(): bsTyp(bstPAN_SCAN) {}
+};
+
 // меню
 class MenuMD: public PSO<MenuMD, Media> // от Media
 {
@@ -79,12 +94,13 @@ class MenuMD: public PSO<MenuMD, Media> // от Media
         typedef std::vector<MenuItem> ListType;
         typedef   ListType::iterator  Itr;
 
+        BackSettings  bgSet;
+        
                            MenuMD();
 
                MenuParams& Params() { return mPrms; }
                  ListType& List()   { return itmLst; }
                 MediaItem& BgRef()  { return bgRef; }
-              std::string& Color()  { return color; }
                MotionData& MtnData(){ return mtnData; }
 
         SubpicturePalette  subPal;
@@ -96,7 +112,6 @@ class MenuMD: public PSO<MenuMD, Media> // от Media
             MenuParams  mPrms;
               ListType  itmLst; // список глав
              MediaItem  bgRef;  // фон меню
-           std::string  color;
             MotionData  mtnData;
 };
 

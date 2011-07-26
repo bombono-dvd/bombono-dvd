@@ -60,7 +60,12 @@ RGBA::Pixel MakeColor(const std::string& clr_str);
 
 void SerializePostAction(Archieve& ar, PostAction& pa);
 
+// текущая версия формата хранения проектов
+extern const int PRJ_VERSION;
+
 } // namespace Project
+
+bool CanSrl(Project::Archieve& ar, int req_ver);
 
 #endif // #ifndef __MBASE_PROJECT_TABLE_SRL_H__
 

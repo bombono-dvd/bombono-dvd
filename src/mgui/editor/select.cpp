@@ -38,6 +38,7 @@
 #include <mgui/sdk/menu.h>  // Popup()
 #include <mgui/sdk/widget.h>  // SetColor()
 #include <mgui/gettext.h>
+#include <mgui/dialog.h>
 
 //typedef boost::function<bool(Comp::MediaObj*)> CMFunctor;
 //
@@ -615,13 +616,98 @@ static void DistributeImpl(bool is_hz)
     RenderForRegion(edt_area, new_rlr);
 }
 
-static void SetBgColor();
-
 bool SetEnabled(Gtk::Widget& wdg, bool is_enabled)
 {
     wdg.set_sensitive(is_enabled);
     return is_enabled;
 }
+
+static void ReRenderAll(MEditorArea& edt_area)
+{
+    RenderForRegion(edt_area, Rect0Sz(edt_area.FramePlacement().Size()));
+}
+
+void SetBackgroundLink(Project::MediaItem mi)
+{
+    MEditorArea& edt_area = MenuEditor();
+    MenuRegion& mr = edt_area.CurMenuRegion();
+    mr.BgRef().SetLink(mi);
+    ResetBackgroundImage(mr);
+    
+    ReRenderAll(edt_area);
+}
+
+//static void SetBgColor()
+//{
+//    Gtk::ColorSelectionDialog dlg(_("Set Background Color..."));
+//    Gtk::ColorSelection& sel = *dlg.get_colorsel();
+//    RGBA::Pixel& bg_clr      = CurMenuRegion().BgColor();
+//
+//    sel.set_current_color(PixelToColor(bg_clr));
+//    if( dlg.run() == Gtk::RESPONSE_OK )
+//    {
+//        bg_clr = RGBA::ColorToPixel(sel.get_current_color());
+//        SetBackgroundLink(Project::MediaItem()); // очистка + перерисовка
+//    }
+//}
+
+static void ShowBGDialog()
+{
+    Gtk::Window& dlg = MenuEditor().bgDlg.dlg;
+    //if( !dlg.get_visible() )
+    //    dlg.show();
+    dlg.present();
+}
+
+namespace Editor {
+
+// для Project::BackSpanType (заполнение, по размеру, растянуть)
+const char* SpanTypes[] = { N_("Fill"), N_("Fit"), N_("Stretch") };
+
+static void OnResponse(Gtk::Dialog& dlg, int resp)
+{
+    if( resp == Gtk::RESPONSE_CLOSE )
+        dlg.hide();
+}
+
+static void OnBackSettingChanged()
+{
+    MEditorArea& edt_area = MenuEditor();
+    BackgroundDialog& bg = edt_area.bgDlg;
+    // защита от зацикливания по фокусу
+    if( edt_area.CurMenu() && bg.userFocus )
+    {
+        Project::BackSettings& bs = CurMenuRegion().bgSet;
+        bs.bsTyp  = (Project::BackSpanType)bg.styleCombo.get_active_row_number();
+        bs.sldClr = GetColor(bg.clrBtn);
+        
+        ReRenderAll(edt_area);
+    }
+}
+
+BackgroundDialog::BackgroundDialog(): 
+    dlg(_("Background Settings")), userFocus(true)
+{
+    SetDialogStrict(dlg, 250, -1);
+    DialogVBox& vbox = AddHIGedVBox(dlg);
+    
+    Gtk::ComboBoxText& st_cmb = styleCombo;
+    for( int i=0; i<(int)ARR_SIZE(SpanTypes); i++ )
+        st_cmb.append_text(gettext(SpanTypes[i]));
+    AppendWithLabel(vbox, st_cmb, SMCLN_("_Style"));
+    
+    AppendWithLabel(vbox, clrBtn, SMCLN_("_Color"));
+    
+    // * интерактив
+    st_cmb.signal_changed().connect(&OnBackSettingChanged);
+    clrBtn.signal_color_set().connect(&OnBackSettingChanged);
+    
+    // сам по умолчанию скрыт
+    CompleteDialog(dlg, true);
+    dlg.signal_response().connect(bb::bind(&OnResponse, b::ref(dlg), _1));
+}
+    
+} // namespace Editor
 
 void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
 {
@@ -720,8 +806,9 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
             }
         }
 
-        // Set Background Color
-        AddEnabledItem(mn, _("Set Background Color..."), &SetBgColor, !has_selected);
+        // Фон
+        //AddEnabledItem(mn, _("Set Background Color..."), &SetBgColor, !has_selected);
+        AddEnabledItem(mn, DOTS_("Background Settings"), &ShowBGDialog, !has_selected);
 
         //mn.accelerate(edt_area);
         Popup(mn, event, true);
@@ -952,37 +1039,6 @@ void ClearLinkVis::Visit(TextObj& t_obj)
     if( !forPoster && IsObjSelected() )
         t_obj.MediaItem().SetLink(newMI);
     //MyParent::Visit(t_obj);
-}
-
-void SetBackgroundLink(Project::MediaItem mi)
-{
-    MEditorArea& edt_area = MenuEditor();
-    MenuRegion& mr = edt_area.CurMenuRegion();
-    mr.BgRef().SetLink(mi);
-    ResetBackgroundImage(mr);
-    RenderForRegion(edt_area, Rect0Sz(edt_area.FramePlacement().Size()));
-}
-
-//void SetSelObjectsLinks(Project::MediaItem mi, bool is_background)
-//{
-//    if( is_background )
-//        SetBackgroundLink(mi);
-//    else
-//        SetObjectsLinks(mi, false);
-//}
-
-static void SetBgColor()
-{
-    Gtk::ColorSelectionDialog dlg(_("Set Background Color..."));
-    Gtk::ColorSelection& sel = *dlg.get_colorsel();
-    RGBA::Pixel& bg_clr      = CurMenuRegion().BgColor();
-
-    sel.set_current_color(PixelToColor(bg_clr));
-    if( dlg.run() == Gtk::RESPONSE_OK )
-    {
-        bg_clr = RGBA::ColorToPixel(sel.get_current_color());
-        SetBackgroundLink(Project::MediaItem()); // очистка + перерисовка
-    }
 }
 
 class SelTextRefontVis: public CommonDrawVis

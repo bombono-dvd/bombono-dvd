@@ -70,7 +70,7 @@ class CommonRenderVis: public CommonGuiVis
    RGBA::RgnPixelDrawer& GetDrawer() { return *drw; }
             
     protected:
-        ptr::one<RGBA::RgnPixelDrawer> drw; 
+                               Drawer  drw; 
                           RectListRgn& rLst;
 
    virtual  bool  IsSelected() { return false; }
@@ -82,6 +82,9 @@ class CommonRenderVis: public CommonGuiVis
 
 MBind::TextRendering Make(TextObj& t_obj);
 };
+
+void DoRenderBackground(CommonRenderVis::Drawer& drw, RefPtr<Gdk::Pixbuf> pix,
+                        MenuRegion* m_rgn, const Rect& plc);
 
 #endif // #ifndef __MGUI_RENDER_EDITOR_H__
 

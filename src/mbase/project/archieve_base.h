@@ -116,9 +116,10 @@ class LoadArchiever: public LoaderFnr<LoadArchiever>
 class Archieve
 {
     public:
+        int loadVer;
 
                    Archieve(xmlpp::Element* base_node, bool is_read)
-                       : curNode(base_node), isLoad(is_read), isSubNode(false) {}
+                       : curNode(base_node), isLoad(is_read), isSubNode(false), loadVer(NO_HNDL) {}
 
              bool  IsLoad() const { return isLoad;  }
              bool  IsSave() const { return !isLoad; }

@@ -60,12 +60,32 @@ struct Toolbar
                TextStyle  GetFontDesc();   
 };
 
+struct BackgroundDialog
+{
+          Gtk::Dialog  dlg;
+                       // :TRICKY: пришлось вручную хранить состояние, чтобы отличать смену
+                       // значений пользователем и при синхронизации (загрузке меню)
+                       // попытка проверять фокус диалога с has_toplevel_focus() с треском провалилась,
+                       // потому что искомый фокус появлялся сразу после того, как выполнялся обработчик
+                       // (до этого он был, очевидно, на вспомогательных виджетах вроде popup-меню)
+                 bool  userFocus;
+                 
+    Gtk::ComboBoxText  styleCombo;
+     Gtk::ColorButton  clrBtn;
+    
+    BackgroundDialog();
+};
+
 // редактор меню с панелью инструментов и прочим
 class Kit: public ReSingleton<Kit>, public /*Gtk::DrawingArea*/ DisplayArea, 
            public EditorRegion, public MEdt::ToolData
 {
     typedef Gtk::DrawingArea MyParent;
     public:
+        
+    Editor::Toolbar  toolbar;
+   BackgroundDialog  bgDlg;
+        
                      Kit();
 
                void  LoadMenu(Project::Menu menu);
@@ -96,8 +116,6 @@ class Kit: public ReSingleton<Kit>, public /*Gtk::DrawingArea*/ DisplayArea,
 
     protected:
                     bool  standAlone; // проведение обновлений - только себя или все меню
-         Editor::Toolbar  toolbar;
-
                     Rect  dndSelFrame; // при dnd отрисовка рамки
 
        virtual void  DoOnConfigure(bool is_update);

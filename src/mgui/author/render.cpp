@@ -566,12 +566,6 @@ static Point DVDAspect(bool is4_3)
 AutoDVDTransData::AutoDVDTransData(bool is4_3_): is4_3(is4_3_), 
     srcAspect(DVDAspect(is4_3_)), audioNum(1) {}
 
-template<typename DstT, typename SrcT>
-static PointT<DstT> ChangePoint(const PointT<SrcT>& pnt)
-{
-    return PointT<DstT>(pnt.x, pnt.y);
-}
-
 static int PadSize(int free_space)
 {
     // ffmpeg требует четных по размеру матов
@@ -652,10 +646,7 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData
     // * соотношение
     bool is_4_3 = atd.is4_3;
     // * размеры
-    DPoint dst_asp = ChangePoint<double>(DVDAspect(is_4_3));
-    DPoint asp = FitInto1(dst_asp, ChangePoint<double>(atd.srcAspect));
-
-    Point img_sz(asp.x * sz.x, asp.y * sz.y);
+    Point img_sz = FitIntoRect(sz, DVDAspect(is_4_3), atd.srcAspect).Size();
     std::string sz_str = FFSizeOption(sz);
     if( img_sz.x < sz.x )
     {
@@ -787,8 +778,7 @@ static std::string GetFilename(VideoStart vs)
     return GetFilename(*vs.first);
 }
 
-static void LoadMotionFrame(RefPtr<Gdk::Pixbuf>& pix, MediaItem ref, DataWare& src,
-                            MotionTimer& mt)
+static RefPtr<Gdk::Pixbuf> GetMotionFrame(MediaItem ref, DataWare& src, MotionTimer& mt)
 {
     VideoStart vs = GetVideoStart(ref);
     VideoViewer& plyr = src.GetData<VideoViewer>(MOTION_MENU_TAG);
@@ -796,7 +786,13 @@ static void LoadMotionFrame(RefPtr<Gdk::Pixbuf>& pix, MediaItem ref, DataWare& s
         RGBOpen(plyr, GetFilename(vs));
 
     double tm = vs.second + mt.Time();
-    GetFrame(pix, tm, plyr);
+    return VideoPE(plyr, tm).Make(Point()).ROPixbuf();
+}
+
+static void LoadMotionFrame(RefPtr<Gdk::Pixbuf>& pix, MediaItem ref, DataWare& src,
+                            MotionTimer& mt)
+{
+    RGBA::CopyOrScale(pix, GetMotionFrame(ref, src, mt));
 }
 
 void MotionMenuRVis::RenderBackground()
@@ -804,16 +800,17 @@ void MotionMenuRVis::RenderBackground()
     Menu mn = GetOwnerMenu(menuRgn);
     MotionTimer& mt  = GetMotionTimer(mn);
     MediaItem bg_ref = menuRgn->BgRef();
-    RefPtr<Gdk::Pixbuf> menu_pix = cnvBuf->FramePixbuf();
+    Rect plc = cnvBuf->FrameRect();
 
     if( IsToBeMoving(bg_ref) )
     {
-        // явно отображаем кадр в стиле монитора (DAMonitor),
-        // а не редактора, потому что:
-        // - область и так всю перерисовывать
-        // - самый быстрый вариант (без каких-либо посредников)
-        //drw->ScalePixbuf(pix, cnvBuf->FrameRect());
-        LoadMotionFrame(menu_pix, bg_ref, *mn, mt);
+        //// явно отображаем кадр в стиле монитора (DAMonitor),
+        //// а не редактора, потому что:
+        //// - область и так всю перерисовывать
+        //// - самый быстрый вариант (без каких-либо посредников)
+        ////drw->ScalePixbuf(pix, cnvBuf->FrameRect());
+        //LoadMotionFrame(menu_pix, bg_ref, *mn, mt);
+        DoRenderBackground(drw, GetMotionFrame(bg_ref, *mn, mt), menuRgn, plc);
     }
     else
     {
@@ -824,10 +821,10 @@ void MotionMenuRVis::RenderBackground()
             // потому что пока вообще пусто (а область рендеринга сужена
             // до анимационных элементов)
             //MyParent::RenderBackground();
-            RGBA::Scale(menu_pix, static_menu_pix);
+            RGBA::Scale(cnvBuf->FramePixbuf(), static_menu_pix);
         }
         else
-            drw->ScalePixbuf(static_menu_pix, cnvBuf->FrameRect());
+            drw->ScalePixbuf(static_menu_pix, plc);
     }
 }
 

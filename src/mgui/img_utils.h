@@ -162,6 +162,8 @@ class DisplayArea: public Gtk::DrawingArea
 
 // уместить один прямоугольник в другой с сохранением пропорций
 Rect FitIntoRect(const Point& win_sz, const Point& obj_sz);
+// --||-- по заданным пропорциям win_sz (dst_dar) и объекта (src_dar)
+Rect FitIntoRect(const Point& win_sz, const Point& dst_dar, const Point& src_dar);
 
 namespace RGBA
 {

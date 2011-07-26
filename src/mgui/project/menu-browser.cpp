@@ -651,7 +651,8 @@ Gtk::Menu& CommonMenuBuilder::Create()
     }
 
     // * Medias
-    if( Size(mdStore) )
+    // :TRICKY: mdStore может быть нулем в тесте test_meditor.cpp
+    if( mdStore && Size(mdStore) )
     {
         for( MediaStore::iterator itr = mdStore->children().begin(), end = mdStore->children().end();
              itr != end; ++itr )

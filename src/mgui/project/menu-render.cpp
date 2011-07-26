@@ -62,7 +62,6 @@ class ThumbRenderVis: public CommonRenderVis
     public:
                   ThumbRenderVis(RectListRgn& r_lst): MyParent(r_lst) { }
 
-   //virtual  void  VisitImpl(MenuRegion& menu_rgn);
    virtual RefPtr<Gdk::Pixbuf> CalcBgShot();
    virtual  void  Visit(FrameThemeObj& fto);
 };
@@ -267,7 +266,7 @@ static void LoadBackground(MenuRegion& menu_rgn, Menu mn)
     menu_rgn.GetParams()   = prms;
     menu_rgn.BgRef().SetLink(mn->BgRef());
 
-    menu_rgn.BgColor() = MakeColor(mn->Color());
+    menu_rgn.bgSet = mn->bgSet;
     menu_rgn.BgColor().alpha = RGBA::Pixel::MaxClr; // форсируем непрозрачность
 
 //     SimpleOverObj* bg_soo  = new SimpleOverObj;
@@ -367,7 +366,7 @@ void SaveMenu(Menu mn)
     // * меню
     mn->Params() = m_rgn.GetParams();
     mn->BgRef()  = m_rgn.BgRef();
-    mn->Color()  = ToString(m_rgn.BgColor());
+    mn->bgSet    = m_rgn.bgSet;
 
     MenuItem mi;
     for( MenuRegion::Itr itr = m_rgn.List().begin(), end = m_rgn.List().end(); itr != end; ++itr )

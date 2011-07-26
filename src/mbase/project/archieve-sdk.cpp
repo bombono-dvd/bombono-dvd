@@ -24,12 +24,15 @@
 #include "archieve.h"
 #include "archieve-sdk.h"
 
+#include <mlib/string.h>
+
 namespace Project
 {
 
-void DoSaveArchieve(xmlpp::Element* root_node, const ArchieveFnr& afnr)
+void DoSaveArchieve(xmlpp::Element* root_node, const ArchieveFnr& afnr, int ver_to_save)
 {
     Archieve ar(root_node, false);
+    ar("Version", ver_to_save);
     afnr(ar);
 }
 
@@ -51,6 +54,12 @@ void DoLoadArchieve(const std::string& fname, const ArchieveFnr& afnr, const cha
         throw std::runtime_error("The file is not " APROGRAM_PRINTABLE_NAME " document.");
 
     Archieve ar(root_node, true);
+
+    std::string ver_str;
+    ar("Version", ver_str);
+    if( !Str::GetType(ar.loadVer, ver_str.c_str()) )
+        ar.loadVer = 0;
+
     afnr(ar);
 }
 

@@ -50,7 +50,7 @@ operator << (std::basic_ostream<CharT, Traits>& os, set_hi_precision<T> /*f*/)
     return os; 
 }
 
-// текущая версия формата хранения проектов
+// текущая версия BmD
 extern const char* APROJECT_VERSION;
 #define APROGRAM_PRINTABLE_NAME "\"Bombono DVD\""
 

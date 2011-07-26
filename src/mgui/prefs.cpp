@@ -48,39 +48,17 @@ std::string PreferencesPath(const char* fname)
     return GetConfigDir() + "/" + fname;
 }
 
-typedef boost::function<void(Project::Archieve&, const int)> ArchieveVerFnr;
-
-static void SerializeHeader(Project::Archieve& ar, const ArchieveVerFnr& fnr,
-                            const int ver_for_save)
-{
-    int version = ver_for_save;
-    if( ar.IsLoad() )
-        ar("Version", version);
-    fnr(ar, version);
-}
-
-static Project::ArchieveFnr CreateSH(const ArchieveVerFnr& fnr, int version)
-{
-    return bb::bind(&SerializeHeader, _1, fnr, version);
-}
-
-void SavePrefs(ArchieveVerFnr afnr, const char* fname, int version)
+void SavePrefs(Project::ArchieveFnr afnr, const char* fname, int version)
 {
     xmlpp::Document doc;
     xmlpp::Element* root_node = doc.create_root_node("BmD");
-    root_node->set_attribute("Version", boost::lexical_cast<std::string>(version));
     root_node->add_child_comment("Preferences for Bombono DVD");
 
-    Project::DoSaveArchieve(root_node, CreateSH(afnr, version));
+    Project::DoSaveArchieve(root_node, afnr, version);
     doc.write_to_file_formatted(PreferencesPath(fname));
 }
 
-static bool CanSrl(Project::Archieve& ar, int load_ver, int req_ver)
-{
-    return ar.IsSave() || (load_ver >= req_ver);
-}
-
-static bool LoadPrefs(const char* fname, const ArchieveVerFnr& fnr)
+static bool LoadPrefs(const char* fname, const Project::ArchieveFnr& fnr)
 {
     bool res = false;
     std::string cfg_path = PreferencesPath(fname);
@@ -88,7 +66,7 @@ static bool LoadPrefs(const char* fname, const ArchieveVerFnr& fnr)
     {
         if( fs::exists(cfg_path) )
         {
-            Project::DoLoadArchieve(cfg_path, CreateSH(fnr, -1), "BmD");
+            Project::DoLoadArchieve(cfg_path, fnr, "BmD");
             res = true;
         }
     }
@@ -105,14 +83,14 @@ static bool LoadPrefs(const char* fname, const ArchieveVerFnr& fnr)
 
 const int PREFS_VERSION = 3;
 
-void SerializePrefs(Project::Archieve& ar, int version)
+void SerializePrefs(Project::Archieve& ar)
 {
     ar("PAL",    Prefs().isPAL  )
       ("Player", Prefs().player );
 
-    if( CanSrl(ar, version, 2) )
+    if( CanSrl(ar, 2) )
         ar("DefAuthorPath", Prefs().authorPath);
-    if( CanSrl(ar, version, 3) )
+    if( CanSrl(ar, 3) )
         ar("ShowSrcFileBrowser", Prefs().showSrcFileBrowser);
 }
 
@@ -226,7 +204,7 @@ static void LoadFCState(Project::Archieve& ar)
     UnnamedPreferences::Instance().fcMap[name] = fc;
 }
 
-void SerializeUnnamedPrefs(Project::Archieve& ar, int version)
+void SerializeUnnamedPrefs(Project::Archieve& ar)
 {
     UnnamedPreferences& up = UnnamedPreferences::Instance();
 
@@ -235,7 +213,7 @@ void SerializeUnnamedPrefs(Project::Archieve& ar, int version)
       ( "FileBrowserWidth", up.srcBrw1Wdh )
       ( "MDBrowserWidth",   up.srcBrw2Wdh );
 
-    if( CanSrl(ar, version, 2) )
+    if( CanSrl(ar, 2) )
     {
         Project::ArchieveStackFrame asf(ar, "FCMap");
         if( ar.IsLoad() )

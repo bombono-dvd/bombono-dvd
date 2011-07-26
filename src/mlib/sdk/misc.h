@@ -132,5 +132,11 @@ bool CompareComponent(const T& e1, const T& e2, bool& cmp_res)
     return res;
 }
 
+template<typename DstT, typename SrcT>
+static PointT<DstT> ChangePoint(const PointT<SrcT>& pnt)
+{
+    return PointT<DstT>(pnt.x, pnt.y);
+}
+
 #endif // #ifndef __MLIB_MISC_H__
 

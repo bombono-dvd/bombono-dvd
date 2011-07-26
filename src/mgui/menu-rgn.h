@@ -81,6 +81,8 @@ class MenuRegion: public Comp::ListObj
 {
     typedef ListObj MyParent;
     public:
+    Project::BackSettings  bgSet;
+        
                            MenuRegion(): mInf(true), bgRef(this), cnvBuf(0) {}
 
             virtual  void  Accept(Comp::ObjVisitor& vis);
@@ -96,15 +98,14 @@ class MenuRegion: public Comp::ListObj
 
                MenuParams& GetParams() { return mInf; }
                 MediaLink& BgRef()  { return bgRef; }
-              RGBA::Pixel& BgColor()  { return bgClr; }
+              RGBA::Pixel& BgColor()  { return bgSet.sldClr; }
                      //void  SetByMovieInfo(MovieInfo& m_inf);
 
     protected:
-                      MenuParams  mInf;
-                       MediaLink  bgRef;
-                     RGBA::Pixel  bgClr;
-
-                       CanvasBuf* cnvBuf;
+      MenuParams  mInf;
+       MediaLink  bgRef;
+    
+       CanvasBuf* cnvBuf;
 
                            // посетить n-ый объект
                      void  VisitNthObj(GuiObjVisitor& gvis, int n);

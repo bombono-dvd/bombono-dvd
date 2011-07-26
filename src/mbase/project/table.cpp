@@ -344,6 +344,8 @@ void SaveFormattedUTF8Xml(xmlpp::Document& doc, const Glib::ustring& filename)
     doc.write_to_file_formatted(filename, "UTF-8");
 }
 
+const int PRJ_VERSION = 1;
+
 bool ADatabase::SaveWithFnr(ArchieveFnr afnr)
 {
     ASSERT( !isOut );
@@ -353,10 +355,10 @@ bool ADatabase::SaveWithFnr(ArchieveFnr afnr)
 
     xmlpp::Document doc;
     xmlpp::Element* root_node = doc.create_root_node("AProject");
-    root_node->set_attribute("Version", APROJECT_VERSION);
+    root_node->set_attribute("BmdVersion", APROJECT_VERSION);
     root_node->add_child_comment("This document is for " APROGRAM_PRINTABLE_NAME " program");
 
-    DoSaveArchieve(root_node, afnr);
+    DoSaveArchieve(root_node, afnr, PRJ_VERSION);
     SaveFormattedUTF8Xml(doc, ConvertPathFromUtf8(prjFName));
     return true;
 }

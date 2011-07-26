@@ -29,7 +29,7 @@
 #include <mgui/win_utils.h>
 #include <mgui/project/menu-render.h>
 #include <mgui/project/dnd.h>
-
+#include <mgui/sdk/widget.h> // SetColor()
 
 #include <mbase/resources.h>
 #include <mlib/filesystem.h>
@@ -251,6 +251,14 @@ void ClearLocalData(MenuRegion& m_rgn, const std::string& tag)
         clear_fnr(**itr);
 }
 
+// временная смена значения
+struct TempBool
+{
+    bool& val;
+    TempBool(bool& val_): val(val_) { val = !val; }
+   ~TempBool() { val = !val; }
+};
+
 void Kit::LoadMenu(Project::Menu menu)
 {
     Project::Menu old_menu = CurMenu();
@@ -284,6 +292,12 @@ void Kit::LoadMenu(Project::Menu menu)
         curMRgn->SetCanvasBuf(this);
 
         mp.editor = this;
+        
+        // * обновление диалога фона
+        Project::BackSettings& bs = curMRgn->bgSet;
+        TempBool tb(bgDlg.userFocus);
+        bgDlg.styleCombo.set_active(bs.bsTyp);
+        SetColor(bgDlg.clrBtn, bs.sldClr);
     }
     else
         curMRgn = 0;

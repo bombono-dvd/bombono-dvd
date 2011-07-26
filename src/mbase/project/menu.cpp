@@ -118,9 +118,25 @@ static void SerializeColor(Archieve& ar, const char* tag_name, RGBA::Pixel& clr)
 void MenuMD::SerializeImpl(Archieve& ar)
 {
     // * параметры
-    ar( "Params",     mPrms   )
-      ( "Color",      color   );
-    SerializeReference(ar, "BGRef", bgRef);
+    ar( "Params",     mPrms   );
+
+    // * фон
+    if( CanSrl(ar, 1) )
+    {
+        ArchieveStackFrame asf(ar, "Background");
+        ar("SpanType", bgSet.bsTyp);
+        SerializeColor(ar, "Color", bgSet.sldClr);
+        SerializeReference(ar, "BGRef", bgRef);
+    }
+    else
+    {
+        // загрузка версий 1.0.x
+        bgSet.bsTyp = bstSTRETCH; // исторически
+        //ar( "Color",      color   );
+        SerializeColor(ar, "Color", bgSet.sldClr);
+        SerializeReference(ar, "BGRef", bgRef);
+    }
+
     ar( "MotionData", mtnData );
 
     // * цвета субкартинок

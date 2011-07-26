@@ -24,6 +24,7 @@
 #include "bind.h"
 #include "render.h"
 #include "text.h"
+#include "actions.h" // DisplayAspectOrDef()
 
 #include <mlib/lambda.h>
 #include <mgui/render/menu.h>
@@ -65,19 +66,67 @@ void CommonRenderVis::VisitImpl(MenuRegion& menu_rgn)
     MyParent::VisitImpl(menu_rgn);
 }
 
+static void FillSolid(CommonRenderVis::Drawer& drw, MenuRegion* menu_rgn,
+                      const Rect& plc)
+{
+    drw->SetForegroundColor(menu_rgn->BgColor());
+    drw->Fill(plc);
+}
+
+void DoRenderBackground(CommonRenderVis::Drawer& drw, RefPtr<Gdk::Pixbuf> pix,
+                        MenuRegion* m_rgn, const Rect& plc)
+{
+    Point sz = PixbufSize(pix);
+    // первоначально сделал получение пропорций через CalcBgShot(), вместе
+    // с самой картинкой, но это неадекватно: суть CalcBgShot() - получение
+    // тяжелых данных наиболее оптимальным путем; остальное можно получить 
+    // и напрямую
+    Point dar;
+    Project::MediaItem bg_mi = m_rgn->BgRef();
+    if( Project::VideoItem vi = IsVideo(bg_mi) )
+        dar = CalcAspectSize(*vi);
+    else if( Project::ChapterItem ci = IsChapter(bg_mi) )
+        dar = CalcAspectSize(*ci->owner);
+    else // if( IsStillImage(bg_mi) )
+        // может быть ColorMD для тестов, потому убрал проверку
+        dar = sz;
+
+    Point dst_dar = DisplayAspectOrDef(m_rgn);
+
+    switch( m_rgn->bgSet.bsTyp )
+    {
+    case Project::bstPAN_SCAN:
+        {
+            Rect rct = FitIntoRect(PixbufSize(pix), dar, dst_dar);
+            RefPtr<Gdk::Pixbuf> sub_pix = MakeSubPixbuf(pix, rct);
+            if( !sub_pix )
+                // вырожденные случаи вроде однопиксельного источника
+                sub_pix = pix;
+            drw->ScalePixbuf(sub_pix, plc);
+        }
+        break;
+    case Project::bstLETTERBOX:
+        {
+            FillSolid(drw, m_rgn, plc);
+
+            Rect rct = FitIntoRect(plc.Size(), dst_dar, dar);
+            drw->ScalePixbuf(pix, rct);
+        }
+        break;
+    case Project::bstSTRETCH:
+    default:
+        drw->ScalePixbuf(pix, plc);
+        break;
+    }
+}
+
 void CommonRenderVis::RenderBackground()
 {
-    Rect plc = cnvBuf->FrameRect(); // menuRgn->GetCanvasBuf().FrameRect();
+    Rect plc = cnvBuf->FrameRect();
     if( menuRgn->BgRef().Link() )
-    {
-        RefPtr<Gdk::Pixbuf> pix = CalcBgShot();
-        drw->ScalePixbuf(pix, plc);
-    }
+        DoRenderBackground(drw, CalcBgShot(), menuRgn, plc);
     else
-    {
-        drw->SetForegroundColor(menuRgn->BgColor());
-        drw->Fill(plc);
-    }
+        FillSolid(drw, menuRgn, plc);
 }
 
 void ResetBackgroundImage(MenuRegion& mr)

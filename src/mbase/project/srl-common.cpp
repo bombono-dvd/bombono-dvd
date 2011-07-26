@@ -84,3 +84,15 @@ RGBA::Pixel MakeColor(const std::string& clr_str)
 
 } // namespace Project
 
+bool CanSrl(Project::Archieve& ar, int req_ver)
+{
+    bool res = ar.IsSave();
+    if( !res )
+    {
+        int load_ver = ar.loadVer;
+        ASSERT( load_ver != NO_HNDL );
+        res = load_ver >= req_ver;
+    }
+    return res;
+}
+
