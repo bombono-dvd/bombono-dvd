@@ -34,6 +34,7 @@
 #include <mgui/sdk/entry.h>
 #include <mgui/sdk/packing.h>
 #include <mgui/sdk/widget.h>
+#include <mgui/sdk/treemodel.h>
 
 #include <mgui/render/menu.h>
 #include <mgui/render/editor.h>
@@ -110,20 +111,85 @@ Gtk::Widget& MakeSelectionToolImage()
     return GetFactoryGtkImage("tool-pointer.png");
 }
 
-Gtk::TreeModelColumn<std::string> FrameTypeColumn;
-
-static RefPtr<Gdk::Pixbuf> RenderToolbarFrame(const std::string& theme_str, uint fill_clr)
+static RefPtr<Gdk::Pixbuf> ToToolbarSize(RefPtr<Gdk::Pixbuf> frame_pix)
 {
-    const Editor::ThemeData& td   = Editor::GetThumbTheme(theme_str);
-    Point thumb_sz(PixbufSize(td.vFrameImg));
-    RefPtr<Gdk::Pixbuf> frame_pix = CreatePixbuf(thumb_sz);
-    frame_pix->fill(fill_clr);
-    frame_pix = Editor::CompositeWithFrame(frame_pix, td);
-
+    Point thumb_sz(PixbufSize(frame_pix));
     Point sz(Round(thumb_sz.x*Editor::TOOL_IMAGE_SIZE/(double)thumb_sz.y), Editor::TOOL_IMAGE_SIZE);
     RefPtr<Gdk::Pixbuf> pix = CreatePixbuf(sz);
     RGBA::Scale(pix, frame_pix);
     return pix;
+}
+
+static RefPtr<Gdk::Pixbuf> RenderToolbarFrame(const std::string& theme_str, uint fill_clr)
+{
+    const Editor::ThemeData& td = Editor::GetThumbTheme(theme_str);
+    RefPtr<Gdk::Pixbuf> frame_pix = CreatePixbuf(PixbufSize(td.vFrameImg));
+    frame_pix->fill(fill_clr);
+    frame_pix = Editor::CompositeWithFrame(frame_pix, td);
+
+    return ToToolbarSize(frame_pix);
+}
+
+typedef Gtk::TreeModelColumn<FrameTheme> FTColumn;
+
+struct FTFields
+{
+    FTColumn  ft_cln;
+
+    FTFields(Gtk::TreeModelColumnRecord& rec)
+    {
+        rec.add(ft_cln);
+    }
+};
+
+FTColumn& FrameTypeColumn()
+{
+    return GetColumnFields<FTFields>().ft_cln;
+}
+
+// значение итератора из списка (combobox) тем
+FrameTheme Iter2FT(const Gtk::TreeModel::iterator& iter)
+{
+    return iter->get_value(FrameTypeColumn());
+}
+
+static std::string FT2Name(const Gtk::TreeModel::iterator& iter)
+{
+    FrameTheme ft = Iter2FT(iter);
+    std::string res = ft.themeName;
+    if( ft.isIcon )
+	res = get_basename(res);
+    return res;
+}
+
+bool SeparatorFunc(const RefPtr<Gtk::TreeModel>&, const Gtk::TreeIter& itr)
+{
+    return FT2Name(itr) == "_separator_";
+}
+
+Str::List& IconsDirs()
+{
+    static Str::List dirs;
+    if( !dirs.size() )
+	Project::AddSrcDirs(dirs, "icons");
+    return dirs;
+}
+
+typedef std::pair<fs::directory_iterator, fs::directory_iterator> dir_range_t;
+
+dir_range_t dir_range(const fs::path& dir)
+{
+    return dir_range_t(fs::directory_iterator(dir), fs::directory_iterator());
+}
+
+static bool ByExtName(const std::string& e1, const std::string& e2)
+{
+    bool cmp_res;
+    if( CompareComponent(get_extension(e1), get_extension(e2), cmp_res) ||
+	CompareComponent(e1, e2, cmp_res) )
+	return cmp_res;
+
+    return false;
 }
 
 Toolbar::Toolbar(): selTool(MakeSelectionToolImage()), txtTool(MakeTextToolLabel())
@@ -141,16 +207,6 @@ Toolbar::Toolbar(): selTool(MakeSelectionToolImage()), txtTool(MakeTextToolLabel
 
     // * выбор рамки
     {
-        // * создаем модель
-        Gtk::TreeModelColumnRecord columns;
-        Gtk::TreeModelColumn<RefPtr<Gdk::Pixbuf> > pix_cln;
-        Gtk::TreeModelColumn<std::string>          str_cln;
-        columns.add(pix_cln);
-        columns.add(str_cln);
-        // добавляем str_cln, чтобы можно было много раз создавать панель инструментов
-        Editor::FrameTypeColumn = str_cln;
-        RefPtr<Gtk::ListStore> f_store = Gtk::ListStore::create(columns);
-
         // * нужен цвет фона
         unsigned int fill_clr = 0;
         {
@@ -159,8 +215,14 @@ Toolbar::Toolbar(): selTool(MakeSelectionToolImage()), txtTool(MakeTextToolLabel
             tmp_win.add(tmp_combo);
             fill_clr = GetStyleColorBg(Gtk::STATE_NORMAL, tmp_combo).ToUint();
         }
-        // * заполняем
-        Gtk::ComboBox& combo = frame_combo;
+    	// * создаем модель
+    	Gtk::TreeModelColumn<RefPtr<Gdk::Pixbuf> > pix_cln;
+    	Gtk::TreeModelColumnRecord& columns = GetColumnRecord<FTFields>();
+    	columns.add(pix_cln);
+    	RefPtr<Gtk::ListStore> f_store = Gtk::ListStore::create(columns);
+    
+    	// * заполняем
+    	Gtk::ComboBox& combo = frame_combo;
         combo.set_model(f_store);
         // по фокусу определяем источник изменений!
         //combo.set_focus_on_click(false);
@@ -174,18 +236,66 @@ Toolbar::Toolbar(): selTool(MakeSelectionToolImage()), txtTool(MakeTextToolLabel
             const std::string& theme_str = iv.value();
             // *
             row[pix_cln] = RenderToolbarFrame(theme_str, fill_clr);
-            row[str_cln] = theme_str;
+            row[FrameTypeColumn()] = theme_str;
             if( theme_str == "rect" )
                 combo.set_active(iv.index());
         }
+	
+    	// * иконки
+    	// фиктивная тема для разделителя
+    	f_store->append()->set_value(FrameTypeColumn(), FrameTheme("_separator_"));
+    	combo.set_row_separator_func(&SeparatorFunc);
+    	// набираем список объектов
+    	Str::List o_lst;
+    	boost_foreach( const std::string& str, IconsDirs() )
+    	{
+    	    fs::path dir = fs::path(str);
+    	    if( fs::is_directory(dir) )
+    	    {    
+    		boost_foreach( const fs::path& pth, dir_range(dir) )
+    		    o_lst.push_back(pth.filename());
+    	    }
+    	}
+    	std::sort(o_lst.begin(), o_lst.end(), &ByExtName);
+    	// :REFACTOR!!!:
+    	o_lst.resize(std::unique(o_lst.begin(), o_lst.end()) - o_lst.begin());
+    	boost_foreach( const std::string& fname, o_lst )
+    	{
+    	    RefPtr<Gdk::Pixbuf> icon_pix;
+    	    boost_foreach( const std::string& str, IconsDirs() )
+    	    {
+        		fs::path pth = fs::path(str) / fname;
+                if( fs::exists(pth) )
+                    try
+                    {
+                        icon_pix = Gdk::Pixbuf::create_from_file(pth.string(), -1, Editor::TOOL_IMAGE_SIZE, true);
+                    } 
+                    catch(...) {}
+                
+        		if( icon_pix )
+        		    break;
+    	    }
+    
+            if( icon_pix )
+            {
+                Gtk::TreeRow row = *f_store->append();
+                row[pix_cln] = icon_pix; // ToToolbarSize(icon_pix);
+                row[FrameTypeColumn()] = FrameTheme(fname, true);
+            }
+    	}
+    	
         // * внешний вид
         combo.pack_start(pix_cln, false);
-        //combo.pack_start(str_cln, true);
         Gtk::CellRendererText& txt_rndr = NewManaged<Gtk::CellRendererText>();
         //txt_rndr.property_size_points() = 12.0;
         txt_rndr.property_xpad() = 5;
         combo.pack_start(txt_rndr, true);
-        combo.add_attribute(txt_rndr, "text", str_cln);
+        //combo.add_attribute(txt_rndr, "text", str_cln);
+    	combo.set_cell_data_func(txt_rndr, bb::bind(&Project::RenderField, &txt_rndr, _1, &FT2Name));
+	// 1) wrap_width>0 форсирует режим "не списка", что нестандартно для Windows (ерунда, кнопка все равно
+	// особая)
+	// 2) в 4 колонки тоже ничего (стараемся принять минимальный размер "в диаметре")
+	combo.set_wrap_width(3);
     }
 }
 
@@ -212,11 +322,11 @@ TextStyle Toolbar::GetFontDesc()
     return TextStyle(fnt_desc, undBtn.get_active(), GetColor(clrBtn));
 }
 
-std::string GetActiveTheme()
+FrameTheme GetActiveTheme()
 {
     Gtk::ComboBox& combo = MenuToolbar().frame_combo;
     Gtk::TreeIter itr = combo.get_active();
-    return itr ? itr->get_value(FrameTypeColumn) : std::string() ;
+    return itr ? Iter2FT(itr) : FrameTheme() ;
 }
 
 static void AppendTSeparator(Gtk::Toolbar& tbar)
@@ -360,7 +470,7 @@ RectMatrix MakeAddObjectMatrix(const MenuParams& mp)
 static void AddFTOItem(MEditorArea& editor, const Rect& lct, Project::MediaItem mi)
 {
     MenuRegion& rgn = editor.CurMenuRegion();
-
+    // :TODO!!!: конструктор вызывать со всей темой
     FrameThemeObj* fto = Project::NewFTO(Editor::GetActiveTheme(), lct);
     fto->MediaItem().SetLink(mi);
     Project::AddMenuItem(rgn, fto);
@@ -398,7 +508,7 @@ static void AddObjectClicked()
 
 static bool ReframeFTO(RectListRgn& r_lst, FrameThemeObj* obj, MenuRegion& mn_rgn)
 {
-    const std::string& theme = Editor::GetActiveTheme();
+    const FrameTheme& theme = Editor::GetActiveTheme();
     if( theme != obj->Theme() )
     {
         obj->GetData<FTOInterPixData>().ClearPix();

@@ -652,6 +652,30 @@ DialogParams SubtitlesDialog(VideoItem vi, Gtk::Widget* par_wdg)
     return DialogParams(_("Add Subtitles"), bb::bind(&SetSubtitles, vi, _1), 400, par_wdg);
 }
 
+void RenderField(Gtk::CellRenderer* rndr, const Gtk::TreeModel::iterator& iter,
+                 const I2TFunctor& fnr)
+{
+    static_cast<Gtk::CellRendererText*>(rndr)->property_text() = fnr(iter);
+}
+
+void SetTextRendererFnr(Gtk::TreeView::Column& name_cln, Gtk::CellRendererText& rndr, 
+                        const I2TFunctor& fnr)
+{
+    name_cln.set_cell_data_func(rndr, bb::bind(&RenderField, _1, _2, fnr));
+}
+
+static std::string Iter2MI(RefPtr<ObjectStore> os, const RFFunctor& fnr,
+                           const Gtk::TreeModel::iterator& iter)
+{
+    return fnr(os->GetMedia(iter));
+}
+
+void SetRendererFnr(Gtk::TreeView::Column& name_cln, Gtk::CellRendererText& rndr, 
+                    RefPtr<ObjectStore> os, const RFFunctor& fnr)
+{
+    SetTextRendererFnr(name_cln, rndr, bb::bind(&Iter2MI, os, fnr, _1));
+}
+
 // :TRICKY: без свойства "editable" редактирования не будет вообще, с ним - 
 // будет и по левой кнопке мыши (а это не уровень); "классический" вариант отключения (nautilus) -
 // включать "editable" перед редактированием, и выключать позже, но в двух местах (на ok и cancel), что
@@ -748,9 +772,9 @@ F_("Video")
 F_("Chapter")
 F_("Still Picture")
 
-void RenderMediaType(Gtk::CellRendererText* rndr, MediaItem mi)
+static std::string RenderMediaType(MediaItem mi)
 {
-    rndr->property_text() = gettext(mi->TypeString().c_str());
+    return gettext(mi->TypeString().c_str());
 }
 
 void MediaBrowser::BuildStructure()

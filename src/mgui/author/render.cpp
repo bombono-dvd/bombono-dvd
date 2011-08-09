@@ -268,7 +268,7 @@ void SPRenderVis::Visit(FrameThemeObj& fto)
     std::string targ_str;    
     if( HasButtonLink(fto, targ_str) )
     {
-        const Editor::ThemeData& td = Editor::ThemeCache::GetTheme(fto.Theme());
+        const Editor::ThemeData& td = Editor::ThemeCache::GetTheme(fto.ThemeName());
         // как и в случае текста, для субтитров DVD главное - не перебрать ограничение
         // кол-ва используемых цветов (<=16); поэтому подгоняем рамку по месту, а
         // не наоборот (чтоб обойти без финального скалирования) 
@@ -835,7 +835,7 @@ void MotionMenuRVis::Visit(FrameThemeObj& fto)
     {
         // напрямую делаем то же, что FTOData::CompositeFTO(),
         // чтобы явно видеть затраты
-        const Editor::ThemeData& td = Editor::ThemeCache::GetTheme(fto.Theme());
+        const Editor::ThemeData& td = Editor::ThemeCache::GetTheme(fto.ThemeName());
         // нужен оригинал в размере vFrameImg
         RefPtr<Gdk::Pixbuf> obj_pix = td.vFrameImg->copy();
         LoadMotionFrame(obj_pix, mi, fto, GetMotionTimer(GetOwnerMenu(&fto)));

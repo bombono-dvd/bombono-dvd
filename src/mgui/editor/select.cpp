@@ -177,7 +177,7 @@ class CursorActionVis: public SelVis
 
 static bool SetupCurFrame(FrameThemeObj* obj, MenuRegion&)
 {
-    const std::string& theme = obj->Theme();
+    const FrameTheme& theme = obj->Theme();
     if( theme != Editor::GetActiveTheme() )
     {
         Gtk::ComboBox& combo = MenuToolbar().frame_combo;
@@ -185,7 +185,7 @@ static bool SetupCurFrame(FrameThemeObj* obj, MenuRegion&)
         //for( Gtk::TreeModel::iterator itr = children.begin(), end = children.end();
         //     itr != end; ++itr )
         boost_foreach( const Gtk::TreeRow& row, combo.get_model()->children() )
-            if( row.get_value(Editor::FrameTypeColumn) == theme )
+            if( Editor::Iter2FT(row) == theme )
             {
                 combo.set_active(row);
                 break;

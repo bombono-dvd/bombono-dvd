@@ -907,7 +907,7 @@ void RunConstructor(const std::string& prj_file_name, bool ask_save_on_exit)
     
         std::list<RefPtr<Gdk::Pixbuf> > pix_lst;
         static const fs::directory_iterator end_itr;
-        for( fs::directory_iterator itr(DataDirPath("icons"));
+        for( fs::directory_iterator itr(DataDirPath("bmd-icons"));
             itr != end_itr; ++itr )
             pix_lst.push_back(Gdk::Pixbuf::create_from_file(itr->string()));
         Gtk::Window::set_default_icon_list(pix_lst);

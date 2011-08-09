@@ -44,7 +44,7 @@ void ChangeToTextTool(MEditorArea& edt_area);
 namespace Project
 {
 
-FrameThemeObj* NewFTO(const std::string& theme, const Rect& lct);
+FrameThemeObj* NewFTO(const FrameTheme& theme, const Rect& lct);
 void AddMenuItem(MenuRegion& menu_rgn, Comp::Object* obj);
 
 //// вспомогательная структура для передачи меню ссылок
@@ -58,13 +58,21 @@ void AddMenuItem(MenuRegion& menu_rgn, Comp::Object* obj);
 //    SetLinkMenu(): isForBack(false) {}
 //};
 
+typedef boost::function<std::string(const Gtk::TreeModel::iterator& iter)> I2TFunctor;
+
+void SetTextRendererFnr(Gtk::TreeView::Column& name_cln, Gtk::CellRendererText& rndr, 
+                        const I2TFunctor& fnr);
+void RenderField(Gtk::CellRenderer* rndr, const Gtk::TreeModel::iterator& iter,
+                 const I2TFunctor& fnr);
 } // namespace Project
 
 namespace Editor
 {
 
-extern Gtk::TreeModelColumn<std::string> FrameTypeColumn;
-std::string GetActiveTheme();
+// значение итератора из списка (combobox) тем
+FrameTheme Iter2FT(const Gtk::TreeModel::iterator& iter);
+    
+FrameTheme GetActiveTheme();
 Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box);
 
 const double DEF_FONT_SIZE = 28.0;

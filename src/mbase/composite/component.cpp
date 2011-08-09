@@ -23,11 +23,9 @@
 
 namespace Composition {
 
-FramedObj::FramedObj(const char* thm_name, Rect plc): pstrLink(this)
+FramedObj::FramedObj(const char* thm_name, Rect plc): pstrLink(this), thmName(thm_name)
 { 
-    //Load(thm_path, plc);
     SetPlacement(plc);
-    thmName = thm_name;
 }
 
 void ListObj::Clear()

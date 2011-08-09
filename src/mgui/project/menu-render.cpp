@@ -300,9 +300,10 @@ TextObj* CreateEditorText(TextItemMD& txt_md)
     return obj;
 }
 
-FrameThemeObj* NewFTO(const std::string& theme, const Rect& lct)
+FrameThemeObj* NewFTO(const FrameTheme& theme, const Rect& lct)
 {
-    return new FrameThemeObj(Project::ThemeOrDef(theme).c_str(), lct);
+    // :TODO!!!: конструктор
+    return new FrameThemeObj(Project::ThemeOrDef(theme.themeName).c_str(), lct);
 }
 
 void AddMenuItem(MenuRegion& menu_rgn, Comp::Object* obj)

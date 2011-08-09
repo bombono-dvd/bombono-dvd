@@ -126,13 +126,14 @@ class FramedObj: public SO<FramedObj, MediaObj>
 
                       FramedObj(const char* thm_name, Rect plc);
 
-         std::string& Theme() { return thmName; }
+          FrameTheme& Theme() { return thmName; }
+         std::string& ThemeName() { return thmName.themeName; }
           PosterLink& PosterItem() { return pstrLink; }
 
                 //void  Load(const char* thm_name, Rect& plc);
 
     protected:
-              std::string  thmName;
+               FrameTheme  thmName;
                PosterLink  pstrLink;
 };
 

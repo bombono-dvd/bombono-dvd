@@ -28,6 +28,8 @@
 
 #include <mlib/ptr.h>
 
+#include <boost/operators.hpp> // equality_comparable
+
 namespace Project
 {
 
@@ -228,6 +230,20 @@ void DeleteMedia(MediaItem mi);
 void DeleteChapter(VideoMD::ListType& chp_lst, VideoMD::Itr itr);
 
 } // namespace Project
+
+struct FrameTheme: public boost::equality_comparable<FrameTheme>
+{
+	   bool  isIcon;
+    std::string  themeName;
+    
+    FrameTheme(const std::string& str = std::string(), bool is_icon = false)
+	: themeName(str), isIcon(is_icon) {}
+    
+    bool operator==(const FrameTheme& rhs) const
+    {
+	return (isIcon == rhs.isIcon) && (themeName == rhs.themeName);
+    }
+};
 
 #endif // #ifndef __MBASE_PROJECT_MEDIA_H__
 

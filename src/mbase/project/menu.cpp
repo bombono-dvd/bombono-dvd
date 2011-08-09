@@ -321,7 +321,7 @@ void MenuItemMD::SerializeImpl(Archieve& ar)
 
 void FrameItemMD::SerializeImpl(Archieve& ar)
 {
-    ar & NameValue("Frame", themeStr);
+    ar & NameValue("Frame", themeStr.themeName);
     SerializeReference(ar, "Poster", posterRef);
 
     MyParent::SerializeImpl(ar);

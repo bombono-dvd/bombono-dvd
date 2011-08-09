@@ -32,19 +32,18 @@
 namespace Project
 {
 
-class ThemeDirList: public Str::List, public Singleton<ThemeDirList>
+struct ThemeDirList: public Str::List, public Singleton<ThemeDirList>
 {
-    typedef Str::List MyParent;
-    public:
-                  ThemeDirList();
-
-            void  AddDir(const std::string& dir) { push_back(dir); } 
+    ThemeDirList();
 };
+
+void AddSrcDirs(Str::List& dirs, const char* dname);
 
 // по имени темы выдать ее путь
 fs::path FindThemePath(const std::string& theme_name);
 inline std::string ThemeOrDef(const std::string& theme_name)
 {
+    // :TODO!!!: упростить/вынести на клиентский уровень
     return theme_name.empty() ? std::string("rect") : theme_name ;
 }
 // вернуть список тем

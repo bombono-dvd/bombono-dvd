@@ -316,29 +316,16 @@ void SetupBrowser(ObjectBrowser& brw, int dnd_column, bool need_headers)
         brw.add_object_drag(dnd_column, MediaItemDnDTVType());
 }
 
-static void RenderField(Gtk::CellRenderer* rndr, RefPtr<ObjectStore> os,
-                     const Gtk::TreeModel::iterator& iter, RFFunctor fnr)
-{
-    fnr(static_cast<Gtk::CellRendererText*>(rndr), os->GetMedia(iter));
-}
-
-void SetRendererFnr(Gtk::TreeView::Column& name_cln, Gtk::CellRendererText& rndr, 
-                    RefPtr<ObjectStore> os, RFFunctor fnr)
-{
-    name_cln.set_cell_data_func(rndr, bb::bind(&RenderField, _1, os, _2, fnr));
-}
-
-void RenderMediaName(Gtk::CellRendererText* rndr, MediaItem mi)
-{
-    rndr->property_text() = mi->mdName;
-}
-
-
 static void OnTitleEdited(RefPtr<ObjectStore> os, const Glib::ustring& path_str, 
                           const Glib::ustring& new_title)
 {
     MediaItem mi = GetMedia(os, Gtk::TreePath(path_str));
     DoNameChange(mi, new_title);
+}
+
+static std::string RenderMediaName(MediaItem mi)
+{
+    return mi->mdName;
 }
 
 void SetupNameRenderer(Gtk::TreeView::Column& name_cln, Gtk::CellRendererText& rndr, 

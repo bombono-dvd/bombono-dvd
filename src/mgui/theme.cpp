@@ -120,7 +120,7 @@ RefPtr<Gdk::Pixbuf> CompositeWithFrame(RefPtr<Gdk::Pixbuf> obj_pix, const Editor
 
 void FTOData::CompositeFTO(RefPtr<Gdk::Pixbuf>& pix, FrameThemeObj& fto)
 {
-    const Editor::ThemeData& td = GetTheme(fto.Theme());
+    const Editor::ThemeData& td = GetTheme(fto.ThemeName());
 
     RefPtr<Gdk::Pixbuf> obj_pix = CalcSource(Project::MIToDraw(fto), PixbufSize(td.vFrameImg));
     pix = CompositeWithFrame(obj_pix, td);

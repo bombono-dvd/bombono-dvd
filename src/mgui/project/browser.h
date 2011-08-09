@@ -108,10 +108,9 @@ Gtk::HButtonBox& CreateMListButtonBox();
 void SetupBrowser(ObjectBrowser& brw, int dnd_column, bool need_headers = false);
 
 // отрисовка
-typedef boost::function<void(Gtk::CellRendererText*, MediaItem)> RFFunctor;
-
+typedef boost::function<std::string(MediaItem)> RFFunctor;
 void SetRendererFnr(Gtk::TreeView::Column& name_cln, Gtk::CellRendererText& rndr, 
-                    RefPtr<ObjectStore> os, RFFunctor fnr);
+                    RefPtr<ObjectStore> os, const RFFunctor& fnr);
 void SetupNameRenderer(Gtk::TreeView::Column& name_cln, Gtk::CellRendererText& rndr, 
                      RefPtr<ObjectStore> os);
 
