@@ -325,9 +325,13 @@ static void ForAllSelectedFTO(Editor::FTOFunctor fnr)
 
 static bool GetCurPosterLink_(FrameThemeObj* obj, Project::MediaItem& mi, bool& can_set_poster)
 {
-    can_set_poster = true;
-    mi = obj->PosterItem();
-    return false;
+    bool is_found = !IsIconTheme(*obj);
+    if( is_found )
+    {
+        can_set_poster = true;
+        mi = obj->PosterItem();
+    }
+    return !is_found;
 }
 
 static Project::MediaItem GetCurPosterLink(bool& can_set_poster)
@@ -1018,6 +1022,14 @@ static void DeleteSelObjects()
     RenderForRegion(edt_area, sr_vis.RectList());
 }
 
+void ClearFTOCache(FrameThemeObj& fto)
+{
+    if( IsIconTheme(fto) )
+        ClearDwPixbuf(fto);
+    else
+        fto.GetData<FTOInterPixData>().ClearPix();
+}
+
 void ClearLinkVis::Visit(FrameThemeObj& fto)
 {
     if( IsObjSelected() )
@@ -1028,7 +1040,7 @@ void ClearLinkVis::Visit(FrameThemeObj& fto)
         if( old_mi != Project::MIToDraw(fto) )
         {
             // нужна перерисовка
-            fto.GetData<FTOInterPixData>().ClearPix();
+            ClearFTOCache(fto);
             MyParent::Visit(fto);
         }
     }

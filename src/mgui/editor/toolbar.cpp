@@ -192,6 +192,35 @@ static bool ByExtName(const std::string& e1, const std::string& e2)
     return false;
 }
 
+RefPtr<Gdk::Pixbuf> LoadThemeIconTry(const std::string& theme_fname, const Point& sz,
+                                  bool preserve_aspect)
+{
+    RefPtr<Gdk::Pixbuf> icon_pix;
+    boost_foreach( const std::string& str, IconsDirs() )
+    {
+        fs::path pth = fs::path(str) / theme_fname;
+        if( fs::exists(pth) )
+            try
+            {
+                icon_pix = Gdk::Pixbuf::create_from_file(pth.string(), sz.x, sz.y, preserve_aspect);
+            } 
+            catch(...) {}
+
+        if( icon_pix )
+            break;
+    }
+    return icon_pix;
+}
+
+RefPtr<Gdk::Pixbuf> LoadThemeIcon(const std::string& theme_fname, const Point& sz,
+                                  bool preserve_aspect)
+{
+    RefPtr<Gdk::Pixbuf> pix = LoadThemeIconTry(theme_fname, sz, preserve_aspect);
+    // :TODO: рисовать что-то вопросительное при отсутствии надо
+    ASSERT_RTL( pix );
+    return pix;
+}
+
 Toolbar::Toolbar(): selTool(MakeSelectionToolImage()), txtTool(MakeTextToolLabel())
     // внучную построим кнопки
     //, bldBtn(Gtk::Stock::BOLD), itaBtn(Gtk::Stock::ITALIC), undBtn(Gtk::Stock::UNDERLINE)
@@ -257,25 +286,11 @@ Toolbar::Toolbar(): selTool(MakeSelectionToolImage()), txtTool(MakeTextToolLabel
     	    }
     	}
     	std::sort(o_lst.begin(), o_lst.end(), &ByExtName);
-    	// :REFACTOR!!!:
-    	o_lst.resize(std::unique(o_lst.begin(), o_lst.end()) - o_lst.begin());
+        Project::MakeUnique(o_lst);
+        
     	boost_foreach( const std::string& fname, o_lst )
     	{
-    	    RefPtr<Gdk::Pixbuf> icon_pix;
-    	    boost_foreach( const std::string& str, IconsDirs() )
-    	    {
-        		fs::path pth = fs::path(str) / fname;
-                if( fs::exists(pth) )
-                    try
-                    {
-                        icon_pix = Gdk::Pixbuf::create_from_file(pth.string(), -1, Editor::TOOL_IMAGE_SIZE, true);
-                    } 
-                    catch(...) {}
-                
-        		if( icon_pix )
-        		    break;
-    	    }
-    
+    	    RefPtr<Gdk::Pixbuf> icon_pix = LoadThemeIconTry(fname, Point(-1, Editor::TOOL_IMAGE_SIZE), true);
             if( icon_pix )
             {
                 Gtk::TreeRow row = *f_store->append();
@@ -292,10 +307,10 @@ Toolbar::Toolbar(): selTool(MakeSelectionToolImage()), txtTool(MakeTextToolLabel
         combo.pack_start(txt_rndr, true);
         //combo.add_attribute(txt_rndr, "text", str_cln);
     	combo.set_cell_data_func(txt_rndr, bb::bind(&Project::RenderField, &txt_rndr, _1, &FT2Name));
-	// 1) wrap_width>0 форсирует режим "не списка", что нестандартно для Windows (ерунда, кнопка все равно
-	// особая)
-	// 2) в 4 колонки тоже ничего (стараемся принять минимальный размер "в диаметре")
-	combo.set_wrap_width(3);
+    	// 1) wrap_width>0 форсирует режим "не списка", что нестандартно для Windows (ерунда, кнопка все равно
+    	// особая)
+    	// 2) в 4 колонки тоже ничего (стараемся принять минимальный размер "в диаметре")
+    	combo.set_wrap_width(3);
     }
 }
 
@@ -413,6 +428,11 @@ static Point CalcStandardObjectSize(const Point& mn_sz)
     return CalcFromRelSz(mn_sz, REL_OBJ_SZ);
 }
 
+static Point MenuSize(MenuRegion& mr)
+{
+    return mr.GetParams().Size();
+}
+
 Rect FindNewObjectLocation(RectMatrix& matr, MenuRegion& mr)
 {
     AddCheckerVis vis(matr);
@@ -435,7 +455,7 @@ Rect FindNewObjectLocation(RectMatrix& matr, MenuRegion& mr)
     }
     if( lct.IsNull() ) // не нашли свобоодного места
     {
-        Point sz(mr.GetParams().Size());
+        Point sz(MenuSize(mr));
         Point obj_sz = CalcStandardObjectSize(sz);
         Point a      = FindAForCenteredRect(obj_sz, Rect0Sz(sz));
 
@@ -467,11 +487,29 @@ RectMatrix MakeAddObjectMatrix(const MenuParams& mp)
     return matr;
 }
 
-static void AddFTOItem(MEditorArea& editor, const Rect& lct, Project::MediaItem mi)
+static void AddFTOItem(MEditorArea& editor, const Rect& src_lct, Project::MediaItem mi)
 {
     MenuRegion& rgn = editor.CurMenuRegion();
-    // :TODO!!!: конструктор вызывать со всей темой
-    FrameThemeObj* fto = Project::NewFTO(Editor::GetActiveTheme(), lct);
+    FrameTheme ft = Editor::GetActiveTheme();
+    Rect lct(src_lct);
+    if( ft.isIcon )
+    {
+        // :KLUDGE: помимо пропорций было бы удобно подходящий размер иконок задавать:
+        // - сейчас вписываем в рамку с размерами REL_OBJ_SZ, уменьшить?
+        // - при DnD-создании меняется форма src_lct, в зависимости от пропорций источника,
+        //   что влияет на конечный размер (хочется избегать зависимости размеров от вида источника?)
+        
+        // вписываем иконку с сохранением(!) пропорций
+        Point dar(PixbufSize(LoadThemeIcon(ft.themeName, Point(-1, -1), true)));
+        // узнаем реальные пропорции lct
+        Point lct_sz(lct.Size());
+        Point menu_dar = rgn.GetParams().DisplayAspect();
+        Point menu_sz  = MenuSize(rgn);
+        Point lct_dar(lct_sz.x * menu_dar.x * menu_sz.y, lct_sz.y * menu_dar.y * menu_sz.x);
+        
+        lct = FitIntoRect(lct_sz, lct_dar, dar) + lct.A();
+    }
+    FrameThemeObj* fto = Project::NewFTO(ft, lct);
     fto->MediaItem().SetLink(mi);
     Project::AddMenuItem(rgn, fto);
 
@@ -482,7 +520,7 @@ void AddFTOItem(MEditorArea& editor, const Point& center, Project::MediaItem mi)
 {
     // :KLUDGE: не самый правильный (и точный) способ сосчитать пропорцию
     Point proportion = editor.Transition().RelToAbs(Project::CalcThumbSize(mi));
-    Point sz(editor.CurMenuRegion().GetParams().Size());
+    Point sz(MenuSize(editor.CurMenuRegion()));
 
     Point it_sz = Project::CalcProportionSize(proportion, sz.x*sz.y*REL_OBJ_SZ*REL_OBJ_SZ);
     Point a(center.x-it_sz.x/2, center.y-it_sz.y/2);
@@ -511,7 +549,7 @@ static bool ReframeFTO(RectListRgn& r_lst, FrameThemeObj* obj, MenuRegion& mn_rg
     const FrameTheme& theme = Editor::GetActiveTheme();
     if( theme != obj->Theme() )
     {
-        obj->GetData<FTOInterPixData>().ClearPix();
+        ClearFTOCache(*obj);
         obj->Theme() = theme;
         r_lst.push_back( Planed::AbsToRel(mn_rgn.Transition(), obj->Placement()) );
     }

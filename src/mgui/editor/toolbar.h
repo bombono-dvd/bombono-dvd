@@ -95,6 +95,8 @@ void SetLinkForObject(MEditorArea& edt_area, Project::MediaItem mi, int pos, boo
 
 void ToggleSafeArea();
 
+void ClearFTOCache(FrameThemeObj& fto);
+
 namespace Project {
 
 struct CommonMenuBuilder

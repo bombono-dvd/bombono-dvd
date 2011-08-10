@@ -129,14 +129,24 @@ void CommonRenderVis::RenderBackground()
         FillSolid(drw, menuRgn, plc);
 }
 
+RefPtr<Gdk::Pixbuf>& GetDwPixbuf(DataWare& dw)
+{
+    return dw.GetData<RefPtr<Gdk::Pixbuf> >();
+}
+
+void ClearDwPixbuf(DataWare& dw)
+{
+    ClearRefPtr(GetDwPixbuf(dw));
+}
+
 void ResetBackgroundImage(MenuRegion& mr)
 {
-    ClearRefPtr(mr.GetData<RefPtr<Gdk::Pixbuf> >());
+    ClearDwPixbuf(mr);
 }
 
 RefPtr<Gdk::Pixbuf> RenderVis::CalcBgShot()
 {
-    RefPtr<Gdk::Pixbuf>& pix = menuRgn->GetData<RefPtr<Gdk::Pixbuf> >();
+    RefPtr<Gdk::Pixbuf>& pix = GetDwPixbuf(*menuRgn);
     if( !pix )
         pix = Project::PrimaryShotGetter::Make(menuRgn->BgRef(), Point());
     return pix;

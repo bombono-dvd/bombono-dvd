@@ -41,13 +41,10 @@ void AddSrcDirs(Str::List& dirs, const char* dname);
 
 // по имени темы выдать ее путь
 fs::path FindThemePath(const std::string& theme_name);
-inline std::string ThemeOrDef(const std::string& theme_name)
-{
-    // :TODO!!!: упростить/вынести на клиентский уровень
-    return theme_name.empty() ? std::string("rect") : theme_name ;
-}
 // вернуть список тем
 void GetThemeList(Str::List& t_lst);
+
+void MakeUnique(Str::List& t_lst);
 
 } // namespace Project
 

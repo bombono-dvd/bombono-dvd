@@ -124,7 +124,7 @@ class FramedObj: public SO<FramedObj, MediaObj>
 {
     public:
 
-                      FramedObj(const char* thm_name, Rect plc);
+                      FramedObj(const FrameTheme& ft, Rect plc);
 
           FrameTheme& Theme() { return thmName; }
          std::string& ThemeName() { return thmName.themeName; }

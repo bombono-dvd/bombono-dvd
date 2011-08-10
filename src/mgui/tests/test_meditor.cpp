@@ -48,7 +48,7 @@ static void FillMenu(Project::Menu mn)
     Point sz(340, 225);
     // *
     FrameItemMD* f_md = new FrameItemMD(mn.get());
-    f_md->Theme()     = "ogradient";
+    f_md->Theme().themeName = "ogradient";
     f_md->Placement() = RectASz(Point(30, 30), sz);
     si = new VideoMD;
     si->MakeByPath("../AV-Samples/Autumn.mpg");
@@ -61,7 +61,7 @@ static void FillMenu(Project::Menu mn)
 
     // *
     f_md = new FrameItemMD(mn.get());
-    f_md->Theme() = "ogradient";
+    f_md->Theme().themeName = "ogradient";
     f_md->Placement() = RectASz(Point(330, 230), sz);
     f_md->Ref() = new ColorMD(BLUE_CLR); //si;
 

@@ -27,11 +27,11 @@
 #include <mgui/editor/render.h>
 #include <mgui/editor/text.h>
 #include <mgui/editor/kit.h>
+#include <mgui/editor/bind.h> // DoRenderFTO()
 
 #include <mgui/author/script.h> // IsMotion()
 #include <mgui/img-factory.h>
 
-#include <mbase/project/theme.h> // ThemeOrDef()
 #include <mbase/project/srl-common.h> // MakeColor()
 #include <mlib/sdk/logger.h>
 #include <mdemux/util.h>         // Mpeg::set_hms
@@ -83,11 +83,8 @@ RefPtr<Gdk::Pixbuf> FTOThumbData::CalcSource(Project::MediaItem mi, const Point&
 
 void ThumbRenderVis::Visit(FrameThemeObj& fto)
 {
-    Rect rel_plc = CalcRelPlacement(fto.Placement());
-
-    // используем кэш
     FTOThumbData& pix_data = fto.GetData<FTOThumbData>();
-    drw->CompositePixbuf(pix_data.GetPix(), rel_plc);
+    DoRenderFTO(drw.get(), fto, pix_data, cnvBuf->Transition());
 }
 
 CommonRgnListCleaner::CommonRgnListCleaner(CanvasBuf& cnv_buf): cnvBuf(cnv_buf) 
@@ -302,8 +299,14 @@ TextObj* CreateEditorText(TextItemMD& txt_md)
 
 FrameThemeObj* NewFTO(const FrameTheme& theme, const Rect& lct)
 {
-    // :TODO!!!: конструктор
-    return new FrameThemeObj(Project::ThemeOrDef(theme.themeName).c_str(), lct);
+    FrameTheme ft = theme;
+    // защита от пустых данных
+    if( ft.themeName.empty() )
+    {
+        ft.isIcon    = false;    
+        ft.themeName = "rect";
+    }
+    return new FrameThemeObj(ft, lct);
 }
 
 void AddMenuItem(MenuRegion& menu_rgn, Comp::Object* obj)

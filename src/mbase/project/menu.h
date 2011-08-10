@@ -155,11 +155,11 @@ class FrameItemMD: public PSO<FrameItemMD, MenuItemMD>// от MenuItemMD
       virtual std::string  TypeString() { return "Frame Item"; }
        virtual       void  SerializeImpl(Archieve& ar);
 
-               FrameTheme& Theme() { return themeStr; }
+               FrameTheme& Theme() { return theme; }
                 MediaItem& Poster() { return posterRef; }
        
     protected:
-               FrameTheme  themeStr;
+               FrameTheme  theme;
                 MediaItem  posterRef;
 };
 

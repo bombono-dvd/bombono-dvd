@@ -268,7 +268,6 @@ void SPRenderVis::Visit(FrameThemeObj& fto)
     std::string targ_str;    
     if( HasButtonLink(fto, targ_str) )
     {
-        const Editor::ThemeData& td = Editor::ThemeCache::GetTheme(fto.ThemeName());
         // как и в случае текста, для субтитров DVD главное - не перебрать ограничение
         // кол-ва используемых цветов (<=16); поэтому подгоняем рамку по месту, а
         // не наоборот (чтоб обойти без финального скалирования) 
@@ -278,13 +277,19 @@ void SPRenderVis::Visit(FrameThemeObj& fto)
         uint clr = GetSPColor(fto, isSelect).ToUint();
         obj_pix->fill(clr);
 
-        RefPtr<Gdk::Pixbuf> vf_pix = CreatePixbuf(sz);
-        RGBA::Scale(vf_pix, td.vFrameImg);
+        RefPtr<Gdk::Pixbuf> alpha_pix;
+        if( IsIconTheme(fto) )
+            alpha_pix = GetThemeIcon(fto, sz);
+        else
+        {
+            const Editor::ThemeData& td = Editor::ThemeCache::GetTheme(fto.ThemeName());
+            alpha_pix = CreatePixbuf(sz);
+            RGBA::Scale(alpha_pix, td.vFrameImg);
+        }
 
-        RGBA::CopyAlphaComposite(obj_pix, vf_pix, true);
+        RGBA::CopyAlphaComposite(obj_pix, alpha_pix, true);
         DiscreteByAlpha(obj_pix, clr);
 
-        //drw->CompositePixbuf(obj_pix, plc);
         RGBA::RgnPixelDrawer::DrwFunctor drw_fnr = bb::bind(&RGBA::CopyArea, drw->Canvas(), obj_pix, plc, _1);
         drw->DrawWithFunctor(plc, drw_fnr);
 
@@ -471,9 +476,8 @@ RefPtr<Gdk::Pixbuf> FTOAuthorData::CalcSource(Project::MediaItem mi, const Point
 
 void CommonMenuRVis::RenderStatic(FrameThemeObj& fto)
 {
-    // используем кэш
     FTOAuthorData& pix_data = fto.GetData<FTOAuthorData>(AUTHOR_TAG);
-    drw->CompositePixbuf(pix_data.GetPix(), CalcRelPlacement(fto.Placement()));
+    DoRenderFTO(drw.get(), fto, pix_data, cnvBuf->Transition());
 }
 
 void MenuRenderVis::Visit(FrameThemeObj& fto)
@@ -831,7 +835,7 @@ void MotionMenuRVis::RenderBackground()
 void MotionMenuRVis::Visit(FrameThemeObj& fto)
 {
     MediaItem mi = MIToDraw(fto);
-    if( IsToBeMoving(mi) )
+    if( IsToBeMoving(mi) && !IsIconTheme(fto) )
     {
         // напрямую делаем то же, что FTOData::CompositeFTO(),
         // чтобы явно видеть затраты

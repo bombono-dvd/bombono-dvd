@@ -411,6 +411,11 @@ fs::path FindThemePath(const std::string& theme_name)
     return fs::path();
 }
 
+void MakeUnique(Str::List& t_lst)
+{
+    t_lst.resize(std::unique(t_lst.begin(), t_lst.end()) - t_lst.begin());
+}
+
 void GetThemeList(Str::List& t_lst)
 {
     t_lst.clear();
@@ -428,7 +433,7 @@ void GetThemeList(Str::List& t_lst)
 
     // * сортируем и удаляем дублирование
     std::sort(t_lst.begin(), t_lst.end());
-    t_lst.resize(std::unique(t_lst.begin(), t_lst.end()) - t_lst.begin());
+    MakeUnique(t_lst);
 }
 
 bool IsPALProject()

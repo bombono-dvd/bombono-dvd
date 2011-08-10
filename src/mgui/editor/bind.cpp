@@ -26,6 +26,34 @@
 
 #include <mgui/render/editor.h>
 
+RefPtr<Gdk::Pixbuf> GetThemeIcon(FrameThemeObj& fto, const Point& sz)
+{
+    RefPtr<Gdk::Pixbuf>& fto_pix = GetDwPixbuf(fto);
+    // размеры иконок заведомо небольшие, поэтому явная перезагрузка
+    // не будет тормозом (+отрисовка не зависит от того, куда рисуем, на редактор,
+    // или это авторинг уже)
+    if( !fto_pix || (PixbufSize(fto_pix) != sz) )
+        fto_pix = Editor::LoadThemeIcon(fto.ThemeName(), sz, false);
+    return fto_pix;
+}
+
+bool IsIconTheme(FrameThemeObj& fto)
+{
+    return fto.Theme().isIcon;
+}
+
+void DoRenderFTO(RGBA::RgnPixelDrawer* drw, FrameThemeObj& fto, 
+                 Editor::FTOData& fd, const Planed::Transition& trans)
+{
+    Rect rel_plc = Planed::AbsToRel(trans, fto.Placement());
+    RefPtr<Gdk::Pixbuf> pix;
+    if( IsIconTheme(fto) )
+        pix = GetThemeIcon(fto, rel_plc.Size());
+    else
+        // используем кэш
+        pix = fd.GetPix();
+    drw->CompositePixbuf(pix, rel_plc);
+}
 
 namespace MBind {
 
@@ -42,10 +70,7 @@ TextRgnAcc::~TextRgnAcc()
 
 void FTORendering::Render()
 {
-    Rect rel_plc = CalcPlc();
-    // используем кэш
-    FTOInterPixData& pix_data = fto.GetData<FTOInterPixData>();
-    drw->CompositePixbuf(pix_data.GetPix(), rel_plc);
+    DoRenderFTO(drw, fto, fto.GetData<FTOInterPixData>(), trans);
 }
 
 void FTOMoving::Redraw()

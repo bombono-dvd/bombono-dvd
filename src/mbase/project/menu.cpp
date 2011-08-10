@@ -321,7 +321,18 @@ void MenuItemMD::SerializeImpl(Archieve& ar)
 
 void FrameItemMD::SerializeImpl(Archieve& ar)
 {
-    ar & NameValue("Frame", themeStr.themeName);
+    if( CanSrl(ar, 1) )
+    {
+        ArchieveStackFrame asf(ar, "FrameTheme");
+        ar("Name",   theme.themeName)
+          ("IsIcon", theme.isIcon   );
+    }
+    else
+    {
+        // загрузка версий < 1
+        ar("Frame", theme.themeName);
+        theme.isIcon = false;
+    }
     SerializeReference(ar, "Poster", posterRef);
 
     MyParent::SerializeImpl(ar);

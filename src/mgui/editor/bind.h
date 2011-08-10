@@ -33,6 +33,18 @@ namespace RGBA {
 class RgnPixelDrawer;
 }
 
+namespace Editor {
+class FTOData;
+}
+
+RefPtr<Gdk::Pixbuf>& GetDwPixbuf(DataWare& dw);
+void ClearDwPixbuf(DataWare& dw);
+
+bool IsIconTheme(FrameThemeObj& fto);
+
+RefPtr<Gdk::Pixbuf> GetThemeIcon(FrameThemeObj& fto, const Point& sz);
+void DoRenderFTO(RGBA::RgnPixelDrawer* drw, FrameThemeObj& fto, 
+                 Editor::FTOData& fd, const Planed::Transition& trans);
 // 
 // Интерфейсы, позволяющие научить редактор 
 // оперировать(рисовать, перемещать, ...) новыми объектами

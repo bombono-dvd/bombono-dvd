@@ -89,6 +89,8 @@ class FTOData: public DWConstructorTag
 // размеры obj_pix должны быть равны td.vFrameImg
 RefPtr<Gdk::Pixbuf> CompositeWithFrame(RefPtr<Gdk::Pixbuf> obj_pix, const ThemeData& td);
 
+RefPtr<Gdk::Pixbuf> LoadThemeIcon(const std::string& theme_fname, const Point& sz,
+                                  bool preserve_aspect);
 } // namespace Editor
 
 
