@@ -55,7 +55,6 @@ fs::path SConsAuxDir();
 bool HasButtonLink(Comp::MediaObj& m_obj, std::string& targ_str);
 
 bool IsMotion(Menu mn);
-guint64 MenuSize(Menu mn);
 double MenuDuration(Menu mn);
 
 void ClearTaggedData(Menu mn, const char* tag);

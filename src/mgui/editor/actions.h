@@ -24,6 +24,8 @@
 
 #include "kit.h"
 
+#include <mgui/win_utils.h> // CR::Color
+
 void RenderForRegion(MEditorArea& edt_area, RectListRgn& rct_lst);
 void RenderForRegion(MEditorArea& edt_area, const Rect& rel_rct);
 
@@ -43,6 +45,17 @@ inline MenuRegion& CurMenuRegion()
 {
     return MenuEditor().CurMenuRegion();
 }
+
+Point MenuSize(MenuRegion& mr);
+
+typedef boost::function<void(RGBA::Drawer*, MEditorArea& edt_area)> DrawerFnr;
+
+void CalcRgnForRedraw(MEditorArea& edt_area, const DrawerFnr& fnr);
+
+void DrawSafeArea(RGBA::Drawer* drw, MEditorArea& edt_area);
+void DrawGrid(RGBA::Drawer* drw, MEditorArea& edt_area);
+
+RGBA::Pixel ColorToPixel(const CR::Color& clr);
 
 #endif // __MGUI_EDITOR_ACTIONS_H__
 

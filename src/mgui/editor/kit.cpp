@@ -42,6 +42,12 @@ MouseHintAdapter::~MouseHintAdapter()
         gdk_window_get_pointer(event->window, 0, 0, 0);
 }
 
+RGBA::Pixel ColorToPixel(const CR::Color& clr)
+{
+    return RGBA::Pixel(RGBA::Pixel::ToQuant(clr.r), RGBA::Pixel::ToQuant(clr.g),
+                       RGBA::Pixel::ToQuant(clr.b), RGBA::Pixel::ToQuant(clr.a));
+}
+
 namespace Editor
 {
 
@@ -128,12 +134,6 @@ void ClearInitTextVis::Visit(TextObj& t_obj)
         t_rndr.SetEditor(mEdt);
         t_rndr.DoLayout();
     }
-}
-
-RGBA::Pixel ColorToPixel(const CR::Color& clr)
-{
-    return RGBA::Pixel(RGBA::Pixel::ToQuant(clr.r), RGBA::Pixel::ToQuant(clr.g),
-                       RGBA::Pixel::ToQuant(clr.b), RGBA::Pixel::ToQuant(clr.a));
 }
 
 void FillAsEmptyMonitor(RefPtr<Gdk::Pixbuf> canv_pix, Gtk::Widget& wdg)

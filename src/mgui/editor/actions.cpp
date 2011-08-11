@@ -171,7 +171,7 @@ static void DrawRect(RGBA::Drawer* drw, const Rect& rct, const int clr)
     drw->FrameRectTo(rct.rgt, rct.btm);
 }
 
-static void DrawSafeArea(RGBA::Drawer* drw, MEditorArea& edt_area)
+void DrawSafeArea(RGBA::Drawer* drw, MEditorArea& edt_area)
 {
     Rect frm_rct = edt_area.FrameRect();
     // с каждой стороны убираем 4,7%
@@ -188,6 +188,73 @@ static void DrawSafeArea(RGBA::Drawer* drw, MEditorArea& edt_area)
     DrawRect(drw, rct, WHITE_CLR);
 }
 
+typedef Gtk::ToggleButton Editor::Toolbar::* ToolbarBoolAttr;
+
+static bool IsBAEnabled(MEditorArea& edt_area, ToolbarBoolAttr tba)
+{
+    Gtk::ToggleButton& tb = edt_area.Toolbar().*tba;
+    return tb.get_active();
+}
+
+Point MenuSize(MenuRegion& mr)
+{
+    return mr.GetParams().Size();
+}
+
+void
+ge_hsb_from_color(const CR::Color *color, 
+                  gdouble *hue,
+                  gdouble *saturation,
+                  gdouble *brightness);
+void
+ge_color_from_hsb(gdouble hue, 
+                  gdouble saturation,
+                  gdouble brightness, 
+                  CR::Color *color);
+
+void DrawGrid(RGBA::Drawer* drw, MEditorArea& edt_area)
+{
+    // :TRICKY: понимаем, что решетка будет не квадратной, тем более для 16:9,
+    // но в исходных координатах считать правильнее (а у нас они - 720xfull)
+    MenuRegion& m_rgn = edt_area.CurMenuRegion();
+    Point sz(MenuSize(m_rgn));
+    const Planed::Transition& trans = m_rgn.Transition();
+        
+    //drw->SetForegroundColor(WHITE_CLR);
+    RefPtr<Gdk::Pixbuf> canv_pix;
+    if( RGBA::RgnPixelDrawer* r_drw = dynamic_cast<RGBA::RgnPixelDrawer*>(drw) )
+        canv_pix = r_drw->Canvas();
+    
+    double h,s,b;
+    const int GRID_STEP = 16; // 16px
+    for( int x = 0; x <= sz.x; x += GRID_STEP )
+        for( int y = 0; y <= sz.y; y += GRID_STEP )
+        {
+            Point p = trans.AbsToRel(Point(x, y));
+            if( canv_pix )
+            {
+                RGBA::Pixel pxl = RGBA::GetPixel(canv_pix, p);
+                //clr.red   = RGBA::Pixel::MaxClr - clr.red;
+                //clr.green = RGBA::Pixel::MaxClr - clr.green;
+                //clr.blue  = RGBA::Pixel::MaxClr - clr.blue;
+                CR::Color clr(pxl);
+                ge_hsb_from_color(&clr, &h, &s, &b);
+                h = h < 180 ? h + 180 : h - 180 ;
+                // лучше других вариантов (s, 1-s), потому что наибольший контраст +
+                // любой цвет поменяется (если изначальный был с макс. контрастом (это не серый/белый/черный) и b=0.5, то
+                // будет хорошо видна разница по h=цвету)
+                s = 1.0;
+                b = 1.0 - b;
+                ge_color_from_hsb(h, s, b, &clr);
+                drw->SetForegroundColor(ColorToPixel(clr));
+            }
+            //drw->MoveTo(p.x, p.y);
+            //drw->LineTo(p.x+1, p.y);
+            drw->MoveTo(p.x-1, p.y-1);
+            drw->RectTo(p.x+1, p.y+1);
+        }
+}
+
 void RenderEditor(MEditorArea& edt_area, RectListRgn& rct_lst)
 {
     RenderVis r_vis(edt_area.SelArr(), rct_lst);
@@ -196,18 +263,18 @@ void RenderEditor(MEditorArea& edt_area, RectListRgn& rct_lst)
     RGBA::Drawer* drw = &r_vis.GetDrawer(); 
     DrawDndFrame(drw, edt_area.DndSelFrame());
 
-    if( edt_area.Toolbar().frmBtn.get_active() )
+    if( IsBAEnabled(edt_area, &Editor::Toolbar::frmBtn) )
         DrawSafeArea(drw, edt_area);
+    if( IsBAEnabled(edt_area, &Editor::Toolbar::gridBtn) )
+        DrawGrid(drw, edt_area);
 }
 
-typedef boost::function<void(RGBA::Drawer*)> DrawerFnr;
-
-static void CalcRgnForRedraw(MEditorArea& edt_area, const DrawerFnr& fnr)
+void CalcRgnForRedraw(MEditorArea& edt_area, const DrawerFnr& fnr)
 {
     RectListRgn rct_lst;
     RGBA::RectListDrawer lst_drawer(rct_lst);
 
-    fnr(&lst_drawer);
+    fnr(&lst_drawer, edt_area);
 
     RenderForRegion(edt_area, rct_lst);
 }
@@ -261,11 +328,5 @@ bool Editor::Kit::on_drag_motion(const RefPtr<Gdk::DragContext>& context, int x,
     SetDndFrame(dnd_rct);
 
     return MyParent::on_drag_motion(context, x, y, time);
-}
-
-void ToggleSafeArea()
-{
-    MEditorArea& edt_area = MenuEditor();
-    CalcRgnForRedraw(edt_area, bb::bind(&DrawSafeArea, _1, boost::ref(edt_area)));
 }
 

@@ -54,6 +54,7 @@ struct Toolbar
        Gtk::ToggleButton  undBtn;
         Gtk::ColorButton  clrBtn;
        Gtk::ToggleButton  frmBtn; // безопасная рамка
+       Gtk::ToggleButton  gridBtn;
 
                           Toolbar();
                           // по font* составить

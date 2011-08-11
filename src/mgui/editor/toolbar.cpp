@@ -428,11 +428,6 @@ static Point CalcStandardObjectSize(const Point& mn_sz)
     return CalcFromRelSz(mn_sz, REL_OBJ_SZ);
 }
 
-static Point MenuSize(MenuRegion& mr)
-{
-    return mr.GetParams().Size();
-}
-
 Rect FindNewObjectLocation(RectMatrix& matr, MenuRegion& mr)
 {
     AddCheckerVis vis(matr);
@@ -581,9 +576,9 @@ static void FontNameChanged(MEditorArea& editor, bool only_clr)
     SetSelObjectsTStyle(editor, editor.Toolbar().GetFontDesc(), only_clr);
 }
 
-static void SetupStyleBtn(Gtk::ToggleButton& btn, Gtk::Toolbar& tbar,
-                          const char* tooltip, const ActionFunctor& fnr,
-                          Gtk::BuiltinStockID stock_id)
+static void SetupToggleBtn(Gtk::ToggleButton& btn, Gtk::Toolbar& tbar,
+                           const char* tooltip, const ActionFunctor& fnr,
+                           Gtk::Widget& img_wdg)
 {
     // вручную строим кнопки а-ля Gtk::ToggleToolButton, потому что
     // нам надо установить у них свойство focus-on-click для последующего
@@ -594,10 +589,17 @@ static void SetupStyleBtn(Gtk::ToggleButton& btn, Gtk::Toolbar& tbar,
     ASSERT( btn.get_focus_on_click() ); // должен быть по умолчанию
     AppendToToolbar(tbar, btn);
     btn.set_relief(Gtk::RELIEF_NONE);
-    btn.add(NewManaged<Gtk::Image>(stock_id, tbar.get_icon_size()));
+    btn.add(img_wdg);
     SetTip(btn, tooltip);
 
     btn.signal_toggled().connect(fnr);
+}
+
+static void SetupStyleBtn(Gtk::ToggleButton& btn, Gtk::Toolbar& tbar,
+                          const char* tooltip, const ActionFunctor& fnr,
+                          Gtk::BuiltinStockID stock_id)
+{
+    SetupToggleBtn(btn, tbar, tooltip, fnr, NewManaged<Gtk::Image>(stock_id, tbar.get_icon_size()));
 }
 
 // хочется отрабатывать изменения в управляющих элементах только когда
@@ -621,6 +623,19 @@ static void OnToolbarControlled(const ActionFunctor& fnr)
 static ActionFunctor MakeToolbarFunctor(const ActionFunctor& fnr)
 {
     return bb::bind(&OnToolbarControlled, fnr);
+}
+
+void OnViewChanged(const DrawerFnr& fnr)
+{
+    MEditorArea& edt_area = MenuEditor();
+    CalcRgnForRedraw(edt_area, fnr);
+}
+
+static void SetupViewBtn(Gtk::ToggleButton& btn, Gtk::Toolbar& tbar, const char* tooltip,
+                         const char* icon_fname, const DrawerFnr& fnr)
+{
+    SetupToggleBtn(btn, tbar, tooltip, MakeToolbarFunctor(bb::bind(&OnViewChanged, fnr)),
+                   GetFactoryGtkImage(icon_fname));
 }
 
 Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box)
@@ -706,14 +721,11 @@ Gtk::Toolbar& PackToolbar(MEditorArea& editor, Gtk::VBox& lct_box)
 
     }
 
+    AppendTSeparator(tbar);
     // * кнопка рамки
-    Gtk::ToggleButton& frm_btn = edt_tbar.frmBtn;
-    AppendToToolbar(tbar, frm_btn);
-    frm_btn.set_relief(Gtk::RELIEF_NONE);
-    frm_btn.add(GetFactoryGtkImage("copy-n-paste/lpetool_show_bbox.png"));
-    SetTip(frm_btn, _("Show Safe Area"));
-    // обвязка здесь используется для проверки, что в редакторе есть меню (и не валится при его отстутствии)
-    frm_btn.signal_toggled().connect(MakeToolbarFunctor(&ToggleSafeArea));
+    SetupViewBtn(edt_tbar.frmBtn, tbar, _("Show Safe Area"), "copy-n-paste/lpetool_show_bbox.png", &DrawSafeArea);
+    // *
+    SetupViewBtn(edt_tbar.gridBtn, tbar, _("Snap To Grid"), "copy-n-paste/grid_xy_simple.png", &DrawGrid);
 
     return tbar;
 }

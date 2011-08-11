@@ -93,8 +93,6 @@ void SetSelObjectsTStyle(MEditorArea& edt_area, const Editor::TextStyle& ts, boo
 void SetBackgroundLink(Project::MediaItem mi);
 void SetLinkForObject(MEditorArea& edt_area, Project::MediaItem mi, int pos, bool for_poster);
 
-void ToggleSafeArea();
-
 void ClearFTOCache(FrameThemeObj& fto);
 
 namespace Project {
