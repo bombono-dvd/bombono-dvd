@@ -212,6 +212,30 @@ ge_color_from_hsb(gdouble hue,
                   gdouble brightness, 
                   CR::Color *color);
 
+static void DrawInvertPixel(RGBA::Drawer* drw, RefPtr<Gdk::Pixbuf> canv_pix, const Point& p)
+{
+    if( canv_pix && PixbufBounds(canv_pix).Contains(p) )
+    {
+        double h,s,b;
+        RGBA::Pixel pxl = RGBA::GetPixel(canv_pix, p);
+        //clr.red   = RGBA::Pixel::MaxClr - clr.red;
+        //clr.green = RGBA::Pixel::MaxClr - clr.green;
+        //clr.blue  = RGBA::Pixel::MaxClr - clr.blue;
+        CR::Color clr(pxl);
+        ge_hsb_from_color(&clr, &h, &s, &b);
+        h = h < 180 ? h + 180 : h - 180 ;
+        // лучше других вариантов (s, 1-s), потому что наибольший контраст +
+        // любой цвет поменяется (если изначальный был с макс. контрастом (это не серый/белый/черный) и b=0.5, то
+        // будет хорошо видна разница по h=цвету)
+        s = 1.0;
+        b = 1.0 - b;
+        ge_color_from_hsb(h, s, b, &clr);
+        drw->SetForegroundColor(ColorToPixel(clr));
+    }
+    drw->MoveTo(p.x, p.y);
+    drw->LineTo(p.x+1, p.y);
+}
+
 void DrawGrid(RGBA::Drawer* drw, MEditorArea& edt_area)
 {
     // :TRICKY: понимаем, что решетка будет не квадратной, тем более для 16:9,
@@ -219,40 +243,38 @@ void DrawGrid(RGBA::Drawer* drw, MEditorArea& edt_area)
     MenuRegion& m_rgn = edt_area.CurMenuRegion();
     Point sz(MenuSize(m_rgn));
     const Planed::Transition& trans = m_rgn.Transition();
-        
-    //drw->SetForegroundColor(WHITE_CLR);
-    RefPtr<Gdk::Pixbuf> canv_pix;
-    if( RGBA::RgnPixelDrawer* r_drw = dynamic_cast<RGBA::RgnPixelDrawer*>(drw) )
-        canv_pix = r_drw->Canvas();
     
-    double h,s,b;
-    const int GRID_STEP = 16; // 16px
-    for( int x = 0; x <= sz.x; x += GRID_STEP )
-        for( int y = 0; y <= sz.y; y += GRID_STEP )
-        {
-            Point p = trans.AbsToRel(Point(x, y));
-            if( canv_pix )
+    // :KLUDGE: при каждой отрисовке вся сетка пересчитывается, неоптимально
+    //drw->SetForegroundColor(WHITE_CLR);
+    if( RGBA::RgnPixelDrawer* r_drw = dynamic_cast<RGBA::RgnPixelDrawer*>(drw) )
+    {    
+        RefPtr<Gdk::Pixbuf> canv_pix = r_drw->Canvas();
+        for( int x = 0; x <= sz.x; x += GRID_STEP )
+            for( int y = 0; y <= sz.y; y += GRID_STEP )
             {
-                RGBA::Pixel pxl = RGBA::GetPixel(canv_pix, p);
-                //clr.red   = RGBA::Pixel::MaxClr - clr.red;
-                //clr.green = RGBA::Pixel::MaxClr - clr.green;
-                //clr.blue  = RGBA::Pixel::MaxClr - clr.blue;
-                CR::Color clr(pxl);
-                ge_hsb_from_color(&clr, &h, &s, &b);
-                h = h < 180 ? h + 180 : h - 180 ;
-                // лучше других вариантов (s, 1-s), потому что наибольший контраст +
-                // любой цвет поменяется (если изначальный был с макс. контрастом (это не серый/белый/черный) и b=0.5, то
-                // будет хорошо видна разница по h=цвету)
-                s = 1.0;
-                b = 1.0 - b;
-                ge_color_from_hsb(h, s, b, &clr);
-                drw->SetForegroundColor(ColorToPixel(clr));
+                Point p = trans.AbsToRel(Point(x, y));
+                //drw->MoveTo(p.x-1, p.y-1);
+                //drw->RectTo(p.x+1, p.y+1);
+                // каждый пиксел надо отдельно рассчитывать (цвет), потому что иначе
+                // частичная перерисовка вернет для не p оригинальный цвет
+                DrawInvertPixel(drw, canv_pix, Point(p.x-1, p.y-1));
+                DrawInvertPixel(drw, canv_pix, Point(p.x, p.y-1));
+                DrawInvertPixel(drw, canv_pix, Point(p.x-1, p.y));
+                DrawInvertPixel(drw, canv_pix, p);
             }
-            //drw->MoveTo(p.x, p.y);
-            //drw->LineTo(p.x+1, p.y);
-            drw->MoveTo(p.x-1, p.y-1);
-            drw->RectTo(p.x+1, p.y+1);
-        }
+    }
+    else
+    {    
+        // оптимизация - лучше все перерисовать
+        drw->MoveTo(0, 0);
+        Point edt_sz(edt_area.Size());
+        drw->RectTo(edt_sz.x, edt_sz.y);
+    }
+}
+
+bool IsSnapToGrid(MEditorArea& edt_area)
+{
+    return IsBAEnabled(edt_area, &Editor::Toolbar::gridBtn);
 }
 
 void RenderEditor(MEditorArea& edt_area, RectListRgn& rct_lst)
@@ -265,7 +287,7 @@ void RenderEditor(MEditorArea& edt_area, RectListRgn& rct_lst)
 
     if( IsBAEnabled(edt_area, &Editor::Toolbar::frmBtn) )
         DrawSafeArea(drw, edt_area);
-    if( IsBAEnabled(edt_area, &Editor::Toolbar::gridBtn) )
+    if( IsSnapToGrid(edt_area) )
         DrawGrid(drw, edt_area);
 }
 

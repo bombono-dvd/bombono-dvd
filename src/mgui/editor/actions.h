@@ -53,9 +53,15 @@ typedef boost::function<void(RGBA::Drawer*, MEditorArea& edt_area)> DrawerFnr;
 void CalcRgnForRedraw(MEditorArea& edt_area, const DrawerFnr& fnr);
 
 void DrawSafeArea(RGBA::Drawer* drw, MEditorArea& edt_area);
+// для сравнения:
+// DVDLab - 20px, точки
+// Tsunami - 10px, сетка
+// Gimp, Inkscape - в зависимости от масштаба, сетка
+const int GRID_STEP = 16; // 16px
 void DrawGrid(RGBA::Drawer* drw, MEditorArea& edt_area);
 
 RGBA::Pixel ColorToPixel(const CR::Color& clr);
+bool IsSnapToGrid(MEditorArea& edt_area);
 
 #endif // __MGUI_EDITOR_ACTIONS_H__
 

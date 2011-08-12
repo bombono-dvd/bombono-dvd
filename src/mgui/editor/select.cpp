@@ -1190,10 +1190,67 @@ class RepositionVis: public MoveVis
             void  RepositionObj(Comp::MediaObj& m_obj, Manager ming);
 };
 
+static bool IsSnapToGrid()
+{
+    return IsSnapToGrid(MenuEditor());
+}
+
+static bool DoGridSnap(int& coord)
+{
+    bool res = true;
+    int val = coord % GRID_STEP;
+    const int gs3 = GRID_STEP / 3;
+    
+    if( val <= gs3 )
+        coord -= val;
+    else if( val >= GRID_STEP - gs3 )
+        coord += GRID_STEP - val;
+    else
+        // нет прилипания
+        res = false;
+    return res;
+}
+
+typedef int Point::* PointAttr;
+
+static void UpdateSnap(bool& has_snap, int new_shift, Point& lct, const Point& orig_lct,
+                       PointAttr pa)
+{
+    if( !has_snap || (std::abs(new_shift - orig_lct.*pa) < std::abs(lct.*pa - orig_lct.*pa)) )
+    {    
+        lct.*pa = new_shift;
+        has_snap = true;
+    }
+}
+
 void RepositionVis::VisitImpl(MenuRegion& menu_rgn)
 {
     if( menu_rgn.FramePlacement().Contains(lct) )
+    {    
         CalcMoveVector();
+        if( IsSnapToGrid() )
+        {
+            const Point orig_lct = lct;
+            bool has_x_snap = false;
+            bool has_y_snap = false;
+            boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs() )
+            {
+                const Rect& plc = obj->Placement();
+                Rect nplc = plc + orig_lct;
+                
+                if( DoGridSnap(nplc.lft) )
+                    UpdateSnap(has_x_snap, nplc.lft - plc.lft, lct, orig_lct, &Point::x);
+                if( DoGridSnap(nplc.rgt) )
+                    UpdateSnap(has_x_snap, nplc.rgt - plc.rgt, lct, orig_lct, &Point::x);
+                
+                if( DoGridSnap(nplc.top) )
+                    UpdateSnap(has_y_snap, nplc.top - plc.top, lct, orig_lct, &Point::y);
+                if( DoGridSnap(nplc.btm) )
+                    UpdateSnap(has_y_snap, nplc.btm - plc.btm, lct, orig_lct, &Point::y);
+                                
+            }
+        }
+    }
     else
         lct = Point(0, 0); // за пределы редактора не хотим выходить
 
@@ -1326,6 +1383,26 @@ static void CheckMinSz(int& len)
     len = std::max(len, 10);
 }
 
+static bool IsLftResize(SizeVectorData::DblPoint& vec_pnt)
+{
+    return vec_pnt.first < 0;
+}
+
+static bool IsRgtResize(SizeVectorData::DblPoint& vec_pnt)
+{
+    return vec_pnt.first > 0;
+}
+
+static bool IsTopResize(SizeVectorData::DblPoint& vec_pnt)
+{
+    return vec_pnt.second < 0;
+}
+
+static bool IsBtmResize(SizeVectorData::DblPoint& vec_pnt)
+{
+    return vec_pnt.second > 0;
+}
+
 void SizeVectorData::CalcPlacement(Rect& plc, Point& lct)
 {
     // 1 размер
@@ -1338,14 +1415,32 @@ void SizeVectorData::CalcPlacement(Rect& plc, Point& lct)
 
     // 2 lt-точка
     Point lt_pnt;
-    lt_pnt.x = (vecPnt.first  >= 0) ? plc.lft : plc.rgt - sz.x ;
-    lt_pnt.y = (vecPnt.second >= 0) ? plc.top : plc.btm - sz.y ;
+    lt_pnt.x = IsLftResize(vecPnt) ? plc.rgt - sz.x : plc.lft ;
+    lt_pnt.y = IsTopResize(vecPnt) ? plc.btm - sz.y : plc.top ;
 
     // 3 - результат
     plc.lft = lt_pnt.x;
     plc.top = lt_pnt.y;
     plc.rgt = lt_pnt.x + sz.x;
     plc.btm = lt_pnt.y + sz.y;
+    
+    if( IsSnapToGrid() )
+    {
+        // :TRICKY: в отличие от перемещения объектов здесь привязка
+        // идет по каждому объекту отдельно (а не группы), что не идеально;
+        // однако последующая реализация фичи сохранения пропорций будет
+        // конфиктовать с прилипанием => сохранение пропорций важнее, считаем =>
+        // оставляем как есть
+        
+        if( IsLftResize(vecPnt) )
+            DoGridSnap(plc.lft);
+        if( IsRgtResize(vecPnt) )
+            DoGridSnap(plc.rgt);
+        if( IsTopResize(vecPnt) )
+            DoGridSnap(plc.top);
+        if( IsBtmResize(vecPnt) )
+            DoGridSnap(plc.btm);
+    }
 }
 
 void SetVectorVis::Visit(Comp::MediaObj& mo)
