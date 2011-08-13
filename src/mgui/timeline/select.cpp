@@ -50,7 +50,7 @@ void TLState::ChangeState(TrackLayout& trk, TLState& stt)
     trk.ChangeState(&stt);
 }
 
-static void DoHookAction(ptr::shared<HookAction> act)
+void DoHookAction(ptr::shared<HookAction> act)
 {
     HookSvc svc(act);
     svc.FormLayout();
@@ -297,16 +297,13 @@ class CursorSetterHook: public HookAction
     public:
 
                         CursorSetterHook(TrackLayout& trk_lay, const DPoint& lct_)
-                            : MyParent(trk_lay, lct_), isDef(true), dvdIdx(NO_HNDL) {}
+                            : MyParent(trk_lay, lct_), isDef(true) {}
 
           virtual void  Process();
           virtual void  AtBigLabel();
-          // :TODO: добавить тултипы к меткам глав - показывать их названия
-          //virtual void  AtDVDMark(int idx);
 
     protected:
                 bool  isDef;
-                 int  dvdIdx;
 };
 
 void CursorSetterHook::AtBigLabel()

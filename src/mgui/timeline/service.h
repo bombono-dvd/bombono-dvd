@@ -182,7 +182,7 @@ class HookAction: public TLContext
 
         const DPoint& Location()  { return lct; }
 
-        virtual void  Process() = 0;
+        virtual void  Process() {}
 
         virtual void  AtBigLabel() {}
         virtual void  AtScale() {}
@@ -237,6 +237,8 @@ class HookSvc: public CalcSvc
 
 const DPoint& PhisPos() { return pAction->Location(); }
 };
+
+void DoHookAction(ptr::shared<HookAction> act);
 
 // общий класс для покрытия объектов прямоугольниками, для перерисовки
 class CoverSvc: public CalcSvc

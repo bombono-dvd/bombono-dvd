@@ -139,6 +139,34 @@ const double SCALE_MIN  = 0.0;
 const double SCALE_MAX  = 10.0;
 const double SCALE_STEP = 0.1;
 
+class ChapterNameHook: public HookAction
+{
+    typedef HookAction MyParent;
+    public:
+        std::string& name;
+        
+                ChapterNameHook(TrackLayout& trk_lay, std::string& name_, const DPoint& lct_)
+                    : MyParent(trk_lay, lct_), name(name_) {}
+
+  virtual void  AtDVDMark(int idx)
+  {
+      name = DVDMarks()[idx]->mdName;
+  }
+};
+
+static bool OnQueryTooltip(TrackLayout* tl, int x, int y, RefPtr<Gtk::Tooltip>& tt)
+{
+    std::string tip;
+    DoHookAction(new ChapterNameHook(*tl, tip, DPoint(x, y)));
+    
+    bool res = false;
+    if( tip.size() )
+    {
+        res = true;
+        tt->set_text(tip);
+    }
+    return res;
+}
 
 TrackLayout::TrackLayout(Timeline::Monitor& mon):
     trkMon(mon),
@@ -160,6 +188,9 @@ TrackLayout::TrackLayout(Timeline::Monitor& mon):
 
     if( !GetMonitor().GetViewer().IsOpened() )
         CloseTrackLayout(*this);
+    
+    set_has_tooltip(true);
+    sig::connect(signal_query_tooltip(), bb::bind(&OnQueryTooltip, this, _1, _2, _4));
 }
 
 double TrackLayout::FrameScale()
