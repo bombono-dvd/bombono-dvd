@@ -294,6 +294,11 @@ inline bool CaseIEqual(const std::string &s1, const std::string &s2)
     return strcasecmp(s1.c_str(), s2.c_str()) == 0;
 }
 
+bool GetPicDimensions(const char* fname, Point& sz)
+{
+    return gdk_pixbuf_get_file_info(fname, &sz.x, &sz.y);
+}
+
 // определить тип файла и создать по нему соответствующее медиа
 StorageItem CreateMedia(const char* fname, std::string& err_string)
 {
@@ -322,10 +327,10 @@ StorageItem CreateMedia(const char* fname, std::string& err_string)
     // был поставлен доп. заслон в виде must_be_video (сейчас не повторяется на
     // mpeg/m2v/..); если повторится, то улучшаем проверку (проверяем по кодеку 
     // у FFmpeg,- для картинок он "image2" не должен быть)
-    int wdh, hgt;
+    Point sz;
     if( CanOpenAsFFmpegVideo(fname, err_string) )
         md = new VideoMD;
-    else if( gdk_pixbuf_get_file_info(fname, &wdh, &hgt) )
+    else if( GetPicDimensions(fname, sz) )
         md = new StillImageMD;
 
     if( md )

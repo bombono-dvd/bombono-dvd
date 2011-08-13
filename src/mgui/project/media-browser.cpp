@@ -758,28 +758,45 @@ void SetOnRightButton(ObjectBrowser& brw, const RightButtonFunctor& fnr)
     sig::connect(brw.signal_button_press_event(), bb::bind(&OnOBButtonPress, boost::ref(brw), fnr, _1), false);
 }
 
-MediaBrowser::MediaBrowser(RefPtr<MediaStore> a_lst)
-{
-    set_model(a_lst);
-    BuildStructure();
-
-    SetupURIDrop(*this, bb::bind(&OnURIsDrop, boost::ref(*this), _1, _2));
-    SetOnRightButton(*this, bb::bind(&OnMBButtonPress, _1, _2, _3));
-}
-
 // Названия типов для i18n
 F_("Video")
 F_("Chapter")
 F_("Still Picture")
 
-static std::string RenderMediaType(MediaItem mi)
+Point GetStillImageDimensions(StorageItem still_img)
 {
-    return gettext(mi->TypeString().c_str());
+    Point sz;
+    bool true_ = GetPicDimensions(GetFilename(*still_img).c_str(), sz);
+    ASSERT_OR_UNUSED( true_ );
+    return sz;
 }
 
-void MediaBrowser::BuildStructure()
+static std::string RenderMediaType(MediaItem mi, bool show_info)
 {
-    RefPtr<MediaStore> ms = GetMediaStore();
+    //return gettext(mi->TypeString().c_str());
+    std::string info = gettext(mi->TypeString().c_str());
+    if( show_info )
+    {
+        if( VideoItem vi = IsVideo(mi) )
+        {
+            RTCache& rtc = GetRTC(vi);
+            info = boost::format("%1%, %2%, %3%x%4%, %5%:%6%") % info % Mpeg::SecToHMS(rtc.duration, true) 
+                % rtc.vidSz.x % rtc.vidSz.y % rtc.dar.x % rtc.dar.y % bf::stop;
+        }
+        else if( ChapterItem ci = IsChapter(mi) )
+            info = BF_("Chapter at %1%") % Mpeg::SecToHMS(ci->chpTime, true) % bf::stop;
+        else if( StorageItem sii = IsStillImage(mi) )
+        {
+            Point sz = GetStillImageDimensions(sii);
+            info = boost::format("%1%, %2%x%3%") % info % sz.x % sz.y % bf::stop;
+        }
+    }
+    return info;
+}
+
+MediaBrowser::MediaBrowser(RefPtr<MediaStore> ms, bool show_info)
+{
+    set_model(ms);
     const MediaStore::TrackFields& trk_fields = MediaStore::Fields();
 
     SetupBrowser(*this, trk_fields.media.index(), true);
@@ -789,9 +806,9 @@ void MediaBrowser::BuildStructure()
         Gtk::TreeView::Column& name_cln = *Gtk::manage( new Gtk::TreeView::Column(_("Name")) );
         // ширину колонки можно менять
         name_cln.set_resizable(true);
-        
+
         name_cln.pack_start(trk_fields.thumbnail, false);
-        
+
         // 2 имя
         Gtk::CellRendererText& rndr = MakeNameRenderer();
         //name_cln.set_renderer(rndr, trk_fields.title);
@@ -802,16 +819,19 @@ void MediaBrowser::BuildStructure()
 
     // 3 тип
     {
-        Gtk::TreeView::Column& cln  = *Gtk::manage( new Gtk::TreeView::Column(_("Type")) );
+        Gtk::TreeView::Column& cln  = NewManaged<Gtk::TreeView::Column>(show_info ? _("Information") : _("Type"));
         Gtk::CellRendererText& rndr = *Gtk::manage( new Gtk::CellRendererText() );
 
         cln.pack_start(rndr, false);
         // не используем данных,- вычисляем на лету
         //cln.set_renderer(rndr, trk_fields.title);
-        SetRendererFnr(cln, rndr, ms, &RenderMediaType);
+        SetRendererFnr(cln, rndr, ms, bb::bind(&RenderMediaType, _1, show_info));
 
         append_column(cln);
     }
+
+    SetupURIDrop(*this, bb::bind(&OnURIsDrop, boost::ref(*this), _1, _2));
+    SetOnRightButton(*this, bb::bind(&OnMBButtonPress, _1, _2, _3));
 }
 
 void ExecuteForMedia(MediaBrowser& mb, MediaActionFnr fnr)

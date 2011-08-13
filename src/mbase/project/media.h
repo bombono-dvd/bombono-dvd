@@ -207,7 +207,7 @@ inline VideoChapterMD* MakeEmptyChapter() { return new VideoChapterMD; }
 ChapterItem IsChapter(MediaItem mi);
 VideoItem   IsVideo(MediaItem mi);
 StorageItem IsStorage(MediaItem mi);
-bool IsStillImage(MediaItem mi);
+StorageItem IsStillImage(MediaItem mi);
 
 inline StorageItem GetAsStorage(MediaItem mi)
 {
@@ -234,14 +234,14 @@ void DeleteChapter(VideoMD::ListType& chp_lst, VideoMD::Itr itr);
 struct FrameTheme: public boost::equality_comparable<FrameTheme>
 {
 	   bool  isIcon;
-    std::string  themeName;
+       std::string  themeName;
     
     FrameTheme(const std::string& str = std::string(), bool is_icon = false)
-	: themeName(str), isIcon(is_icon) {}
+        : themeName(str), isIcon(is_icon) {}
     
     bool operator==(const FrameTheme& rhs) const
     {
-	return (isIcon == rhs.isIcon) && (themeName == rhs.themeName);
+        return (isIcon == rhs.isIcon) && (themeName == rhs.themeName);
     }
 };
 

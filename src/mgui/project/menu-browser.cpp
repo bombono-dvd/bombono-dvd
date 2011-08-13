@@ -777,7 +777,7 @@ void PackMenusWindow(Gtk::Container& contr, RefPtr<MenuStore> ms, RefPtr<MediaSt
         vbox.pack_start(MakeTitleLabel(_("Media List")), Gtk::PACK_SHRINK);
         PackHSeparator(vbox);
 
-        MediaBrowser& brw = NewManaged<MediaBrowser>(md_store);
+        MediaBrowser& brw = NewManaged<MediaBrowser>(md_store, false);
         vbox.pack_start(brw);
     }
 

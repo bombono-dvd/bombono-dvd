@@ -170,7 +170,7 @@ namespace Project
 
 void PackMediasWindow(Gtk::Container& contr, RefPtr<MediaStore> ms, MediasWindowPacker pack_fnr)
 {
-    MediaBrowser& brw = NewManaged<MediaBrowser>(ms);
+    MediaBrowser& brw = NewManaged<MediaBrowser>(ms, true);
     pack_fnr(contr, brw);
 }
 

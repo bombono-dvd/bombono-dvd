@@ -67,15 +67,11 @@ class MediaBrowser : public ObjectBrowser
 {
     typedef ObjectBrowser MyParent;
     public:
-                       MediaBrowser(RefPtr<MediaStore> a_lst);
+                       MediaBrowser(RefPtr<MediaStore> a_lst, bool show_info);
 
     RefPtr<MediaStore> GetMediaStore()
                        { return RefPtr<MediaStore>::cast_static(get_model()); }
     virtual      void  DeleteMedia();
-
-    protected:
-
-            void  BuildStructure();
 };
 
 

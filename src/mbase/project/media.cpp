@@ -94,7 +94,7 @@ StorageItem IsStorage(MediaItem mi)
     return ptr::dynamic_pointer_cast<StorageMD>(mi);
 }
 
-bool IsStillImage(MediaItem mi)
+StorageItem IsStillImage(MediaItem mi)
 {
     return ptr::dynamic_pointer_cast<StillImageMD>(mi);
 }

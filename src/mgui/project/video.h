@@ -61,6 +61,8 @@ struct RTCache
 RTCache& GetRTC(VideoItem vi);
 io::pos CalcTransSize(RTCache& rtc, int vrate);
 
+Point GetStillImageDimensions(StorageItem still_img);
+
 } // namespace Project
 
 // kbit/s 

@@ -49,6 +49,7 @@ bool ValidateMediaInsertionPos(Gtk::TreePath& brw_pth, bool want_ia = true);
 
 bool IsVideoDVDCompliant(const char* fname, std::string& err_string, bool& is_mpeg2);
 
+bool GetPicDimensions(const char* fname, Point& sz);
 } // namespace Project
 
 namespace DVD {

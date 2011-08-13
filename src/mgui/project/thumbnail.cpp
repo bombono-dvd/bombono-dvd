@@ -157,11 +157,7 @@ Point CalcProportionSize(const Point& sz, double etalon_square)
 
 void ThumbSizeCalcer::Visit(StillImageMD& obj)
 {
-    bool true_ = gdk_pixbuf_get_file_info(GetFilename(obj).c_str(), &sz.x, &sz.y);
-    ASSERT_OR_UNUSED( true_ );
-
-    // вычисляем размеры кэша
-    sz = CalcProportionSize(sz, ORIG_ITEM_AREA);
+    sz = CalcProportionSize(GetStillImageDimensions(&obj), ORIG_ITEM_AREA);
 }
 
 Point CalcAspectSize(VideoMD& vi)
