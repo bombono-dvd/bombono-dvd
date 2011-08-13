@@ -148,8 +148,9 @@ class FrameItemMD: public PSO<FrameItemMD, MenuItemMD>// от MenuItemMD
 {
     typedef MenuItemMD MyParent;
     public:
+                     bool  hlBorder; // highlight border
 
-                           FrameItemMD(MenuMD* own)
+                           FrameItemMD(MenuMD* own): hlBorder(false)
                            { SetOwner(own); }
 
       virtual std::string  TypeString() { return "Frame Item"; }

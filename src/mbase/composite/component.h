@@ -123,6 +123,7 @@ class MediaObj: public Object
 class FramedObj: public SO<FramedObj, MediaObj>
 {
     public:
+        bool  hlBorder; // highlight border
 
                       FramedObj(const FrameTheme& ft, Rect plc);
 

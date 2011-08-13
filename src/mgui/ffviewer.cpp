@@ -613,8 +613,10 @@ static void DoVideoDecode(FFViewer& ffv, int& got_picture, AVPacket* pkt)
     int av_res = avcodec_decode_video(GetVideoCtx(ffv), &picture, &got_picture, buf, buf_sz);
 #endif
     if( av_res < 0 )
+    {    
         // ничего не требуется делать в случае ошибок
         LOG_WRN << "Error while decoding frame!" << io::endl;
+    }
 }
 
 static void ResetCurPTS(FFViewer& ffv)

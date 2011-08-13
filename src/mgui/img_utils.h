@@ -188,6 +188,14 @@ void CopyOrScale(RefPtr<Gdk::Pixbuf>& pix, RefPtr<Gdk::Pixbuf> src);
 void AlphaComposite(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, const Rect& plc);
 void AlphaComposite(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, const Point& a);
 
+enum PicOperationType
+{
+    potCOPY_ALPHA,
+    potCOPY_ALPHA_MULT,
+    potDELETE_ALPHA     // специальная версия для создания рамки автоматом
+};
+void ApplyPicture(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, PicOperationType typ);
+
 void CopyAlphaComposite(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, bool mult = false);
 // добавляет альфа-канал, если не 4
 void AddAlpha(RefPtr<Gdk::Pixbuf>& pix);

@@ -257,7 +257,7 @@ uint8_t CairoGetAlpha(uint8_t* pxl)
 #endif
 }
 
-void RGBA::CopyAlphaComposite(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, bool mult)
+void RGBA::ApplyPicture(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, PicOperationType typ)
 {
     int wdh = src->get_width();
     int hgt = src->get_height();
@@ -299,11 +299,28 @@ void RGBA::CopyAlphaComposite(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, 
     }                                                                             \
     /**/
 
-    if( mult )
-        PICTURE_LOOP( MULT_DIV255(dst_pix->alpha, dst_pix->alpha, src_pix->alpha, tmp); )
-    else
-        PICTURE_LOOP( dst_pix->alpha = src_pix->alpha; );
+    switch( typ )
+    {
+        case potCOPY_ALPHA:
+            PICTURE_LOOP( dst_pix->alpha = src_pix->alpha; );
+            break;
+        case potCOPY_ALPHA_MULT:
+            PICTURE_LOOP( MULT_DIV255(dst_pix->alpha, dst_pix->alpha, src_pix->alpha, tmp); )
+            break;
+        case potDELETE_ALPHA:
+            //PICTURE_LOOP( if( src_pix->alpha == RGBA::Pixel::MaxClr ) dst_pix->alpha = 0; );
+            //PICTURE_LOOP( if( src_pix->alpha ) dst_pix->alpha = 0; );
+            PICTURE_LOOP( if( src_pix->alpha >= RGBA::Pixel::MaxClr/2 ) dst_pix->alpha = 0; );
+            break;
+        default:
+            ASSERT(0);
+    }
 #undef PICTURE_LOOP
+}
+
+void RGBA::CopyAlphaComposite(RefPtr<Gdk::Pixbuf> dst, RefPtr<Gdk::Pixbuf> src, bool mult)
+{
+    ApplyPicture(dst, src, mult ? potCOPY_ALPHA_MULT : potCOPY_ALPHA);
 }
 
 static int Round(int num, int align)

@@ -37,6 +37,7 @@
 #include <mgui/ffviewer.h>
 
 #include <mbase/project/table.h>
+#include <mbase/project/theme.h> // FindThemePath()
 
 #include <mlib/filesystem.h>
 #include <mlib/read_stream.h> // ReadAllStream()
@@ -263,6 +264,13 @@ void SPRenderVis::Visit(TextObj& t_obj)
     }
 }
 
+static RefPtr<Gdk::Pixbuf> CopyScale(RefPtr<Gdk::Pixbuf> src, const Point& sz)
+{
+    RefPtr<Gdk::Pixbuf> pix = CreatePixbuf(sz);
+    RGBA::Scale(pix, src);
+    return pix;
+}
+
 void SPRenderVis::Visit(FrameThemeObj& fto)
 {
     std::string targ_str;    
@@ -283,8 +291,19 @@ void SPRenderVis::Visit(FrameThemeObj& fto)
         else
         {
             const Editor::ThemeData& td = Editor::ThemeCache::GetTheme(fto.ThemeName());
-            alpha_pix = CreatePixbuf(sz);
-            RGBA::Scale(alpha_pix, td.vFrameImg);
+            if( fto.hlBorder )
+            {
+                fs::path brd_fname = Project::FindThemePath(fto.ThemeName()) / "highlight_border.png";
+                if( fs::exists(brd_fname) )
+                    alpha_pix = CopyScale(Gdk::Pixbuf::create_from_file(brd_fname.string()), sz);
+                else
+                {    
+                    alpha_pix = CopyScale(td.frameImg, sz);
+                    RGBA::ApplyPicture(alpha_pix, CopyScale(td.vFrameImg, sz), RGBA::potDELETE_ALPHA);
+                }
+            }
+            else
+                alpha_pix = CopyScale(td.vFrameImg, sz);
         }
 
         RGBA::CopyAlphaComposite(obj_pix, alpha_pix, true);

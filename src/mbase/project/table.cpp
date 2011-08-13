@@ -344,7 +344,7 @@ void SaveFormattedUTF8Xml(xmlpp::Document& doc, const Glib::ustring& filename)
     doc.write_to_file_formatted(filename, "UTF-8");
 }
 
-const int PRJ_VERSION = 1;
+const int PRJ_VERSION = 2;
 
 bool ADatabase::SaveWithFnr(ArchieveFnr afnr)
 {

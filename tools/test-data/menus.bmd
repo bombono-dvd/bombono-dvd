@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<AProject BmdVersion="1.0.2" Version="1">
+<AProject BmdVersion="1.0.2" Version="2">
   <!--This document is for "Bombono DVD" program-->
   <Globals PAL="1" First-Play="Media.2">
     <DefMenuParams Aspect="2">
@@ -45,18 +45,18 @@
       </MotionData>
       <SubpicturePalette Selected="#fff00080" Activated="#ff006c80"/>
       <MenuItems>
-        <MenuItem Name="" Poster="" Type="Frame Item" Ref="Menu.2" PlayAll="0">
+        <MenuItem Name="" Poster="" HighlightBorder="0" Type="Frame Item" Ref="Menu.2" PlayAll="0">
           <FrameTheme Name="media-skip-forward.svg" IsIcon="1"/>
           <Placement lft="419" top="72" rgt="574" btm="206"/>
         </MenuItem>
-        <MenuItem Name="" Poster="Media.1.3" Type="Frame Item" Ref="Media.2" PlayAll="0">
+        <MenuItem Name="" Poster="Media.1.3" HighlightBorder="0" Type="Frame Item" Ref="Media.2" PlayAll="0">
           <FrameTheme Name="oval" IsIcon="0"/>
           <Placement lft="375" top="286" rgt="625" btm="436"/>
         </MenuItem>
         <MenuItem Name="Play All" Font="Kedage 39.041015625" Underline="1" Color="#f0e0f0ff" Type="Text Item" Ref="" PlayAll="1">
           <Placement lft="78" top="339" rgt="267" btm="392"/>
         </MenuItem>
-        <MenuItem Name="" Poster="" Type="Frame Item" Ref="Menu.1" PlayAll="0">
+        <MenuItem Name="" Poster="" HighlightBorder="1" Type="Frame Item" Ref="Menu.1" PlayAll="0">
           <FrameTheme Name="gradient" IsIcon="0"/>
           <Placement lft="72" top="58" rgt="285" btm="177"/>
         </MenuItem>
@@ -72,7 +72,7 @@
       </MotionData>
       <SubpicturePalette Selected="#fff00080" Activated="#ff006c80"/>
       <MenuItems>
-        <MenuItem Name="" Poster="" Type="Frame Item" Ref="Media.1.0" PlayAll="0">
+        <MenuItem Name="" Poster="" HighlightBorder="0" Type="Frame Item" Ref="Media.1.0" PlayAll="0">
           <FrameTheme Name="roundrect" IsIcon="0"/>
           <Placement lft="150" top="100" rgt="550" btm="450"/>
         </MenuItem>
@@ -88,14 +88,14 @@
       </MotionData>
       <SubpicturePalette Selected="#ff006c80" Activated="#fff000e6"/>
       <MenuItems>
-        <MenuItem Name="" Poster="" Type="Frame Item" Ref="Media.2.0" PlayAll="0">
+        <MenuItem Name="" Poster="" HighlightBorder="0" Type="Frame Item" Ref="Media.2.0" PlayAll="0">
           <FrameTheme Name="cell" IsIcon="0"/>
           <Placement lft="427" top="135" rgt="656" btm="275"/>
         </MenuItem>
-        <MenuItem Name="Part 2" Font="Sans 33.224609375" Underline="0" Color="#f0e060ff" Type="Text Item" Ref="" PlayAll="0">
+        <MenuItem Name="Part 2" Font="Sans 33.482421875" Underline="0" Color="#f0e060ff" Type="Text Item" Ref="" PlayAll="0">
           <Placement lft="105" top="417" rgt="235" btm="470"/>
         </MenuItem>
-        <MenuItem Name="" Poster="" Type="Frame Item" Ref="Media.2" PlayAll="0">
+        <MenuItem Name="" Poster="" HighlightBorder="0" Type="Frame Item" Ref="Media.2" PlayAll="0">
           <FrameTheme Name="stonerect" IsIcon="0"/>
           <Placement lft="98" top="51" rgt="317" btm="194"/>
         </MenuItem>

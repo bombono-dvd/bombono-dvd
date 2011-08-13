@@ -334,6 +334,8 @@ void FrameItemMD::SerializeImpl(Archieve& ar)
         theme.isIcon = false;
     }
     SerializeReference(ar, "Poster", posterRef);
+    if( CanSrl(ar, 2) )
+        ar("HighlightBorder", hlBorder);
 
     MyParent::SerializeImpl(ar);
 }

@@ -346,6 +346,8 @@ void LoadMenu(MenuRegion& menu_rgn, Menu mn)
             FrameThemeObj* fto = NewFTO(frame_mi->Theme(), frame_mi->Placement());
             LoadMenuItem(fto, frame_mi);
             fto->PosterItem().SetLink(frame_mi->Poster());
+            fto->hlBorder = frame_mi->hlBorder;
+
             AddMenuItem(menu_rgn, fto);
         }
         else
@@ -390,8 +392,9 @@ void SaveMenu(Menu mn)
         else if( FrameThemeObj* frame_obj = dynamic_cast<FrameThemeObj*>(obj) )
         {
             FrameItemMD* f_itm = new FrameItemMD(mn.get());
-            f_itm->Theme()    = frame_obj->Theme();
-            f_itm->Poster()   = frame_obj->PosterItem();
+            f_itm->Theme()  = frame_obj->Theme();
+            f_itm->Poster() = frame_obj->PosterItem();
+            f_itm->hlBorder = frame_obj->hlBorder;
 
             SaveMenuItem(f_itm, frame_obj);
         }

@@ -53,10 +53,14 @@
 //               break;
 //}
 
+static Comp::Object* GetObj(int i)
+{
+    return CurMenuRegion().List()[i];
+}
+
 Comp::MediaObj* ToMOTransform(int i) 
 {
-    Comp::ListObj::ArrType& lst = CurMenuRegion().List();
-    Comp::MediaObj* obj = dynamic_cast<Comp::MediaObj*>(lst[i]);
+    Comp::MediaObj* obj = dynamic_cast<Comp::MediaObj*>(GetObj(i));
     ASSERT(obj);
     return obj;
 }
@@ -316,30 +320,6 @@ CalcMouseForData(MEditorArea& edt_area, GdkEventButton* event, int& sel_pos)
     dat.curPos  = s_vis.mvPos;
     dat.isAdd = bool(event->state&GDK_CONTROL_MASK);
     return dat;
-}
-
-static void ForAllSelectedFTO(Editor::FTOFunctor fnr)
-{
-    Editor::ForAllSelectedFTO(fnr);
-}
-
-static bool GetCurPosterLink_(FrameThemeObj* obj, Project::MediaItem& mi, bool& can_set_poster)
-{
-    bool is_found = !IsIconTheme(*obj);
-    if( is_found )
-    {
-        can_set_poster = true;
-        mi = obj->PosterItem();
-    }
-    return !is_found;
-}
-
-static Project::MediaItem GetCurPosterLink(bool& can_set_poster)
-{
-    can_set_poster = false;
-    Project::MediaItem mi;
-    ForAllSelectedFTO( bb::bind(&GetCurPosterLink_, _1, boost::ref(mi), boost::ref(can_set_poster)) );
-    return mi;
 }
 
 static void SetObjectsLinksEx(MEditorArea& edt_area, Project::MediaItem mi, const int_array& items,
@@ -713,6 +693,31 @@ BackgroundDialog::BackgroundDialog():
     
 } // namespace Editor
 
+FrameThemeObj* ToRealFTOTransform(int i) 
+{
+    FrameThemeObj* obj = dynamic_cast<FrameThemeObj*>(GetObj(i));
+    if( obj && IsIconTheme(*obj) )
+        obj = 0;
+    return obj;
+}
+
+static bool IsNotNull(const FrameThemeObj* fto)
+{
+    return fto;
+}
+
+fe::range<FrameThemeObj*> SelectedRealFTOs()
+{
+    return fe::make_any( MenuEditor().SelArr() | fe::transformed(ToRealFTOTransform) | fe::filtered(IsNotNull) );
+}
+
+static void OnHighlightBorder(Gtk::CheckMenuItem& hib_itm)
+{
+    bool is_on = hib_itm.get_active();
+    boost_foreach( FrameThemeObj* obj, SelectedRealFTOs() )
+        obj->hlBorder = is_on;
+}
+
 void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
 {
     int sel_pos;
@@ -774,17 +779,32 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
         AddEnabledItem(mn, _("Remove Link"), MakeActionLinker(Project::MediaItem()),
                        has_selected);
 
+        Project::MediaItem cur_pstr;
+        bool has_fto = false;
+        bool is_hib  = false;
+        boost_foreach( FrameThemeObj* obj, SelectedRealFTOs() )
+        {
+            has_fto = true;
+            is_hib  = obj->hlBorder;
+            cur_pstr = obj->PosterItem();
+            break;
+        }
+        if( !has_selected )
+            cur_pstr = CurMenuRegion().BgRef();
+                
         // Poster Link
         Gtk::MenuItem& poster_itm = MakeAppendMI(mn, _("Set Poster"));
-        Project::MediaItem cur_pstr;
-        bool can_set_poster = true;
-        if( has_selected )
-            cur_pstr = GetCurPosterLink(can_set_poster);
-        else
-            cur_pstr = CurMenuRegion().BgRef();
-        if( SetEnabled(poster_itm, can_set_poster) )
+        if( SetEnabled(poster_itm, (!has_selected || has_fto)) )
             poster_itm.set_submenu(PosterMenuBuilder(cur_pstr, edt_area, !has_selected).Create());
 
+        Gtk::CheckMenuItem& hib_itm = NewManaged<Gtk::CheckMenuItem>(_("Highlight Border Only"));
+        mn.append(hib_itm);
+        if( SetEnabled(hib_itm, has_fto) )
+        {    
+            hib_itm.set_active(is_hib);
+            hib_itm.signal_toggled().connect(bb::bind(&OnHighlightBorder, b::ref(hib_itm)));
+        }
+            
         // Align
         {
             Gtk::MenuItem& align_itm = MakeAppendMI(mn, _("Align"));

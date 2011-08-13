@@ -23,7 +23,8 @@
 
 namespace Composition {
 
-FramedObj::FramedObj(const FrameTheme& ft, Rect plc): pstrLink(this), thmName(ft)
+FramedObj::FramedObj(const FrameTheme& ft, Rect plc)
+    : pstrLink(this), thmName(ft), hlBorder(false)
 { 
     SetPlacement(plc);
 }
