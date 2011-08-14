@@ -1383,25 +1383,24 @@ void GetBasePointExt(Point& res, const Rect& plc, SelActionType cur_typ, Point& 
     }
 }
 
-struct SizeVectorData: public DWConstructorTag
+struct SizeVectorData
 {
     typedef std::pair<double, double> DblPoint;
-    DblPoint vecPnt;
+    DblPoint  vecPnt;
+      double  ratio;
 
-              SizeVectorData(DataWare&): vecPnt(0,0) {}
+              SizeVectorData(): vecPnt(0,0) {}
 
         void  Set(Point& sz, Point& bas_vec)
               {
                   vecPnt.first  = bas_vec.x ? (double)sz.x/bas_vec.x : 0 ;
                   vecPnt.second = bas_vec.y ? (double)sz.y/bas_vec.y : 0 ;
+                  
+                  ASSERT_RTL( sz.y );
+                  ratio = sz.x / (double)sz.y;
               }
         void  CalcPlacement(Rect& plc, Point& lct);
 };
-
-static void CheckMinSz(int& len)
-{
-    len = std::max(len, 10);
-}
 
 static bool IsLftResize(SizeVectorData::DblPoint& vec_pnt)
 {
@@ -1423,11 +1422,21 @@ static bool IsBtmResize(SizeVectorData::DblPoint& vec_pnt)
     return vec_pnt.second > 0;
 }
 
+static bool IsHzResize(SizeVectorData::DblPoint& vec_pnt)
+{
+    return vec_pnt.first;
+}
+
+static void CheckMinSz(int& len)
+{
+    len = std::max(len, 10);
+}
+
 void SizeVectorData::CalcPlacement(Rect& plc, Point& lct)
 {
     // 1 размер
     Point sz = plc.Size();
-    if( vecPnt.first ) sz.x  = int(vecPnt.first *lct.x);
+    if( IsHzResize(vecPnt) ) sz.x  = int(vecPnt.first *lct.x);
     if( vecPnt.second ) sz.y = int(vecPnt.second*lct.y);
 
     CheckMinSz(sz.x);
@@ -1460,6 +1469,31 @@ void SizeVectorData::CalcPlacement(Rect& plc, Point& lct)
             DoGridSnap(plc.top);
         if( IsBtmResize(vecPnt) )
             DoGridSnap(plc.btm);
+    }
+    
+    // сохранение пропорций с Shift
+    if( GetKeyboardState() & GDK_SHIFT_MASK )
+    {
+        sz = plc.Size();
+
+        if( IsHzResize(vecPnt) )
+        {    
+            int hgt = Round(sz.x / ratio);
+            CheckMinSz(hgt);
+            if( IsTopResize(vecPnt) )
+                plc.top = plc.btm - hgt;
+            else
+                plc.btm = plc.top + hgt;
+        }
+        else
+        {
+            int wdh = Round(ratio * sz.y);
+            CheckMinSz(wdh);
+            if( IsLftResize(vecPnt) )
+                plc.lft = plc.rgt - wdh;
+            else
+                plc.rgt = plc.lft + wdh;
+        }
     }
 }
 

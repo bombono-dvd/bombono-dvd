@@ -48,6 +48,8 @@ inline bool IsRightButton(GdkEventButton* event)
     return event->button == 3;
 }
 
+Gdk::ModifierType GetKeyboardState();
+
 ////////////////////////////////////////////////////////
 // CallHotKey()
 

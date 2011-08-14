@@ -94,7 +94,7 @@ int GetObjectAtPos(MEditorArea& edt_area, const Point& lct)
     return sel_vis.selPos;
 }
 
-inline Gdk::ModifierType GetKeyboardState()
+Gdk::ModifierType GetKeyboardState()
 {
     Gdk::ModifierType mask;
     gdk_window_get_pointer(0, 0, 0, (GdkModifierType*)&mask);
