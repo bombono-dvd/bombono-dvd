@@ -266,7 +266,9 @@ static ReaderPtr OpenDVD(const std::string& dvd_path, ImportData& id)
     ReaderPtr rd = OpenDVD(dvd_path, is_pal);
     if( rd && id.addToProject && (is_pal != Project::IsPALProject()) )
     {
-        rd.reset();
+        // замена запрета на предупреждение (последнее будет висеть на всем протяжении
+        // помощника :) )
+        //rd.reset();
         id.errLbl.show();
     }
     else
