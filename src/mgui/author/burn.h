@@ -65,6 +65,7 @@ BurnData& GetInitedBD();
 
 bool IsBurnerSetup(std::string& dev_path);
 double GetBurnerSpeed();
+std::string DiscLabel();
 
 enum DVDType
 {

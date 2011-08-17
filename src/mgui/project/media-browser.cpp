@@ -494,7 +494,7 @@ double Duration(VideoItem vi)
 static SizeStat ProjectStatEx(bool fixed_part)
 {
     SizeStat ss;
-    io::pos& sz = ss.prjSum;
+    io::pos& vsz = ss.videoSum;
     io::pos& tr_sz = ss.transSum;
 
     boost_foreach( VideoItem vi, AllVideos() )
@@ -506,14 +506,20 @@ static SizeStat ProjectStatEx(bool fixed_part)
             io::pos v_sz = CalcTransSize(rtc, vrate);
 
             tr_sz += v_sz;
-            sz    += v_sz;
+            vsz   += v_sz;
         }
         else
-            sz += PhisSize(GetFilename(*vi).c_str());
+            vsz += PhisSize(GetFilename(*vi).c_str());
     }
-    sz += Author::MenusSize();
-
+    //sz += Author::MenusSize();
+    ss.menuSum = Author::MenusSize();
+    
     return ss;
+}
+
+io::pos PrjSum(const SizeStat& ss)
+{
+    return ss.videoSum + ss.menuSum;
 }
 
 SizeStat ProjectStat()
@@ -523,7 +529,8 @@ SizeStat ProjectStat()
 
 io::pos ProjectSizeSum(bool fixed_part)
 {
-    return ProjectStatEx(fixed_part).prjSum;
+    //return ProjectStatEx(fixed_part).prjSum;
+    return PrjSum(ProjectStatEx(fixed_part));
 }
 
 DVDDims GetRealTD(VideoItem vi)

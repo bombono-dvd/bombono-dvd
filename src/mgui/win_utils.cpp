@@ -197,7 +197,7 @@ Gtk::Frame& PackWidgetInFrame(Gtk::Widget& wdg, Gtk::ShadowType st, const std::s
 
 // символы вроде "&<>#" перед передачей GMarkupParser должны быть заменены
 // на escape-последовательности
-static std::string QuoteForGMarkupParser(const std::string& str)
+std::string QuoteForGMarkupParser(const std::string& str)
 {
     return Glib::Markup::escape_text(str).raw();
 }

@@ -235,6 +235,12 @@ bool HasButtonLink(Comp::MediaObj& m_obj, std::string& targ_str)
     return res;
 }
 
+bool HasButtonLink(Comp::MediaObj& m_obj)
+{
+    std::string targ_str;
+    return Project::HasButtonLink(m_obj, targ_str);
+}
+
 int MenusCnt()
 {
     return Size(GetAStores().mnStore);
@@ -346,14 +352,12 @@ static bool ScriptMenu(xmlpp::Element* menus_node, Menu root_menu, Menu mn, int 
         AddPostCmd(pgc_node, mn);
 
     // действия кнопок
-    MenuRegion::ArrType& lst = GetMenuRegion(mn).List();
-    for( MenuRegion::Itr itr = lst.begin(), end = lst.end(); itr != end; ++itr )
-        if( Comp::MediaObj* m_obj = dynamic_cast<Comp::MediaObj*>(*itr) )
-        {
-            std::string targ_str;    
-            if( HasButtonLink(*m_obj, targ_str) )
-                AddChildWithText(pgc_node, "button", targ_str);
-        }
+    boost_foreach( Comp::MediaObj* m_obj, Author::AllMediaObjs(mn) )
+    {
+	std::string targ_str;    
+	if( HasButtonLink(*m_obj, targ_str) )
+	    AddChildWithText(pgc_node, "button", targ_str);
+    }
     return true;
 }
 
@@ -951,14 +955,18 @@ static void AddSconsOptions(str::stream& strm, bool for_cmd, const std::string& 
         strm << sep << sep;
 }
 
+std::string DiscLabel()
+{
+    return GetBD().Label().get_text();
+}
+
 void FillSconsOptions(str::stream& scons_options, bool fill_def)
 {
     std::string def_dvd_label, def_drive;
     double def_speed = 0;
     if( !Execution::ConsoleMode::Flag )
     {     
-        BurnData& bd = GetBD();
-        def_dvd_label = bd.Label().get_text();
+        def_dvd_label = DiscLabel();
         if( IsBurnerSetup(def_drive) )
             def_speed = GetBurnerSpeed();
     }

@@ -26,6 +26,7 @@
 #include "burn.h"
 
 #include <mgui/project/handler.h>
+#include <mgui/project/mb-actions.h> // DVDPayloadSize()
 #include <mgui/dialog.h>
 #include <mgui/win_utils.h>
 #include <mgui/img-factory.h>
@@ -36,6 +37,8 @@
 #include <mgui/timer.h>
 #include <mgui/gettext.h>
 #include <mgui/prefs.h>
+#include <mgui/text_obj.h> // TextObj
+#include <mgui/render/menu.h> // GetMenuRegion()
 
 #include <mbase/resources.h>
 #include <mlib/filesystem.h>
@@ -282,8 +285,8 @@ void SetExecState(ExecState& es, bool is_exec)
     {
         Project::SizeStat ss = Project::ProjectStat();
         double trans_ratio = 0.;
-        if( ss.prjSum )
-            trans_ratio = ss.transSum / (double)ss.prjSum;
+        if( PrjSum(ss) )
+            trans_ratio = ss.transSum / (double)PrjSum(ss);
         InitStageMap(es.mode, trans_ratio);
     }
 }
@@ -742,21 +745,112 @@ static void PostBuildOperation(const std::string& res, const std::string& dir_st
         FailureMessageBox(es, res);
 }
 
+static void AddError(std::string& err_lst, const std::string& err, bool appreciable_error = false)
+{
+    if( err_lst.size() )
+        err_lst += "\n\n";
+    err_lst += MarkError("* " + QuoteForGMarkupParser(err), !appreciable_error);
+}
+
+static RefPtr<Project::MenuStore> GetMenuStore()
+{
+    return Project::GetAStores().mnStore;
+}
+
+static Project::Menu ToMenuTransform(const Gtk::TreeRow& row) 
+{
+    return GetMenu(GetMenuStore(), row);
+}
+
+fe::range<Project::Menu> AllMenus()
+{
+    return fe::make_any( GetMenuStore()->children() | fe::transformed(ToMenuTransform) );
+}
+
+static Comp::MediaObj* ToMediaObjTransform(Comp::Object* obj) 
+{
+    Comp::MediaObj* m_obj = dynamic_cast<Comp::MediaObj*>(obj);
+    ASSERT(m_obj);
+    return m_obj;
+}
+
+fe::range<Comp::MediaObj*> AllMediaObjs(Project::Menu mn)
+{
+    return fe::make_any( GetMenuRegion(mn).List() | fe::transformed(ToMediaObjTransform) );
+}
+
+std::string RectToStr(const Rect& rct)
+{
+    return boost::format("(%1%, %2%, %3%, %4%)") % rct.lft % rct.top % rct.rgt % rct.btm % bf::stop;
+}
+
+std::string ItemName(Comp::MediaObj& obj)
+{
+    std::string str = RectToStr(obj.Placement());
+    if( FrameThemeObj* fto = dynamic_cast<FrameThemeObj*>(&obj) )
+        str = Editor::FT2PrintName(fto->Theme()) + " " + str;
+    else if( TextObj* t_obj = dynamic_cast<TextObj*>(&obj) )
+        str = t_obj->Text() + " " + str;
+    return str;
+}
+
 void OnDVDBuild(Gtk::FileChooserButton& ch_btn)
 {
     ExecState& es = GetES();
     if( !es.isExec )
     {
-        std::string dir_str = ch_btn.get_filename();
-
-        if( CanUseForAuthoring(dir_str) && CheckDVDBlankForBurning() )
+        // Политика: проверяем все то, что не даст явной ошибки в процессе выполнения,
+        // но пользователю явно не подойдет результат работы
+        std::string err_lst;
+        // * бюджет
+        if( Project::ProjectSizeSum() > Project::DVDPayloadSize() )
+            AddError(err_lst, _("DVD capacity is exceeded"));
+        
+        // * нахлест кнопок
+        // (по DVD-спекам он вообще не разрешен)
+        try
         {
-            std::string res;
+            boost_foreach( Project::Menu mn, AllMenus() )
+                boost_foreach( Comp::MediaObj* obj, AllMediaObjs(mn) )
+                    if( Project::HasButtonLink(*obj) )
+                    {    
+                        boost_foreach( Comp::MediaObj* obj2, AllMediaObjs(mn) )
+                            if( (obj != obj2) && Project::HasButtonLink(*obj2) 
+				&& obj->Placement().Intersects(obj2->Placement()) )
+                            {
+                                AddError(err_lst, BF_("Items \"%1%\" and \"%2%\" overlap in menu \"%3%\"")
+                                         % ItemName(*obj) % ItemName(*obj2) % mn->mdName % bf::stop);
+                                throw 0; // до первой ошибки
+                            }
+                    }
+        } catch (int) {}
+        
+        // * все в одном VTS храним, потому такое ограничение: каждый VTS_01_<N>.VOB <= 1GB,
+        // N - однозначное число, от 1 до 9
+        if( Project::ProjectStat().videoSum > io::pos(9)*1024*1024*1024 ) // 9GB
+            AddError(err_lst, _("9GB limit for video is exceeded (one VTS should be less)"), true);
+        
+        if( DiscLabel().size() > 32 )
+            AddError(err_lst, _("32 character limit for disc label is exceeded"), true);
+        
+        // :TODO: при наличие красных ошибок вообще не давать продолжать (защита от дурака)
+        bool run_authoring = true;
+        if( err_lst.size() && (Gtk::RESPONSE_YES != 
+            MessageBox(_("Error Report"), Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO, err_lst + "\n\n" + _("Continue?"))) )
+            run_authoring = false;
+        
+        if( run_authoring )
+        {
+            std::string dir_str = ch_btn.get_filename();
+            if( CanUseForAuthoring(dir_str) && CheckDVDBlankForBurning() )
             {
-                ExecStateSetter ess(es);
-                res = Project::AuthorDVD(dir_str);
+                std::string res;
+                {
+                    ExecStateSetter ess(es);
+                    res = Project::AuthorDVD(dir_str);
+                }
+                PostBuildOperation(res, dir_str);
             }
-            PostBuildOperation(res, dir_str);
         }
     }
     else

@@ -153,13 +153,18 @@ FrameTheme Iter2FT(const Gtk::TreeModel::iterator& iter)
     return iter->get_value(FrameTypeColumn());
 }
 
+std::string FT2PrintName(const FrameTheme& ft)
+{
+    std::string res = ft.themeName;
+    if( ft.isIcon )
+        res = get_basename(res);
+    return res;
+}
+
 static std::string FT2Name(const Gtk::TreeModel::iterator& iter)
 {
     FrameTheme ft = Iter2FT(iter);
-    std::string res = ft.themeName;
-    if( ft.isIcon )
-	res = get_basename(res);
-    return res;
+    return FT2PrintName(ft);
 }
 
 bool SeparatorFunc(const RefPtr<Gtk::TreeModel>&, const Gtk::TreeIter& itr)

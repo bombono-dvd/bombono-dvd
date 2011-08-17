@@ -91,6 +91,8 @@ RefPtr<Gdk::Pixbuf> CompositeWithFrame(RefPtr<Gdk::Pixbuf> obj_pix, const ThemeD
 
 RefPtr<Gdk::Pixbuf> LoadThemeIcon(const std::string& theme_fname, const Point& sz,
                                   bool preserve_aspect);
+std::string FT2PrintName(const FrameTheme& ft);
+
 } // namespace Editor
 
 

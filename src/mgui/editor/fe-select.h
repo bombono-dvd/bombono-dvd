@@ -24,9 +24,6 @@
 
 #include <mgui/menu-rgn.h>
 
-#include <mlib/range/any_range.h>
-#include <mlib/foreach.h>
-
 //
 // Iterating over selected objects; example:
 //  boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs(edt_area) )

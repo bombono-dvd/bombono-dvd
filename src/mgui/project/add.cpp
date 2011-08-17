@@ -43,15 +43,15 @@
 
 #include <strings.h> // strcasecmp()
 
-namespace Project
-{
-
-static std::string MarkError(const std::string& val, bool not_error)
+std::string MarkError(const std::string& val, bool not_error)
 {
     if( not_error )
         return val;
     return "<span foreground=\"red\">" + val + "</span>";
 }
+
+namespace Project
+{
 
 static std::string MarkBoolError(bool val, bool not_error)
 {

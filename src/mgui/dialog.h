@@ -117,5 +117,8 @@ ActionFunctor DoDialogFunctor(const DialogParams& dp);
 
 void AddDialogItem(Gtk::Menu& menu, const DialogParams& dp, bool is_enabled = true);
 
+std::string QuoteForGMarkupParser(const std::string& str);
+std::string MarkError(const std::string& val, bool not_error);
+
 #endif // #ifndef __MGUI_DIALOG_H__
 

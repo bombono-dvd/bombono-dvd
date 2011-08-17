@@ -55,11 +55,15 @@ io::pos ProjectSizeSum(bool fixed_part = false);
 
 struct SizeStat
 {
-    io::pos prjSum;
-    io::pos transSum;
+    //io::pos prjSum;
+    io::pos videoSum; // только видео
+    io::pos menuSum;  // только меню
+    io::pos transSum; // размер транскодируемой части проекта по плану (только видео)
 
-    SizeStat(): prjSum(0), transSum(0) {}
+    SizeStat(): videoSum(0), menuSum(0), transSum(0) {}
 };
+
+io::pos PrjSum(const SizeStat& ss);
 
 SizeStat ProjectStat();
 

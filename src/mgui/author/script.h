@@ -53,6 +53,10 @@ std::string MenuAuthorDir(Menu mn, int i, bool cnv_from_utf8 = true);
 fs::path SConsAuxDir();
 
 bool HasButtonLink(Comp::MediaObj& m_obj, std::string& targ_str);
+// :TRICKY: если нужна сама команда, то применять функцию можно только
+// после IndexVideosForAuthoring(), иначе будут одни нули (конструктор int() обнулит); 
+// но если достаточно знать только факт наличия
+bool HasButtonLink(Comp::MediaObj& m_obj);
 
 bool IsMotion(Menu mn);
 double MenuDuration(Menu mn);
@@ -92,6 +96,8 @@ void ApplicationError(const char* app_name, const std::string& reason);
 void ApplicationError(const char* app_name, const ExitData& ed);
 
 void CheckAbortByUser();
+
+fe::range<Comp::MediaObj*> AllMediaObjs(Project::Menu mn);
 
 } // namespace Author
 
