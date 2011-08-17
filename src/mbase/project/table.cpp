@@ -258,6 +258,8 @@ void VideoMD::SerializeImpl(Archieve& ar)
         ArchieveStackFrame asf(ar, "DVDTransData");
         ar("DVDDims", transDat.dd   )
           ("VRate",   transDat.vRate);
+        if( CanSrl(ar, 3) )
+            ar("CustomFFmpegOptions" , transDat.ctmFFOpt);
     }
     {
         ArchieveStackFrame asf(ar, "SubtitleData");

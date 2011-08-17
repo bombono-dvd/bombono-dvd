@@ -644,6 +644,12 @@ static std::string FFSizeSet(const Point& sz, int val,
     return sz_str;
 }
 
+static void AppendOpts(std::string& opts, const std::string& append_args)
+{
+    if( !append_args.empty() )
+        opts += " " + append_args;
+}
+
 std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData& atd, bool is_pal,
                             const DVDTransData& td)
 {
@@ -694,9 +700,8 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData
     // * доп. опции
     std::string add_opts("-mbd rd -trellis 2 -cmp 2 -subcmp 2");
     {
-        std::string user_opts = PrefContents("ffmpeg_options");
-        if( !user_opts.empty() )
-            add_opts += " " + user_opts;
+        AppendOpts(add_opts, PrefContents("ffmpeg_options"));
+        AppendOpts(add_opts, td.ctmFFOpt);
     }
 
     return boost::format("-target %1%-dvd -aspect %2% %3% %4%-y %7% %5%%6%")

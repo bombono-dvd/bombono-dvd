@@ -757,7 +757,9 @@ static void AuthorImpl(const std::string& out_dir)
         AutoDVDTransData atd(Is4_3(vi));
         atd.audioNum  = OutAudioNum(rtc.audioNum);
         atd.srcAspect = rtc.dar;
+        
         DVDTransData td = GetRealTransData(vi);
+        td.ctmFFOpt = vi->transDat.ctmFFOpt;
 
         std::string ffmpeg_cmd = FFmpegToDVDTranscode(src_fname, dst_fname, atd, IsPALProject(), td);
         io::pos trans_val  = CalcTransSize(rtc, td.vRate);

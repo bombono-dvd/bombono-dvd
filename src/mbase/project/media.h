@@ -129,8 +129,9 @@ enum DVDDims
 
 struct DVDTransData
 {
-    DVDDims  dd;
-        int  vRate;
+      DVDDims  dd;
+          int  vRate;
+  std::string  ctmFFOpt;
 
     DVDTransData(): dd(dvdAUTO), vRate(0) {}
 };

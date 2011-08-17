@@ -465,10 +465,36 @@ static void RunBitrateCalc(VideoItem vi, Gtk::Dialog& dlg)
         AppendNamedValue(info_box, sg, SMCLN_("Number of audio streams"), Int2Str(rtc.audioNum));
         AppendNamedValue(info_box, sg, SMCLN_("File size"), ShortSizeString(PhisSize(fname.c_str())));
     }
+    
+    std::string& ctm_ff_opt = vi->transDat.ctmFFOpt;
+    Gtk::Expander& expdr = NewManaged<Gtk::Expander>(_("Custom _ffmpeg options"), true);
+    expdr.set_expanded(ctm_ff_opt.size());
+    SetTip(expdr, _("Examples: \"-top 0\", \"-deinterlace\". See FFmpeg documentation for more options."));
+
+    Gtk::ComboBoxEntryText& custom_cmb = Add(expdr, NewManaged<Gtk::ComboBoxEntryText>());
+    // :TODO: можно сохранять в авто-настройках
+    static Str::List history_lst;
+    boost_foreach( std::string str, history_lst )
+        custom_cmb.append_text(str);
+    Gtk::Entry& custom_ent = *custom_cmb.get_entry();
+    custom_ent.set_text(ctm_ff_opt);
+    PackStart(vbox, expdr);
 
     if( CompleteAndRunOk(dlg) )
     {
         SetTransData(vi, Dimensions(bc), bc.vRate.get_value());
+        ctm_ff_opt = custom_ent.get_text();
+
+        Str::List::iterator it = std::find(history_lst.begin(), history_lst.end(), ctm_ff_opt);
+        if( it != history_lst.end() )
+            std::swap(history_lst[0], *it);
+        else
+        {
+            history_lst.insert(history_lst.begin(), ctm_ff_opt);
+            if( history_lst.size() > 10 )
+                history_lst.resize(10);
+        }
+        
         UpdateDVDSize();
     }
 }
