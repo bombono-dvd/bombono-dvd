@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-bombono-dvd">
+    <comment>Bombono DVD project file</comment>
+    <comment xml:lang="es">Proyecto de Bombono DVD</comment>
+    <comment xml:lang="ru">Файл проекта Bombono DVD</comment>
+    <generic-icon name="bombono-dvd"/>
+    <glob pattern="*.bmd"/>
+  </mime-type>
+</mime-info>

@@ -7,3 +7,4 @@ Icon=bombono-dvd
 Exec=bombono-dvd
 Categories=Video;AudioVideo;DiscBurning;GTK;
 Terminal=false
+MimeType=application/x-bombono-dvd;

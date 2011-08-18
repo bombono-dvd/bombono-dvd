@@ -117,13 +117,17 @@ viewer_bin = MGuiProgram(bin_path + '/mviewer', ['timeline/mviewer-main.cpp'])
 bombono_bin = MGuiProgram(target = bin_path + '/bombono-dvd', source = ['project/mconstructor-main.cpp'])
 bin_mgui_env.Install(user_options_dict['BIN_PREFIX'], bombono_bin) # + viewer_bin)
 
-# .desktop
+# .desktop ...
 dest_prefix = user_options_dict['DEST_PREFIX']
 import os
-desktop_dir = os.path.join(dest_prefix, "share", "applications")
-mgui_env.Alias('install', mgui_env.Install(desktop_dir, 'bombono-dvd.desktop'))
-pixmap_path = os.path.join(dest_prefix, "share", "pixmaps", "bombono-dvd.png")
-mgui_env.Alias('install', mgui_env.InstallAs(pixmap_path, '#resources/icons/bombono-dvd_32px.png'))
+def MakeDest(tail):
+    return os.path.join(dest_prefix, tail)
+def AliasInstall(target):
+    mgui_env.Alias('install', target)
+
+AliasInstall(mgui_env.Install(MakeDest("share/applications"), 'bombono-dvd.desktop'))
+AliasInstall(mgui_env.Install(MakeDest("share/mime/packages"), 'bombono.xml'))
+AliasInstall(mgui_env.InstallAs(MakeDest("share/pixmaps/bombono-dvd.png"), '#resources/icons/bombono-dvd_32px.png'))
 
 from BuildVars import IsBuildOrRunTests
 # we like tests
