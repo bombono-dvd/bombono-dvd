@@ -31,6 +31,22 @@
 #include <boost/test/floating_point_comparison.hpp>
 #include <mlib/regex.h>
 
+// максимальное кол-во работ, которое можно выполнять одновременно
+// = кол-ву процессоров/ядер
+int MaxCPUWorkload()
+{
+#ifdef _WIN32
+#error "TODO"
+#else
+    // кол-во работающих процессоров, а не всего, _SC_NPROCESSORS_CONF 
+    // (система может использовать не все)
+    int res = sysconf(_SC_NPROCESSORS_ONLN);
+    if( res <= 0 ) // может возвращать -1, если не осилит
+        res = 1;
+    return res;
+#endif
+}
+
 static void CheckOutput(int fd, const std::string& etalon_str)
 {
     int cnt = etalon_str.size();

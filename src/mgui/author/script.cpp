@@ -697,12 +697,38 @@ re::pattern FFmpegDurPat( "time="RG_FLT);
 
 typedef boost::function<double(double)> PercentFunctor;
 
-static double CalcTransPercent(double cur_dur, const io::pos trans_total,
-                               const io::pos trans_done, const io::pos trans_val, 
-                               double full_dur)
+//static double CalcTransPercent(double cur_dur, const io::pos trans_total,
+//                               const io::pos trans_done, const io::pos trans_val,
+//                               double full_dur)
+//{
+//    //return (std::min(sz * 1024, trans_val) + trans_done)/double(trans_total);
+//    return (std::min(cur_dur/full_dur, 1.) * trans_val + trans_done)/double(trans_total);
+//}
+
+struct Job
+{
+        int  coeff;
+    io::pos  transDone;
+    io::pos  transVal;
+        int  outIdx;
+        
+    Job(int coeff_, int out_idx, io::pos trans_val)
+        : coeff(coeff_), transDone(), outIdx(out_idx), transVal(trans_val)
+    { ASSERT( coeff > 0 ); }
+};
+
+typedef std::list<Job> JobList;
+
+static double CalcTransPercent(double cur_dur, Job& job, JobList& jl,
+                               const io::pos trans_total, double full_dur)
 {
     //return (std::min(sz * 1024, trans_val) + trans_done)/double(trans_total);
-    return (std::min(cur_dur/full_dur, 1.) * trans_val + trans_done)/double(trans_total);
+    //return (std::min(cur_dur/full_dur, 1.) * trans_val + trans_done)/double(trans_total);
+    job.transDone = std::min(cur_dur/full_dur, 1.) * job.transVal;
+    double res = 0.;
+    boost_foreach( Job& job, jl )
+        res += job.transDone;
+    return res/double(trans_total);
 }
 
 static void OnTranscodePrintParse(const char* dat, int sz, const PercentFunctor& fnr)
@@ -742,33 +768,112 @@ static void AuthorImpl(const std::string& out_dir)
     IndexVideosForAuthoring();
 
     // * транскодирование
-    io::pos trans_done = 0, trans_total = ProjectStat().transSum;
     Author::SetStage(Author::stTRANSCODE);
-    boost_foreach( VideoItem vi, AllTransVideos() )
+    // :TODO!!!: расчет из настроек
+    int max_wl = 2;
+    io::pos trans_total = ProjectStat().transSum;
+    JobList jl;
+    for( int todo_idx = 0, cnt = boost::distance(AllTransVideos()); ; )
     {
-        std::string src_fname = SrcFilename(vi);
-        std::string dst_fname = DVDCompliantFilename(vi, out_dir);
-        // :TRICKY: отдельные видеофайлы подгоняем под DVD-формат исходя из них самих
-        // (а не под одну "гребенку" проекта), несмотря на то, что запись в один VTS видео
-        // разных форматов вроде как противоречит спекам. Причина: вроде и так работает (на
-        // доступных мне железных и софтовых плейерах), а если будут проблемы - лучше мультиформат
-        // реализовать
-        RTCache& rtc = GetRTC(vi);
-        AutoDVDTransData atd(Is4_3(vi));
-        atd.audioNum  = OutAudioNum(rtc.audioNum);
-        atd.srcAspect = rtc.dar;
+        int wl = 0;
+        boost_foreach( Job& job, jl )
+            wl += job.coeff;
+        // пока применяем простую практику - максимальную нагрузку не могут снизить в процессе
+        wl = max_wl - wl;
+        ASSERT( wl >= 0 );
+
+        int new_cnt = std::min(wl, cnt-todo_idx);
+        if( new_cnt > 0 )
+        {
+            int div = wl / new_cnt;
+            int rest  = wl % new_cnt;
+            for( int i=0; i<new_cnt; i++, rest-- )
+            {
+                // мин. неиспользуемое значение
+                // :TODO!!!: отсортировать или перебором
+                int out_idx = 0;
+                int coeff   = rest > 0 ? div+1 : div;
+                VideoItem vi = AllTransVideos().advance_begin(todo_idx+i).front();
+                
+                std::string src_fname = SrcFilename(vi);
+                std::string dst_fname = DVDCompliantFilename(vi, out_dir);
+                // :TRICKY: отдельные видеофайлы подгоняем под DVD-формат исходя из них самих
+                // (а не под одну "гребенку" проекта), несмотря на то, что запись в один VTS видео
+                // разных форматов вроде как противоречит спекам. Причина: вроде и так работает (на
+                // доступных мне железных и софтовых плейерах), а если будут проблемы - лучше мультиформат
+                // реализовать
+                RTCache& rtc = GetRTC(vi);
+                // :TODO!!!: coeff
+                AutoDVDTransData atd(Is4_3(vi));
+                atd.audioNum  = OutAudioNum(rtc.audioNum);
+                atd.srcAspect = rtc.dar;
+
+                DVDTransData td = GetRealTransData(vi);
+                td.ctmFFOpt = vi->transDat.ctmFFOpt;
+
+                std::string ffmpeg_cmd = FFmpegToDVDTranscode(src_fname, dst_fname, atd, IsPALProject(), td);
+                //io::pos trans_val = CalcTransSize(rtc, td.vRate);
+                jl.push_back(Job(coeff, out_idx, CalcTransSize(rtc, td.vRate)));
+                Job& new_job = jl.back();
+                
+                PercentFunctor fnr = bb::bind(&CalcTransPercent, _1, b::ref(new_job), b::ref(jl), trans_total, rtc.duration);
+                ReadReadyFnr rr_fnr = bb::bind(&OnTranscodePrintParse, _1, _2, fnr);
+
+                //RunFFmpegCmd(ffmpeg_cmd, bb::bind(&OnTranscodePrintParse, _1, _2, fnr));
+                //RunExtCmd(ffmpeg_cmd, "ffmpeg", rr_fnr);
+                // :TODO!!!: Execution::ConsoleMode::Flag - писать в stdout
+                // :TODO!!!: "N: ..."
+                // :TODO!!!: PrintCmdToDetails
+                Gtk::TextView& PrintCmdToDetails(const std::string& cmd);
+                Gtk::TextView& tv = PrintCmdToDetails(ffmpeg_cmd);
+                //ExitData ed = Author::AsyncCall(0, ffmpeg_cmd.c_str(), TextViewAppender(tv, rr_fnr));
+                ExitData ed = ExecuteAsync(0, ffmpeg_cmd.c_str(), TextViewAppender(tv, rr_fnr), &GetES().eDat.pid);
+                CheckAbortByUser();
+
+                if( !ed.IsGood() )
+                    Author::ApplicationError("ffmpeg", ed);
+
+                // :TODO!!!: запуск процесса
+            }
+            todo_idx += new_cnt;
+        }
         
-        DVDTransData td = GetRealTransData(vi);
-        td.ctmFFOpt = vi->transDat.ctmFFOpt;
-
-        std::string ffmpeg_cmd = FFmpegToDVDTranscode(src_fname, dst_fname, atd, IsPALProject(), td);
-        io::pos trans_val  = CalcTransSize(rtc, td.vRate);
-        PercentFunctor fnr = bb::bind(&CalcTransPercent, _1, trans_total, trans_done, 
-                                      trans_val, rtc.duration);
-        RunFFmpegCmd(ffmpeg_cmd, bb::bind(&OnTranscodePrintParse, _1, _2, fnr));
-
-        trans_done += trans_val;
+        if( !jl.empty() )
+        {
+            // :TODO!!!: ожидание завершение одного из процессов
+            JobList::iterator it = jl.begin();
+            jl.erase(it);
+        }
+        else
+            break; // все сделано
     }
+    
+    //io::pos trans_done = 0, trans_total = ProjectStat().transSum;
+    //boost_foreach( VideoItem vi, AllTransVideos() )
+    //{
+    //    std::string src_fname = SrcFilename(vi);
+    //    std::string dst_fname = DVDCompliantFilename(vi, out_dir);
+    //    // :TRICKY: отдельные видеофайлы подгоняем под DVD-формат исходя из них самих
+    //    // (а не под одну "гребенку" проекта), несмотря на то, что запись в один VTS видео
+    //    // разных форматов вроде как противоречит спекам. Причина: вроде и так работает (на
+    //    // доступных мне железных и софтовых плейерах), а если будут проблемы - лучше мультиформат
+    //    // реализовать
+    //    RTCache& rtc = GetRTC(vi);
+    //    AutoDVDTransData atd(Is4_3(vi));
+    //    atd.audioNum  = OutAudioNum(rtc.audioNum);
+    //    atd.srcAspect = rtc.dar;
+    //
+    //    DVDTransData td = GetRealTransData(vi);
+    //    td.ctmFFOpt = vi->transDat.ctmFFOpt;
+    //
+    //    std::string ffmpeg_cmd = FFmpegToDVDTranscode(src_fname, dst_fname, atd, IsPALProject(), td);
+    //    io::pos trans_val  = CalcTransSize(rtc, td.vRate);
+    //    PercentFunctor fnr = bb::bind(&CalcTransPercent, _1, trans_total, trans_done,
+    //                                  trans_val, rtc.duration);
+    //    RunFFmpegCmd(ffmpeg_cmd, bb::bind(&OnTranscodePrintParse, _1, _2, fnr));
+    //
+    //    trans_done += trans_val;
+    //}
 
     // * субтитры
     boost_foreach( VideoItem vi, AllVideos() )

@@ -919,7 +919,7 @@ double MenuDuration(Menu mn)
     return duration;
 }
 
-static Gtk::TextView& PrintCmdToDetails(const std::string& cmd)
+Gtk::TextView& PrintCmdToDetails(const std::string& cmd)
 {
     Gtk::TextView& tv = Author::GetES().detailsView;
     AppendCommandText(tv, cmd);
