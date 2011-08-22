@@ -28,6 +28,7 @@
 #include <mgui/project/menu-render.h>
 #include <mgui/sdk/window.h>
 #include <mgui/sdk/packing.h>
+#include <mgui/prefs.h> // PrefToBool()
 
 #include <mbase/project/colormd.h>
 
@@ -40,8 +41,7 @@ bool IsTestOn(const char* fname)
         std::string val;
         strm >> val;
 
-        if( val == "1" )
-            run_test = true;
+        run_test = PrefToBool(val);
     }
     return run_test;
 }

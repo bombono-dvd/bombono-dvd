@@ -22,15 +22,18 @@
 #ifndef __MGUI_EXECUTION_H__
 #define __MGUI_EXECUTION_H__
 
-#include <mlib/const.h>    // NO_HNDL
 #include <mgui/timer.h>
+
+#include <mlib/const.h>    // NO_HNDL
+#include <mlib/function.h>
 
 namespace Execution {
 
 struct Data 
 {
-    GPid  pid;
-    bool  userAbort; // пользователь сам отменил
+         GPid  pid;
+         bool  userAbort; // пользователь сам отменил
+ActionFunctor  stopFnr;   // альтернатива pid
 
             Data();
 
@@ -72,7 +75,8 @@ class ConsoleMode
 // лишняя оптимизация (все равно RawRD нигде сейчас не используется)
 typedef boost::function<void(const char*, int, bool)> ReadReadyFnr;
 ReadReadyFnr TextViewAppender(Gtk::TextView& txt_view, 
-                              const ReadReadyFnr& add_fnr = ReadReadyFnr());
+                              const ReadReadyFnr& add_fnr = ReadReadyFnr(),
+                              const std::string& prefix = std::string());
 
 struct ExitData
 {
@@ -89,6 +93,7 @@ struct ExitData
 };
 // результат system() интерпретировать так
 ExitData StatusToExitData(int status);
+ExitData CloseProcData(GPid pid, int status);
 ExitData WaitForExit(GPid pid);
 ExitData System(const std::string& cmd);
 

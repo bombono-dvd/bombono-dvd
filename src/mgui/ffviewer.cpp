@@ -883,22 +883,34 @@ std::string PrefContents(const char* fname)
     return user_opts;
 }
 
+bool ReadPref(const char* name, RPData& rp)
+{
+    bool& is_read = rp.isRead;
+    
+    bool res = !is_read;
+    if( res )
+    {
+        is_read = true;
+        rp.val = PrefContents(name);
+    }
+    return res;
+}
+
 static bool SeekSetTime(FFViewer& ffv, double time)
 {
     bool is_begin = false;
     double start_time = StartTime(ffv);
     for( int i=0; i<4 && !is_begin; i++ )
     {
-        static double seek_shift  = 0.;
-        static bool is_shift_read = false;
-        if( !is_shift_read )
+        static double seek_shift = 0.;
+        static RPData ss_rp;
+        if( ReadPref("av_seek_shift", ss_rp) )
         {
-            is_shift_read = true;
-            std::string str = PrefContents("av_seek_shift");
-            if ( !str.empty() )
+            std::string str = ss_rp.val;
+            if( !str.empty() )
             {
                 double val;
-                if ( Str::GetType<double>(val, str.c_str()) )
+                if( Str::GetType<double>(val, str.c_str()) )
                 {
                     const double max_val = 15;
                     if ( (val < -max_val) || (val > max_val) )

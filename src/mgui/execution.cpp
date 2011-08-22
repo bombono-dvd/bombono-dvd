@@ -60,12 +60,15 @@ void Data::StopExecution(const std::string& what)
         userAbort = true;
         if( IsAsyncCall() )
             Stop(pid);
+        if( stopFnr )
+            stopFnr();
     }
 }
 
 void Data::Init()
 {
     ASSERT( !IsAsyncCall() );
+    ASSERT( !stopFnr );
     userAbort = false;
 }
 
@@ -227,7 +230,7 @@ ExitData StatusToExitData(int status)
     return ed;
 }
 
-static ExitData CloseProcData(GPid pid, int status)
+ExitData CloseProcData(GPid pid, int status)
 {
     ExitData ed = StatusToExitData(status);
     g_spawn_close_pid(pid);

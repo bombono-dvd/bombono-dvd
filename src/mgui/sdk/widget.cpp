@@ -32,10 +32,15 @@ void SetScaleSecondary(Gtk::HScale& scl)
     scl.property_can_focus()  = false;
 }
 
+Gtk::Adjustment& CreateAdj(double val, double max, double min, int step)
+{
+    return *Gtk::manage(new Gtk::Adjustment(val, min, max, step, 10*step, 0));
+}
+
 void ConfigureSpin(Gtk::SpinButton& btn, double val, double max, double min, int step)
 {
     // по мотивам gtk_spin_button_new_with_range()
-    btn.configure(*Gtk::manage(new Gtk::Adjustment(val, min, max, step, 10*step, 0)), step, 0);
+    btn.configure(CreateAdj(val, max, min, step), step, 0);
     btn.set_numeric(true);
 }
 

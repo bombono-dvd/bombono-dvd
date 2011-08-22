@@ -39,6 +39,7 @@ struct AutoDVDTransData
      bool  is4_3;
     Point  srcAspect;
       int  audioNum; // для <= 1 ffmpeg сам решит
+      int  threadsCnt;
 
     AutoDVDTransData(bool is4_3_);
 };
@@ -104,6 +105,10 @@ TripleVersion FindVersion(const std::string& conts, const re::pattern& ver_pat,
                           const char* app_name, const char* target_name = 0);
 bool IsVersionGE(const TripleVersion& big_v, const TripleVersion& v);
 
+Gtk::TextView& PrintCmdToDetails(const std::string& cmd);
+ReadReadyFnr DetailsAppender(const std::string& print_cmd, 
+                             const ReadReadyFnr& add_fnr = ReadReadyFnr(),
+                             const std::string& prefix = std::string());
 } // namespace Project
 
 #endif // #ifndef __MGUI_AUTHOR_FFMPEG_H__

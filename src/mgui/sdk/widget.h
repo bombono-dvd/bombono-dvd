@@ -86,6 +86,7 @@ void SetForRadioToggle(RadioItem& itm, const ActionFunctor& fnr)
     itm.signal_toggled().connect(RadioToggleCaller<RadioItem>(itm, fnr));
 }
 
+Gtk::Adjustment& CreateAdj(double val, double max, double min = 1.0, int step = 1);
 void ConfigureSpin(Gtk::SpinButton& btn, double val, double max, double min = 1.0, int step = 1);
 
 RGBA::Pixel GetColor(const Gtk::ColorButton& btn);

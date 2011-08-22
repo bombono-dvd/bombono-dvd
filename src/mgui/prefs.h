@@ -39,6 +39,7 @@ struct Preferences: public Singleton<Preferences>
     PlayAuthoring  player;
       std::string  authorPath;
              bool  showSrcFileBrowser; // добавление медиа по-старому
+              int  maxCPUWorkload;
 
             Preferences() { Init(); }
 
@@ -98,6 +99,20 @@ void SaveUnnamedPrefs();
 void SetUpdatePos(Gtk::HPaned& hpaned, int& saved_pos);
 
 std::string PreferencesPath(const char* fname);
+
+int MaxCPUWorkload();
+
+struct RPData
+{
+          bool  isRead;
+   std::string  val;
+   
+   RPData(): isRead(false) {}
+};
+
+// чтение однострочных настроек с кэшированием
+bool ReadPref(const char* name, RPData& rp);
+bool PrefToBool(const std::string& str);
 
 #endif // #ifndef __MGUI_PREFS_H__
 

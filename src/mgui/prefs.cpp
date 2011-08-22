@@ -29,6 +29,7 @@
 #include <mgui/sdk/window.h>
 #include <mgui/dialog.h>
 #include <mgui/mguiconst.h>
+#include <mgui/win_utils.h> // SetTip()
 
 #include <mbase/project/archieve.h>
 #include <mbase/project/archieve-sdk.h>
@@ -39,6 +40,8 @@
 #include <mlib/gettext.h>
 #include <mlib/filesystem.h>
 #include <mlib/sdk/logger.h>
+
+#include <mlib/sigc.h>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/convenience.hpp> // fs::create_directories()
@@ -81,7 +84,7 @@ static bool LoadPrefs(const char* fname, const Project::ArchieveFnr& fnr)
 // Preferences
 // 
 
-const int PREFS_VERSION = 3;
+const int PREFS_VERSION = 4;
 
 void SerializePrefs(Project::Archieve& ar)
 {
@@ -92,6 +95,8 @@ void SerializePrefs(Project::Archieve& ar)
         ar("DefAuthorPath", Prefs().authorPath);
     if( CanSrl(ar, 3) )
         ar("ShowSrcFileBrowser", Prefs().showSrcFileBrowser);
+    if( CanSrl(ar, 4) )
+        ar("MaxCPUWorkload", Prefs().maxCPUWorkload);
 }
 
 void Preferences::Init()
@@ -100,6 +105,7 @@ void Preferences::Init()
     player = paTOTEM;
     authorPath = (fs::path(Glib::get_user_cache_dir()) / "bombono-dvd-video").string();
     showSrcFileBrowser = false;
+    maxCPUWorkload = 1;
 }
 
 const char* PrefsName = "preferences.xml";
@@ -129,15 +135,47 @@ static void NotifyToRestart()
     MessageBox(_("You need to restart the application for the changes to take place"), Gtk::MESSAGE_WARNING, Gtk::BUTTONS_OK);
 }
 
+// максимальное кол-во работ, которое можно выполнять одновременно
+// = кол-ву процессоров/ядер
+int MaxCPUWorkload()
+{
+#ifdef _WIN32
+#error "TODO"
+#else
+    // кол-во работающих процессоров, а не всего, _SC_NPROCESSORS_CONF 
+    // (система может использовать не все)
+    int res = sysconf(_SC_NPROCESSORS_ONLN);
+    if( res <= 0 ) // может возвращать -1, если не осилит
+        res = 1;
+    return res;
+#endif
+}
+
+// реализация дискретного ползунка (по целым числам)
+// если использовать property_draw_value() == true, то с помощью
+// атрибута round_digits включается встроенный механизм дискретизации
+// (видно сложилось исторически);
+// в ином случае нужно переопределять сигнал "change-value", как тут
+static bool OnIntChangeVal(Gtk::HScale& hs, double val)
+{
+    hs.set_value(Round(val));
+    // не пропускаем оригинальный обработчик GtkRange
+    return true;
+}
+
 void ShowPrefs(Gtk::Window* win)
 {
     Gtk::Dialog dlg(_("Bombono DVD Preferences"), false, true);
     AdjustDialog(dlg, 450, 200, win, false);
 
+    // :TODO: стоит ставить двоеточия и здесь (автоматом добавлять в
+    // AppendWithLabel())
     Gtk::ComboBoxText& tv_cmb = NewManaged<Gtk::ComboBoxText>();
     Gtk::ComboBoxText& pl_cmb = NewManaged<Gtk::ComboBoxText>();
     Gtk::FileChooserButton& a_btn = NewManaged<Gtk::FileChooserButton>("Select output folder", Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
     Gtk::CheckButton& fb_btn = NewManaged<Gtk::CheckButton>(_("Show File Browser"));
+    int max_val = MaxCPUWorkload();
+    Gtk::HScale& wl_hs = NewManaged<Gtk::HScale>(CreateAdj(Prefs().maxCPUWorkload, max_val));
     {
         DialogVBox& vbox = AddHIGedVBox(dlg);
 
@@ -157,6 +195,13 @@ void ShowPrefs(Gtk::Window* win)
         fb_btn.set_active(Prefs().showSrcFileBrowser);
         fb_btn.signal_toggled().connect(&NotifyToRestart);
         PackStart(vbox, fb_btn);
+        
+        SetScaleSecondary(wl_hs);
+        sig::connect(wl_hs.signal_change_value(), bb::bind(&OnIntChangeVal, b::ref(wl_hs), _2));
+        for( int i=1; i<=max_val; i++ )
+            wl_hs.add_mark(i, Gtk::POS_TOP, Int2Str(i));
+        AppendWithLabel(vbox, wl_hs, _("Multi-core CPU support"));
+        SetTip(wl_hs, _("Make use of multi-core CPU for transcoding videos quickly; 1 is not to use multi-coreness, safe minimum (no possible CPU overheat)"));
 
         CompleteDialog(dlg, true);
     }
@@ -168,6 +213,7 @@ void ShowPrefs(Gtk::Window* win)
         Prefs().player = (PlayAuthoring)pl_cmb.get_active_row_number();
         Prefs().authorPath = a_btn.get_filename();
         Prefs().showSrcFileBrowser = fb_btn.get_active();
+        Prefs().maxCPUWorkload = wl_hs.get_value();
 
         SavePrefs(&SerializePrefs, PrefsName, PREFS_VERSION);
     }
@@ -261,5 +307,10 @@ void SetUpdatePos(Gtk::HPaned& hpaned, int& saved_pos)
 {
     hpaned.set_position(saved_pos);
     hpaned.signal_hide().connect(bb::bind(&UpdatePosition, b::ref(hpaned), b::ref(saved_pos)));
+}
+
+bool PrefToBool(const std::string& str)
+{
+    return str == "1";
 }
 

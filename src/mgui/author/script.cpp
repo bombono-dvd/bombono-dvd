@@ -33,6 +33,7 @@
 #include <mgui/project/thumbnail.h> // Project::CalcAspectSize()
 #include <mgui/project/video.h>
 #include <mgui/project/handler.h>
+#include <mgui/prefs.h>
 #include <mgui/gettext.h>
 
 #include <mbase/project/table.h>
@@ -697,14 +698,6 @@ re::pattern FFmpegDurPat( "time="RG_FLT);
 
 typedef boost::function<double(double)> PercentFunctor;
 
-//static double CalcTransPercent(double cur_dur, const io::pos trans_total,
-//                               const io::pos trans_done, const io::pos trans_val,
-//                               double full_dur)
-//{
-//    //return (std::min(sz * 1024, trans_val) + trans_done)/double(trans_total);
-//    return (std::min(cur_dur/full_dur, 1.) * trans_val + trans_done)/double(trans_total);
-//}
-
 struct Job
 {
         int  coeff;
@@ -712,23 +705,40 @@ struct Job
     io::pos  transVal;
         int  outIdx;
         
+       GPid  pid;
+  ptr::shared<OutErrBlock> oeb;
+         sigc::connection  watchConn;
+        
     Job(int coeff_, int out_idx, io::pos trans_val)
-        : coeff(coeff_), transDone(), outIdx(out_idx), transVal(trans_val)
+        : coeff(coeff_), transDone(), outIdx(out_idx), transVal(trans_val), pid(NO_HNDL)
     { ASSERT( coeff > 0 ); }
 };
 
 typedef std::list<Job> JobList;
 
-static double CalcTransPercent(double cur_dur, Job& job, JobList& jl,
-                               const io::pos trans_total, double full_dur)
+struct JobData
+{
+        JobList  jLst;
+            int  todoIdx;
+    
+        io::pos  transDone;
+        io::pos  transTotal;
+    std::string  outDir;
+       ExitData  lastED;
+    std::string  exception; // проброс исключений из gtk_main()
+           
+    JobData(): todoIdx(0), transDone(0), transTotal(0) {}
+};
+
+static double CalcTransPercent(double cur_dur, Job& job, JobData& jd, double full_dur)
 {
     //return (std::min(sz * 1024, trans_val) + trans_done)/double(trans_total);
     //return (std::min(cur_dur/full_dur, 1.) * trans_val + trans_done)/double(trans_total);
     job.transDone = std::min(cur_dur/full_dur, 1.) * job.transVal;
     double res = 0.;
-    boost_foreach( Job& job, jl )
+    boost_foreach( Job& job, jd.jLst )
         res += job.transDone;
-    return res/double(trans_total);
+    return (res + jd.transDone)/double(jd.transTotal);
 }
 
 static void OnTranscodePrintParse(const char* dat, int sz, const PercentFunctor& fnr)
@@ -760,94 +770,191 @@ static void OnTranscodePrintParse(const char* dat, int sz, const PercentFunctor&
     }
 }
 
+static void ToCout(const char* dat, int sz, const std::string& prefix)
+{
+    io::cout << prefix << std::string(dat, sz);
+}
+
+ReadReadyFnr DetailsAppender(const std::string& print_cmd, const ReadReadyFnr& add_fnr,
+                             const std::string& prefix)
+{
+    return TextViewAppender(PrintCmdToDetails(print_cmd), add_fnr, prefix);
+}
+
+static void OnJobEnd(GPid pid, int status, JobData& jd);
+static bool UpdateJobs(JobData& jd)
+{
+    int max_wl = Prefs().maxCPUWorkload;
+    // в промежутке [1, max]
+    max_wl = std::min(std::max(1, max_wl), MaxCPUWorkload());
+    
+    JobList& jl = jd.jLst;
+    int cnt = boost::distance(AllTransVideos());
+    // отрисовываем префикс, чтоб разделять выводы; исходя из
+    // приоритета паралелльного выполнения над многопоточностью,
+    // таково условие нужности префикса
+    bool multiple_out = (max_wl > 1) && (cnt > 1);
+        
+    int wl = 0;
+    boost_foreach( Job& job, jl )
+        wl += job.coeff;
+    // пока применяем простую практику - максимальную нагрузку не могут снизить в процессе
+    wl = max_wl - wl;
+    ASSERT( wl >= 0 );
+
+    int new_cnt = std::min(wl, cnt-jd.todoIdx);
+    if( new_cnt > 0 )
+    {
+        int div = wl / new_cnt;
+        int rest  = wl % new_cnt;
+        for( int i=0; i<new_cnt; i++, rest-- )
+        {
+            // мин. неиспользуемое значение
+            int out_idx = 0;
+            for( ; ; out_idx++ )
+            {
+                bool idx_found = true;
+                boost_foreach( Job& job, jl )
+                    if( job.outIdx == out_idx )
+                    {
+                        idx_found = false;
+                        break;
+                    }
+                if( idx_found )
+                    break;
+            }
+            
+            static bool no_ffmpeg_threads = false;
+            static RPData nft_rp;
+            if( ReadPref("no_ffmpeg_threads", nft_rp) )
+                no_ffmpeg_threads = PrefToBool(nft_rp.val);
+            
+            int coeff = rest > 0 ? div+1 : div;
+            if( no_ffmpeg_threads )
+                coeff = 1;
+            VideoItem vi = AllTransVideos().advance_begin(jd.todoIdx+i).front();
+
+            std::string src_fname = SrcFilename(vi);
+            std::string dst_fname = DVDCompliantFilename(vi, jd.outDir);
+            // :TRICKY: отдельные видеофайлы подгоняем под DVD-формат исходя из них самих
+            // (а не под одну "гребенку" проекта), несмотря на то, что запись в один VTS видео
+            // разных форматов вроде как противоречит спекам. Причина: вроде и так работает (на
+            // доступных мне железных и софтовых плейерах), а если будут проблемы - лучше мультиформат
+            // реализовать
+            RTCache& rtc = GetRTC(vi);
+            AutoDVDTransData atd(Is4_3(vi));
+            atd.audioNum  = OutAudioNum(rtc.audioNum);
+            atd.srcAspect = rtc.dar;
+            atd.threadsCnt = coeff;
+
+            DVDTransData td = GetRealTransData(vi);
+            td.ctmFFOpt = vi->transDat.ctmFFOpt;
+
+            std::string ffmpeg_cmd = FFmpegToDVDTranscode(src_fname, dst_fname, atd, IsPALProject(), td);
+            //io::pos trans_val = CalcTransSize(rtc, td.vRate);
+            jl.push_back(Job(coeff, out_idx, CalcTransSize(rtc, td.vRate)));
+            Job& new_job = jl.back();
+
+            PercentFunctor fnr = bb::bind(&CalcTransPercent, _1, b::ref(new_job), b::ref(jd), rtc.duration);
+            ReadReadyFnr rr_fnr = bb::bind(&OnTranscodePrintParse, _1, _2, fnr);
+
+            int out_err[2];
+            GPid pid = Spawn(0, ffmpeg_cmd.c_str(), out_err, true);
+            new_job.pid = pid;
+            
+            std::string prefix;
+            if( multiple_out )
+                prefix = boost::format("%1%: ") % out_idx % bf::stop;
+            ReadReadyFnr oeb_fnr;
+            std::string print_ffcmd = prefix + ffmpeg_cmd;
+            if( Execution::ConsoleMode::Flag )
+            {
+                io::cout << print_ffcmd << io::endl;
+                oeb_fnr = bb::bind(&ToCout, _1, _2, prefix);
+            }
+            else
+                oeb_fnr = DetailsAppender(print_ffcmd, rr_fnr, prefix);
+            new_job.oeb = new OutErrBlock(out_err, oeb_fnr);
+
+            new_job.watchConn = Glib::signal_child_watch().connect(bb::bind(&OnJobEnd, _1, _2, b::ref(jd)), pid);
+        }
+        jd.todoIdx += new_cnt;
+    }
+    
+    return !jl.empty();
+}
+
+// если создавали процесс с признаком ожидания, то нужен StopAndWait(), даже
+// если результат процесса не нужен:
+// - Posix: одного Stop() недостаточно,- waitpid()/освобождение ресурсов обязательно;
+//   :TODO: как прекратить сделить, если уже не нужно ничего от процесса
+// - Win32: освобождение хэндла процесса
+void StopAndWait(GPid pid)
+{
+    Execution::Stop(pid);
+    WaitForExit(pid);
+}
+
+// :TRICKY: отвественная функция - халатность недостима
+// (пропуск исключений наверх)
+static void StopJobPool(JobData& jd) throw()
+{
+    JobList& jl = jd.jLst;
+    // закрываем остальные, неважно что работающие
+    boost_foreach( Job& job, jl )
+    {
+        job.watchConn.disconnect();
+        StopAndWait(job.pid);
+    }
+    jl.clear();
+    
+    Gtk::Main::quit();
+}
+
+static void OnJobEnd(GPid pid, int status, JobData& jd)
+{
+    try
+    {
+        bool is_found = false;
+        JobList& jl = jd.jLst;
+        for( JobList::iterator it = jl.begin(), end = jl.end(); it != end; ++it )
+        {
+            Job& job = *it;
+            if( job.pid == pid )
+            {
+                jd.transDone += job.transVal;
+                jl.erase(it);
+                is_found = true;
+                break;
+            }
+        }
+        ASSERT_RTL( is_found );
+
+        jd.lastED = CloseProcData(pid, status);
+
+        if( !jd.lastED.IsGood() )
+            StopJobPool(jd);
+        else if( !UpdateJobs(jd) )
+            Gtk::Main::quit();
+    }
+    catch(const std::exception& exc )
+    {
+        // приходится пробрасывать исключение(я), так как GTK(C) не
+        // не пропускает их через себя
+        jd.exception = exc.what();
+        StopJobPool(jd);
+    }
+}
+    
 static void AuthorImpl(const std::string& out_dir)
 {
     AuthorSectionInfo((str::stream() << "Build DVD-Video in folder: " << out_dir).str());
     IteratePendingEvents();
 
     IndexVideosForAuthoring();
+    Author::ExecState& es = Author::GetES();
 
     // * транскодирование
-    Author::SetStage(Author::stTRANSCODE);
-    // :TODO!!!: расчет из настроек
-    int max_wl = 2;
-    io::pos trans_total = ProjectStat().transSum;
-    JobList jl;
-    for( int todo_idx = 0, cnt = boost::distance(AllTransVideos()); ; )
-    {
-        int wl = 0;
-        boost_foreach( Job& job, jl )
-            wl += job.coeff;
-        // пока применяем простую практику - максимальную нагрузку не могут снизить в процессе
-        wl = max_wl - wl;
-        ASSERT( wl >= 0 );
-
-        int new_cnt = std::min(wl, cnt-todo_idx);
-        if( new_cnt > 0 )
-        {
-            int div = wl / new_cnt;
-            int rest  = wl % new_cnt;
-            for( int i=0; i<new_cnt; i++, rest-- )
-            {
-                // мин. неиспользуемое значение
-                // :TODO!!!: отсортировать или перебором
-                int out_idx = 0;
-                int coeff   = rest > 0 ? div+1 : div;
-                VideoItem vi = AllTransVideos().advance_begin(todo_idx+i).front();
-                
-                std::string src_fname = SrcFilename(vi);
-                std::string dst_fname = DVDCompliantFilename(vi, out_dir);
-                // :TRICKY: отдельные видеофайлы подгоняем под DVD-формат исходя из них самих
-                // (а не под одну "гребенку" проекта), несмотря на то, что запись в один VTS видео
-                // разных форматов вроде как противоречит спекам. Причина: вроде и так работает (на
-                // доступных мне железных и софтовых плейерах), а если будут проблемы - лучше мультиформат
-                // реализовать
-                RTCache& rtc = GetRTC(vi);
-                // :TODO!!!: coeff
-                AutoDVDTransData atd(Is4_3(vi));
-                atd.audioNum  = OutAudioNum(rtc.audioNum);
-                atd.srcAspect = rtc.dar;
-
-                DVDTransData td = GetRealTransData(vi);
-                td.ctmFFOpt = vi->transDat.ctmFFOpt;
-
-                std::string ffmpeg_cmd = FFmpegToDVDTranscode(src_fname, dst_fname, atd, IsPALProject(), td);
-                //io::pos trans_val = CalcTransSize(rtc, td.vRate);
-                jl.push_back(Job(coeff, out_idx, CalcTransSize(rtc, td.vRate)));
-                Job& new_job = jl.back();
-                
-                PercentFunctor fnr = bb::bind(&CalcTransPercent, _1, b::ref(new_job), b::ref(jl), trans_total, rtc.duration);
-                ReadReadyFnr rr_fnr = bb::bind(&OnTranscodePrintParse, _1, _2, fnr);
-
-                //RunFFmpegCmd(ffmpeg_cmd, bb::bind(&OnTranscodePrintParse, _1, _2, fnr));
-                //RunExtCmd(ffmpeg_cmd, "ffmpeg", rr_fnr);
-                // :TODO!!!: Execution::ConsoleMode::Flag - писать в stdout
-                // :TODO!!!: "N: ..."
-                // :TODO!!!: PrintCmdToDetails
-                Gtk::TextView& PrintCmdToDetails(const std::string& cmd);
-                Gtk::TextView& tv = PrintCmdToDetails(ffmpeg_cmd);
-                //ExitData ed = Author::AsyncCall(0, ffmpeg_cmd.c_str(), TextViewAppender(tv, rr_fnr));
-                ExitData ed = ExecuteAsync(0, ffmpeg_cmd.c_str(), TextViewAppender(tv, rr_fnr), &GetES().eDat.pid);
-                CheckAbortByUser();
-
-                if( !ed.IsGood() )
-                    Author::ApplicationError("ffmpeg", ed);
-
-                // :TODO!!!: запуск процесса
-            }
-            todo_idx += new_cnt;
-        }
-        
-        if( !jl.empty() )
-        {
-            // :TODO!!!: ожидание завершение одного из процессов
-            JobList::iterator it = jl.begin();
-            jl.erase(it);
-        }
-        else
-            break; // все сделано
-    }
-    
     //io::pos trans_done = 0, trans_total = ProjectStat().transSum;
     //boost_foreach( VideoItem vi, AllTransVideos() )
     //{
@@ -874,6 +981,25 @@ static void AuthorImpl(const std::string& out_dir)
     //
     //    trans_done += trans_val;
     //}
+    Author::SetStage(Author::stTRANSCODE);
+    {
+        JobData jd;
+        jd.transTotal = ProjectStat().transSum;
+        jd.outDir     = out_dir;
+        
+        if( UpdateJobs(jd) )
+        {
+            ActionFunctor& stop_fnr = es.eDat.stopFnr;
+            stop_fnr = bb::bind(&StopJobPool, b::ref(jd));
+            Gtk::Main::run();
+            stop_fnr.clear();
+            
+            if( jd.exception.size() )
+                Author::Error(jd.exception);
+            Author::CheckAbortByUser();
+            Author::CheckAppED(jd.lastED, "ffmpeg");
+        }
+    }
 
     // * субтитры
     boost_foreach( VideoItem vi, AllVideos() )
@@ -938,7 +1064,6 @@ static void AuthorImpl(const std::string& out_dir)
             RunExtCmd(spumux_cmd, "spumux");
         }
 
-    Author::ExecState& es = Author::GetES();
     str::stream& settings = es.settings;
     settings.str("# coding: utf-8\n\n");
     // * рендерим меню и их скрипты
@@ -1086,6 +1211,12 @@ void CheckAbortByUser()
 {
     if( Author::GetES().eDat.userAbort )
         throw std::runtime_error("User Abortion"); // строка реально не нужна - сработает userAbort
+}
+
+void CheckAppED(const ExitData& ed, const char* app_name)
+{
+    if( !ed.IsGood() )
+        Author::ApplicationError(app_name, ed);
 }
 
 ExitData AsyncCall(const char* dir, const char* cmd, const ReadReadyFnr& fnr)

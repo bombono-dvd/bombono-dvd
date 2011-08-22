@@ -96,6 +96,7 @@ void ApplicationError(const char* app_name, const std::string& reason);
 void ApplicationError(const char* app_name, const ExitData& ed);
 
 void CheckAbortByUser();
+void CheckAppED(const ExitData& ed, const char* app_name);
 
 fe::range<Comp::MediaObj*> AllMediaObjs(Project::Menu mn);
 

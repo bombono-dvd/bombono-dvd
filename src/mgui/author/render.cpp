@@ -587,7 +587,7 @@ static Point DVDAspect(bool is4_3)
 }
 
 AutoDVDTransData::AutoDVDTransData(bool is4_3_): is4_3(is4_3_), 
-    srcAspect(DVDAspect(is4_3_)), audioNum(1) {}
+    srcAspect(DVDAspect(is4_3_)), audioNum(1), threadsCnt(1) {}
 
 static int PadSize(int free_space)
 {
@@ -700,6 +700,8 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData
     // * доп. опции
     std::string add_opts("-mbd rd -trellis 2 -cmp 2 -subcmp 2");
     {
+        if( atd.threadsCnt > 1 )
+            AppendOpts(add_opts, boost::format("-threads %1%") % atd.threadsCnt % bf::stop);
         AppendOpts(add_opts, PrefContents("ffmpeg_options"));
         AppendOpts(add_opts, td.ctmFFOpt);
     }
@@ -936,12 +938,8 @@ void RunExtCmd(const std::string& cmd, const char* app_name,
         ed = System(cmd);
     }
     else
-    {
-        Gtk::TextView& tv = PrintCmdToDetails(cmd);
-        ed = Author::AsyncCall(0, cmd.c_str(), TextViewAppender(tv, add_fnr));
-    }
-    if( !ed.IsGood() )
-        Author::ApplicationError(app_name, ed);
+        ed = Author::AsyncCall(0, cmd.c_str(), DetailsAppender(cmd, add_fnr));
+    Author::CheckAppED(ed, app_name);
 }
 
 void RunFFmpegCmd(const std::string& cmd, const ReadReadyFnr& add_fnr)
@@ -1186,11 +1184,9 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
                     }
                     else
                     {
-                        Gtk::TextView& tv = PrintCmdToDetails(ffmpeg_cmd);
                         // закрываем выходы после окончания работы ffmpeg, иначе тот грохнется
                         // по SIGPIPE
-                        //OutErrBlock oeb(out_err, TextViewAppender(tv));
-                        pc.oeb = new OutErrBlock(out_err, TextViewAppender(tv));
+                        pc.oeb = new OutErrBlock(out_err, DetailsAppender(ffmpeg_cmd));
 
                         PipeVideo(mn, pc.inFd);
                     }
