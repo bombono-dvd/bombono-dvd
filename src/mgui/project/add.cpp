@@ -172,24 +172,28 @@ void CheckVideoFormat(ErrorDesc& ed, const Mpeg::SequenceData& vid, bool is_ntsc
 
 } // namespace 
 
-bool IsVideoDVDCompliant(const char* fname, std::string& err_string, bool& is_mpeg2)
+//bool IsVideoDVDCompliant(const char* fname, std::string& err_string, bool& is_mpeg2)
+bool IsVideoDVDCompliant(const char* fname, Mpeg2Info& add_inf)
 {
     Mpeg::PlayerData pd;
     io::stream& strm     = pd.srcStrm;
     Mpeg::MediaInfo& inf = pd.mInf;
 
     bool res = false;
+    std::string& err_string = add_inf.errStr;
+    bool& video_check = add_inf.videoCheck;
+    
     if( !Mpeg::GetInfo(pd, fname) )
         err_string = inf.ErrorReason();
     else
     {
-        is_mpeg2 = true; // дальше не проверяем тип - это точно видео
+        add_inf.isMpeg2 = true; // дальше не проверяем тип - это точно видео
         Mpeg::SequenceData& vid = inf.vidSeq;
         ErrorDesc ed;
         // * видео
         bool is_ntsc = !IsPALProject();
         CheckVideoFormat(ed, vid, is_ntsc);
-        bool video_check = ed.res;
+        video_check = ed.res;
 
         // * мультиплексирование в формате DVD
         bool is_dvd_mux   = false;

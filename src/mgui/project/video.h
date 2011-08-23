@@ -29,11 +29,12 @@ namespace Project
 {
 
 fe::range<VideoItem> AllVideos();
-// список видео "IsTransVideo() == true"
+// список видео "IsTransVideo(false) == true"
 fe::range<VideoItem> AllTransVideos();
+// IsTransVideo(true) == true
+fe::range<VideoItem> AllVTCVideos();
 
-// vi && RequireTranscoding(vi)
-bool IsTransVideo(VideoItem vi);
+bool IsTransVideo(VideoItem vi, bool require_vtc);
 
 // расчет параметров транскодирования автоматом
 DVDTransData GetRealTransData(VideoItem vi);
@@ -41,25 +42,33 @@ DVDTransData DVDDims2TDAuto(DVDDims dd);
 
 Point DVDDimension(DVDDims dd);
 DVDDims CalcDimsAuto(VideoItem vi);
-//
-int OutAudioNum(int i_anum);
+
+struct AutoSrcData
+{
+     bool  videoOK; // достаточно перемикширования
+    Point  dar;
+      int  audioNum; // для <= 1 ffmpeg сам решит, сколько аудио оставить
+
+    AutoSrcData(bool is4_3_ = true);
+};
+
+int OutAudioNum(const AutoSrcData& asd);
 
 // кэш для расчетов по транскодированию и т.д.
 struct RTCache
 {
-      bool  isCalced;
+        bool  isCalced;
 
-      bool  reqTrans;
-    double  duration;
-     Point  vidSz;
-     Point  dar;
-       int  audioNum; // число аудиоканалов
+        bool  reqTrans;
+ AutoSrcData  asd;
+      double  duration;
+       Point  vidSz;
 
     RTCache(): isCalced(false) {}
 };
 
 RTCache& GetRTC(VideoItem vi);
-io::pos CalcTransSize(RTCache& rtc, int vrate);
+io::pos CalcTransSize(VideoItem vi, int vrate);
 
 Point GetStillImageDimensions(StorageItem still_img);
 

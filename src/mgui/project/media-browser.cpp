@@ -212,29 +212,37 @@ static bool OnOBButtonPress(ObjectBrowser& brw, const RightButtonFunctor& fnr, G
     return true;
 }
 
+static bool& IsVideoOK(RTCache& rtc)
+{
+    return rtc.asd.videoOK;
+}
+
 RTCache& GetRTC(VideoItem vi)
 {
     RTCache& rtc = vi->GetData<RTCache>();
     if( !rtc.isCalced )
     {
         const std::string& fname = GetFilename(*vi);
-        bool is_mpeg2;
-        std::string err_string;
-        rtc.reqTrans = !IsVideoDVDCompliant(fname.c_str(), err_string, is_mpeg2);
+        Mpeg2Info inf;
+        rtc.reqTrans = !IsVideoDVDCompliant(fname.c_str(), inf);
+        IsVideoOK(rtc) = inf.videoCheck;
+        // если без транскодирования => videoOK == true
+        ASSERT_RTL( rtc.reqTrans || (!rtc.reqTrans && IsVideoOK(rtc)) );
 
         FFInfo ffi(GetFilename(*vi).c_str());
         rtc.duration = Duration(ffi);
         rtc.vidSz    = ffi.vidSz;
-        rtc.dar      = DAspectRatio(ffi);
+        rtc.asd.dar  = DAspectRatio(ffi);
         // расчет числа аудио
         AVFormatContext* ic = ffi.iCtx;
         // :TODO: отрефакторить цикл
-        rtc.audioNum = 0;
+        int& a_cnt = rtc.asd.audioNum;
+        a_cnt = 0;
         for( int i=0; i < (int)ic->nb_streams; i++ )
         {
             AVCodecContext* avctx = ic->streams[i]->codec;
             if( avctx->codec_type == CODEC_TYPE_AUDIO )
-                rtc.audioNum++;
+                a_cnt++;
         }
 
         rtc.isCalced = true;
@@ -246,6 +254,11 @@ RTCache& GetRTC(VideoItem vi)
 bool RequireTranscoding(VideoItem vi)
 {
     return GetRTC(vi).reqTrans;
+}
+
+bool RequireVideoTC(VideoItem vi)
+{
+    return !IsVideoOK(GetRTC(vi));
 }
 
 static void AppendNamedValue(Gtk::VBox& vbox, RefPtr<Gtk::SizeGroup> sg, const char* name, 
@@ -354,15 +367,16 @@ static DVDDims Dimensions(BitrateControls& bc)
     return Index2Dimension(bc.cmbDims.get_active_row_number());
 }
 
-int OutAudioNum(int i_anum)
+int OutAudioNum(const AutoSrcData& asd)
 {
+    int i_anum = asd.audioNum;
     ASSERT( i_anum >= 0 );
     return std::min(i_anum, 8);
 }
 
-io::pos CalcTransSize(RTCache& rtc, int vrate)
+static io::pos _CalcTransSize(RTCache& rtc, int vrate)
 {
-    return FFmpegSizeForDVD(rtc.duration, vrate, OutAudioNum(rtc.audioNum));
+    return FFmpegSizeForDVD(rtc.duration, vrate, OutAudioNum(rtc.asd));
 }
 
 static void OnBitrateControlsChanged(BitrateControls& bc, bool dims_changed)
@@ -371,7 +385,7 @@ static void OnBitrateControlsChanged(BitrateControls& bc, bool dims_changed)
         SetAutoBitrate(bc, Dimensions(bc));
 
     // расчет размера результата
-    gint64 fsize = CalcTransSize(bc.rtc, bc.vRate.get_value());
+    gint64 fsize = _CalcTransSize(bc.rtc, bc.vRate.get_value());
     bc.szLbl.set_text(ShortSizeString(fsize));
 }
 
@@ -460,9 +474,10 @@ static void RunBitrateCalc(VideoItem vi, Gtk::Dialog& dlg)
         // он хоть адекватен
         //AppendNamedValue(vbox, SMCLN_("Video bitrate"),
         //                 boost::format("%1% %2%") % (GetVideoCtx(ffv)->bit_rate/1000) % kbps_txt % bf::stop);
+        Point& dar = rtc.asd.dar;
         AppendNamedValue(info_box, sg, SMCLN_("Display aspect ratio"), 
-                         boost::format("%1% : %2%") % rtc.dar.x % rtc.dar.y % bf::stop);
-        AppendNamedValue(info_box, sg, SMCLN_("Number of audio streams"), Int2Str(rtc.audioNum));
+                         boost::format("%1% : %2%") % dar.x % dar.y % bf::stop);
+        AppendNamedValue(info_box, sg, SMCLN_("Number of audio streams"), Int2Str(rtc.asd.audioNum));
         AppendNamedValue(info_box, sg, SMCLN_("File size"), ShortSizeString(PhisSize(fname.c_str())));
     }
     
@@ -502,11 +517,11 @@ static void RunBitrateCalc(VideoItem vi, Gtk::Dialog& dlg)
 static void ShowDVDCompliantStatus(VideoItem vi)
 {
     std::string err_string(_("Reason For Transcoding"));
-    std::string desc_string;
-    bool is_mpeg2 = false;
-    if( IsVideoDVDCompliant(GetFilename(*vi).c_str(), desc_string, is_mpeg2) )
+    Mpeg2Info inf;
+    std::string& desc_string = inf.errStr;
+    if( IsVideoDVDCompliant(GetFilename(*vi).c_str(), inf) )
         err_string = _("The video is DVD compliant.");
-    else if( !is_mpeg2 )
+    else if( !inf.isMpeg2 )
         desc_string = _("The video is not MPEG2.");
 
     MessageBox(err_string, Gtk::MESSAGE_INFO, Gtk::BUTTONS_OK, desc_string);
@@ -515,6 +530,23 @@ static void ShowDVDCompliantStatus(VideoItem vi)
 double Duration(VideoItem vi)
 {
     return GetRTC(vi).duration;
+}
+
+static io::pos PhisSize(VideoItem vi)
+{
+    return PhisSize(GetFilename(*vi).c_str());
+}
+
+io::pos CalcTransSize(VideoItem vi, int vrate)
+{
+    RTCache& rtc = GetRTC(vi);
+    io::pos res = _CalcTransSize(rtc, vrate);
+    if( IsVideoOK(rtc) )
+        // перемикширование
+        // :KLUDGE: +1% взят "с потолка", как страховка от того, что
+        // оригинальный битрейт аудио будет существенно меньше нашего TRANS_AUDIO_BITRATE
+        res = PhisSize(vi) * 1.01;
+    return res;
 }
 
 static SizeStat ProjectStatEx(bool fixed_part)
@@ -527,15 +559,14 @@ static SizeStat ProjectStatEx(bool fixed_part)
     {
         if( RequireTranscoding(vi) )
         {
-            RTCache& rtc = GetRTC(vi);
             int vrate    = fixed_part ? 0 : GetRealTransData(vi).vRate ;
-            io::pos v_sz = CalcTransSize(rtc, vrate);
+            io::pos v_sz = CalcTransSize(vi, vrate);
 
             tr_sz += v_sz;
             vsz   += v_sz;
         }
         else
-            vsz += PhisSize(GetFilename(*vi).c_str());
+            vsz += PhisSize(vi);
     }
     //sz += Author::MenusSize();
     ss.menuSum = Author::MenusSize();
@@ -582,12 +613,12 @@ static void AdjustDiscUsage()
     io::pos work_sz = (dvd_sz - ProjectSizeSum(true)) / TRANS_OVER_ASSURANCE;
 
     double total_weight = 0.;
-    boost_foreach( VideoItem vi, AllTransVideos() )
+    boost_foreach( VideoItem vi, AllVTCVideos() )
         total_weight += RelTransWeight(vi);
     ASSERT( total_weight > 0. );
 
     bool is_overflow = false;
-    boost_foreach( VideoItem vi, AllTransVideos() )
+    boost_foreach( VideoItem vi, AllVTCVideos() )
     {
         // в kbit/s
         int vrate = work_sz * RelTransWeight(vi)/(total_weight * 125 * Duration(vi));
@@ -773,7 +804,7 @@ static void OnMBButtonPress(ObjectBrowser& brw, MediaItem mi, GdkEventButton* ev
         ea_itm.set_submenu(EndActionMenuBld(vi->PAction(), boost::function_identity,
                                             VideoAddConstantChoice).Create());
 
-    bool tr_enabled = IsTransVideo(vi);
+    bool tr_enabled = IsTransVideo(vi, true);
     AddEnabledItem(mn, _("Adjust Bitrate to Fit to Disc"), &AdjustDiscUsage, tr_enabled);
     // калькулятор
     AddDialogItem(mn, DialogParams(_("Bitrate Calculator"), bb::bind(&RunBitrateCalc, vi, _1), 
@@ -813,8 +844,9 @@ static std::string RenderMediaType(MediaItem mi, bool show_info)
         if( VideoItem vi = IsVideo(mi) )
         {
             RTCache& rtc = GetRTC(vi);
+            Point& dar = rtc.asd.dar;
             info = boost::format("%1%, %2%, %3%x%4%, %5%:%6%") % info % Mpeg::SecToHMS(rtc.duration, true) 
-                % rtc.vidSz.x % rtc.vidSz.y % rtc.dar.x % rtc.dar.y % bf::stop;
+                % rtc.vidSz.x % rtc.vidSz.y % dar.x % dar.y % bf::stop;
         }
         else if( ChapterItem ci = IsChapter(mi) )
             info = BF_("Chapter at %1%") % Mpeg::SecToHMS(ci->chpTime, true) % bf::stop;

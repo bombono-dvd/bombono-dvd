@@ -99,6 +99,8 @@ RefPtr<MediaStore> CreateMediaStore();
 
 io::pos PhisSize(const char* fname);
 bool RequireTranscoding(VideoItem vi);
+// в отличие от RequireTranscoding() ремикс (по видео) невозможен
+bool RequireVideoTC(VideoItem vi);
 
 void AppendRenameAction(Gtk::Menu& mn, ObjectBrowser& brw);
 // измененный CellRendererText для того, чтобы редактировать можно

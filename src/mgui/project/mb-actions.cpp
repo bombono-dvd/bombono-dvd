@@ -81,7 +81,7 @@ void FillThumbnail(const Gtk::TreeIter& itr, RefPtr<MediaStore> ms, Media& md)
     // * эмблемы
     StampEmblem(thumb_pix, EmblemNameVis::Make(mi));
     if( VideoItem vi = IsVideo(mi) )
-        if( RequireTranscoding(vi) )
+        if( RequireVideoTC(vi) )
         {
             RefPtr<Gdk::Pixbuf> t_emblem = GetCheckEmblem(thumb_pix, "emblems/transcoding.png");
             // правый верхний угол

@@ -38,9 +38,9 @@ static bool IsNotNull(const VideoItem& vi)
     return bool(vi);
 }
 
-bool IsTransVideo(VideoItem vi)
+bool IsTransVideo(VideoItem vi, bool require_vtc)
 {
-    return vi && RequireTranscoding(vi);
+    return vi && (require_vtc ? RequireVideoTC(vi) : RequireTranscoding(vi));
 }
 
 template <class Filter>
@@ -55,10 +55,21 @@ fe::range<VideoItem> AllVideos()
     return FilteredVideos(IsNotNull);
 }
 
+fe::range<VideoItem> AllTransVideosEx(bool require_vtc)
+{
+    return FilteredVideos(bb::bind(&IsTransVideo, _1, require_vtc));
+}
+
 fe::range<VideoItem> AllTransVideos()
 {
-    return FilteredVideos(IsTransVideo);
+    return AllTransVideosEx(false);
 }
+
+fe::range<VideoItem> AllVTCVideos()
+{
+    return AllTransVideosEx(true);
+}
+
 
 } // namespace Project
 

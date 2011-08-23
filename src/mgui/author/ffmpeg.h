@@ -22,6 +22,7 @@
 #ifndef __MGUI_AUTHOR_FFMPEG_H__
 #define __MGUI_AUTHOR_FFMPEG_H__
 
+#include <mgui/project/video.h> // AutoSrcData
 #include <mgui/sdk/ioblock.h>
 
 #include <mdemux/trackbuf.h>
@@ -36,10 +37,9 @@ struct DVDTransData;
 
 struct AutoDVDTransData
 {
-     bool  is4_3;
-    Point  srcAspect;
-      int  audioNum; // для <= 1 ffmpeg сам решит
-      int  threadsCnt;
+       bool  is4_3;
+AutoSrcData  asd;   
+        int  threadsCnt;
 
     AutoDVDTransData(bool is4_3_);
 };

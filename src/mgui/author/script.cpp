@@ -843,16 +843,15 @@ static bool UpdateJobs(JobData& jd)
             // реализовать
             RTCache& rtc = GetRTC(vi);
             AutoDVDTransData atd(Is4_3(vi));
-            atd.audioNum  = OutAudioNum(rtc.audioNum);
-            atd.srcAspect = rtc.dar;
+            atd.asd = rtc.asd;
+            atd.asd.audioNum = OutAudioNum(atd.asd);
             atd.threadsCnt = coeff;
 
             DVDTransData td = GetRealTransData(vi);
             td.ctmFFOpt = vi->transDat.ctmFFOpt;
 
             std::string ffmpeg_cmd = FFmpegToDVDTranscode(src_fname, dst_fname, atd, IsPALProject(), td);
-            //io::pos trans_val = CalcTransSize(rtc, td.vRate);
-            jl.push_back(Job(coeff, out_idx, CalcTransSize(rtc, td.vRate)));
+            jl.push_back(Job(coeff, out_idx, CalcTransSize(vi, td.vRate)));
             Job& new_job = jl.back();
 
             PercentFunctor fnr = bb::bind(&CalcTransPercent, _1, b::ref(new_job), b::ref(jd), rtc.duration);
@@ -974,7 +973,7 @@ static void AuthorImpl(const std::string& out_dir)
     //    td.ctmFFOpt = vi->transDat.ctmFFOpt;
     //
     //    std::string ffmpeg_cmd = FFmpegToDVDTranscode(src_fname, dst_fname, atd, IsPALProject(), td);
-    //    io::pos trans_val  = CalcTransSize(rtc, td.vRate);
+    //    io::pos trans_val  = CalcTransSize(vi, td.vRate);
     //    PercentFunctor fnr = bb::bind(&CalcTransPercent, _1, trans_total, trans_done,
     //                                  trans_val, rtc.duration);
     //    RunFFmpegCmd(ffmpeg_cmd, bb::bind(&OnTranscodePrintParse, _1, _2, fnr));
@@ -1029,7 +1028,7 @@ static void AuthorImpl(const std::string& out_dir)
             // не любит ничего кроме 720xfull и 28.0,- 
             // решил в пользу софтовых ради удобства разработки, но лучше бы
             // разобраться (хорошо, что не 720xfull - редкость)
-            DVDDims dd = RequireTranscoding(vi) ? GetRealTransData(vi).dd : CalcDimsAuto(vi);
+            DVDDims dd = RequireVideoTC(vi) ? GetRealTransData(vi).dd : CalcDimsAuto(vi);
             // чуть меньше делаем размеры
             Point movie_sz = DVDDimension(dd) - Point(2, 2);
             ts->set_attribute("movie-width",  Int2Str(movie_sz.x));

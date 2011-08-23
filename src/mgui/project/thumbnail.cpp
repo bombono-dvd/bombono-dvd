@@ -164,7 +164,7 @@ Point CalcAspectSize(VideoMD& vi)
 {
     //VideoViewer& player = OpenCachePlayer(&vi);
     //return DAspectRatio(player);
-    return GetRTC(&vi).dar;
+    return GetRTC(&vi).asd.dar;
 }
 
 void ThumbSizeCalcer::Visit(VideoMD& obj)

@@ -64,8 +64,16 @@ static void InitFoundStageTag(RefPtr<Gtk::TextTag> tag)
     tag->property_foreground() = "darkgreen";
 }
 
+// POSIX-народ бесповоротно ушел на cdrkit (genisoimage), но с Win32
+// у cdrkit хреново (только cygwin, нет собранного с growisofs с cdrkit под Win32) => потому - "вилка"
+#ifdef _WIN32
+#define MK_ISO_CMD "mkisofs"
+#else
+#define MK_ISO_CMD "genisoimage"
+#endif
+
 re::pattern DVDAuthorRE(RG_CMD_BEG"dvdauthor"RG_EW ".*-x"RG_EW RG_SPS RG_BW"DVDAuthor\\.xml"RG_EW);
-re::pattern MkIsoFsRE(RG_CMD_BEG"mkisofs"RG_EW ".*-dvd-video"RG_EW ".*>" RG_SPS RG_BW"dvd.iso"RG_EW);
+re::pattern MkIsoFsRE(RG_CMD_BEG MK_ISO_CMD RG_EW ".*-dvd-video"RG_EW ".*>" RG_SPS RG_BW"dvd.iso"RG_EW);
 re::pattern GrowIsoFsRE(RG_CMD_BEG"growisofs"RG_EW ".*-dvd-compat"RG_EW ".*-dvd-video"RG_EW); 
 
 //static void PrintMatchResults(const re::match_results& what)

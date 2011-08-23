@@ -130,8 +130,15 @@ def MkIsoArgs(source):
 #
 # * записать iso-образ
 #
+def IsWin32():
+    return sys.platform == 'win32'
+if IsWin32():
+    mk_iso_cmd = "mkisofs"
+else:
+    mk_iso_cmd = "genisoimage"
+    
 def GenIsoAction(source, target, env, for_signature):
-    return "mkisofs%s > %s" % (MkIsoArgs(source), target[0].path)
+    return "%s%s > %s" % (mk_iso_cmd, MkIsoArgs(source), target[0].path)
 
 # Замечание: 'scons -c' не удаляет iso, надо 'scons -c dvd.iso'
 Command(dvd_dir + '.iso', [dvd_scons_target], MakeGenAction(GenIsoAction)) # "mkisofs -dvd-video $SOURCE > $TARGET")

@@ -586,8 +586,11 @@ static Point DVDAspect(bool is4_3)
     return is4_3 ? Point(4, 3) : Point(16,9);
 }
 
+AutoSrcData::AutoSrcData(bool is4_3_): videoOK(false),
+    dar(DVDAspect(is4_3_)), audioNum(1) {}
+
 AutoDVDTransData::AutoDVDTransData(bool is4_3_): is4_3(is4_3_), 
-    srcAspect(DVDAspect(is4_3_)), audioNum(1), threadsCnt(1) {}
+    asd(is4_3_), threadsCnt(1) {}
 
 static int PadSize(int free_space)
 {
@@ -675,7 +678,7 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData
     // * соотношение
     bool is_4_3 = atd.is4_3;
     // * размеры
-    Point img_sz = FitIntoRect(sz, DVDAspect(is_4_3), atd.srcAspect).Size();
+    Point img_sz = FitIntoRect(sz, DVDAspect(is_4_3), atd.asd.dar).Size();
     std::string sz_str = FFSizeOption(sz);
     if( img_sz.x < sz.x )
     {
@@ -693,18 +696,18 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData
     }
     // * дополнительные аудио
     std::string add_audio_str;
-    for( int i=0; i<(atd.audioNum-1); i++ )
+    for( int i=0; i<(atd.asd.audioNum-1); i++ )
         // ffmpeg обнуляет audio_codec_name после каждого -newaudio и -i
         add_audio_str += " -acodec ac3 -newaudio";
 
     // * доп. опции
     std::string add_opts("-mbd rd -trellis 2 -cmp 2 -subcmp 2");
-    {
-        if( atd.threadsCnt > 1 )
-            AppendOpts(add_opts, boost::format("-threads %1%") % atd.threadsCnt % bf::stop);
-        AppendOpts(add_opts, PrefContents("ffmpeg_options"));
-        AppendOpts(add_opts, td.ctmFFOpt);
-    }
+    if( atd.asd.videoOK )
+        AppendOpts(add_opts, "-vcodec copy");
+    if( atd.threadsCnt > 1 )
+        AppendOpts(add_opts, boost::format("-threads %1%") % atd.threadsCnt % bf::stop);
+    AppendOpts(add_opts, PrefContents("ffmpeg_options"));
+    AppendOpts(add_opts, td.ctmFFOpt);
 
     return boost::format("-target %1%-dvd -aspect %2% %3% %4%-y %7% %5%%6%")
         % target % (is_4_3 ? "4:3" : "16:9") % sz_str
