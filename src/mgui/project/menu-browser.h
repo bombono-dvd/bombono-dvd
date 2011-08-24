@@ -70,7 +70,8 @@ class MenuBrowser : public ObjectBrowser
     virtual      void  DeleteMedia();
 };
 
-void InsertMenuIntoBrowser(MenuBrowser& brw);
+Menu MakeMenu(const std::string& name, AspectFormat af);
+void InsertMenuIntoBrowser(MenuBrowser& brw, Menu mn);
 int MenusCnt();
 
 } // namespace Project

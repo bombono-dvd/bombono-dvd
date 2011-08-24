@@ -94,6 +94,7 @@ MenuPack& UpdateMenuPack(Menu mn);
 
 bool IsMenuToBe4_3();
 bool Is4_3(Menu mn);
+void SaveMenu(Menu mn, Menu orig_mn);
 
 } // namespace Project
 

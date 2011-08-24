@@ -38,6 +38,8 @@
 #include <mgui/win_utils.h>
 #include <mgui/key.h>
 
+#include <mbase/project/table.h> // MakeMenu()
+
 #include <mlib/sdk/logger.h>
 #include <mlib/sigc.h>
 
@@ -440,6 +442,18 @@ DialogParams MenuSettingsDialog(Menu mn, Gtk::Widget* par_wdg)
                         420, par_wdg);
 }
 
+static void CopyMenu(Menu orig_mn, ObjectBrowser& brw)
+{
+    std::string name = BF_("%1% copy") % orig_mn->mdName % bf::stop;
+    Menu mn = MakeMenu(name, orig_mn->Params().GetAF());
+
+    mn->MtnData() = orig_mn->MtnData();
+    mn->subPal    = orig_mn->subPal;
+    SaveMenu(mn, orig_mn);
+    
+    InsertMenuIntoBrowser(static_cast<MenuBrowser&>(brw), mn);
+}
+
 static void OnRightButton(ObjectBrowser& brw, MediaItem mi, GdkEventButton* event)
 {
     Menu mn = IsMenu(mi);
@@ -447,7 +461,9 @@ static void OnRightButton(ObjectBrowser& brw, MediaItem mi, GdkEventButton* even
 
     Gtk::Menu& gmn = NewPopupMenu();
     AppendRenameAction(gmn, brw);
+    AddEnabledItem(gmn, _("Copy Menu"), bb::bind(&CopyMenu, mn, b::ref(brw)));
     AddDialogItem(gmn, MenuSettingsDialog(mn, &brw));
+    
     Popup(gmn, event, true);
 }
 
@@ -716,6 +732,12 @@ Gtk::Menu& CommonMenuBuilder::Create()
 //    slm.linkMenu = &LinkMenuBuilder(slm, *mp.editor).Create();
 //}
 
+void OnNewMenu(MenuBrowser& brw)
+{
+    Menu mn = MakeMenu(MenuAutoName(MenusCnt()), IsMenuToBe4_3() ? af4_3 : af16_9);
+    InsertMenuIntoBrowser(brw, mn);
+}
+
 void PackMenusWindow(Gtk::Container& contr, RefPtr<MenuStore> ms, RefPtr<MediaStore> md_store)
 {
     MenuBrowser& menu_brw = NewManaged<MenuBrowser>(ms);
@@ -756,7 +778,7 @@ void PackMenusWindow(Gtk::Container& contr, RefPtr<MenuStore> ms, RefPtr<MediaSt
             Gtk::Button* add_btn = CreateButtonWithIcon("", Gtk::Stock::ADD,
                                                         _("Add Menu"));
             hb.pack_start(*add_btn);
-            add_btn->signal_clicked().connect(bb::bind(&InsertMenuIntoBrowser, boost::ref(menu_brw)));
+            add_btn->signal_clicked().connect(bb::bind(&OnNewMenu, boost::ref(menu_brw)));
 
             Gtk::Button* rm_btn = CreateButtonWithIcon("", Gtk::Stock::REMOVE,
                                                        _("Remove Menu"));

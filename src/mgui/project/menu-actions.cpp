@@ -76,14 +76,9 @@ void OpenPublishMenu(const Gtk::TreeIter& itr, RefPtr<MenuStore> ms, Menu mn)
     PublishMenu(itr, ms, mn);
 }
 
-void InsertMenuIntoBrowser(MenuBrowser& brw)
+void InsertMenuIntoBrowser(MenuBrowser& brw, Menu mn)
 {
     RefPtr<MenuStore> ms = brw.GetMenuStore();
-    // * subj
-    Menu mn = MakeMenu(Size(ms));
-    // отношение сторон
-    mn->Params().GetAF() = IsMenuToBe4_3() ? af4_3 : af16_9 ;
-
     // * куда
     Gtk::TreeRow row = *InsertByPos(ms, GetCursor(brw));
     OpenPublishMenu(row, ms, mn);
@@ -91,6 +86,14 @@ void InsertMenuIntoBrowser(MenuBrowser& brw)
 
     // * фокус
     GoToPos(brw, ms->get_path(row));
+}
+
+Menu MakeMenu(const std::string& name, AspectFormat af)
+{
+    Menu mn = MakeMenu(name);
+    // отношение сторон
+    mn->Params().GetAF() = af;
+    return mn;
 }
 
 // расчет областей отрисовки при изменении содержимого (первичного медиа)

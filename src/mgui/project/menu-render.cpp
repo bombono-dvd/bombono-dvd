@@ -364,11 +364,10 @@ void SaveMenuItem(MenuItem mi, Comp::MediaObj* m_obj)
     mi->playAll     = m_obj->PlayAll();
 }
 
-void SaveMenu(Menu mn)
+void SaveMenu(Menu mn, Menu orig_mn)
 {
-    ASSERT( mn );
-    MenuRegion& m_rgn = GetMenuRegion(mn);
-
+    ASSERT( mn && orig_mn );
+    MenuRegion& m_rgn = GetMenuRegion(orig_mn);
     // * меню
     mn->Params() = m_rgn.GetParams();
     mn->BgRef()  = m_rgn.BgRef();
@@ -401,6 +400,11 @@ void SaveMenu(Menu mn)
         else
             ASSERT(0);
     }
+}
+
+void SaveMenu(Menu mn)
+{
+    SaveMenu(mn, mn);
 }
 
 // Преобразования MenuItem <-> MenuRegion 

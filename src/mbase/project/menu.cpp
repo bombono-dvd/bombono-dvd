@@ -355,9 +355,14 @@ Menu MakeMenu(const std::string& name)
     return menu;
 }
 
+std::string MenuAutoName(int old_sz)
+{
+    return MakeAutoName(_("Menu"), old_sz);
+}
+
 Menu MakeMenu(int old_sz)
 {
-    return MakeMenu(MakeAutoName(_("Menu"), old_sz));
+    return MakeMenu(MenuAutoName(old_sz));
 }
 
 } // namespace Project

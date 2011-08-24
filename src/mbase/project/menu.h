@@ -95,6 +95,7 @@ class MenuMD: public PSO<MenuMD, Media> // от Media
         typedef   ListType::iterator  Itr;
 
         BackSettings  bgSet;
+   SubpicturePalette  subPal;
         
                            MenuMD();
 
@@ -102,8 +103,6 @@ class MenuMD: public PSO<MenuMD, Media> // от Media
                  ListType& List()   { return itmLst; }
                 MediaItem& BgRef()  { return bgRef; }
                MotionData& MtnData(){ return mtnData; }
-
-        SubpicturePalette  subPal;
 
     virtual   std::string  TypeString() { return "Menu"; }
     virtual          void  SerializeImpl(Archieve& /*ar*/);
