@@ -515,8 +515,7 @@ void TextRenderer::ChangeText(const std::string& new_txt, int new_cur_pos)
 
 Rect TextRenderer::CalcTextPlc()
 {
-    Planed::Transition tr = GetTransition();
-    return Planed::AbsToRel(tr, GetTextObj().Placement());
+    return RelPos(GetTextObj(), GetTransition());
 }
 
 void TextRenderer::RenderWithFunctor(DrwFunctor drw_fnr, const Rect& drw_rct, 

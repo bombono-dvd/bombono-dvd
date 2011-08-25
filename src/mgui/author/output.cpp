@@ -752,21 +752,6 @@ static void AddError(std::string& err_lst, const std::string& err, bool apprecia
     err_lst += MarkError("* " + QuoteForGMarkupParser(err), !appreciable_error);
 }
 
-static RefPtr<Project::MenuStore> GetMenuStore()
-{
-    return Project::GetAStores().mnStore;
-}
-
-static Project::Menu ToMenuTransform(const Gtk::TreeRow& row) 
-{
-    return GetMenu(GetMenuStore(), row);
-}
-
-fe::range<Project::Menu> AllMenus()
-{
-    return fe::make_any( GetMenuStore()->children() | fe::transformed(ToMenuTransform) );
-}
-
 ListObj::ArrType& AllMediaObjs(Project::Menu mn)
 {
     return GetMenuRegion(mn).List();
@@ -803,7 +788,7 @@ void OnDVDBuild(Gtk::FileChooserButton& ch_btn)
         // (по DVD-спекам он вообще не разрешен)
         try
         {
-            boost_foreach( Project::Menu mn, AllMenus() )
+            boost_foreach( Project::Menu mn, Project::AllMenus() )
                 boost_foreach( Comp::MediaObj* obj, AllMediaObjs(mn) )
                     if( Project::HasButtonLink(*obj) )
                     {    

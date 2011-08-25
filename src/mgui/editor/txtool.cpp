@@ -84,6 +84,15 @@ void ReStyle(TextObj& t_obj, const Editor::TextStyle& style)
     t_obj.CalcDimensions(true);
 }
 
+EdtTextRenderer& InitETR(TextObj* t_obj, MEditorArea& edt)
+{
+    EdtTextRenderer& edt_txt = t_obj->GetData<EdtTextRenderer>();
+    edt_txt.Init(edt.Canvas());
+    edt_txt.SetEditor(&edt);
+    edt_txt.DoLayout();
+    return edt_txt;
+}
+
 static EdtTextRenderer* InsertNewText(MEditorArea& edt_area, GdkEventButton* event)
 {
     EdtTextRenderer* edt_txt = 0;
@@ -91,23 +100,15 @@ static EdtTextRenderer* InsertNewText(MEditorArea& edt_area, GdkEventButton* eve
     Point lct((int)event->x, (int)event->y);
     if( edt_area.FramePlacement().Contains(lct) )
     {
-        // создаем новый
-        Planed::Transition tr = edt_area.Transition();
-        lct = tr.RelToAbs(tr.DevToRel(lct));
-
-        // 1 создаем
+        // 1 создаем новый
         TextObj* t_obj = new TextObj;
     	// стиль
         ReStyle(*t_obj, edt_area.Toolbar().GetFontDesc());
-        t_obj->SetLocation(lct);
-        //edt_area.CurMenuRegion().Ins(*t_obj);
-        Project::AddMenuItem(edt_area.CurMenuRegion(), t_obj);
+        t_obj->SetLocation(DevToAbs(edt_area.Transition(), lct));
+        edt_txt = &InitETR(t_obj, edt_area);
 
-        // 2 инициализируем
-        edt_txt = &t_obj->GetData<EdtTextRenderer>();
-        edt_txt->Init(edt_area.Canvas());
-        edt_txt->SetEditor(&edt_area);
-        edt_txt->DoLayout();
+        // 2 добавляем
+        Project::AddMenuItem(edt_area.CurMenuRegion(), t_obj);
     }
     return edt_txt;
 }

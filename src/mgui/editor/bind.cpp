@@ -45,7 +45,7 @@ bool IsIconTheme(FrameThemeObj& fto)
 void DoRenderFTO(RGBA::RgnPixelDrawer* drw, FrameThemeObj& fto, 
                  Editor::FTOData& fd, const Planed::Transition& trans)
 {
-    Rect rel_plc = Planed::AbsToRel(trans, fto.Placement());
+    Rect rel_plc = RelPos(fto, trans);
     RefPtr<Gdk::Pixbuf> pix;
     if( IsIconTheme(fto) )
         pix = GetThemeIcon(fto, rel_plc.Size());

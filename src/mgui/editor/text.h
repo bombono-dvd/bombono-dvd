@@ -306,5 +306,14 @@ class EdtTextRenderer: public DWConstructorTag,
 
 EdtTextRenderer& FindTextRenderer(TextObj& t_obj, CanvasBuf& cnv_buf);
 
+namespace Project {
+
+TextObj* CreateEditorText(const std::string& text, Editor::TextStyle style, const Rect& plc);
+FrameThemeObj* CreateNewFTO(const FrameTheme& theme, const Rect& lct, MediaItem p_mi, 
+                            bool hl_border);
+} // namespace Project
+
+EdtTextRenderer& InitETR(TextObj* t_obj, MEditorArea& edt);
+
 #endif // __MGUI_EDITOR_TEXT_H__
 

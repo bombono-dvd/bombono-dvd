@@ -820,5 +820,20 @@ void PackMenusWindow(Gtk::Container& contr, RefPtr<MenuStore> ms, RefPtr<MediaSt
 
 }
 
+static RefPtr<Project::MenuStore> GetMenuStore()
+{
+    return GetAStores().mnStore;
+}
+
+static Menu ToMenuTransform(const Gtk::TreeRow& row) 
+{
+    return GetMenu(GetMenuStore(), row);
+}
+
+fe::range<Menu> AllMenus()
+{
+    return fe::make_any( GetMenuStore()->children() | fe::transformed(ToMenuTransform) );
+}
+
 } // namespace Project
 

@@ -142,6 +142,7 @@ void SetOwnerMenu(Comp::Object* obj, Project::MenuMD* owner);
 void AcceptOnlyObject(Comp::Object* obj, GuiObjVisitor& g_vis);
 
 RectListRgn& GetRenderList(MenuRegion& m_rgn);
+void AddRelPos(RectListRgn& rct_lst, Comp::MediaObj* obj, const Planed::Transition& trans);
 
 #endif // __MGUI_MENU_RGN_H__
 

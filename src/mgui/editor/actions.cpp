@@ -29,6 +29,9 @@
 
 #include <mgui/project/menu-actions.h>
 #include <mgui/project/dnd.h>
+#include <mgui/project/menu-render.h> // GetMenuRegion
+
+#include <mbase/project/handler.h>
 
 #include <mlib/sdk/logger.h>
 
@@ -113,6 +116,16 @@ inline bool IsAltPressed()
     return GetKeyboardState() & Gdk::MOD1_MASK;
 }
 
+Point DevToAbs(const Planed::Transition& tr, const Point& pnt)
+{
+    return tr.RelToAbs(tr.DevToRel(pnt));
+}
+
+Rect RelPos(Comp::MediaObj& obj, const Planed::Transition& trans)
+{
+    return AbsToRel(trans, obj.Placement());
+}
+
 void Editor::Kit::on_drag_data_received(const RefPtr<Gdk::DragContext>& context, int x, int y, 
                                         const Gtk::SelectionData& selection_data, guint info, guint time)
 {
@@ -137,8 +150,7 @@ void Editor::Kit::on_drag_data_received(const RefPtr<Gdk::DragContext>& context,
                 {
                     // добавляем новый 
                     const Planed::Transition tr = Transition();
-                    Point center = tr.RelToAbs(tr.DevToRel(Point(x, y)));
-                    Editor::AddFTOItem(*this, center, mi);
+                    Editor::AddFTOItem(*this, DevToAbs(tr, Point(x, y)), mi);
                 }
                 else
                 {
@@ -347,7 +359,7 @@ bool Editor::Kit::on_drag_motion(const RefPtr<Gdk::DragContext>& context, int x,
         int pos = GetObjectAtPos(*this, Point(x, y));
         if( pos != -1 )
             if( Comp::MediaObj* obj = dynamic_cast<Comp::MediaObj*>(CurMenuRegion().List()[pos]) )
-                dnd_rct = Planed::AbsToRel(Transition(), obj->Placement());
+                dnd_rct = RelPos(*obj, Transition());
     }
     SetDndFrame(dnd_rct);
 
@@ -358,8 +370,8 @@ bool Editor::Kit::on_drag_motion(const RefPtr<Gdk::DragContext>& context, int x,
 // Копирование объектов
 //
 
-typedef std::list<ListObj::Object*> CopyListT;
 CopyListT CopyList;
+bool CutFlag = false;
 
 void Destroy(ListObj::Object* obj)
 {
@@ -395,67 +407,98 @@ void ListObj::Accept(Comp::ObjVisitor& vis)
     }
 }
 
-void OnEditorCopy()
+void OnEditorCopy(bool cut_flag)
 {
     CopyList.clear();
     boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs() )
         CopyList.push_back(obj);
+    CutFlag = cut_flag;
 }
 
-static void LoadMenuItem(Comp::MediaObj* obj, Comp::MediaObj* orig_obj)
+void AddRelPos(RectListRgn& rct_lst, Comp::MediaObj* obj, const Planed::Transition& trans)
+{
+    rct_lst.push_back(RelPos(*obj, trans));
+}
+
+static void CopyAddMI(Comp::MediaObj* obj, Comp::MediaObj* orig_obj, MenuRegion& rgn,
+                 RectListRgn& rct_lst, CopyListT& tmp_lst)
 {
     obj->MediaItem().SetLink(orig_obj->MediaItem());
     obj->PlayAll() = orig_obj->PlayAll();
+    Project::AddMenuItem(rgn, obj);
+
+    AddRelPos(rct_lst, obj, rgn.Transition());
+    tmp_lst.push_back(obj);
 }
 
 void OnEditorPaste(const Point& dev_pnt)
 {
     MEditorArea& edt = MenuEditor();
     MenuRegion& rgn  = edt.CurMenuRegion();
-    RectListRgn rct_lst;
     
-    // :REFACTOR!!!:
-    const Planed::Transition& tr = edt.Transition();
-    Point center = tr.RelToAbs(tr.DevToRel(dev_pnt));
     Rect e_rct   = ConvexHull(MediaObjRange(CopyList.begin(), CopyList.end()));
-    Point mv_vec = center - Point((e_rct.lft + e_rct.rgt)/2, (e_rct.top + e_rct.btm)/2);
-        
+    Point mv_vec = DevToAbs(edt.Transition(), dev_pnt) - Point((e_rct.lft + e_rct.rgt)/2, (e_rct.top + e_rct.btm)/2);
+            
+    RectListRgn rct_lst;
+    CopyListT tmp_lst;            
     boost_foreach( Comp::MediaObj* obj, CopyList )
     {
         Rect lct = obj->Placement() + mv_vec;
         if( TextObj* orig_txt = dynamic_cast<TextObj*>(obj) )
         {
-            TextObj* txt = new TextObj;
+            TextObj* txt = Project::CreateEditorText(orig_txt->Text(), orig_txt->Style(), lct);
+            InitETR(txt, edt);
 
-            Editor::TextStyle style = orig_txt->Style();
-            MEdt::CheckDescNonNull(style);
-            txt->Load(orig_txt->Text(), lct, style);
-
-            LoadMenuItem(txt, orig_txt);
-            Project::AddMenuItem(rgn, txt);
-            
-            // 2 инициализируем
-            EdtTextRenderer& edt_txt = txt->GetData<EdtTextRenderer>();
-            edt_txt.Init(edt.Canvas());
-            edt_txt.SetEditor(&edt);
-            edt_txt.DoLayout();
-            
-            rct_lst.push_back(Planed::AbsToRel(rgn.Transition(), lct));
+            CopyAddMI(txt, orig_txt, rgn, rct_lst, tmp_lst);
         }
         else if( FrameThemeObj* orig_fto = dynamic_cast<FrameThemeObj*>(obj) )
         {
-            FrameThemeObj* fto = Project::NewFTO(orig_fto->Theme(), lct);
-            fto->PosterItem().SetLink(orig_fto->PosterItem());
-            fto->hlBorder = orig_fto->hlBorder;
+            FrameThemeObj* fto = Project::CreateNewFTO(orig_fto->Theme(), lct, orig_fto->PosterItem(),
+                                                       orig_fto->hlBorder);
 
-            LoadMenuItem(fto, orig_fto);
-            Project::AddMenuItem(rgn, fto);
-            
-            rct_lst.push_back(Planed::AbsToRel(rgn.Transition(), lct));
+            CopyAddMI(fto, orig_fto, rgn, rct_lst, tmp_lst);
         }
         else
             ASSERT(0);
     }
     
-    RenderForRegion(edt, rct_lst);
+    if( CutFlag )
+    {
+        // так как копируем не по значению, а по ссылке, то CopyList должен
+        // хранить новое вместо удаленного
+        // + возможность удалять в цикле
+        tmp_lst.swap(CopyList);
+        
+        Project::Menu cur_mn  = edt.CurMenu();
+        ListObj::ArrType& lst = rgn.List();
+        
+        // :TRICKY: реализовано только не для StandAlone-режима
+        int_array del_nums;
+        boost_foreach( Comp::MediaObj* obj, tmp_lst )
+        {
+            Project::Menu obj_mn = GetOwnerMenu(obj);
+            if( GetOwnerMenu(obj) == cur_mn )
+                // удаляем редактором из-за выделенных объектов
+                AppendObjIndex(del_nums, obj, lst);
+            else
+            {
+                MenuRegion& rgn = Project::GetMenuRegion(obj_mn);
+                AddRelPos(GetRenderList(rgn), obj, rgn.Transition());
+                rgn.Clear(obj);
+            }
+        }
+        
+        RectListRgn del_rct_lst;
+        DeleteObjects(del_nums, del_rct_lst);
+        
+        rct_lst.insert(rct_lst.end(), del_rct_lst.begin(), del_rct_lst.end());
+        //RenderMenuSystem(cur_mn, rct_lst);
+        GetRenderList(rgn).swap(rct_lst);
+        boost_foreach( Project::Menu mn, Project::AllMenus() )
+            Project::EraseLinkedMenus(mn->GetData<Project::MenuPack>());
+
+        InvokeOnChange(cur_mn);
+    }
+    else
+        RenderForRegion(edt, rct_lst);
 }

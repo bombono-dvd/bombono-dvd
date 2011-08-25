@@ -170,7 +170,7 @@ void RegionEraserVis::Visit(FrameThemeObj& fto)
     if( lnk.Link() == MIToDraw(fto) )
     {
         // * добавляем область
-        plc = Planed::AbsToRel(mPack.thRgn.Transition(), fto.Placement());
+        plc = RelPos(fto, mPack.thRgn.Transition());
         // * обнуляем
         Editor::FTOData& dat = mPack.editor ? fto.GetData<FTOInterPixData>() : 
             (Editor::FTOData&)fto.GetData<FTOThumbData>() ;

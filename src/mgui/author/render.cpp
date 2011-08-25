@@ -513,11 +513,6 @@ static bool IsToBeMoving(MediaItem mi)
     return mi && (IsVideo(mi) || IsChapter(mi));
 }
 
-static Rect RealPosition(Comp::MediaObj& obj, const Planed::Transition& trans)
-{
-    return AbsToRel(trans, obj.Placement());
-}
-
 static void FFmpegError(const ExitData& ed)
 {
     //Author::ErrorByED(FFmpegErrorTemplate(), ed);
@@ -1152,7 +1147,7 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
                 boost_foreach( Comp::MediaObj* obj, m_rgn.List() )
                     if( FrameThemeObj* frame_obj = dynamic_cast<FrameThemeObj*>(obj) )
                         if( IsToBeMoving(MIToDraw(*frame_obj)) )
-                            rlr.push_back(RealPosition(*frame_obj, mtn_buf.Transition()));
+                            AddRelPos(rlr, frame_obj, mtn_buf.Transition());
             }
             ReDivideRects(rlr);
 

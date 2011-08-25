@@ -74,6 +74,8 @@ Menu MakeMenu(const std::string& name, AspectFormat af);
 void InsertMenuIntoBrowser(MenuBrowser& brw, Menu mn);
 int MenusCnt();
 
+fe::range<Menu> AllMenus();
+
 } // namespace Project
 
 #endif // #ifndef __MGUI_PROJECT_MENU_BROWSER_H__

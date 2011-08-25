@@ -274,26 +274,12 @@ static void LoadBackground(MenuRegion& menu_rgn, Menu mn)
 //     menu_rgn.Ins(*bg_soo);
 }
 
-static void LoadMenuItem(Comp::MediaObj* obj, MenuItem mi)
+TextObj* CreateEditorText(const std::string& text, Editor::TextStyle style, const Rect& plc)
 {
-    obj->MediaItem().SetLink(mi->Ref());
-    obj->PlayAll() = mi->playAll;
-}
-
-TextObj* CreateEditorText(TextItemMD& txt_md)
-{
-    std::string text = txt_md.mdName;
-    ASSERT( !text.empty() );
-
     TextObj* obj = new TextObj;
 
-    Editor::TextStyle style(Pango::FontDescription(txt_md.FontDesc()), txt_md.IsUnderlined(), 
-                            MakeColor(txt_md.Color()));
     MEdt::CheckDescNonNull(style);
-    obj->Load(text, txt_md.Placement(), style);
-
-    LoadMenuItem(obj, &txt_md);
-
+    obj->Load(text, plc, style);
     return obj;
 }
 
@@ -309,6 +295,16 @@ FrameThemeObj* NewFTO(const FrameTheme& theme, const Rect& lct)
     return new FrameThemeObj(ft, lct);
 }
 
+FrameThemeObj* CreateNewFTO(const FrameTheme& theme, const Rect& lct, MediaItem p_mi, 
+                            bool hl_border)
+{
+    FrameThemeObj* fto = NewFTO(theme, lct);
+    fto->PosterItem().SetLink(p_mi);
+    fto->hlBorder = hl_border;
+    
+    return fto;
+}
+
 void AddMenuItem(MenuRegion& menu_rgn, Comp::MediaObj* obj)
 {
     menu_rgn.Ins(*obj);
@@ -320,6 +316,13 @@ void ClearMenuSavedData(Menu mn)
     // * очищаем хранительный вариант меню
     mn->BgRef() = 0;
     mn->List().clear();
+}
+
+static void LoadAddMI(MenuRegion& menu_rgn, Comp::MediaObj* obj, MenuItem mi)
+{
+    obj->MediaItem().SetLink(mi->Ref());
+    obj->PlayAll() = mi->playAll;
+    AddMenuItem(menu_rgn, obj);
 }
 
 void LoadMenu(MenuRegion& menu_rgn, Menu mn)
@@ -338,17 +341,20 @@ void LoadMenu(MenuRegion& menu_rgn, Menu mn)
         MenuItem mi = *itr;
         if( TextItemMD* txt_mi = dynamic_cast<TextItemMD*>(mi.get()) )
         {
-            TextObj* txt_obj = CreateEditorText(*txt_mi);
-            AddMenuItem(menu_rgn, txt_obj);
+            std::string text = txt_mi->mdName;
+            ASSERT( !text.empty() );
+
+            Editor::TextStyle style(Pango::FontDescription(txt_mi->FontDesc()), txt_mi->IsUnderlined(), 
+                                    MakeColor(txt_mi->Color()));
+            TextObj* txt_obj = CreateEditorText(text, style, txt_mi->Placement());
+            
+            LoadAddMI(menu_rgn, txt_obj, txt_mi);
         }
         else if( FrameItemMD* frame_mi = dynamic_cast<FrameItemMD*>(mi.get()) )
         {
-            FrameThemeObj* fto = NewFTO(frame_mi->Theme(), frame_mi->Placement());
-            LoadMenuItem(fto, frame_mi);
-            fto->PosterItem().SetLink(frame_mi->Poster());
-            fto->hlBorder = frame_mi->hlBorder;
-
-            AddMenuItem(menu_rgn, fto);
+            FrameThemeObj* fto = CreateNewFTO(frame_mi->Theme(), frame_mi->Placement(),
+                                              frame_mi->Poster(), frame_mi->hlBorder);
+            LoadAddMI(menu_rgn, fto, frame_mi);
         }
         else
             ASSERT(0);

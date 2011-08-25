@@ -551,7 +551,7 @@ static bool ReframeFTO(RectListRgn& r_lst, FrameThemeObj* obj, MenuRegion& mn_rg
     {
         ClearFTOCache(*obj);
         obj->Theme() = theme;
-        r_lst.push_back( Planed::AbsToRel(mn_rgn.Transition(), obj->Placement()) );
+        AddRelPos(r_lst, obj, mn_rgn.Transition());
     }
     return true;
 }

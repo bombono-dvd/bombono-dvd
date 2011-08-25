@@ -74,6 +74,9 @@ Rect DevToRel(const Transition& trans, const Rect& rct);
 
 } // namespace Planed
 
+Point DevToAbs(const Planed::Transition& tr, const Point& pnt);
+Rect RelPos(Comp::MediaObj& obj, const Planed::Transition& trans);
+
 class CanvasBuf;
 
 class CommonGuiVis: public GuiObjVisitor

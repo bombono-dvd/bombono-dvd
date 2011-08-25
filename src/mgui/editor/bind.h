@@ -103,7 +103,7 @@ struct FTOData
         FTOData(FrameThemeObj& f, const Planed::Transition& tr)
             : fto(f), trans(tr) {}
 
-  Rect  CalcPlc() { return Planed::AbsToRel(trans, fto.Placement()); }
+  Rect  CalcPlc() { return RelPos(fto, trans); }
 };
 
 class FTORendering: public Rendering, protected FTOData

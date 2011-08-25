@@ -758,9 +758,9 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
         bool has_selected = !sel_arr.empty();
         Gtk::Menu& mn     = NewPopupMenu(); 
 
-        // :TODO!!!:
-        AddImageItem(mn, Gtk::Stock::CUT,   ActionFunctor(), has_selected);
-        AddImageItem(mn, Gtk::Stock::COPY,  &OnEditorCopy, has_selected);
+        // :TODO: клавиатурные сочетания сделать + отобразить в меню
+        AddImageItem(mn, Gtk::Stock::CUT,   bb::bind(&OnEditorCopy, true), has_selected);
+        AddImageItem(mn, Gtk::Stock::COPY,  bb::bind(&OnEditorCopy, false), has_selected);
         AddImageItem(mn, Gtk::Stock::PASTE, bb::bind(&OnEditorPaste, Point(event->x, event->y)), CopyList.size());
         
         AddEnabledItem(mn, _("Delete"), &DeleteSelObjects, has_selected);
@@ -1023,7 +1023,15 @@ void SelRectVis::RedrawMO(Manager ming)
         Draw(ming); 
 }
 
-static void DeleteSelObjects()
+void AppendObjIndex(int_array& arr, Comp::MediaObj* obj, const ListObj::ArrType& lst)
+{
+    ListObj::ArrType::const_iterator beg = lst.begin(), end = lst.end();
+    ListObj::ArrType::const_iterator it = std::find(beg, end, obj);
+    ASSERT( it != end );
+    arr.push_back(it - beg);
+}
+
+void DeleteObjects(const int_array& del_nums, RectListRgn& rct_lst)
 {
     MEditorArea& edt_area = MenuEditor();
     typedef ListObj::ArrType ArrType;
@@ -1031,24 +1039,38 @@ static void DeleteSelObjects()
     int_array& sel_arr = edt_area.SelArr();
     ArrType&       lst = rgn.List();
     // * узнаем где отрисовывать
-    SelRectVis sr_vis(sel_arr);
+    SelRectVis sr_vis(del_nums);
     rgn.Accept(sr_vis);
     // * удаляем объекты
     ArrType new_lst;
-    ArrType::iterator itr = lst.begin();
+    ArrType new_sel_lst;
     for( int i=0; i<(int)lst.size(); ++i )
     {
         Comp::MediaObj* obj = lst[i];
-        if( IsInArray(i, sel_arr) )
+        if( IsInArray(i, del_nums) )
             Destroy(obj);
         else
+        {    
             new_lst.push_back(obj);
+            if( IsInArray(i, sel_arr) )
+                new_sel_lst.push_back(obj);
+        }
     }
     lst.swap(new_lst);
-    // * чистим выделение
+    // * обновляем выделение
     sel_arr.clear();
-    // * перерисовываем
-    RenderForRegion(edt_area, sr_vis.RectList());
+    boost_foreach( Comp::MediaObj* obj, new_sel_lst )
+        AppendObjIndex(sel_arr, obj, lst);
+    
+    rct_lst.swap(sr_vis.RectList());
+}
+
+static void DeleteSelObjects()
+{
+    MEditorArea& edt_area = MenuEditor();
+    RectListRgn rct_lst;
+    DeleteObjects(edt_area.SelArr(), rct_lst);
+    RenderForRegion(edt_area, rct_lst);
 }
 
 void ClearFTOCache(FrameThemeObj& fto)
@@ -1197,8 +1219,7 @@ class MoveVis: public CommonDrawVis //RectListVis
 
 void MoveVis::CalcMoveVector()
 {
-    const Planed::Transition& tr = menuRgn->Transition();
-    lct = tr.RelToAbs( (tr.DevToRel(lct)) );
+    lct = DevToAbs(menuRgn->Transition(), lct);
     // вектор перемещения
     lct = lct - origPnt;
 }

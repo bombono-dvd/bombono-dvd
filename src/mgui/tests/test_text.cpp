@@ -256,7 +256,7 @@ Rect TextWidget::CalcTextPlc()
 bool TextWidget::on_configure_event(GdkEventConfigure* event)
 {
     trans = Planed::Transition(Rect(0, 0, event->width, event->height), absSz);
-    Rect plc = Planed::AbsToRel(trans, GetTextObj().Placement());
+    Rect plc = RelPos(GetTextObj(), trans);
 
     //trans = Planed::Transition(plc, txtPlc.Size());
     trans.SetShift(plc.A());

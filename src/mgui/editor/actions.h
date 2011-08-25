@@ -66,8 +66,12 @@ bool IsSnapToGrid(MEditorArea& edt_area);
 typedef std::list<ListObj::Object*> CopyListT;
 extern CopyListT CopyList;
 
-void OnEditorCopy();
+void OnEditorCopy(bool cut_flag);
 void OnEditorPaste(const Point& dev_pnt);
+
+// удалить объекты в редактируемом меню, без перерисовки
+void DeleteObjects(const int_array& del_nums, RectListRgn& rct_lst);
+void AppendObjIndex(int_array& arr, Comp::MediaObj* obj, const ListObj::ArrType& lst);
 
 void Destroy(ListObj::Object* obj);
 
