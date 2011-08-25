@@ -24,6 +24,8 @@
 #include "actions.h"
 #include "render.h"
 #include "toolbar.h"
+#include "fe-select.h"
+#include "text.h" // EdtTextRenderer
 
 #include <mgui/project/menu-actions.h>
 #include <mgui/project/dnd.h>
@@ -352,3 +354,108 @@ bool Editor::Kit::on_drag_motion(const RefPtr<Gdk::DragContext>& context, int x,
     return MyParent::on_drag_motion(context, x, y, time);
 }
 
+//
+// Копирование объектов
+//
+
+typedef std::list<ListObj::Object*> CopyListT;
+CopyListT CopyList;
+
+void Destroy(ListObj::Object* obj)
+{
+    CopyList.remove(obj);
+    delete obj;
+}
+
+void ListObj::Clear()
+{
+    for( Itr iter=objArr.begin(), end=objArr.end(); iter != end; ++iter )
+        Destroy(*iter);
+
+    objArr.clear();
+}
+
+void ListObj::Clear(Object* obj)
+{
+    for( Itr iter=objArr.begin(), end=objArr.end(); iter != end; ++iter )
+        if( *iter == obj )
+        {
+            objArr.erase(iter);
+            Destroy(obj);
+            break;
+        }
+}
+
+void ListObj::Accept(Comp::ObjVisitor& vis)
+{
+    for( Itr iter=objArr.begin(), end=objArr.end(); iter != end; ++iter )
+    {
+        //vis.Visit(**iter);
+        (**iter).Accept(vis);
+    }
+}
+
+void OnEditorCopy()
+{
+    CopyList.clear();
+    boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs() )
+        CopyList.push_back(obj);
+}
+
+static void LoadMenuItem(Comp::MediaObj* obj, Comp::MediaObj* orig_obj)
+{
+    obj->MediaItem().SetLink(orig_obj->MediaItem());
+    obj->PlayAll() = orig_obj->PlayAll();
+}
+
+void OnEditorPaste(const Point& dev_pnt)
+{
+    MEditorArea& edt = MenuEditor();
+    MenuRegion& rgn  = edt.CurMenuRegion();
+    RectListRgn rct_lst;
+    
+    // :REFACTOR!!!:
+    const Planed::Transition& tr = edt.Transition();
+    Point center = tr.RelToAbs(tr.DevToRel(dev_pnt));
+    Rect e_rct   = ConvexHull(MediaObjRange(CopyList.begin(), CopyList.end()));
+    Point mv_vec = center - Point((e_rct.lft + e_rct.rgt)/2, (e_rct.top + e_rct.btm)/2);
+        
+    boost_foreach( Comp::MediaObj* obj, CopyList )
+    {
+        Rect lct = obj->Placement() + mv_vec;
+        if( TextObj* orig_txt = dynamic_cast<TextObj*>(obj) )
+        {
+            TextObj* txt = new TextObj;
+
+            Editor::TextStyle style = orig_txt->Style();
+            MEdt::CheckDescNonNull(style);
+            txt->Load(orig_txt->Text(), lct, style);
+
+            LoadMenuItem(txt, orig_txt);
+            Project::AddMenuItem(rgn, txt);
+            
+            // 2 инициализируем
+            EdtTextRenderer& edt_txt = txt->GetData<EdtTextRenderer>();
+            edt_txt.Init(edt.Canvas());
+            edt_txt.SetEditor(&edt);
+            edt_txt.DoLayout();
+            
+            rct_lst.push_back(Planed::AbsToRel(rgn.Transition(), lct));
+        }
+        else if( FrameThemeObj* orig_fto = dynamic_cast<FrameThemeObj*>(obj) )
+        {
+            FrameThemeObj* fto = Project::NewFTO(orig_fto->Theme(), lct);
+            fto->PosterItem().SetLink(orig_fto->PosterItem());
+            fto->hlBorder = orig_fto->hlBorder;
+
+            LoadMenuItem(fto, orig_fto);
+            Project::AddMenuItem(rgn, fto);
+            
+            rct_lst.push_back(Planed::AbsToRel(rgn.Transition(), lct));
+        }
+        else
+            ASSERT(0);
+    }
+    
+    RenderForRegion(edt, rct_lst);
+}

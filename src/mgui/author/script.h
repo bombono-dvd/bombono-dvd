@@ -24,6 +24,8 @@
 
 #include "execute.h"
 
+#include <mgui/menu-rgn.h> // ListObj
+
 #include <mbase/project/media.h>
 #include <mbase/project/menu.h>
 #include <mbase/composite/component.h>
@@ -98,7 +100,7 @@ void ApplicationError(const char* app_name, const ExitData& ed);
 void CheckAbortByUser();
 void CheckAppED(const ExitData& ed, const char* app_name);
 
-fe::range<Comp::MediaObj*> AllMediaObjs(Project::Menu mn);
+ListObj::ArrType& AllMediaObjs(Project::Menu mn);
 
 } // namespace Author
 

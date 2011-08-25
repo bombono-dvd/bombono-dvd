@@ -149,28 +149,6 @@ class CanvasObj: public SO<CanvasObj, MediaObj>
 
 };
 
-// группа объектов
-class ListObj: public Object
-{
-    public:
-        typedef std::vector<Object*>  ArrType;
-        typedef    ArrType::iterator  Itr;
-
-               ~ListObj() { Clear(); }
-
-          void  Clear();
-          void  Clear(Object* obj);
-
-          void  Ins(Object& obj) { objArr.push_back(&obj); }
-       ArrType& List() { return objArr; }
-
- virtual  void  Accept(ObjVisitor& vis);
-
-    protected:
-
-        ArrType objArr; // храним объекты тут
-};
-
 } // namespace Composition
 
 #endif // #ifndef __MBASE_COMPOSITE_COMPONENT_H__

@@ -29,34 +29,6 @@ FramedObj::FramedObj(const FrameTheme& ft, Rect plc)
     SetPlacement(plc);
 }
 
-void ListObj::Clear()
-{
-    for( Itr iter=objArr.begin(), end=objArr.end(); iter != end; ++iter )
-        delete *iter;
-
-    objArr.clear();
-}
-
-void ListObj::Clear(Object* obj)
-{
-    for( Itr iter=objArr.begin(), end=objArr.end(); iter != end; ++iter )
-        if( *iter == obj )
-        {
-            objArr.erase(iter);
-            delete obj;
-            break;
-        }
-}
-
-void ListObj::Accept(ObjVisitor& vis)
-{
-    for( Itr iter=objArr.begin(), end=objArr.end(); iter != end; ++iter )
-    {
-        //vis.Visit(**iter);
-        (**iter).Accept(vis);
-    }
-}
-
 } // namespace Composition
 
 

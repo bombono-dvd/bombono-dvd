@@ -309,7 +309,7 @@ FrameThemeObj* NewFTO(const FrameTheme& theme, const Rect& lct)
     return new FrameThemeObj(ft, lct);
 }
 
-void AddMenuItem(MenuRegion& menu_rgn, Comp::Object* obj)
+void AddMenuItem(MenuRegion& menu_rgn, Comp::MediaObj* obj)
 {
     menu_rgn.Ins(*obj);
     SetOwnerMenu(obj, GetOwnerMenu(&menu_rgn));

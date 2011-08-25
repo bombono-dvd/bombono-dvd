@@ -1149,7 +1149,7 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
                 rlr.push_back(mtn_buf.FrameRect());
             else
             {
-                boost_foreach( Comp::Object* obj, m_rgn.List() )
+                boost_foreach( Comp::MediaObj* obj, m_rgn.List() )
                     if( FrameThemeObj* frame_obj = dynamic_cast<FrameThemeObj*>(obj) )
                         if( IsToBeMoving(MIToDraw(*frame_obj)) )
                             rlr.push_back(RealPosition(*frame_obj, mtn_buf.Transition()));

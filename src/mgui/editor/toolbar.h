@@ -45,7 +45,7 @@ namespace Project
 {
 
 FrameThemeObj* NewFTO(const FrameTheme& theme, const Rect& lct);
-void AddMenuItem(MenuRegion& menu_rgn, Comp::Object* obj);
+void AddMenuItem(MenuRegion& menu_rgn, Comp::MediaObj* obj);
 
 //// вспомогательная структура для передачи меню ссылок
 //// от браузеров к редактору

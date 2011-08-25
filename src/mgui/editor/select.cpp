@@ -53,21 +53,14 @@
 //               break;
 //}
 
-static Comp::Object* GetObj(int i)
+static Comp::MediaObj* GetObj(int i)
 {
     return CurMenuRegion().List()[i];
 }
 
-Comp::MediaObj* ToMOTransform(int i) 
+MediaObjRange SelectedMediaObjs()
 {
-    Comp::MediaObj* obj = dynamic_cast<Comp::MediaObj*>(GetObj(i));
-    ASSERT(obj);
-    return obj;
-}
-
-fe::range<Comp::MediaObj*> SelectedMediaObjs()
-{
-    return fe::make_any( MenuEditor().SelArr() | fe::transformed(ToMOTransform) );
+    return fe::make_any( MenuEditor().SelArr() | fe::transformed(GetObj) );
 }
 
 static void SetCursorForEdt(SelActionType typ, Gtk::Widget& wdg);
@@ -506,18 +499,22 @@ struct EdgeCalcer
     }
 };
 
+Rect ConvexHull(const fe::range<Comp::MediaObj*>& lst)
+{
+    Rect edge_rct;
+    //ForeachSelectedCM(edt_area, bb::bind(&CalcAlignSettings, _1, boost::ref(edge_rct), boost::ref(is_first)));
+    EdgeCalcer ec(edge_rct);
+    boost_foreach( Comp::MediaObj* obj, lst )
+        ec.Update(obj->Placement());
+    return edge_rct;
+}
+
 typedef boost::function<void(Comp::MediaObj*, const Rect&)> CMFunctor3;
 
 static void AlignByFunctor(const CMFunctor3& fnr)
 {
     MEditorArea& edt_area = MenuEditor();
-    Rect edge_rct;
-    //ForeachSelectedCM(edt_area, bb::bind(&CalcAlignSettings, _1, boost::ref(edge_rct), boost::ref(is_first)));
-    {
-        EdgeCalcer ec(edge_rct);
-        boost_foreach( Comp::MediaObj* obj, SelectedMediaObjs() )
-            ec.Update(obj->Placement());
-    }
+    Rect edge_rct = ConvexHull(SelectedMediaObjs());
 
     AlignVis vis(bb::bind(fnr, _1, edge_rct), edt_area.SelArr());
     RenderByRLV(edt_area, vis);
@@ -718,6 +715,13 @@ static void OnHighlightBorder(Gtk::CheckMenuItem& hib_itm)
         obj->hlBorder = is_on;
 }
 
+void AddImageItem(Gtk::Menu& menu, const Gtk::StockID& id, const ActionFunctor& fnr, bool is_enabled)
+{
+    Gtk::MenuItem& itm = AppendMI(menu, NewManaged<Gtk::ImageMenuItem>(id));
+    itm.set_sensitive(is_enabled);
+    itm.signal_activate().connect(fnr);
+}
+
 void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
 {
     int sel_pos;
@@ -754,6 +758,11 @@ void NormalSelect::OnMouseDown(MEditorArea& edt_area, GdkEventButton* event)
         bool has_selected = !sel_arr.empty();
         Gtk::Menu& mn     = NewPopupMenu(); 
 
+        // :TODO!!!:
+        AddImageItem(mn, Gtk::Stock::CUT,   ActionFunctor(), has_selected);
+        AddImageItem(mn, Gtk::Stock::COPY,  &OnEditorCopy, has_selected);
+        AddImageItem(mn, Gtk::Stock::PASTE, bb::bind(&OnEditorPaste, Point(event->x, event->y)), CopyList.size());
+        
         AddEnabledItem(mn, _("Delete"), &DeleteSelObjects, has_selected);
         AppendSeparator(mn);
 
@@ -1017,7 +1026,7 @@ void SelRectVis::RedrawMO(Manager ming)
 static void DeleteSelObjects()
 {
     MEditorArea& edt_area = MenuEditor();
-    typedef Comp::ListObj::ArrType ArrType;
+    typedef ListObj::ArrType ArrType;
     MenuRegion& rgn    = edt_area.CurMenuRegion();
     int_array& sel_arr = edt_area.SelArr();
     ArrType&       lst = rgn.List();
@@ -1029,9 +1038,9 @@ static void DeleteSelObjects()
     ArrType::iterator itr = lst.begin();
     for( int i=0; i<(int)lst.size(); ++i )
     {
-        Comp::Object* obj = lst[i];
+        Comp::MediaObj* obj = lst[i];
         if( IsInArray(i, sel_arr) )
-            delete obj;
+            Destroy(obj);
         else
             new_lst.push_back(obj);
     }

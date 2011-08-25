@@ -77,7 +77,31 @@ class CanvasBuf
                     std::string  dataTag;   // где для данной поверхности хранить данные на объектах
 };
 
-class MenuRegion: public Comp::ListObj
+
+// группа объектов
+class ListObj: public Comp::Object
+{
+    public:
+        typedef Comp::MediaObj Object;
+        typedef std::vector<Object*> ArrType;
+        typedef ArrType::iterator Itr;
+
+               ~ListObj() { Clear(); }
+
+          void  Clear();
+          void  Clear(Object* obj);
+
+          void  Ins(Object& obj) { objArr.push_back(&obj); }
+       ArrType& List() { return objArr; }
+
+ virtual  void  Accept(Comp::ObjVisitor& vis);
+
+    protected:
+
+        ArrType objArr; // храним объекты тут
+};
+
+class MenuRegion: public ListObj
 {
     typedef ListObj MyParent;
     public:

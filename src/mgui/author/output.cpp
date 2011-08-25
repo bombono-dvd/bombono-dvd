@@ -767,16 +767,9 @@ fe::range<Project::Menu> AllMenus()
     return fe::make_any( GetMenuStore()->children() | fe::transformed(ToMenuTransform) );
 }
 
-static Comp::MediaObj* ToMediaObjTransform(Comp::Object* obj) 
+ListObj::ArrType& AllMediaObjs(Project::Menu mn)
 {
-    Comp::MediaObj* m_obj = dynamic_cast<Comp::MediaObj*>(obj);
-    ASSERT(m_obj);
-    return m_obj;
-}
-
-fe::range<Comp::MediaObj*> AllMediaObjs(Project::Menu mn)
-{
-    return fe::make_any( GetMenuRegion(mn).List() | fe::transformed(ToMediaObjTransform) );
+    return GetMenuRegion(mn).List();
 }
 
 std::string RectToStr(const Rect& rct)

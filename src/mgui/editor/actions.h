@@ -63,6 +63,14 @@ void DrawGrid(RGBA::Drawer* drw, MEditorArea& edt_area);
 RGBA::Pixel ColorToPixel(const CR::Color& clr);
 bool IsSnapToGrid(MEditorArea& edt_area);
 
+typedef std::list<ListObj::Object*> CopyListT;
+extern CopyListT CopyList;
+
+void OnEditorCopy();
+void OnEditorPaste(const Point& dev_pnt);
+
+void Destroy(ListObj::Object* obj);
+
 #endif // __MGUI_EDITOR_ACTIONS_H__
 
 

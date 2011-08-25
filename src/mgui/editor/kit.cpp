@@ -246,7 +246,7 @@ void ClearLocalData(MenuRegion& m_rgn, const std::string& tag)
         clear_fnr = bb::bind(&ClearDataWareTag, _1, tag.c_str());
 
     clear_fnr(m_rgn);
-    for( Comp::ListObj::Itr itr = m_rgn.List().begin(), end = m_rgn.List().end(); 
+    for( ListObj::Itr itr = m_rgn.List().begin(), end = m_rgn.List().end(); 
          itr != end; ++itr )
         clear_fnr(**itr);
 }

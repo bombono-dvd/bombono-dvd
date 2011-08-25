@@ -32,7 +32,9 @@
 //      break;
 //  }
 //
-fe::range<Comp::MediaObj*> SelectedMediaObjs();
+typedef fe::range<Comp::MediaObj*> MediaObjRange;
+MediaObjRange SelectedMediaObjs();
+Rect ConvexHull(const MediaObjRange& lst);
 
 
 #endif // __MGUI_EDITOR_FE_SELECT_H__
