@@ -39,6 +39,10 @@
 #include <mgui/sdk/widget.h>  // SetColor()
 #include <mgui/gettext.h>
 #include <mgui/dialog.h>
+#include <mgui/sdk/treemodel.h>
+#include <mgui/prefs.h>
+
+#include <mbase/resources.h> // DataDirPath()
 
 //typedef boost::function<bool(Comp::MediaObj*)> CMFunctor;
 //
@@ -666,10 +670,33 @@ static void OnBackSettingChanged()
     }
 }
 
+typedef Gtk::TreeModelColumn<std::string> StrColumn;
+
+struct IHSFields
+{
+    StrColumn  uriCln;
+
+    IHSFields(Gtk::TreeModelColumnRecord& rec)
+    {
+        rec.add(uriCln);
+    }
+};
+
+static StrColumn& UriColumn()
+{
+    return GetColumnFields<IHSFields>().uriCln;
+}
+
+static void OnIHSGo(Gtk::ComboBox& combo)
+{
+    std::string uri = combo.get_active()->get_value(UriColumn());
+    GoUrl(uri.c_str());
+}
+
 BackgroundDialog::BackgroundDialog(): 
     dlg(_("Background Settings")), userFocus(true)
 {
-    SetDialogStrict(dlg, 250, -1);
+    SetDialogStrict(dlg, 350, -1);
     DialogVBox& vbox = AddHIGedVBox(dlg);
     
     Gtk::ComboBoxText& st_cmb = styleCombo;
@@ -683,11 +710,52 @@ BackgroundDialog::BackgroundDialog():
     st_cmb.signal_changed().connect(&OnBackSettingChanged);
     clrBtn.signal_color_set().connect(&OnBackSettingChanged);
     
+    // * интеграция с сервисами картинок
+    StrColumn nam_cln;
+    Gtk::TreeModelColumnRecord& columns = GetColumnRecord<IHSFields>();
+    columns.add(nam_cln);
+    RefPtr<Gtk::ListStore> ihs_store = Gtk::ListStore::create(columns);
+    Gtk::ComboBox& combo = ihsCmb; //NewManaged<Gtk::ComboBox>(ihs_store);
+    combo.set_model(ihs_store);
+
+    // :TODO: refactor
+    io::stream strm(DataDirPath("ihslist.lst").c_str(), iof::in);
+    std::string line_str;
+    for( int i=0; std::getline(strm, line_str); i++ )
+    {
+        const char* name  = line_str.c_str();
+        const char* space = strchr(name, ' ');
+        std::string uri   = space ? std::string(name, space) : line_str ;
+        std::string title = std::string(space ? space+1 : name);
+
+        Gtk::TreeRow row = *ihs_store->append();
+        row[UriColumn()] = uri;
+        row[nam_cln] = title;
+        if( i == UnnamedPrefs().ihsNum )
+            combo.set_active(i);
+    }
+
+    Gtk::VBox& vb = PackStart(vbox, NewManaged<Gtk::VBox>());
+    PackStart(vb, LabelForWidget(SMCLN_("Go to online image service in web browser"), combo));
+    Gtk::HBox& hbox = PackStart(vb, NewManaged<Gtk::HBox>());
+    SetTip(hbox, _("You can drop background image you like from a web browser directly onto Menu Editor"));
+    combo.pack_start(nam_cln);
+    PackStart(hbox, combo, Gtk::PACK_EXPAND_WIDGET);
+    Gtk::Button& go_btn = *CreateButtonWithIcon("", Gtk::Stock::APPLY);
+    go_btn.set_focus_on_click(false);
+    go_btn.signal_clicked().connect(bb::bind(&OnIHSGo, b::ref(combo)));
+    PackStart(hbox, go_btn);
+
     // сам по умолчанию скрыт
     CompleteDialog(dlg, true);
     dlg.signal_response().connect(bb::bind(&OnResponse, b::ref(dlg), _1));
 }
-    
+
+BackgroundDialog::~BackgroundDialog()
+{
+    UnnamedPrefs().ihsNum = ihsCmb.get_active_row_number();
+}
+
 } // namespace Editor
 
 FrameThemeObj* ToRealFTOTransform(int i) 

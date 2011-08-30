@@ -64,5 +64,7 @@ bool CreateDirs(const fs::path& dir, std::string& err_str);
 bool CreateDirsQuiet(const fs::path& dir);
 std::string FormatFSError(const fs::filesystem_error& fe);
 
+const char* FindExtDot(const char* name);
+
 #endif // __MBASE_FILESYSTEM_H__
 

@@ -24,6 +24,7 @@
 #include "mgui_test.h"
 
 #include <mgui/project/dnd.h>
+
 #include <gtk/gtkdnd.h>
 
 namespace DND
@@ -158,4 +159,36 @@ void SetData(Gtk::SelectionData& selection_data, void* dat, int dat_sz)
 //     RunWindow(win);
 // }
 
+BOOST_AUTO_TEST_CASE( TestGIO )
+{
+    return;
+    InitGtkmm();
+    
+    //const char* dst_fname = "/home/ilya/opt/programming/atom-project/fbh_copy.png";
+    //
+    //RefPtr<Gio::File> src = Gio::File::create_for_uri("http://ftp.gnome.org/pub/GNOME/teams/art.gnome.org/backgrounds/ABSTRACT-Aurora_1280x1024.jpg");
+    //RefPtr<Gio::FileInfo> f_inf = src->query_info("*");
+    //if( f_inf )
+    //{
+    //    //io::cout << f_inf->get_file_type() << ", " << f_inf->get_content_type() << "}}}" << io::endl;
+    //    ;
+    //    for( char** it = g_file_info_list_attributes(f_inf->gobj(), 0); *it; it++ )
+    //    //boost_foreach( Glib::ustring attr, f_inf->list_attributes("") )
+    //        io::cout << *it << " = " << f_inf->get_attribute_as_string(*it) << io::endl;
+    //}
+    //else
+    //    io::cout << "no info!" << io::endl;
+    //
+    //return;
+    //
+    //
+    //src->copy(Gio::File::create_for_path(dst_fname));
+    //
+    //return;
+    
+    const char* uri_fname = "http://www.ubuntu.com/start-download?distro=desktop&bits=32&release=latest"; // "http://ftp.gnome.org/pub/GNOME/teams/art.gnome.org/backgrounds/ABSTRACT-Aurora_1280x1024.jpg";
+    //const char* uri_fname = "file:///home/ilya/opt/programming/atom-project/fbh.png";
+    
+    io::cout << "Destination path: " << Uri2LocalPath(uri_fname) << io::endl;
+}
 

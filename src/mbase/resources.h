@@ -30,6 +30,7 @@ const char* GetInstallPrefix();
 const std::string& GetDataDir();
 // ~/.config/bombono-dvd
 const std::string& GetConfigDir();
+const std::string& GetCacheDir();
 
 std::string DataDirPath(const std::string& fpath);
 

@@ -48,6 +48,11 @@ RGBA::Pixel ColorToPixel(const CR::Color& clr)
                        RGBA::Pixel::ToQuant(clr.b), RGBA::Pixel::ToQuant(clr.a));
 }
 
+void AddUriListTarget(std::list<Gtk::TargetEntry>& targets)
+{
+    targets.push_back(Gtk::TargetEntry(UriListDnDType()));
+}
+
 namespace Editor
 {
 
@@ -76,7 +81,8 @@ Kit::Kit(): standAlone(true)
 
     // * DnD, от браузеров
     std::list<Gtk::TargetEntry> targets;
-    targets.push_back( Project::MediaItemDnDTVTargetEntry() );
+    targets.push_back(Project::MediaItemDnDTVTargetEntry());
+    AddUriListTarget(targets);
     drag_dest_set(targets);
 }
 

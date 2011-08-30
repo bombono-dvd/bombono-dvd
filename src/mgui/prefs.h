@@ -88,6 +88,7 @@ struct UnnamedPreferences: public Singleton<UnnamedPreferences>
       int  srcBrw1Wdh; // ширина первого браузера (Media Browser, File Browser)
       int  srcBrw2Wdh;  // ширина Media Browser на Sources
     FCMap  fcMap; // последние открытые папки
+      int  ihsNum; // номер хостинга изображений в ihslist.lst
 
         UnnamedPreferences() { Init(); }
   void  Init();
@@ -113,6 +114,8 @@ struct RPData
 // чтение однострочных настроек с кэшированием
 bool ReadPref(const char* name, RPData& rp);
 bool PrefToBool(const std::string& str);
+
+void GoUrl(const gchar* url);
 
 #endif // #ifndef __MGUI_PREFS_H__
 

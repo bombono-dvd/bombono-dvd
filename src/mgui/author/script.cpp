@@ -87,7 +87,7 @@ int& GetAuthorNumber(VideoItem vi)
 
 int ForeachVideo(VideoFnr fnr)
 {
-    RefPtr<MediaStore> md_store = GetAStores().mdStore;
+    RefPtr<MediaStore> md_store = GetMediaStore();
     TSBegEnd medias_be          = BeginEnd(md_store);
     int i = 0;
     for( Gtk::TreeIter itr = medias_be.first; itr != medias_be.second; ++itr )

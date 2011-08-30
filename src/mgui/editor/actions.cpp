@@ -30,6 +30,7 @@
 #include <mgui/project/menu-actions.h>
 #include <mgui/project/dnd.h>
 #include <mgui/project/menu-render.h> // GetMenuRegion
+#include <mgui/project/add.h>  // TryAddMediaQuiet()
 
 #include <mbase/project/handler.h>
 
@@ -126,41 +127,84 @@ Rect RelPos(Comp::MediaObj& obj, const Planed::Transition& trans)
     return AbsToRel(trans, obj.Placement());
 }
 
+static bool IsBackgroundDrop(bool from_media_browser)
+{
+    return from_media_browser == IsControlPressed();
+}
+
+static void ApplyDrop(Project::MediaItem mi, const Point& loc, MEditorArea& edt_area,
+                      bool from_media_browser)
+{
+    if( IsBackgroundDrop(from_media_browser) )
+    {
+        if( !IsMenu(mi) )
+            SetBackgroundLink(mi); // меняем фон
+    }
+    else
+    {
+        int pos = GetObjectAtPos(edt_area, loc);
+        if( pos == -1 )
+        {
+            // добавляем новый 
+            const Planed::Transition tr = edt_area.Transition();
+            Editor::AddFTOItem(edt_area, DevToAbs(tr, loc), mi);
+        }
+        else
+        {
+            // меняем ссылку/постер
+            SetLinkForObject(edt_area, mi, pos, IsAltPressed());
+        }
+    }
+}
+
+std::string UriListDnDType()
+{
+    return "text/uri-list";
+}
+
 void Editor::Kit::on_drag_data_received(const RefPtr<Gdk::DragContext>& context, int x, int y, 
                                         const Gtk::SelectionData& selection_data, guint info, guint time)
 {
     CheckSelFormat(selection_data);
-    if(  selection_data.get_target() == Project::MediaItemDnDTVType() )
+    std::string target = selection_data.get_target();
+    Point lct(x, y);
+    if( target == Project::MediaItemDnDTVType() )
     {
         typedef Gtkmm2ext::SerializedObjectPointers<Project::MediaItem> SOPType;
         SOPType& dat = GetSOP<Project::MediaItem>(selection_data);
 
         if( dat.data.size() == 1 ) // только если выделен один объект
+            ApplyDrop(*dat.data.begin(), lct, *this, true);
+    }
+    else if( target == UriListDnDType() )
+    {
+        boost_foreach( const Glib::ustring& uri, selection_data.get_uris() )
         {
-            Project::MediaItem mi = *dat.data.begin();
-            if( IsControlPressed() )
+            std::string fpath = Uri2LocalPath(uri);
+            if( fpath.size() )
             {
-                if( !IsMenu(mi) )
-                    SetBackgroundLink(mi); // меняем фон
-            }
-            else
-            {
-                int pos = GetObjectAtPos(*this, Point(x, y));
-                if( pos == -1 )
+                Project::MediaItem mi = Project::CheckExists(fpath, Project::GetMediaStore());
+                if( !mi )
                 {
-                    // добавляем новый 
-                    const Planed::Transition tr = Transition();
-                    Editor::AddFTOItem(*this, DevToAbs(tr, Point(x, y)), mi);
+                    std::string err_str;
+                    Gtk::TreePath pth;
+                    mi = Project::TryAddMedia(fpath.c_str(), pth, err_str);
+                    if( !mi )
+                        Project::OneMediaError(fpath, err_str);
                 }
-                else
-                {
-                    // меняем ссылку/постер
-                    SetLinkForObject(*this, mi, pos, IsAltPressed());
-                }
+                
+                if( mi )
+                    ApplyDrop(mi, lct, *this, false);
             }
+            
+            // только один, первый
+            break;
         }
     }
-
+    
+    // :TODO: нужно?
+    //context->drag_finish(true, false, time);
+    
     return MyParent::on_drag_data_received(context, x, y, selection_data, info, time);
 }
 
@@ -340,7 +384,7 @@ bool Editor::Kit::on_drag_motion(const RefPtr<Gdk::DragContext>& context, int x,
 {
     // :TODO: исправить ошибку с вызовом Widget::drag_get_data()
     // и перенести код в Editor::Kit::on_drag_data_received()
-
+    
     Rect frame_rct = FramePlacement();
     if( !frame_rct.Contains(Point(x, y)) )
     {
@@ -351,8 +395,18 @@ bool Editor::Kit::on_drag_motion(const RefPtr<Gdk::DragContext>& context, int x,
         return false;
     }
 
+    // :TRICKY: из-за невозможности узнать содержимое на этом этапе (не умею/не знаю как)
+    // приходится определять источник таскания так
+    bool from_media_browser = false;
+    boost_foreach( const std::string& str, context->get_targets() )
+        if( str == Project::MediaItemDnDTVType() )
+        {
+            from_media_browser = true;
+            break;
+        }
+    
     Rect dnd_rct;
-    if( IsControlPressed() )
+    if( IsBackgroundDrop(from_media_browser) )
         dnd_rct = Rect0Sz(frame_rct.Size());
     else
     {

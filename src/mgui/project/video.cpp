@@ -46,7 +46,7 @@ bool IsTransVideo(VideoItem vi, bool require_vtc)
 template <class Filter>
 fe::range<VideoItem> FilteredVideos(Filter filter_fnr)
 {
-    RefPtr<MediaStore> md_store = GetAStores().mdStore;
+    RefPtr<MediaStore> md_store = GetMediaStore();
     return fe::make_any( md_store->children() | fe::transformed(ToVITransform) | fe::filtered(filter_fnr) );
 }
 

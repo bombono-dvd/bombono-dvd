@@ -231,9 +231,15 @@ void UnnamedPreferences::Init()
     srcBrw1Wdh = FCW_WDH;
     srcBrw2Wdh = BROWSER_WDH;
     fcMap.clear();
+    
+#ifdef _WIN32
+    ihsNum = 1; // Desktop Nexus
+#else
+    ihsNum = 0; // GNOME Backgrounds
+#endif
 }
 
-const int UNNAMED_PREFS_VERSION = 2;
+const int UNNAMED_PREFS_VERSION = 3;
 
 static void SerializeFC(Project::Archieve& ar, FCState& fc, std::string& name)
 {
@@ -272,6 +278,9 @@ void SerializeUnnamedPrefs(Project::Archieve& ar)
                 SerializeFC(ar, ref.second, name);
             }
     }
+
+    if( CanSrl(ar, 3) )
+        ar("ImageHostingNumber", up.ihsNum);
 }
 
 const char* UnnamedPrefsName = "unnamed_preferences.xml";

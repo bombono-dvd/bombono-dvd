@@ -53,6 +53,11 @@ inline Gtk::TargetEntry MediaItemDnDTVTargetEntry()
 
 }  // namespace Project
 
+std::string UriListDnDType();
+typedef Glib::StringArrayHandle URIList;
+
+void AddUriListTarget(std::list<Gtk::TargetEntry>& targets);
+
 //////////////////////////////////////////////////////////////////////////
 // DnD для URI
 
@@ -64,7 +69,7 @@ inline DnDTargetList& TextUriList()
     {
         // не нужен - похоже "text/uri-list" везде есть (и в Nautilus)
         //dropTargets.push_back (Gtk::TargetEntry ("text/plain"));
-        list.push_back (Gtk::TargetEntry ("text/uri-list"));
+        AddUriListTarget(list);
         // не нужен - это только для бросания на рабочий стол
         //dropTargets.push_back (Gtk::TargetEntry ("application/x-rootwin-drop"));
     }
@@ -81,6 +86,8 @@ inline void SetupURIDrop(Gtkmm2ext::DnDTreeViewBase& brw, const UriDropFunctor& 
     brw.add_drop_targets(TextUriList());
     ConnectOnDropUris(brw, fnr);
 }
+
+std::string Uri2LocalPath(const std::string& uri_fname);
 
 #endif // #ifndef __MGUI_PROJECT_DND_H__
 

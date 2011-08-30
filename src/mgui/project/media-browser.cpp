@@ -693,7 +693,7 @@ static void SetSubtitles(VideoItem vi, Gtk::Dialog& dlg)
     // при помощи enca надеемся на совпадение алиасов кодировок
     io::stream strm(DataDirPath("copy-n-paste/codepages.lst").c_str(), iof::in);
     std::string enc_str;
-    for( int i=0; std::getline(strm, enc_str), strm; i++ )
+    for( int i=0; std::getline(strm, enc_str); i++ )
     {
         enc_cmb.append_text(enc_str);
         if( dat.encoding == enc_str )

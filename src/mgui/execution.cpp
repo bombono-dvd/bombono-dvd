@@ -78,9 +78,14 @@ static bool PulseProgress(Gtk::ProgressBar& prg_bar)
     return true;
 }
 
+void ApplyPB(Pulse& pls, Gtk::ProgressBar& prg_bar)
+{
+    pls.tm.Connect(bb::bind(&PulseProgress, boost::ref(prg_bar)), 500); 
+}
+
 Pulse::Pulse(Gtk::ProgressBar& prg_bar) 
-{ 
-    tm.Connect(bb::bind(&PulseProgress, boost::ref(prg_bar)), 500); 
+{
+    ApplyPB(*this, prg_bar);
 }
 
 Pulse::~Pulse() 

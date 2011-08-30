@@ -40,7 +40,7 @@ std::string operator / (const path& f, to_string_enum /*to_str*/)
 
 } } // namepspace filesystem, boost
 
-static const char* FindExtDot(const char* name)
+const char* FindExtDot(const char* name)
 {
     return strrchr(name, '.');
 }

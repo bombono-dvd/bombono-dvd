@@ -26,13 +26,18 @@
 #include "dnd.h"
 #include "mconstructor.h" // GetAStores()
 
-#include <mbase/project/menu.h>
-#include <mbase/project/table.h>  // AData()
 #include <mgui/sdk/packing.h>
 #include <mgui/dialog.h>
 #include <mgui/key.h>
+#include <mgui/execution.h>
 #include <mgui/gettext.h>
+#include <mgui/prefs.h> // PreferencesPath()
 
+#include <mbase/resources.h>
+#include <mbase/project/menu.h>
+#include <mbase/project/table.h>  // AData()
+
+#include <mlib/read_stream.h>
 #include <mlib/sdk/logger.h>
 
 namespace Project
@@ -190,10 +195,15 @@ class RedrawThumbnailVis: public ObjVisitor
     virtual   void  Visit(VideoChapterMD&) { ASSERT(0); }
 };
 
+RefPtr<MediaStore> GetMediaStore()
+{
+    return GetAStores().mdStore;
+}
+
 void RedrawThumbnailVis::Visit(VideoMD& obj)
 {
     void FillThumbnail(RefPtr<MediaStore> ms, StorageItem si);
-    FillThumbnail(GetAStores().mdStore, &obj);
+    FillThumbnail(GetMediaStore(), &obj);
 }
 
 void RedrawThumbnailVis::Visit(MenuMD& obj)
@@ -374,13 +384,12 @@ struct UriDropFunctorImpl
         // попробовать convert_drop_to_paths() вместо get_uris()
         //
 
-        typedef Glib::StringArrayHandle URIList;
         URIList uris = data.get_uris();
         if( !uris.empty() )
         {
             StringList paths;
             for( URIList::iterator itr = uris.begin(), end = uris.end(); itr != end ; ++itr )
-                paths.push_back(Glib::filename_from_uri(*itr));
+                paths.push_back(Uri2LocalPath(*itr));
 
             //io::stream out_strm("../ttt", iof::out);
             //for( StringList::iterator itr = paths.begin(), end = paths.end(); itr != end; ++itr )
@@ -398,5 +407,294 @@ struct UriDropFunctorImpl
 void ConnectOnDropUris(Gtk::Widget& dnd_wdg, const UriDropFunctor& fnr)
 {
     dnd_wdg.signal_drag_data_received().connect(UriDropFunctorImpl(fnr));
+}
+
+// picture.jpg
+// picture#2.jpg
+// picture#3.jpg
+// ...
+static std::string CloneName(const std::string& basename, int i)
+{
+    std::string res;
+    if( i == 1 )
+        res = basename;
+    else
+    {
+        std::string suffix = "#" + Int2Str(i);
+        const char* name = basename.c_str();
+        const char* dot  = FindExtDot(name);
+        if( dot )
+            res = std::string(name, dot) + suffix + std::string(dot);
+        else
+            res = basename + suffix;
+    }
+    return res;
+}
+
+static char* CompareWithStream(char* buf, int sz, char* tmp_buf, io::stream& strm)
+{
+    int sz2 = strm.raw_read(tmp_buf, sz);
+
+    bool res = (sz == sz2) && memcmp(buf, tmp_buf, sz) == 0;
+    return res ? buf : 0 ;
+}
+
+// завершение асинхронной операции планировать невозможно, даже после ее отмены;
+// потому нужно хранить данные о ситуации в куче (во избежание порчи стека)
+struct IOJob
+{
+    // :TRICKY: часть данных используется только в одной из операций
+    RefPtr<Gio::File> obj; // copy_async: нужен для удаления результатов неудачной операции
+RefPtr<Gio::FileInfo> inf; // query_info_async
+                bool  copyRes; // copy_async
+                
+                bool  userAbort;
+                bool  exitDone;
+         std::string  errStr;
+    
+    IOJob(RefPtr<Gio::File> obj_): copyRes(true), exitDone(false), obj(obj_), userAbort(false) {}
+};
+
+typedef ptr::shared<IOJob> IOJobPtr;
+
+static void DoExit(IOJobPtr ij)
+{
+    bool& ed = ij->exitDone;
+    if( !ed )
+    {
+        ed = true;
+        Gtk::Main::quit();
+    }
+}
+
+static void SafeRemove(const std::string& fpath)
+{
+    try
+    {
+        fs::remove(fpath);
+    }
+    catch( const std::exception& )
+    {}
+}
+
+struct GErrorTwin
+{
+    GError* gErr;
+    
+    GErrorTwin(): gErr(0) {}
+   ~GErrorTwin()
+    {
+        if( gErr )
+            g_error_free(gErr);
+    }
+};
+
+GError* Ptr(GErrorTwin& gt) {  return gt.gErr; }
+GError** PP(GErrorTwin& gt) {  return &gt.gErr; }
+
+static void ExitJob(IOJobPtr ij, GErrorTwin& gt)
+{
+    if( Ptr(gt) )
+        ij->errStr = Ptr(gt)->message;
+    DoExit(ij);
+}
+
+static void OnAsyncCopyEnd(RefPtr<Gio::AsyncResult> ar, IOJobPtr ij)
+{
+    bool& res = ij->copyRes;
+    RefPtr<Gio::File> dst = ij->obj;
+    //// Gtkmm завел моду всегда кидать исключения в случае пользовательских проблем
+    //try
+    //{
+    //    res = dst->copy_finish(ar);
+    //}
+    //catch(const Glib::Error& err)
+    //{
+    //    res = false;
+    //}
+
+    // ar всегда GSimpleAsyncResult, потому любой GFile - для галочки
+    GErrorTwin gt;
+    res = g_file_copy_finish(dst->gobj(), Glib::unwrap(ar), PP(gt));
+    if( !res )
+        SafeRemove(dst->get_path());
+
+    ExitJob(ij, gt);
+}
+
+static void OnAsyncQueryInfoEnd(RefPtr<Gio::AsyncResult> ar, IOJobPtr ij)
+{
+    GErrorTwin gt;
+    ij->inf = Glib::wrap(g_file_query_info_finish(ij->obj->gobj(), Glib::unwrap(ar), PP(gt)));
+
+    ExitJob(ij, gt);
+}
+
+static void OnCancelDownload(IOJobPtr ij, RefPtr<Gio::Cancellable> cancellable)
+{
+    ij->userAbort = true;
+    cancellable->cancel();
+    DoExit(ij);
+}
+
+static std::string gcharToStr(gchar* buf)
+{
+    std::string res(buf ? buf : "");
+    g_free(buf);
+    return res;
+}
+
+struct AsyncRunner
+{
+               IOJobPtr  ij;
+ptr::shared<Gtk::Dialog> dlg;               
+RefPtr<Gio::Cancellable> cancellable;
+       Execution::Pulse  pls;
+    
+    AsyncRunner(const std::string& addr, IOJobPtr ij_);    
+   ~AsyncRunner();    
+};
+
+AsyncRunner::AsyncRunner(const std::string& addr, IOJobPtr ij_)
+    : ij(ij_)
+{
+    std::string dlg_title = BF_("Getting \"%1%\"") % addr % bf::stop;
+    dlg = MakeDialog(dlg_title.c_str(), 400, -1, 0);
+
+    Gtk::ProgressBar& prg_bar = NewManaged<Gtk::ProgressBar>();
+    Gtk::VBox& box = *dlg->get_vbox();
+    PackStart(box, prg_bar);
+
+    cancellable = Gio::Cancellable::create();
+    dlg->add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+    dlg->signal_response().connect(bb::bind(&OnCancelDownload, ij, cancellable));
+
+    // :TODO: можно отложить показ диалога на N(=5) секунд, если все происходит быстро
+    dlg->show_all();
+
+    Execution::ApplyPB(pls, prg_bar);
+}
+
+AsyncRunner::~AsyncRunner()
+{
+    Gtk::Main::run();
+}
+
+static IOJobPtr CreateIOJob(RefPtr<Gio::File> obj)
+{
+    return new IOJob(obj);
+}
+
+std::string Uri2LocalPath(const std::string& uri_fname)
+{
+    //std::string fpath;
+    //bool is_local = true;
+    //try
+    //{
+    //    fpath = Glib::filename_from_uri(uri_fname);
+    //}
+    //catch(const Glib::Error& err)
+    //{
+    //    is_local = false;
+    //}
+    
+    GErrorTwin gt;
+    std::string fpath = gcharToStr(g_filename_from_uri(uri_fname.c_str(), 0, PP(gt)));
+    bool is_local = !Ptr(gt);
+
+    if( !is_local )
+    {
+        std::string basename;
+        RefPtr<Gio::File> src = Gio::File::create_for_uri(uri_fname);
+        
+        bool is_qi_ok = false;
+        {
+            IOJobPtr ij = CreateIOJob(src);
+            {
+                AsyncRunner ar(uri_fname, ij);
+                src->query_info_async(bb::bind(&OnAsyncQueryInfoEnd, _1, ij), ar.cancellable,
+                                      G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME);
+            }
+                
+            RefPtr<Gio::FileInfo>& inf = ij->inf;
+            if( ij->userAbort )
+                ;
+            else if( inf )
+            {    
+                basename = inf->get_display_name();
+                if( basename.size() )
+                    is_qi_ok = true;
+                else
+                    ErrorBox(boost::format("Empty display_name for \"%1%\"") % uri_fname % bf::stop);
+            }
+            else
+                ErrorBox(BF_("Can't get information about \"%1%\": %2%") % uri_fname % ij->errStr % bf::stop);
+            
+        }
+        
+        if( is_qi_ok )
+        {
+            ASSERT( basename.size() );
+            const std::string& cache_dir = GetCacheDir();
+            std::string tmp_path;
+            for( int i=1; ; i++ )
+            {
+                fs::path tmp = fs::path(cache_dir) / CloneName(basename, i);
+                if( !fs::exists(tmp) )
+                {
+                    tmp_path = tmp.string();
+                    break;
+                }
+            }
+            ASSERT( tmp_path.size() );
+
+            RefPtr<Gio::File> dst = Gio::File::create_for_path(tmp_path);
+            IOJobPtr ij = CreateIOJob(dst);
+            {
+                AsyncRunner ar(uri_fname, ij);
+                // :TODO: показывать скорость, кол-во сделанного, куда и т.д.
+                src->copy_async(dst, bb::bind(&OnAsyncCopyEnd, _1, ij), ar.cancellable);
+            }
+
+            if( ij->userAbort )
+                ;
+            else if( ij->copyRes )
+            {
+                std::string content_dir = PreferencesPath("content");
+                CreateDirsQuiet(content_dir);
+                // ищем подходящий путь для хранения
+                for( int i=1; ; i++ )
+                {
+                    fs::path pth = fs::path(content_dir) / CloneName(basename, i);
+                    fpath = pth.string();
+                    if( !fs::exists(pth) )
+                    {
+                        fs::rename(tmp_path, fpath);
+                        break;
+                    }
+                    else
+                    {
+                        io::stream strm(fpath.c_str());
+                        io::stream tmp_strm(tmp_path.c_str());
+
+                        // сравниваем по содержимому
+                        if( StreamSize(strm) == StreamSize(tmp_strm) )
+                        {
+                            char tmp_buf[STRM_BUF_SZ];
+                            bool is_break = ReadAllStream(bb::bind(&CompareWithStream, _1, _2, tmp_buf, b::ref(tmp_strm)), strm);
+                            if( !is_break )
+                            {
+                                SafeRemove(tmp_path);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+                ErrorBox(BF_("Can't get \"%1%\": %2%") % uri_fname % ij->errStr % bf::stop);
+        }
+    }
+    return fpath;
 }
 

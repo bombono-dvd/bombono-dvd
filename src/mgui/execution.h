@@ -45,15 +45,16 @@ ActionFunctor  stopFnr;   // альтернатива pid
       void  StopExecution(const std::string& what);
 };
 
-class Pulse
+struct Pulse
 {
-    public:
+    Timer tm;
+    
+    Pulse() {}
     Pulse(Gtk::ProgressBar& prg_bar);
    ~Pulse();
-
-    protected:
-    Timer tm;
 };
+
+void ApplyPB(Pulse& pls, Gtk::ProgressBar& prg_bar);
 
 void SimpleSpawn(const char *commandline, const char* dir = 0);
 void Stop(GPid& pid);

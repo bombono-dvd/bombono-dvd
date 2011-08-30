@@ -108,6 +108,8 @@ void AppendRenameAction(Gtk::Menu& mn, ObjectBrowser& brw);
 // приводит к конфликтам с DnD)
 Gtk::CellRendererText& MakeNameRenderer();
 
+RefPtr<MediaStore> GetMediaStore();
+
 } // namespace Project
 
 #endif // #ifndef __MGUI_PROJECT_MEDIA_BROWSER_H__

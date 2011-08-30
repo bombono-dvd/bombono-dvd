@@ -379,23 +379,22 @@ StorageItem CreateMedia(const char* fname, std::string& err_string)
 
 // pth - куда вставлять; по выходу pth равен позиции вставленного
 // insert_after - вставить после pth, по возможности
-bool TryAddMedia(const char* fname, Gtk::TreePath& pth, std::string& err_str, 
-                 bool insert_after = true)
+StorageItem TryAddMedia(const char* fname, Gtk::TreePath& pth, std::string& err_str, 
+                        bool insert_after)
 {
-    bool res = false;
-    if( StorageItem md = CreateMedia(fname, err_str) )
+    StorageItem md;
+    if( md = CreateMedia(fname, err_str) )
     {
-        res = true;
         LOG_INF << "Insert Media!" << io::endl;
 
-        RefPtr<MediaStore> ms = GetAStores().mdStore;
+        RefPtr<MediaStore> ms = GetMediaStore();
         Gtk::TreeIter itr = InsertByPos(ms, pth, insert_after);
         PublishMedia(itr, ms, md);
         InvokeOnInsert(md);
 
         pth = ms->get_path(itr);
     }
-    return res;
+    return md;
 }
 
 // desc - метка происхождения, добавления
@@ -403,7 +402,8 @@ void TryAddMediaQuiet(const std::string& fname, const std::string& desc)
 {
     std::string err_str;
     Gtk::TreePath pth;
-    if( !TryAddMedia(fname.c_str(), pth, err_str) )
+    bool res = TryAddMedia(fname.c_str(), pth, err_str);
+    if( !res )
     {    
         LOG_ERR << "TryAddMediaQuiet error (" << desc << "): " << err_str << io::endl;
     }
@@ -426,6 +426,27 @@ static void AddMediaError(const std::string& msg_str, const std::string& desc_st
 #else
     MessageBox(msg_str, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, desc_str);
 #endif
+}
+
+StorageItem CheckExists(const fs::path& pth, RefPtr<MediaStore> ms)
+{
+    StorageItem res;
+    for( MediaStore::iterator itr = ms->children().begin(), end = ms->children().end();
+         itr != end; ++itr )
+    {
+        StorageItem si = GetAsStorage(ms->GetMedia(itr));
+        if( fs::equivalent(pth, si->GetPath()) )
+        {
+            res = si;
+            break;
+        }
+    }
+    return res;
+}
+
+void OneMediaError(const fs::path& err_pth, const std::string& desc)
+{
+    AddMediaError(BF_("Can't add file \"%1%\".") % err_pth.leaf() % bf::stop, desc);
 }
 
 void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
@@ -481,23 +502,28 @@ void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
         std::string ConvertPathToUtf8(const std::string& path);
         fs::path pth = ConvertPathToUtf8(fpath);
 
-        bool is_exist = false;
         // * проверяем, есть ли такой уже
-        RefPtr<MediaStore> ms = brw.GetMediaStore();
-        for( MediaStore::iterator itr = ms->children().begin(), end = ms->children().end();
-             itr != end; ++itr )
+        //bool is_exist = false;
+        //RefPtr<MediaStore> ms = brw.GetMediaStore();
+        //for( MediaStore::iterator itr = ms->children().begin(), end = ms->children().end();
+        //     itr != end; ++itr )
+        //{
+        //    StorageItem si = GetAsStorage(ms->GetMedia(itr));
+        //    if( fs::equivalent(pth, si->GetPath()) )
+        //    {
+        //        // только переходим к нему
+        //        brw.get_selection()->select(GetBrowserPath(si));
+        //        is_exist = true;
+        //        break;
+        //    }
+        //}
+        //if( is_exist )
+        //    continue;
+        if( StorageItem si = CheckExists(pth, brw.GetMediaStore()) )
         {
-            StorageItem si = GetAsStorage(ms->GetMedia(itr));
-            if( fs::equivalent(pth, si->GetPath()) )
-            {
-                // только переходим к нему
-                brw.get_selection()->select(GetBrowserPath(si));
-                is_exist = true;
-                break;
-            }
-        }
-        if( is_exist )
+            brw.get_selection()->select(GetBrowserPath(si));
             continue;
+        }
 
         bool res = TryAddMedia(fpath.c_str(), brw_pth, err_str, insert_after);
         if( res )
@@ -549,7 +575,7 @@ void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
         // кол-во заполнителей 
         //boost::format frmt(ngettext("Can't add file \"%1%\".", "Can't add files:", err_cnt));
         if( one_error )
-            AddMediaError(BF_("Can't add file \"%1%\".") % err_pth.leaf() % bf::stop, desc);
+            OneMediaError(err_pth, desc);
         else
             AddMediaError(_("Can't add files:"), desc);
     }

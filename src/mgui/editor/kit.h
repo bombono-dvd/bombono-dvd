@@ -73,8 +73,10 @@ struct BackgroundDialog
                  
     Gtk::ComboBoxText  styleCombo;
      Gtk::ColorButton  clrBtn;
-    
+        Gtk::ComboBox  ihsCmb;
+
     BackgroundDialog();
+   ~BackgroundDialog();
 };
 
 // редактор меню с панелью инструментов и прочим

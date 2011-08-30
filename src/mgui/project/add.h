@@ -24,16 +24,22 @@
 
 #include "media-browser.h"
 
+#include <mlib/filesystem.h>
 #include <mlib/string.h>
 
 namespace Project
 {
-
+StorageItem TryAddMedia(const char* fname, Gtk::TreePath& pth, std::string& err_str, 
+                 bool insert_after = true);
+StorageItem CheckExists(const fs::path& pth, RefPtr<MediaStore> ms);
+    
 // интерактивный вариант TryAddMedia()
 void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
                   Gtk::TreePath& brw_pth, bool insert_after);
 // desc - метка происхождения, добавления
 void TryAddMediaQuiet(const std::string& fname, const std::string& desc);
+
+void OneMediaError(const fs::path& err_pth, const std::string& desc);
 
 // заполнить медиа в браузере
 void PublishMedia(const Gtk::TreeIter& itr, RefPtr<MediaStore> ms, MediaItem mi);

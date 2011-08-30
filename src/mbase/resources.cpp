@@ -64,17 +64,28 @@ bool CreateDirsQuiet(const fs::path& dir)
     return res;
 }
 
+static std::string CreateBmdDir(const std::string& base_path)
+{
+    fs::path dir = fs::path(base_path) / "bombono-dvd";
+    CreateDirsQuiet(dir);
+
+    return dir.string();
+}
+
 const std::string& GetConfigDir()
 {
     static std::string cfg_dir;
     if( cfg_dir.empty() )
-    {
-        fs::path dir = fs::path(Glib::get_user_config_dir()) / "bombono-dvd";
-        CreateDirsQuiet(dir);
-
-        cfg_dir = dir.string();
-    }
+        cfg_dir = CreateBmdDir(Glib::get_user_config_dir());
     return cfg_dir;
+}
+
+const std::string& GetCacheDir()
+{
+    static std::string cache_dir;
+    if( cache_dir.empty() )
+        cache_dir = CreateBmdDir(Glib::get_user_cache_dir());
+    return cache_dir;
 }
 
 std::string DataDirPath(const std::string& fpath)

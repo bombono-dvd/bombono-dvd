@@ -385,7 +385,7 @@ void AddSrcDirs(Str::List& dirs, const char* dname)
     // директории по умолчанию
     std::string user_frames = fs::path(GetConfigDir()) / dname / fs::to_str;
     if( CreateDirsQuiet(user_frames) )
-	dirs.push_back(user_frames);
+        dirs.push_back(user_frames);
 
     dirs.push_back(DataDirPath(dname));
 }
