@@ -630,7 +630,8 @@ void UpdateDVDSize()
 
         if( sz > typ_sz )
             sz_str = "<span color=\"red\">" + sz_str + "</span>";
-        sz_str += " of ";
+        // for translators: 100MB of 4.3GB
+        sz_str += std::string(" ") + _("of") + " ";
     }
     Application().SB().szLbl.set_markup(sz_str);
 }
