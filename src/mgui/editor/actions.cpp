@@ -180,7 +180,8 @@ void Editor::Kit::on_drag_data_received(const RefPtr<Gdk::DragContext>& context,
     {
         boost_foreach( const Glib::ustring& uri, selection_data.get_uris() )
         {
-            std::string fpath = Uri2LocalPath(uri);
+            bool is_new;
+            std::string fpath = Uri2LocalPath(uri, is_new);
             if( fpath.size() )
             {
                 Project::MediaItem mi = Project::CheckExists(fpath, Project::GetMediaStore());
@@ -190,7 +191,10 @@ void Editor::Kit::on_drag_data_received(const RefPtr<Gdk::DragContext>& context,
                     Gtk::TreePath pth;
                     mi = Project::TryAddMedia(fpath.c_str(), pth, err_str);
                     if( !mi )
+                    {    
                         Project::OneMediaError(fpath, err_str);
+                        SafeRemove(fpath);
+                    }
                 }
                 
                 if( mi )

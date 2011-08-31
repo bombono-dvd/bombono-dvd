@@ -112,5 +112,7 @@ RefPtr<MediaStore> GetMediaStore();
 
 } // namespace Project
 
+void SafeRemove(const std::string& fpath);
+
 #endif // #ifndef __MGUI_PROJECT_MEDIA_BROWSER_H__
 

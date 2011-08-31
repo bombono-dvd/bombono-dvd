@@ -388,8 +388,9 @@ struct UriDropFunctorImpl
         if( !uris.empty() )
         {
             StringList paths;
+            bool is_new;
             for( URIList::iterator itr = uris.begin(), end = uris.end(); itr != end ; ++itr )
-                paths.push_back(Uri2LocalPath(*itr));
+                paths.push_back(Uri2LocalPath(*itr, is_new));
 
             //io::stream out_strm("../ttt", iof::out);
             //for( StringList::iterator itr = paths.begin(), end = paths.end(); itr != end; ++itr )
@@ -467,7 +468,7 @@ static void DoExit(IOJobPtr ij)
     }
 }
 
-static void SafeRemove(const std::string& fpath)
+void SafeRemove(const std::string& fpath)
 {
     try
     {
@@ -585,8 +586,9 @@ static IOJobPtr CreateIOJob(RefPtr<Gio::File> obj)
     return new IOJob(obj);
 }
 
-std::string Uri2LocalPath(const std::string& uri_fname)
+std::string Uri2LocalPath(const std::string& uri_fname, bool& is_new)
 {
+    is_new = false;
     //std::string fpath;
     //bool is_local = true;
     //try
@@ -670,6 +672,7 @@ std::string Uri2LocalPath(const std::string& uri_fname)
                     if( !fs::exists(pth) )
                     {
                         fs::rename(tmp_path, fpath);
+                        is_new = true;
                         break;
                     }
                     else

@@ -87,7 +87,7 @@ inline void SetupURIDrop(Gtkmm2ext::DnDTreeViewBase& brw, const UriDropFunctor& 
     ConnectOnDropUris(brw, fnr);
 }
 
-std::string Uri2LocalPath(const std::string& uri_fname);
+std::string Uri2LocalPath(const std::string& uri_fname, bool& is_new);
 
 #endif // #ifndef __MGUI_PROJECT_DND_H__
 
