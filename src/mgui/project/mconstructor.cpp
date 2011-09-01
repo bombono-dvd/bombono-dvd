@@ -652,6 +652,12 @@ void MuxAddStreams(const std::string& src_fname)
 
 //////////////////////////////////////////////////
 
+static void OnMenuSR(Gtk::Requisition* req)
+{
+    if( req->width )
+        req->width += 30;
+}
+
 ConstructorApp::ConstructorApp(): askSaveOnExit(true), isProjectChanged(false)
 {
     Add(win, vBox);
@@ -732,9 +738,17 @@ ConstructorApp::ConstructorApp(): askSaveOnExit(true), isProjectChanged(false)
         }
 
         // разведем меню и закладки на небольшое расстояние
-        main_bar.show_all();
-        Gtk::Requisition req = main_bar.size_request();
-        main_bar.set_size_request(req.width+30, req.height);
+        //main_bar.show_all();
+        //Gtk::Requisition req = main_bar.size_request();
+        //main_bar.set_size_request(req.width+30, req.height);
+        // 02.09.2011:
+        // - с проявлением активности Ubuntu в области глобального меню пришлось
+        //   по-другому увеличивать размер меню (более простой способ - добавить
+        //   например, пустое меню, но граница между ними будет видна для некоторых тем);
+        // - вообще, глобальное меню (апплет "Indicator Applet AppMenu") реализовано за счет сокрытия 
+        //   первого локального GtkMenuBar, причем информация о изменении статуса локального приходит 
+        //   через DBus; поэтому заранее про размер не рассчитать (ворачивается 0)
+        main_bar.signal_size_request().connect(&OnMenuSR);
 
         // *
         // Высота вкладок (по крайней мере в Clearlooks) чуть больше, чем у меню (Menubar);
