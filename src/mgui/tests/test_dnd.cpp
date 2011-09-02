@@ -189,6 +189,7 @@ BOOST_AUTO_TEST_CASE( TestGIO )
     const char* uri_fname = "http://www.ubuntu.com/start-download?distro=desktop&bits=32&release=latest"; // "http://ftp.gnome.org/pub/GNOME/teams/art.gnome.org/backgrounds/ABSTRACT-Aurora_1280x1024.jpg";
     //const char* uri_fname = "file:///home/ilya/opt/programming/atom-project/fbh.png";
     
-    io::cout << "Destination path: " << Uri2LocalPath(uri_fname) << io::endl;
+    bool is_new;    
+    io::cout << "Destination path: " << Uri2LocalPath(uri_fname, is_new) << io::endl;
 }
 

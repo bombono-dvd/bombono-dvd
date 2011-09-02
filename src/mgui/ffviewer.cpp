@@ -325,10 +325,16 @@ bool OpenInfo(FFData& ffi, const char* fname, std::string& err_str)
             // показывается не HIG-ого)
             err_str = _("No such file");
             break;
-        case AVERROR_NOFMT:
+        case AVERROR_NOFMT: // использовалось до 0.6, заменено на AVERROR_INVALIDDATA
+        // основной источник ошибок, ffmpeg'у предлагается открыть явно не видео (вроде текста),
+        // см. код ff_probe_input_buffer()
+        // :TODO: однако данный код выбрасывается ffmpeg'ом еще в куче мест; если будет
+        // прецендент, когда эта ошибка выбросится не ff_probe_input_buffer() и дезориентирует
+        // пользователя, то стоит добавить дополнительную проверку явным вызовом
+        // той самой ff_probe_input_buffer()
+        case AVERROR_INVALIDDATA:
             err_str = _("Unknown file format");
             break;
-        case AVERROR_UNKNOWN:
         default:
             err_str = boost::format("FFmpeg unknown error: %1%") % av_res % bf::stop;
             break;
