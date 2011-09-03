@@ -713,7 +713,12 @@ static void SetSubtitles(VideoItem vi, Gtk::Dialog& dlg)
 
     DialogVBox& vbox = AddHIGedVBox(dlg);
     SetFilename(s_btn, dat.pth);
-    AppendWithLabel(vbox, s_btn, SMCLN_("Select subtitles"));
+    Gtk::HBox& hbox = PackCompositeWdg(s_btn);
+    // CANCEL DELETE DISCARD NO REMOVE STOP CLEAR CLOSE
+    // по поводу очистки GtkFileChooserButton: https://bugzilla.gnome.org/show_bug.cgi?id=612235
+    PackCompositeWdgButton(hbox, Gtk::Stock::CLEAR, bb::bind(&Gtk::FileChooser::unselect_all, &s_btn), _("Unselect subtitles"));
+    AppendWithLabel(vbox, hbox, SMCLN_("Select subtitles"));
+
     ds_btn.set_active(dat.defShow);
     PackStart(vbox, ds_btn);
     // взято у DeVeDe с минимальными изменениями

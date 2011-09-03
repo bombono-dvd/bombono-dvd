@@ -100,5 +100,10 @@ Gtk::VBox& PackParaBox(Gtk::VBox& vbox, const char* name);
 
 bool SetFilename(Gtk::FileChooser& fc, const std::string& fpath);
 
+Gtk::HBox& PackCompositeWdg(Gtk::Widget& wdg);
+
+void PackCompositeWdgButton(Gtk::HBox& hbox, const Gtk::BuiltinStockID& stock_id,
+                            const ActionFunctor& fnr, const char* tooltip = "");
+
 #endif // #ifndef __MGUI_SDK_WIDGET_H__
 

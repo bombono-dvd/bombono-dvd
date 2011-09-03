@@ -737,14 +737,11 @@ BackgroundDialog::BackgroundDialog():
 
     Gtk::VBox& vb = PackStart(vbox, NewManaged<Gtk::VBox>());
     PackStart(vb, LabelForWidget(SMCLN_("Go to online image service in web browser"), combo));
-    Gtk::HBox& hbox = PackStart(vb, NewManaged<Gtk::HBox>());
+    Gtk::HBox& hbox = PackCompositeWdg(combo);
     SetTip(hbox, _("You can drop background image you like from a web browser directly onto Menu Editor"));
     combo.pack_start(nam_cln);
-    PackStart(hbox, combo, Gtk::PACK_EXPAND_WIDGET);
-    Gtk::Button& go_btn = *CreateButtonWithIcon("", Gtk::Stock::APPLY);
-    go_btn.set_focus_on_click(false);
-    go_btn.signal_clicked().connect(bb::bind(&OnIHSGo, b::ref(combo)));
-    PackStart(hbox, go_btn);
+    PackCompositeWdgButton(hbox, Gtk::Stock::APPLY, bb::bind(&OnIHSGo, b::ref(combo)));
+    PackStart(vb, hbox);
 
     // сам по умолчанию скрыт
     CompleteDialog(dlg, true);

@@ -256,15 +256,24 @@ void SetTip(Gtk::Widget& wdg, const char* tooltip)
 Gtk::Button* CreateButtonWithIcon(const char* label, const Gtk::BuiltinStockID& stock_id,
                                   const char* tooltip, Gtk::BuiltinIconSize icon_sz)
 {
-    Gtk::Button& btn = NewManaged<Gtk::Button>(label);
     Gtk::Image& img  = NewManaged<Gtk::Image>(stock_id, icon_sz);
-    btn.set_image(img);
-    // убираем влияние настройки gtk-button-images после включения в кнопку
-    //img.set_visible();
-    img.property_visible() = true;
+    Gtk::Button* btn = 0;
+    if( label && *label )
+    {
+        btn = &NewManaged<Gtk::Button>(label);
+        btn->set_image(img);
+        // убираем влияние настройки gtk-button-images после включения в кнопку
+        //img.set_visible();
+        img.property_visible() = true;
+    }
+    else
+    {
+        btn = &NewManaged<Gtk::Button>();
+        btn->add(img);
+    }
 
-    SetTip(btn, tooltip);
-    return &btn;
+    SetTip(*btn, tooltip);
+    return btn;
 }
 
 void AddCancelDoButtons(Gtk::Dialog& dialog, Gtk::BuiltinStockID do_id)

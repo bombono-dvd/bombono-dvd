@@ -25,6 +25,7 @@
 #include "packing.h"
 
 #include <mgui/img_utils.h>
+#include <mgui/win_utils.h> // CreateButtonWithIcon()
 
 void SetScaleSecondary(Gtk::HScale& scl)
 {
@@ -107,4 +108,20 @@ bool SetFilename(Gtk::FileChooser& fc, const std::string& fpath)
 
     return not_empty;
 }
+
+Gtk::HBox& PackCompositeWdg(Gtk::Widget& wdg)
+{
+    Gtk::HBox& hbox = NewManaged<Gtk::HBox>();
+    PackStart(hbox, wdg, Gtk::PACK_EXPAND_WIDGET);
+    return hbox;
+}
+
+void PackCompositeWdgButton(Gtk::HBox& hbox, const Gtk::BuiltinStockID& stock_id,
+                            const ActionFunctor& fnr, const char* tooltip)
+{
+    Gtk::Button& btn = PackStart(hbox, *CreateButtonWithIcon("", stock_id, tooltip));
+    btn.set_focus_on_click(false);
+    btn.signal_clicked().connect(fnr);
+}
+
 
