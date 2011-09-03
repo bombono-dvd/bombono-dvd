@@ -65,7 +65,7 @@ struct poly_iterator_instance {
             { }
 
         R dereference() const
-            { return *this->interface_ref().get(); }
+            { return *this->get(); }
 
         void increment()
             { ++this->get(); }

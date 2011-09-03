@@ -95,17 +95,13 @@ MediaItem GetCurMedia(ObjectBrowser& brw);
 Gtk::TreeIter InsertByPos(RefPtr<ObjectStore> ms, const Gtk::TreePath& pth, bool after = true);
 void GoToPos(ObjectBrowser& brw, const Gtk::TreePath& pth);
 
-// :KLUDGE: получить отмеченный элемент
-// (только в случае режима одиночного выделения)
+// получить отмеченный элемент (в случае множественного выделения - первый)
 // для получения позиции курсора использовать get_cursor()/GetCursor()
-inline Gtk::TreeIter GetSelectPos(Gtk::TreeView& tv)
-{
-    return tv.get_selection()->get_selected();
-}
+Gtk::TreeIter GetSelectPos(Gtk::TreeView& tv);
 
 Gtk::HButtonBox& CreateMListButtonBox();
 // dnd_column - где MediaItem лежит, который нужно dnd-ить
-void SetupBrowser(ObjectBrowser& brw, int dnd_column, bool need_headers = false);
+void SetupBrowser(ObjectBrowser& brw, int dnd_column, bool is_media_brw);
 
 // отрисовка
 typedef boost::function<std::string(MediaItem)> RFFunctor;

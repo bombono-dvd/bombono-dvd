@@ -302,6 +302,23 @@ void GoToPos(ObjectBrowser& brw, const Gtk::TreePath& pth)
     brw.grab_focus();
 }
 
+Gtk::TreeIter GetSelectPos(Gtk::TreeView& tv)
+{
+    RefPtr<Gtk::TreeSelection> sel = tv.get_selection();
+    Gtk::TreeIter res;
+    if( sel->get_mode() == Gtk::SELECTION_MULTIPLE )
+    {
+        boost_foreach( const Gtk::TreePath& pth, sel->get_selected_rows() )
+        {
+            res = tv.get_model()->get_iter(pth);
+            break;
+        }
+    }
+    else
+        res = sel->get_selected();
+    return res;
+}
+
 Gtk::HButtonBox& CreateMListButtonBox()
 {
     Gtk::HButtonBox& hb = *Gtk::manage(new Gtk::HButtonBox(Gtk::BUTTONBOX_START, 2));
@@ -313,12 +330,12 @@ Gtk::HButtonBox& CreateMListButtonBox()
 
 std::string MediaItemDnDTVType() { return "DnDTreeView<"DND_MI_NAME">"; }
 
-void SetupBrowser(ObjectBrowser& brw, int dnd_column, bool need_headers)
+void SetupBrowser(ObjectBrowser& brw, int dnd_column, bool is_media_brw)
 {
     // если хотим "полосатый" браузер
     //brw.set_rules_hint();
-    brw.set_headers_visible(need_headers);
-    brw.get_selection()->set_mode(Gtk::SELECTION_BROWSE);
+    brw.set_headers_visible(is_media_brw);
+    brw.get_selection()->set_mode(is_media_brw ? Gtk::SELECTION_MULTIPLE : Gtk::SELECTION_BROWSE);
 
     // * DND
     //brw.set_reorderable(true); // не нужно, для DndTreeView автоматом включено

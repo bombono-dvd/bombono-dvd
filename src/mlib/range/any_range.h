@@ -36,9 +36,11 @@ template <class Reference>
 struct traits
 {
     typedef typename boost::remove_reference<Reference>::type Value;
-    // in practice, only bidirectional one is needed
 #ifdef ADOBE_AIT
-    typedef adobe::bidirectional_iter<Value, Reference> iterator;
+    // на практике достаточно одного forward_iterator
+    // :TRICKY: из-за AllSelected()/Glib::ListHandle нельзя использовать bidirectional_iter,-
+    // ругается на отсутствие decrement()
+    typedef adobe::iter<Value, Reference> iterator;
 #else
     typedef IteratorTypeErasure::any_iterator<Value, boost::bidirectional_traversal_tag, Reference> iterator;
 #endif

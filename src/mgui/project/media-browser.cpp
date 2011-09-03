@@ -414,7 +414,25 @@ static void SetTransData(VideoItem vi, DVDDims dd, int vrate)
     td.vRate = vrate;
 }
 
-static void RunBitrateCalc(VideoItem vi, Gtk::Dialog& dlg)
+// :TODO: использовать fe::range<> нельзя, потому что он не хранит копию временного ListHandle_Path,
+// а только его итераторы (которые по выходу из функции становятся недействительными)
+Gtk::TreeSelection::ListHandle_Path AllSelected(Gtk::TreeView& brw)
+{
+    return brw.get_selection()->get_selected_rows();
+}
+
+std::string& CustomFFOpts(VideoItem vi)
+{
+    return vi->transDat.ctmFFOpt;
+}
+
+static void UpdateTransSettings(VideoItem vi, BitrateControls& bc, const std::string& ctm_ff_opt)
+{
+    SetTransData(vi, Dimensions(bc), bc.vRate.get_value());
+    CustomFFOpts(vi) = ctm_ff_opt;
+}
+
+static void RunBitrateCalc(VideoItem vi, Gtk::Dialog& dlg, ObjectBrowser& brw)
 {
     dlg.set_title(boost::format("%1% (%2%)") % _("Bitrate Calculator") % vi->mdName % bf::stop);
 
@@ -481,7 +499,7 @@ static void RunBitrateCalc(VideoItem vi, Gtk::Dialog& dlg)
         AppendNamedValue(info_box, sg, SMCLN_("File size"), ShortSizeString(PhisSize(fname.c_str())));
     }
     
-    std::string& ctm_ff_opt = vi->transDat.ctmFFOpt;
+    std::string ctm_ff_opt = CustomFFOpts(vi);
     Gtk::Expander& expdr = NewManaged<Gtk::Expander>(_("Custom _ffmpeg options"), true);
     expdr.set_expanded(ctm_ff_opt.size());
     SetTip(expdr, _("Examples: \"-top 0\", \"-deinterlace\". See FFmpeg documentation for more options."));
@@ -497,8 +515,18 @@ static void RunBitrateCalc(VideoItem vi, Gtk::Dialog& dlg)
 
     if( CompleteAndRunOk(dlg) )
     {
-        SetTransData(vi, Dimensions(bc), bc.vRate.get_value());
         ctm_ff_opt = custom_ent.get_text();
+        // обновляем текущее видео (под курсором) и все выделенные
+        // :KLUDGE: вообще, поведение при выделении объектов + правой кнопки мыши
+        // отличается от нормального (см. например Nautilus), поэтому в выделенном
+        // может не быть текущего видео => необходим лишний вызов
+        UpdateTransSettings(vi, bc, ctm_ff_opt);
+        boost_foreach( Gtk::TreePath pth, AllSelected(brw) )
+        {
+            VideoItem vi = IsVideo(GetMedia(brw.GetObjectStore(), pth));
+            if( IsTransVideo(vi, true) )
+                UpdateTransSettings(vi, bc, ctm_ff_opt);
+        }
 
         Str::List::iterator it = std::find(history_lst.begin(), history_lst.end(), ctm_ff_opt);
         if( it != history_lst.end() )
@@ -807,7 +835,7 @@ static void OnMBButtonPress(ObjectBrowser& brw, MediaItem mi, GdkEventButton* ev
     bool tr_enabled = IsTransVideo(vi, true);
     AddEnabledItem(mn, _("Adjust Bitrate to Fit to Disc"), &AdjustDiscUsage, tr_enabled);
     // калькулятор
-    AddDialogItem(mn, DialogParams(_("Bitrate Calculator"), bb::bind(&RunBitrateCalc, vi, _1), 
+    AddDialogItem(mn, DialogParams(_("Bitrate Calculator"), bb::bind(&RunBitrateCalc, vi, _1, b::ref(brw)), 
                                    350, &brw), tr_enabled);
     AddEnabledItem(mn, _("Reason For Transcoding"), bb::bind(&ShowDVDCompliantStatus, vi), vi);
     AppendSeparator(mn);

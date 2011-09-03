@@ -471,7 +471,7 @@ MenuBrowser::MenuBrowser(RefPtr<MenuStore> ms)
 {
     set_name("MenuBrowser");
     set_model(ms);
-    SetupBrowser(*this, ms->columns.menu.index());
+    SetupBrowser(*this, ms->columns.menu.index(), false);
 
     const MenuStore::TrackFields& trk_fields = ms->columns;
 

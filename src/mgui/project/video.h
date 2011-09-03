@@ -42,6 +42,7 @@ DVDTransData DVDDims2TDAuto(DVDDims dd);
 
 Point DVDDimension(DVDDims dd);
 DVDDims CalcDimsAuto(VideoItem vi);
+std::string& CustomFFOpts(VideoItem vi);
 
 struct AutoSrcData
 {

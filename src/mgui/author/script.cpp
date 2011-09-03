@@ -848,7 +848,7 @@ static bool UpdateJobs(JobData& jd)
             atd.threadsCnt = coeff;
 
             DVDTransData td = GetRealTransData(vi);
-            td.ctmFFOpt = vi->transDat.ctmFFOpt;
+            td.ctmFFOpt = CustomFFOpts(vi);
 
             std::string ffmpeg_cmd = FFmpegToDVDTranscode(src_fname, dst_fname, atd, IsPALProject(), td);
             jl.push_back(Job(coeff, out_idx, CalcTransSize(vi, td.vRate)));
@@ -970,7 +970,7 @@ static void AuthorImpl(const std::string& out_dir)
     //    atd.srcAspect = rtc.dar;
     //
     //    DVDTransData td = GetRealTransData(vi);
-    //    td.ctmFFOpt = vi->transDat.ctmFFOpt;
+    //    td.ctmFFOpt = CustomFFOpts(vi);
     //
     //    std::string ffmpeg_cmd = FFmpegToDVDTranscode(src_fname, dst_fname, atd, IsPALProject(), td);
     //    io::pos trans_val  = CalcTransSize(vi, td.vRate);
