@@ -855,18 +855,35 @@ void SetOnRightButton(ObjectBrowser& brw, const RightButtonFunctor& fnr)
     sig::connect(brw.signal_button_press_event(), bb::bind(&OnOBButtonPress, boost::ref(brw), fnr, _1), false);
 }
 
+struct ImageRTCache
+{
+     bool  isCalced;
+    Point  sz;
+
+    ImageRTCache(): isCalced(false) {}
+};
+
+Point GetStillImageDimensions(StorageItem still_img)
+{
+    // win-backend очень тормозной у gdk_pixbuf_get_file_info() - кэширование не избежать
+    ImageRTCache& rtc = still_img->GetData<ImageRTCache>();
+    Point& sz = rtc.sz;
+    // :TODO: refactor
+    if( !rtc.isCalced )
+    {
+        rtc.isCalced = true;
+
+        bool true_ = GetPicDimensions(GetFilename(*still_img).c_str(), sz);
+        ASSERT_OR_UNUSED( true_ );
+    }
+
+    return sz;
+}
+
 // Названия типов для i18n
 F_("Video")
 F_("Chapter")
 F_("Still Picture")
-
-Point GetStillImageDimensions(StorageItem still_img)
-{
-    Point sz;
-    bool true_ = GetPicDimensions(GetFilename(*still_img).c_str(), sz);
-    ASSERT_OR_UNUSED( true_ );
-    return sz;
-}
 
 static std::string RenderMediaType(MediaItem mi, bool show_info)
 {
