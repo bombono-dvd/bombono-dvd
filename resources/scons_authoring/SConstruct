@@ -123,7 +123,7 @@ MakePlayerCommand("xine")
 
 DVDLabelOption = ''
 if DVDLabel:
-    DVDLabelOption = " -V '" + DVDLabel + "'"
+    DVDLabelOption = ' -V "' + DVDLabel + '"'
 
 def MkIsoArgs(source):
     return '%s -dvd-video %s' % (DVDLabelOption, GetDVDDir(source[0], 0))
