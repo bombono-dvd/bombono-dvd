@@ -736,8 +736,8 @@ static double CalcTransPercent(double cur_dur, Job& job, JobData& jd, double ful
     //return (std::min(cur_dur/full_dur, 1.) * trans_val + trans_done)/double(trans_total);
     job.transDone = std::min(cur_dur/full_dur, 1.) * job.transVal;
     double res = 0.;
-    boost_foreach( Job& job, jd.jLst )
-        res += job.transDone;
+    boost_foreach( Job& j, jd.jLst )
+        res += j.transDone;
     return (res + jd.transDone)/double(jd.transTotal);
 }
 
@@ -894,7 +894,7 @@ void StopAndWait(GPid pid)
     WaitForExit(pid);
 }
 
-// :TRICKY: отвественная функция - халатность недостима
+// :TRICKY: отвественная функция - халатность недопустима
 // (пропуск исключений наверх)
 static void StopJobPool(JobData& jd) throw()
 {
@@ -905,7 +905,13 @@ static void StopJobPool(JobData& jd) throw()
         job.watchConn.disconnect();
         StopAndWait(job.pid);
     }
-    jl.clear();
+    // :TRICKY: ошибка _STLPORT_VERSION, __GNUC__ (но не _MSC_VER!): по стандарту clear() должен быть
+    // идентичен erase() (по крайней мере для списка), однако в реальности clear() сначала удаляет объекты,
+    // а затем освобождает сам список; из-за этого в деструкторе Job нельзя пользоваться JobList,-
+    // например, из-за этого просходит падение в CalcTransPercent(), при получении последних строк
+    // вывода от процесса
+    //jl.clear();
+    jl.erase(jl.begin(), jl.end());
     
     Gtk::Main::quit();
 }
