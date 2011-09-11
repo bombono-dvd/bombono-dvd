@@ -47,9 +47,19 @@ AutoSrcData  asd;
 std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData& atd,
                             bool is_pal, const DVDTransData& td);
 std::string FFmpegToDVDArgs(const std::string& out_fname, bool is_4_3, bool is_pal);
+
 // для меню
+struct AudioArgInput
+{
+    std::string  fName;
+         double  shift;
+
+    AudioArgInput(const std::string& a_fname = std::string(), double a_shift = 0.)
+        :fName(a_fname), shift(a_shift) {}
+};
+
 std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pal, 
-                           const std::string& a_fname = std::string(), double a_shift = 0.);
+                           const AudioArgInput& aai = AudioArgInput());
 
 // полная команда для транскодирования
 std::string FFmpegToDVDTranscode(const std::string& src_fname, const std::string& dst_fname,

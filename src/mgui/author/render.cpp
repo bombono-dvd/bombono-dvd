@@ -718,12 +718,14 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, bool is_4_3, bool is_p
 }
 
 std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pal, 
-                           const std::string& a_fname, double a_shift)
+                           const AudioArgInput& aai) //const std::string& a_fname, double a_shift)
 {
     std::string a_input = "-an"; // без аудио
-    if( !a_fname.empty() )
+
+    std::string a_fname = aai.fName;
+    if( a_fname.size() )
     {
-        std::string safe_a_fname = FilenameForCmd(a_fname);
+        a_fname = FilenameForCmd(a_fname);
         int idx = -1;
         // в последних версиях ffmpeg (черт побери) поменяли отображение
         // входных потоков на выходные, в итоге возникают проблемы с указанием
@@ -736,7 +738,7 @@ std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pa
             // считается "ошибочным" (но стандарт де факто для получения инфо
             // о файле через ffmpeg)
             std::string a_info;
-            PipeOutput("ffmpeg -i " + safe_a_fname, a_info);
+            PipeOutput("ffmpeg -i " + a_fname, a_info);
 
             static re::pattern audio_idx("Stream #"RG_NUM"\\."RG_NUM".*Audio:");
 
@@ -745,16 +747,16 @@ std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pa
             if( re::search(a_info, what, audio_idx, boost::match_not_dot_newline) )
                 idx = boost::lexical_cast<int>(what.str(2));
             else
-                FFmpegError(BF_("no audio stream in %1%") % safe_a_fname % bf::stop);
+                FFmpegError(BF_("no audio stream in %1%") % a_fname % bf::stop);
         }
         ASSERT( idx >= 0 );
         // каждая опция -map задает соответ. одному выходному потоку входной поток
         std::string map = boost::format("-map 0:0 -map 1:%1%") % idx % bf::stop;
 
         std::string shift; // без смещения
-        if( a_shift )
-            shift = boost::format("-ss %.2f ") % a_shift % bf::stop;
-        a_input = boost::format("%2%-i %1% %3%") % safe_a_fname % shift % map % bf::stop; 
+        if( aai.shift )
+            shift = boost::format("-ss %.2f ") % aai.shift % bf::stop;
+        a_input = boost::format("%2%-i %1% %3%") % a_fname % shift % map % bf::stop; 
     }
 
     return a_input + " " + FFmpegToDVDArgs(out_fname, is_4_3, is_pal);
@@ -886,28 +888,33 @@ static void SaveMenuPng(const std::string& mn_dir, Menu mn)
     SaveMenuPicture(mn_dir, "Menu.png", GetAuthoredMenu(mn));
 }
 
-static std::string MakeFFmpegPostArgs(const std::string& mn_dir, Menu mn)
+static AudioArgInput MotionMenuAAI(Menu mn)
 {
+    ASSERT( IsMotion(mn) );
     MotionData& mtn_dat = mn->MtnData();
-    // аспект ставим как можем (а не из параметров меню) из-за того, что качество
-    // авторинга важнее гибкости (все валим в один titleset)
-    bool is_4_3 = IsMenuToBe4_3();
-    std::string out_fname = AppendPath(mn_dir, "Menu.mpg");
-
-    std::string a_fname;
-    double a_shift = 0.;
+    AudioArgInput aai;
     if( mtn_dat.isIntAudio )
     {
         if( MediaItem a_ref = mtn_dat.audioRef.lock() )
         {
             VideoStart vs = GetVideoStart(a_ref);
-            a_fname = GetFilename(vs);
-            a_shift = vs.second;
+            aai.fName = GetFilename(vs);
+            aai.shift = vs.second;
         }
     }
     else
-        a_fname = mtn_dat.audioExtPath;
-    return FFmpegPostArgs(out_fname, is_4_3, IsPALProject(), a_fname, a_shift);
+        aai.fName = mtn_dat.audioExtPath;
+    return aai;
+}
+
+static std::string MakeFFmpegPostArgs(const std::string& mn_dir, const AudioArgInput& aai)
+{
+    // аспект ставим как можем (а не из параметров меню) из-за того, что качество
+    // авторинга важнее гибкости (все валим в один titleset)
+    bool is_4_3 = IsMenuToBe4_3();
+    std::string out_fname = AppendPath(mn_dir, "Menu.mpg");
+
+    return FFmpegPostArgs(out_fname, is_4_3, IsPALProject(), aai);
 }
 
 double MenuDuration(Menu mn)
@@ -945,16 +952,21 @@ void RunFFmpegCmd(const std::string& cmd, const ReadReadyFnr& add_fnr)
     RunExtCmd(cmd, "ffmpeg", add_fnr);
 }
 
-static void SaveStillMenuMpg(const std::string& mn_dir, Menu mn)
+// кодируем из Menu.png => Menu.mpg
+static void EncodeStillMenu(const std::string& mn_dir, double durtn, const AudioArgInput& aai)
 {
-    // сохраняем Menu.png и рендерим из нее
-    SaveMenuPng(mn_dir, mn);
     std::string img_fname = AppendPath(mn_dir, "Menu.png");
 
     std::string ffmpeg_cmd = boost::format("ffmpeg -t %3$.2f -loop_input -i \"%1%\" %2%") 
-        % img_fname % MakeFFmpegPostArgs(mn_dir, mn) % MenuDuration(mn) % bf::stop;
+        % img_fname % MakeFFmpegPostArgs(mn_dir, aai) % durtn % bf::stop;
 
     RunFFmpegCmd(ffmpeg_cmd);
+}
+
+static void SaveStillMenuMpg(const std::string& mn_dir, Menu mn)
+{
+    SaveMenuPng(mn_dir, mn);
+    EncodeStillMenu(mn_dir, MenuDuration(mn), MotionMenuAAI(mn));
 }
 
 FFmpegCloser::~FFmpegCloser()
@@ -1162,7 +1174,7 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
                 // (а для выходного сработает -target)
                 // 2. И наоборот, для выходные параметры (-aspect, ...) ставим после всех входных файлов
                 std::string ffmpeg_cmd = boost::format("ffmpeg -r %1% -f image2pipe -vcodec ppm -i pipe: %2%")
-                    % MotionTimer::fps % MakeFFmpegPostArgs(mn_dir, mn) % bf::stop;
+                    % MotionTimer::fps % MakeFFmpegPostArgs(mn_dir, MotionMenuAAI(mn)) % bf::stop;
 
                 ExitData ed;
                 {
@@ -1201,7 +1213,13 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
         }
     }
     else
+    {
         SaveMenuPng(mn_dir, mn);
+        // :TRICKY: значение 0.1 секунда - эмпирическое (в скрипте ADVD.py ставить
+        // равное значение); по опыту c mpeg2enc кодировать нужно > одного кадра,
+        // чтобы было качество; вероятно подобное применимо и к ffmpeg
+        EncodeStillMenu(mn_dir, 0.1, AudioArgInput());
+    }
 
     PulseRenderProgress();
     return true;
