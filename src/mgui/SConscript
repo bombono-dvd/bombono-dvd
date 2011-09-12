@@ -127,7 +127,7 @@ def AliasInstall(target):
 
 AliasInstall(mgui_env.Install(MakeDest("share/applications"), 'bombono-dvd.desktop'))
 AliasInstall(mgui_env.Install(MakeDest("share/mime/packages"), 'bombono.xml'))
-AliasInstall(mgui_env.InstallAs(MakeDest("share/pixmaps/bombono-dvd.png"), '#resources/icons/bombono-dvd_32px.png'))
+AliasInstall(mgui_env.InstallAs(MakeDest("share/pixmaps/bombono-dvd.png"), '#resources/bmd-icons/bombono-dvd_32px.png'))
 
 from BuildVars import IsBuildOrRunTests
 # we like tests
