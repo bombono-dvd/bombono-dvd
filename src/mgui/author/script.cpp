@@ -950,7 +950,16 @@ static void OnJobEnd(GPid pid, int status, JobData& jd)
         StopJobPool(jd);
     }
 }
-    
+
+void RunSpumux(const std::string& xml_fname, const std::string& src_fname, const std::string& dst_fname,
+               int stream_id, const char* dir)
+{
+    CheckSpumuxFontFile();
+    std::string spumux_cmd = boost::format("spumux -m dvd -s%4% %1% < %2% > %3%") 
+        % FilenameForCmd(xml_fname) % src_fname % dst_fname % stream_id % bf::stop;
+    RunExtCmd(spumux_cmd, "spumux", ReadReadyFnr(), dir);
+}
+
 static void AuthorImpl(const std::string& out_dir)
 {
     AuthorSectionInfo((str::stream() << "Build DVD-Video in folder: " << out_dir).str());
@@ -1062,11 +1071,7 @@ static void AuthorImpl(const std::string& out_dir)
             std::string xml_fname = PrefixCnvPath(vi, out_dir) + ".textsub.xml";
             SaveFormattedUTF8Xml(doc, xml_fname);
             
-            CheckHomeSpumuxFont();
-            std::string spumux_cmd = boost::format("spumux -m dvd %1% < %2% > %3%") 
-                % FilenameForCmd(xml_fname) % FilenameForCmd(DVDCompliantFilename(vi, out_dir))
-                % FilenameForCmd(DVDFilename(vi, out_dir)) % bf::stop;
-            RunExtCmd(spumux_cmd, "spumux");
+            RunSpumux(xml_fname, DVDCompliantFilename(vi, out_dir), DVDFilename(vi, out_dir));
         }
 
     str::stream& settings = es.settings;
@@ -1078,7 +1083,8 @@ static void AuthorImpl(const std::string& out_dir)
     GenerateDVDAuthorScript(out_dir);
 
     // * вспомогательные файлы
-    const char* fnames[] = { "SConstruct", "ADVD.py", "SConsTwin.py", "README" };
+    //const char* fnames[] = { "SConstruct", "ADVD.py", "SConsTwin.py", "README" };
+    const char* fnames[] = { "SConstruct", "SConsTwin.py", "README" };
     for( int i=0; i<(int)ARR_SIZE(fnames); i++ )
         CopyRootFile(fnames[i], out_dir);
     // опции

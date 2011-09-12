@@ -41,12 +41,12 @@ argHz = GetkHzArgForToolame(48)
 Command('Silent.mp2', [], "dd if=/dev/zero bs=4 count=1920 | twolame -b 128 -s %d -r - $TARGET" % argHz)
 
 # основная функция создания меню
-import ADVD
-MakeADVDMenu = ADVD.MakeMenu 
-Export('MakeADVDMenu')
+#import ADVD
+#MakeADVDMenu = ADVD.MakeMenu 
+#Export('MakeADVDMenu')
 
 import ASettings
-SConscript([menu + '/SConscript' for menu in ASettings.List])
+#SConscript([menu + '/SConscript' for menu in ASettings.List])
 
 #
 # Получение опций
@@ -71,7 +71,7 @@ DVDSpeed = float(user_options_env['DVDSpeed'])
 dvd_dir = 'dvd'
 # так как директория не может быть целью для команд, то выберем главный файл
 dvd_scons_target = dvd_dir + '/VIDEO_TS/VIDEO_TS.IFO'
-main_target = Command(dvd_scons_target, ['DVDAuthor.xml'] + ASettings.List,
+main_target = Command(dvd_scons_target, ['DVDAuthor.xml'],
                       [
                         Delete(dvd_dir),
                         "dvdauthor -o " + dvd_dir + " -x $SOURCE",

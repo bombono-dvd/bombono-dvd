@@ -409,12 +409,12 @@ bool RenderSubPictures(const std::string& out_dir, Menu mn, int i,
     if( !IsMenuToBe4_3() )
         MakeSubpictures(mn, false, mn_dir);
     
-    // остальное
-    //fs::copy_file(SConsAuxDir()/"menu_SConscript", fs::path(mn_dir)/"SConscript");
-    std::string str = ReadAllStream(SConsAuxDir()/"menu_SConscript");
-    bool is_motion  = mn->MtnData().isMotion;
-    str = boost::format(str) % (is_motion ? "True" : "False") % bf::stop;
-    WriteAllStream(fs::path(mn_dir)/"SConscript", str);
+    //// остальное
+    ////fs::copy_file(SConsAuxDir()/"menu_SConscript", fs::path(mn_dir)/"SConscript");
+    //std::string str = ReadAllStream(SConsAuxDir()/"menu_SConscript");
+    //bool is_motion  = mn->MtnData().isMotion;
+    //str = boost::format(str) % (is_motion ? "True" : "False") % bf::stop;
+    //WriteAllStream(fs::path(mn_dir)/"SConscript", str);
 
     // для последующего рендеринга
     SetCBDirty(GetAuthorPCB(mn));
@@ -934,16 +934,20 @@ Gtk::TextView& PrintCmdToDetails(const std::string& cmd)
 }
 
 void RunExtCmd(const std::string& cmd, const char* app_name, 
-               const ReadReadyFnr& add_fnr)
+               const ReadReadyFnr& add_fnr, const char* dir)
 {
     ExitData ed;
     if( Execution::ConsoleMode::Flag )
     {
         io::cout << cmd << io::endl;
-        ed = System(cmd);
+        io::cout << "In directory: " << (dir ? dir : "<of the process>") << io::endl;
+        if( dir )
+            ed = WaitForExit(Spawn(dir, cmd.c_str(), 0, true));
+        else
+            ed = System(cmd);
     }
     else
-        ed = Author::AsyncCall(0, cmd.c_str(), DetailsAppender(cmd, add_fnr));
+        ed = Author::AsyncCall(dir, cmd.c_str(), DetailsAppender(cmd, add_fnr));
     Author::CheckAppED(ed, app_name);
 }
 
@@ -1219,6 +1223,14 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
         // равное значение); по опыту c mpeg2enc кодировать нужно > одного кадра,
         // чтобы было качество; вероятно подобное применимо и к ffmpeg
         EncodeStillMenu(mn_dir, 0.1, AudioArgInput());
+    }
+
+    if( IsMenuToBe4_3() )
+        RunSpumux("Menu.xml", "Menu.mpg", "MenuSub.mpg", 0, mn_dir.c_str());
+    else
+    {
+        RunSpumux("Menu.xml", "Menu.mpg", "MenuSub0.mpg", 0, mn_dir.c_str());
+        RunSpumux("MenuLB.xml", "MenuSub0.mpg", "MenuSub.mpg", 1, mn_dir.c_str());
     }
 
     PulseRenderProgress();

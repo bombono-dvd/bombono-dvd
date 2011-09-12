@@ -119,6 +119,9 @@ Gtk::TextView& PrintCmdToDetails(const std::string& cmd);
 ReadReadyFnr DetailsAppender(const std::string& print_cmd, 
                              const ReadReadyFnr& add_fnr = ReadReadyFnr(),
                              const std::string& prefix = std::string());
+
+void RunSpumux(const std::string& xml_fname, const std::string& src_fname, const std::string& dst_fname,
+               int stream_id = 0, const char* dir = 0);
 } // namespace Project
 
 #endif // #ifndef __MGUI_AUTHOR_FFMPEG_H__

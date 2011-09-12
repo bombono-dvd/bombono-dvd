@@ -66,7 +66,7 @@ double MenuDuration(Menu mn);
 void ClearTaggedData(Menu mn, const char* tag);
 
 void RunExtCmd(const std::string& cmd, const char* app_name, 
-               const ReadReadyFnr& add_fnr = ReadReadyFnr());
+               const ReadReadyFnr& add_fnr = ReadReadyFnr(), const char* dir = 0);
 void RunFFmpegCmd(const std::string& cmd, const ReadReadyFnr& add_fnr = ReadReadyFnr());
 
 int AsInt(const re::match_results& what, int idx);
