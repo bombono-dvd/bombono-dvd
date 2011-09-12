@@ -960,6 +960,36 @@ void RunSpumux(const std::string& xml_fname, const std::string& src_fname, const
     RunExtCmd(spumux_cmd, "spumux", ReadReadyFnr(), dir);
 }
 
+// :REFACTOR!!!:
+bool IsAuthorMode(Author::Mode mod)
+{
+    return Author::GetES().mode == mod;
+}
+
+static void AppendOpt(std::string& args, const std::string& opt_name, const std::string& opt_val)
+{
+    if( opt_val.size() )
+        args += " " + opt_name + " " + QuotedName(opt_val);
+}
+
+static void RunAuthorCmd(const std::string& cmd, const char* app_name, 
+                         Author::OutputFilter& of, const std::string& out_dir)
+{
+    if( Execution::ConsoleMode::Flag )
+        RunExtCmd(cmd, app_name, ReadReadyFnr(), out_dir.c_str());
+    else
+    {
+        std::string line = ResovleToShellCmd(cmd.c_str()) + "\n";
+        of.OnGetLine(line.c_str(), line.size(), true);
+
+        ExitData ed = Author::AsyncCall(out_dir.c_str(), cmd.c_str(), OF2RRF(of));
+        // :REFACTOR!!!:
+        if( of.firstError.size() )
+            Author::Error(of.firstError);
+        Author::CheckAppED(ed, app_name);
+    }
+}
+
 static void AuthorImpl(const std::string& out_dir)
 {
     AuthorSectionInfo((str::stream() << "Build DVD-Video in folder: " << out_dir).str());
@@ -1096,18 +1126,45 @@ static void AuthorImpl(const std::string& out_dir)
     settings_strm.close();
 
     // *
-    if( !Execution::ConsoleMode::Flag )
+    if( !IsAuthorMode(Author::modRENDERING) )
     {
-        if( es.mode != Author::modRENDERING )
+        if( PrefToBool(PrefContents("script_authoring")) )
+        {
+            if( !Execution::ConsoleMode::Flag )
+            {
+                Author::BuildDvdOF of;
+                Author::ExecuteSconsCmd(out_dir, of, es.mode, scons_options);
+            }
+        }
+        else
         {
             Author::BuildDvdOF of;
-            Author::ExecuteSconsCmd(out_dir, of, es.mode, scons_options);
+            RunAuthorCmd("dvdauthor -o dvd -x DVDAuthor.xml", "dvdauthor", of, out_dir);
+
+            std::string mkisofs_args(" ");
+            AppendOpt(mkisofs_args, "-V", Author::ResDiscLabel());
+            AppendOpt(mkisofs_args, "-dvd-video", "dvd");
+
+            if( IsAuthorMode(Author::modDISK_IMAGE) )
+            {
+                std::string cmd = MK_ISO_CMD + mkisofs_args + REDIRECT_SIGN">dvd.iso";
+                RunAuthorCmd(cmd, MK_ISO_CMD, of, out_dir);
+            }
+            else if( IsAuthorMode(Author::modBURN) )
+            {
+                std::string dev_drive;
+                bool res_ = Author::IsBurnerSetup(dev_drive);
+                ASSERT_OR_UNUSED( res_ );
+
+                // -use-the-force-luke=tty - чтобы без сомнений переписывал сожержимое DVD-+RW
+                std::string cmd("growisofs -dvd-compat -use-the-force-luke=tty");
+                double dev_speed = Author::GetBurnerSpeed();
+                AppendOpt(cmd, "-speed", dev_speed ? Double2Str(dev_speed) : "");
+                AppendOpt(cmd, "-Z", dev_drive);
+
+                RunAuthorCmd(cmd+mkisofs_args, "growisofs", of, out_dir);
+            }
         }
-    }
-    else
-    {
-        ////int pid = gnome_execute_shell(out_dir.c_str(), "scons totem");
-        //int pid = Spawn(out_dir.c_str(), "scons totem");
     }
 }
 
@@ -1182,17 +1239,11 @@ std::string SconsTarget(Mode mode)
 static void AddSconsOptions(str::stream& strm, bool for_cmd, const std::string& dvd_label, 
                             const std::string& dvd_drive, double dvd_speed)
 {
-    // :TODO: не знаю как передавать символы ' и ", и в командную строку,
-    // и в скрипт
-    std::string clean_label;
-    for( int i=0; i<(int)dvd_label.size(); i++ )
-        clean_label += (dvd_label[i] != '\'') ? dvd_label[i] : '`';
-
     char sep = for_cmd ? ' ' : '\n' ;
     if( for_cmd )
         strm << sep;
-    strm << "DVDLabel='" << clean_label << "'" << sep;
-    strm << "DVDDrive='" << dvd_drive   << "'" << sep;
+    strm << "DVDLabel=\"" << dvd_label << "\"" << sep;
+    strm << "DVDDrive=\"" << dvd_drive   << "\"" << sep;
     strm << "DVDSpeed="  << dvd_speed;
     if( !for_cmd )
         strm << sep << sep;
@@ -1203,19 +1254,35 @@ std::string DiscLabel()
     return GetBD().Label().get_text();
 }
 
+std::string ResDiscLabel()
+{
+    std::string res_label;
+    if( !Execution::ConsoleMode::Flag )
+    {
+        // :TODO: не знаю как передавать символы ' и ", и в командную строку,
+        // и в скрипт
+        // :TODO2: под Win32 буква апостроф "'" не воспринимается как разделитель слов,
+        // потому заменяем " => ' (потому что " - служебный)
+        //std::string clean_label = ReplaceChar(DiscLabel(), '\'', '`');
+        res_label = ReplaceChar(DiscLabel(), '"', '\'');
+    }
+    return res_label;
+}
+
 void FillSconsOptions(str::stream& scons_options, bool fill_def)
 {
-    std::string def_dvd_label, def_drive;
+    std::string dvd_label = ResDiscLabel();
+
+    std::string def_drive;
     double def_speed = 0;
     if( !Execution::ConsoleMode::Flag )
     {     
-        def_dvd_label = DiscLabel();
         if( IsBurnerSetup(def_drive) )
             def_speed = GetBurnerSpeed();
     }
     if( fill_def )
-        AddSconsOptions(GetES().settings, false, def_dvd_label, def_drive, def_speed);
-    AddSconsOptions(scons_options, true, def_dvd_label, def_drive, def_speed);
+        AddSconsOptions(GetES().settings, false, dvd_label, def_drive, def_speed);
+    AddSconsOptions(scons_options, true, dvd_label, def_drive, def_speed);
 }
 
 void CheckAbortByUser()

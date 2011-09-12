@@ -82,6 +82,7 @@ void Info(const std::string& str, bool add_info_sign = true);
 void FillSconsOptions(str::stream& scons_options, bool fill_def);
 void ExecuteSconsCmd(const std::string& out_dir, OutputFilter& of, 
                      Mode mod, const str::stream& scons_options);
+std::string ResDiscLabel();
 // вызов внешней команды в процессе авторинга
 // устанавливает GetES().eDat.pid на время работы, потому нельзя выполнять 
 // одновременно более одной команды (а если потребуется, то придется держать
@@ -102,7 +103,16 @@ void CheckAppED(const ExitData& ed, const char* app_name);
 
 ListObj::ArrType& AllMediaObjs(Project::Menu mn);
 
+ReadReadyFnr OF2RRF(OutputFilter& of);
 } // namespace Author
+
+// POSIX-народ бесповоротно ушел на cdrkit (genisoimage), но с Win32
+// у cdrkit хреново (только cygwin, нет собранного с growisofs с cdrkit под Win32) => потому - "вилка"
+#ifdef _WIN32
+#define MK_ISO_CMD "mkisofs"
+#else
+#define MK_ISO_CMD "genisoimage"
+#endif
 
 #endif // #ifndef __MGUI_AUTHOR_SCRIPT_H__
 

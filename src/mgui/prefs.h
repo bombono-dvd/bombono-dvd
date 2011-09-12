@@ -111,6 +111,7 @@ struct RPData
    RPData(): isRead(false) {}
 };
 
+std::string PrefContents(const char* fname);
 // чтение однострочных настроек с кэшированием
 bool ReadPref(const char* name, RPData& rp);
 bool PrefToBool(const std::string& str);

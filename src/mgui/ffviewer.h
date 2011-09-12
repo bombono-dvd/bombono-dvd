@@ -100,9 +100,8 @@ struct FFViewer: public FFData
 
 AVCodecContext* GetVideoCtx(FFData& ffv);
 
-// однострочная настройка
-std::string PrefContents(const char* fname);
-
+std::string GetFirstLine(const std::string& text);
+std::string GetFileFirstLine(const std::string& fname);
 
 // в дополнение к отрицательному значению OpenInfo()
 struct FFDiagnosis

@@ -34,7 +34,7 @@
 #include <mgui/sdk/browser.h>   // VideoStart
 #include <mgui/sdk/ioblock.h>
 #include <mgui/sdk/textview.h>  // AppendCommandText()
-#include <mgui/ffviewer.h>
+#include <mgui/prefs.h>
 
 #include <mbase/project/table.h>
 #include <mbase/project/theme.h> // FindThemePath()
