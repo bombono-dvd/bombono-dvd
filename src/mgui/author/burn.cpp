@@ -311,19 +311,24 @@ class WaitProgress
     Execution::Pulse  pls;
 };
 
+std::string BurnerDrive()
+{
+    std::string dvd_drive;
+    bool is_burner_setup = IsBurnerSetup(dvd_drive);
+    ASSERT_RTL( is_burner_setup );
+    return dvd_drive;
+}
+
 bool CheckDVDBlank()
 {
     bool res = false;
     for( bool try_again = true; !res && try_again; )
     {
-        std::string dvd_drive;
-        bool is_burner_setup = Author::IsBurnerSetup(dvd_drive);
-        ASSERT_RTL( is_burner_setup );
         std::string str;
         bool is_good = false;
         {
             WaitProgress wp(_("Checking Disc ...")); 
-            is_good = TestDvdDisc(dvd_drive, str);
+            is_good = TestDvdDisc(BurnerDrive(), str);
         }
 
         DVDInfo inf = ParseDVDInfo(is_good, str);

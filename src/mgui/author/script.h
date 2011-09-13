@@ -72,6 +72,9 @@ void RunFFmpegCmd(const std::string& cmd, const ReadReadyFnr& add_fnr = ReadRead
 int AsInt(const re::match_results& what, int idx);
 int& GetAuthorNumber(VideoItem vi);
 
+bool IsSConsAuthoring();
+void RunBurnCmd(Author::OutputFilter& of, const std::string& out_dir);
+
 } // namespace Project
 
 namespace Author {
@@ -103,7 +106,10 @@ void CheckAppED(const ExitData& ed, const char* app_name);
 
 ListObj::ArrType& AllMediaObjs(Project::Menu mn);
 
-ReadReadyFnr OF2RRF(OutputFilter& of);
+std::string GetSConsName();
+
+ExitData AsyncOFCall(const std::string& cmd, const std::string& out_dir, OutputFilter& of);
+
 } // namespace Author
 
 // POSIX-народ бесповоротно ушел на cdrkit (genisoimage), но с Win32

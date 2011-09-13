@@ -960,8 +960,7 @@ void RunSpumux(const std::string& xml_fname, const std::string& src_fname, const
     RunExtCmd(spumux_cmd, "spumux", ReadReadyFnr(), dir);
 }
 
-// :REFACTOR!!!:
-bool IsAuthorMode(Author::Mode mod)
+static bool IsAuthorMode(Author::Mode mod)
 {
     return Author::GetES().mode == mod;
 }
@@ -982,12 +981,33 @@ static void RunAuthorCmd(const std::string& cmd, const char* app_name,
         std::string line = ResovleToShellCmd(cmd.c_str()) + "\n";
         of.OnGetLine(line.c_str(), line.size(), true);
 
-        ExitData ed = Author::AsyncCall(out_dir.c_str(), cmd.c_str(), OF2RRF(of));
-        // :REFACTOR!!!:
-        if( of.firstError.size() )
-            Author::Error(of.firstError);
+        ExitData ed = Author::AsyncOFCall(out_dir.c_str(), cmd.c_str(), of);
         Author::CheckAppED(ed, app_name);
     }
+}
+
+static std::string MkisofsArgs()
+{
+    std::string mkisofs_args;
+    AppendOpt(mkisofs_args, "-V", Author::ResDiscLabel());
+    AppendOpt(mkisofs_args, "-dvd-video", "dvd");
+    return mkisofs_args;
+}
+
+void RunBurnCmd(Author::OutputFilter& of, const std::string& out_dir)
+{
+    // -use-the-force-luke=tty - чтобы без сомнений переписывал сожержимое DVD-+RW
+    std::string cmd("growisofs -dvd-compat -use-the-force-luke=tty");
+    double dev_speed = Author::GetBurnerSpeed();
+    AppendOpt(cmd, "-speed", dev_speed ? Double2Str(dev_speed) : "");
+    AppendOpt(cmd, "-Z", Author::BurnerDrive());
+
+    RunAuthorCmd(cmd+MkisofsArgs(), "growisofs", of, out_dir);
+}
+
+bool IsSConsAuthoring()
+{
+    return PrefToBool(PrefContents("script_authoring"));
 }
 
 static void AuthorImpl(const std::string& out_dir)
@@ -1128,7 +1148,7 @@ static void AuthorImpl(const std::string& out_dir)
     // *
     if( !IsAuthorMode(Author::modRENDERING) )
     {
-        if( PrefToBool(PrefContents("script_authoring")) )
+        if( IsSConsAuthoring() )
         {
             if( !Execution::ConsoleMode::Flag )
             {
@@ -1141,29 +1161,13 @@ static void AuthorImpl(const std::string& out_dir)
             Author::BuildDvdOF of;
             RunAuthorCmd("dvdauthor -o dvd -x DVDAuthor.xml", "dvdauthor", of, out_dir);
 
-            std::string mkisofs_args(" ");
-            AppendOpt(mkisofs_args, "-V", Author::ResDiscLabel());
-            AppendOpt(mkisofs_args, "-dvd-video", "dvd");
-
             if( IsAuthorMode(Author::modDISK_IMAGE) )
             {
-                std::string cmd = MK_ISO_CMD + mkisofs_args + REDIRECT_SIGN">dvd.iso";
+                std::string cmd = MK_ISO_CMD + MkisofsArgs() + REDIRECT_SIGN">dvd.iso";
                 RunAuthorCmd(cmd, MK_ISO_CMD, of, out_dir);
             }
             else if( IsAuthorMode(Author::modBURN) )
-            {
-                std::string dev_drive;
-                bool res_ = Author::IsBurnerSetup(dev_drive);
-                ASSERT_OR_UNUSED( res_ );
-
-                // -use-the-force-luke=tty - чтобы без сомнений переписывал сожержимое DVD-+RW
-                std::string cmd("growisofs -dvd-compat -use-the-force-luke=tty");
-                double dev_speed = Author::GetBurnerSpeed();
-                AppendOpt(cmd, "-speed", dev_speed ? Double2Str(dev_speed) : "");
-                AppendOpt(cmd, "-Z", dev_drive);
-
-                RunAuthorCmd(cmd+mkisofs_args, "growisofs", of, out_dir);
-            }
+                RunBurnCmd(of, out_dir);
         }
     }
 }
@@ -1233,6 +1237,14 @@ std::string SconsTarget(Mode mode)
         ASSERT_RTL(0);
     }
     return res;
+}
+
+static std::string ReplaceChar(const std::string& label, char old_char, char new_char)
+{
+    std::string clean_label;
+    for( int i=0; i<(int)label.size(); i++ )
+        clean_label += (label[i] != old_char) ? label[i] : new_char;
+    return clean_label;
 }
 
 // for_cmd - для командной строки/для скрипта ASettings.py
@@ -1325,13 +1337,31 @@ void ApplicationError(const char* app_name, const ExitData& ed)
     ApplicationError(app_name, ExitDescription(ed));
 }
 
-void ExecuteSconsCmd(const std::string& out_dir, OutputFilter& of, 
-                     Mode mod, const str::stream& scons_options)
+std::string GetSConsName()
 {
-    std::string cmd = "scons" + scons_options.str() + " " + SconsTarget(mod);
+#ifdef _WIN32
+    //std::string cmd("scons.bat");
+    // можно и без .exe, но раз единообразно нельзя, то конкретизируем
+    std::string cmd("scons.bin.exe");
+#else
+    std::string cmd("scons");
+#endif
+    return cmd;
+}
+
+ExitData AsyncOFCall(const std::string& cmd, const std::string& out_dir, OutputFilter& of)
+{
     ExitData ed = AsyncCall(out_dir.c_str(), cmd.c_str(), OF2RRF(of));
     if( of.firstError.size() )
         Error(of.firstError);
+    return ed;
+}
+
+void ExecuteSconsCmd(const std::string& out_dir, OutputFilter& of, 
+                     Mode mod, const str::stream& scons_options)
+{
+    std::string cmd = GetSConsName() + scons_options.str() + " " + SconsTarget(mod);
+    ExitData ed = AsyncOFCall(cmd, out_dir, of);
     if( !ed.IsGood() )
         //ApplicationError("", ed);
         Error(BF_("external command failure: %1%") % ExitDescription(ed) % bf::stop);

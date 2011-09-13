@@ -640,14 +640,61 @@ static Gtk::ResponseType Run(Gtk::Dialog& dlg, bool run_modal,
 const guint RESPONSE_TOTEM = 0;
 const guint RESPONSE_BURN  = 1;
 
+struct ExtPlayerData
+{
+    const char* binName;
+    const char* title;
+};
+
+// см. комментарий про Preferences.player также
+ExtPlayerData EPDList[] = 
+{
+#ifdef _WIN32
+    { "vlc",   "VLC"   },
+#else
+    { "totem", "Totem" },
+    { "xine",  "Xine"  },
+#endif
+};
+
+ExtPlayerData GetEPD()
+{
+    return EPDList[Prefs().player];
+}
+
+static bool CheckAuthoringRes(const std::string& dir_str, std::string& dvd_dir)
+{
+    bool res = false;
+
+    dvd_dir = fs::path(dir_str) / "dvd" / fs::to_str;
+    if( !fs::exists(dvd_dir) )
+        ErrorBox("Can't find the result of authoring: " + dvd_dir);
+    else
+        res = true;
+    return res;
+}
+
 bool NotForPlay(guint response_id, const std::string& dir_str)
 {
     bool res = true; 
     if( response_id == RESPONSE_TOTEM )
     {
         res = false;
-        std::string cmd = boost::format("scons %1%") % (Prefs().player == paTOTEM ? "totem" : "xine") % bf::stop;
-        Execution::SimpleSpawn(cmd.c_str(), dir_str.c_str());
+        std::string cmd = GetEPD().binName;
+        if( Project::IsSConsAuthoring() )
+        {
+            cmd = boost::format("%1% %2%") % GetSConsName() % cmd % bf::stop;
+            Execution::SimpleSpawn(cmd.c_str(), dir_str.c_str());
+        }
+        else
+        {
+            std::string dvd_dir;
+            if( CheckAuthoringRes(dir_str, dvd_dir) )
+            {
+                cmd = boost::format("%1% \"dvd://%2%\"") % cmd % dvd_dir % bf::stop;
+                Execution::SimpleSpawn(cmd.c_str());
+            }
+        }
     }
     return res;
 }
@@ -683,12 +730,21 @@ static bool CheckDVDBlankForBurning()
 
 static void BurnImpl(const std::string& dir_str)
 {
-    str::stream scons_options;
-    FillSconsOptions(scons_options, false);
-
     BurningStateSetter bss(GetES());
     ConsoleOF of;
-    ExecuteSconsCmd(dir_str, of, modBURN, scons_options);
+    if( Project::IsSConsAuthoring() )
+    {
+        str::stream scons_options;
+        FillSconsOptions(scons_options, false);
+
+        ExecuteSconsCmd(dir_str, of, modBURN, scons_options);
+    }
+    else
+    {
+        std::string dvd_dir;
+        if( CheckAuthoringRes(dir_str, dvd_dir) )
+            Project::RunBurnCmd(of, dir_str);
+    }
 }
 
 static void PostBuildOperation(const std::string& res, const std::string& dir_str)

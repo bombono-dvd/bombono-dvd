@@ -64,6 +64,8 @@ inline BurnData& GetBD()
 BurnData& GetInitedBD();
 
 bool IsBurnerSetup(std::string& dev_path);
+std::string BurnerDrive();
+
 double GetBurnerSpeed();
 std::string DiscLabel();
 
