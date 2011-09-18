@@ -666,7 +666,7 @@ struct RestrictGetCanvasBuf
     }
 };
 
-static void CheckHomeSpumuxFont()
+static void CheckSpumuxFontFile()
 {
     char* home_dir = getenv("HOME");
     if( !home_dir )
@@ -978,10 +978,10 @@ static void RunAuthorCmd(const std::string& cmd, const char* app_name,
         RunExtCmd(cmd, app_name, ReadReadyFnr(), out_dir.c_str());
     else
     {
-        std::string line = ResovleToShellCmd(cmd.c_str()) + "\n";
+        std::string line = cmd + "\n";
         of.OnGetLine(line.c_str(), line.size(), true);
 
-        ExitData ed = Author::AsyncOFCall(out_dir.c_str(), cmd.c_str(), of);
+        ExitData ed = Author::AsyncOFCall(cmd.c_str(), out_dir.c_str(), of);
         Author::CheckAppED(ed, app_name);
     }
 }
@@ -1163,7 +1163,7 @@ static void AuthorImpl(const std::string& out_dir)
 
             if( IsAuthorMode(Author::modDISK_IMAGE) )
             {
-                std::string cmd = MK_ISO_CMD + MkisofsArgs() + REDIRECT_SIGN">dvd.iso";
+                std::string cmd = MK_ISO_CMD + MkisofsArgs() + " > dvd.iso";
                 RunAuthorCmd(cmd, MK_ISO_CMD, of, out_dir);
             }
             else if( IsAuthorMode(Author::modBURN) )
