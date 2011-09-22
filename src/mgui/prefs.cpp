@@ -84,12 +84,15 @@ static bool LoadPrefs(const char* fname, const Project::ArchieveFnr& fnr)
 // Preferences
 // 
 
-const int PREFS_VERSION = 4;
+const int PREFS_VERSION = 6;
 
 void SerializePrefs(Project::Archieve& ar)
 {
-    ar("PAL",    Prefs().isPAL  )
-      ("Player", Prefs().player );
+    ar("PAL",    Prefs().isPAL  );
+    if( CanSrl(ar, 6) )
+        ar("RemMyTVChoice", Prefs().remMyTVChoice);
+    
+    ar("Player", Prefs().player );
 
     if( CanSrl(ar, 2) )
         ar("DefAuthorPath", Prefs().authorPath);
@@ -102,6 +105,7 @@ void SerializePrefs(Project::Archieve& ar)
 void Preferences::Init()
 {
     isPAL  = true;
+    remMyTVChoice = false;
     player = paTOTEM;
     authorPath = (fs::path(Glib::get_user_cache_dir()) / "bombono-dvd-video").string();
     showSrcFileBrowser = false;
@@ -163,6 +167,11 @@ static bool OnIntChangeVal(Gtk::HScale& hs, double val)
     return true;
 }
 
+void SavePrefs()
+{
+    SavePrefs(&SerializePrefs, PrefsName, PREFS_VERSION);
+}
+
 void ShowPrefs(Gtk::Window* win)
 {
     Gtk::Dialog dlg(_("Bombono DVD Preferences"), false, true);
@@ -215,7 +224,7 @@ void ShowPrefs(Gtk::Window* win)
         Prefs().showSrcFileBrowser = fb_btn.get_active();
         Prefs().maxCPUWorkload = wl_hs.get_value();
 
-        SavePrefs(&SerializePrefs, PrefsName, PREFS_VERSION);
+        SavePrefs();
     }
 }
 

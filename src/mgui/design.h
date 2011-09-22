@@ -60,8 +60,8 @@ const uint GOLD_CLR       = 0xf0e060ff; // цвет текста по умолч
 // 
 
 const uint WDG_BORDER_WDH  = 6;    // ширина отступов между основными виджетами
-const uint BROWSER_WDH     = 230;  // ширина MediaBrowser
-const uint APPLICATION_WDH = 1000; // ширина всего приложения по умолчанию
+const uint BROWSER_WDH     = 400;//230;  // ширина MediaBrowser
+const uint APPLICATION_WDH = 1100;//1000; // ширина всего приложения по умолчанию
 const uint FCW_WDH         = 350;  // ширина ОВФ(окно выбора файлов)
 
 #endif // __MGUI_DESIGN_H__

@@ -37,6 +37,8 @@ void LoadApp(const std::string& fname);
 
 void AddSrlActions(RefPtr<Gtk::ActionGroup> prj_actions);
 
+void OnNewProject(ConstructorApp& app, bool on_startup);
+
 } // namespace Project
 
 

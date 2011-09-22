@@ -223,35 +223,56 @@ static Gtk::RadioButton& TVSelectionButton(bool &is_pal, bool val, Gtk::RadioBut
     return btn;
 }
 
-static void OnNewProject(ConstructorApp& app)
+void OnNewProject(ConstructorApp& app, bool on_startup)
 {
     bool is_pal = Prefs().isPAL;
     Gtk::Dialog new_prj_dlg(_("New Project"), app.win, true, true);
     new_prj_dlg.set_name("NewProject");
     new_prj_dlg.set_resizable(false);
-    {
-        AddCancelDoButtons(new_prj_dlg, Gtk::Stock::OK);
-        Gtk::VBox& dlg_box = *new_prj_dlg.get_vbox();
-        PackStart(dlg_box, NewManaged<Gtk::Image>(DataDirPath("cap400.png")));
-        Gtk::VBox& vbox = Add(PackStart(dlg_box, NewPaddingAlg(10, 40, 20, 20)), NewManaged<Gtk::VBox>());
-        
-        PackStart(vbox, NewManaged<Gtk::Label>(_("Please select a Television standard for your project:"),
-                                               0.0, 0.5, true));
-        {
-            Gtk::VBox& vbox2 = Add(PackStart(vbox, NewPaddingAlg(10, 10, 0, 0)), NewManaged<Gtk::VBox>());
 
-            Gtk::RadioButtonGroup grp;
-            PackStart(vbox2, TVSelectionButton(is_pal, true,  grp));
-            PackStart(vbox2, TVSelectionButton(is_pal, false, grp));
-        }
-        dlg_box.show_all();
+    Gtk::VBox& dlg_box = *new_prj_dlg.get_vbox();
+    PackStart(dlg_box, NewManaged<Gtk::Image>(DataDirPath("cap400.png")));
+    Gtk::VBox& vbox = Add(PackStart(dlg_box, NewPaddingAlg(10, 40, 20, 20)), NewManaged<Gtk::VBox>());
+    
+    PackStart(vbox, NewManaged<Gtk::Label>(_("Please select a Television standard for your project:"),
+                                           0.0, 0.5, true));
+    {
+        Gtk::VBox& vbox2 = Add(PackStart(vbox, NewPaddingAlg(10, 10, 0, 0)), NewManaged<Gtk::VBox>());
+
+        Gtk::RadioButtonGroup grp;
+        PackStart(vbox2, TVSelectionButton(is_pal, true,  grp));
+        PackStart(vbox2, TVSelectionButton(is_pal, false, grp));
     }
 
+    Gtk::CheckButton r_btn(_("Remember my choice"));
+    if( on_startup )
+    {
+        // :TRICKY: в отличие от GtkAssistant, action_area в диалоге - 
+        // GtkButtonBox, который все свои виджеты делает одинаковыми,
+        // не смотря на опции shrink, fill, padding (т.е. GtkButtonBox
+        // заведомо хуже GtkBox в плане гибкости)
+        //PackStart(*new_prj_dlg.get_action_area(), r_btn);
+        PackStart(vbox, r_btn);
+        new_prj_dlg.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
+    }
+    else
+        AddCancelOKButtons(new_prj_dlg);
+
+    dlg_box.show_all();
     if( Gtk::RESPONSE_OK == new_prj_dlg.run() )
     {
         NewProject();
         AData().SetPalTvSystem(is_pal);
         SetAppTitle();
+
+        if( on_startup && r_btn.get_active() )
+        {
+            Prefs().isPAL = is_pal;
+            // :TRICKY: если будут запросы обратно в false вернуть, то
+            // добавим "очищающую" кнопку PackCompositeWdgButton() в диалог настроек
+            Prefs().remMyTVChoice = true;
+            SavePrefs();
+        }
     }
 }
 
@@ -349,7 +370,7 @@ ActionFunctor MakeOnOtherPrjFunctor(const ConstructorAppFnr& fnr)
 void AddSrlActions(RefPtr<Gtk::ActionGroup> prj_actions)
 {
     prj_actions->add( Gtk::Action::create("New",   Gtk::Stock::NEW,  _("_New Project")),
-                      Gtk::AccelKey("<control>N"), MakeOnOtherPrjFunctor(OnNewProject) );
+                      Gtk::AccelKey("<control>N"), MakeOnOtherPrjFunctor(bb::bind(&OnNewProject, _1, false)) );
     prj_actions->add( Gtk::Action::create("Open",   Gtk::Stock::OPEN, _("_Open...")),
                       Gtk::AccelKey("<control>O"), MakeOnOtherPrjFunctor(OnOpenProject) );
     prj_actions->add( Gtk::Action::create("Save",   Gtk::Stock::SAVE, _("_Save")),

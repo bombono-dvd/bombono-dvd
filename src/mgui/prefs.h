@@ -36,6 +36,8 @@ enum PlayAuthoring
 struct Preferences: public Singleton<Preferences>
 {
              bool  isPAL;   // PAL vs NTSC
+             bool  remMyTVChoice; // помнить выбор по умолчанию isPAL при старте
+
     PlayAuthoring  player;
       std::string  authorPath;
              bool  showSrcFileBrowser; // добавление медиа по-старому
@@ -52,6 +54,8 @@ inline Preferences& Prefs()
 }
 
 void LoadPrefs();
+void SavePrefs();
+
 void ShowPrefs(Gtk::Window* win = 0);
 
 //

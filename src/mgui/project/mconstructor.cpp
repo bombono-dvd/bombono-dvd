@@ -928,7 +928,11 @@ void RunConstructor(const std::string& prj_file_name, bool ask_save_on_exit)
         Gtk::Window::set_default_icon_list(pix_lst);
     
         ActionFunctor after_fnr = BuildConstructor(app, prj_file_name);
-        RunWindow(app.win);
+        //RunWindow(app.win);
+        app.win.show_all();
+        if( !Prefs().remMyTVChoice )
+            OnNewProject(app, true);
+        Gtk::Main::run(app.win);
         after_fnr();
     }
     // сохраняем настройки после закрытия (=> обновления информации) окон
