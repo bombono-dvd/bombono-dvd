@@ -885,6 +885,9 @@ ActionFunctor BuildConstructor(ConstructorApp& app, const std::string& prj_file_
     app.win.set_default_size(up.appSz.x, up.appSz.y);
     if( up.isLoaded )
         app.win.move(up.appPos.x, up.appPos.y);
+    else
+        // в первый раз - по центру
+        app.win.set_position(Gtk::WIN_POS_CENTER);
     app.win.signal_configure_event().connect(&UpdateAppSizes, false);
     
     // *
@@ -904,8 +907,29 @@ ActionFunctor BuildConstructor(ConstructorApp& app, const std::string& prj_file_
     return after_fnr;
 }
 
+static bool DestroyWin(ptr::shared<Gtk::Window>& swin)
+{
+    swin.reset();
+    return true;
+}
+
 void RunConstructor(const std::string& prj_file_name, bool ask_save_on_exit)
 {
+    // заставка
+    //Gtk::Window splash_win;
+    ptr::shared<Gtk::Window> swin(new Gtk::Window);
+    Gtk::Window& splash_win = *swin;
+    Add(splash_win, NewManaged<Gtk::Image>(DataDirImage("splash-bmd.png")));
+    splash_win.set_position(Gtk::WIN_POS_CENTER);
+    splash_win.set_resizable(false);
+    splash_win.set_decorated(false);
+    splash_win.show_all();
+    // :KLUDGE: если вызвать до show_all(), то не сработает под win32
+    // (gdk_window_set_keep_above() не вызывается)
+    splash_win.set_keep_above(true);
+    // принудить (GTK/OS/...) выполнить всю текущую работу => показать окно заставки быстрей
+    IteratePendingEvents();
+
     DBCleanup db_cleanup(false);
     // *
     InitI18n();
@@ -930,8 +954,13 @@ void RunConstructor(const std::string& prj_file_name, bool ask_save_on_exit)
         ActionFunctor after_fnr = BuildConstructor(app, prj_file_name);
         //RunWindow(app.win);
         app.win.show_all();
+        // отложим закрытие заставки на 0.5 секунд
+        //swin.reset();
+        Timer().Connect(bb::bind(&DestroyWin, b::ref(swin)), 500);
+
         if( !Prefs().remMyTVChoice )
             OnNewProject(app, true);
+        
         Gtk::Main::run(app.win);
         after_fnr();
     }
