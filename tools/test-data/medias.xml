@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<AProject Version="0.4">
+<AProject BmdVersion="0.4" Version="1">
 <!--This document is for "The Atom Project" program-->
   <Medias>
     <Media Name="Autumn" Path="./flower.mpg" Type="Video">
