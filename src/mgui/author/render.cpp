@@ -362,6 +362,8 @@ void MakeSubpictures(Menu mn, bool not_letterbox16_9, const std::string& mn_dir)
     MenuRegion& m_rgn   = GetMenuRegion(mn);
     PixCanvasBuf&  cnv_buf = GetTaggedPCB(mn, data_tag);
     RefPtr<Gdk::Pixbuf> cnv_pix = cnv_buf.Source();
+    // из-за того, что при lb-режиме не будет рисовать на "матах"
+    cnv_pix->fill(TRANS_CLR);
 
     RectListRgn rct_lst;
     rct_lst.push_back(cnv_buf.FramePlacement());
