@@ -110,6 +110,8 @@ Gtk::CellRendererText& MakeNameRenderer();
 
 RefPtr<MediaStore> GetMediaStore();
 
+Gtk::CellRendererText& AppendNameColumn(Gtk::TreeView& tv, const Gtk::TreeModelColumn<RefPtr<Gdk::Pixbuf> >& thumbnail_cln,
+                                        bool set_resizable, RefPtr<ObjectStore> os);
 } // namespace Project
 
 void SafeRemove(const std::string& fpath);

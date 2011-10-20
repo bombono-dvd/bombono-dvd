@@ -161,12 +161,14 @@ void SetStageProgress(double percent, bool is_percent)
             {
                 time_t h = min / 60;
                 if( h )
-                    remaining_str = BF_("%1% hour %2$02d min remaining") % h % (min % 60) % bf::stop;
+                    remaining_str = boost::format(ngettext("%1% hour %2$02d min remaining", "%1% hours %2$02d min remaining", h))
+                        % h % (min % 60) % bf::stop;
                 else
-                    remaining_str = BF_("%1% min %2$02d sec remaining") % min % (tm % 60) % bf::stop;
+                    remaining_str = boost::format(ngettext("%1% min %2$02d sec remaining", "%1% min %2$02d sec remaining", min))
+                        % min % (tm % 60) % bf::stop;
             }
             else
-                remaining_str = BF_("%1% sec remaining") % tm % bf::stop;
+                remaining_str = boost::format(ngettext("%1% sec remaining", "%1% sec remaining", tm)) % tm % bf::stop;
         }
     }
     

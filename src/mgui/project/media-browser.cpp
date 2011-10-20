@@ -500,7 +500,7 @@ static void RunBitrateCalc(VideoItem vi, Gtk::Dialog& dlg, ObjectBrowser& brw)
     }
     
     std::string ctm_ff_opt = CustomFFOpts(vi);
-    Gtk::Expander& expdr = NewManaged<Gtk::Expander>(_("Custom _ffmpeg options"), true);
+    Gtk::Expander& expdr = NewManaged<Gtk::Expander>(_("Additional _ffmpeg options"), true);
     expdr.set_expanded(ctm_ff_opt.size());
     SetTip(expdr, _("Examples: \"-top 0\", \"-deinterlace\". See FFmpeg documentation for more options."));
 
@@ -909,6 +909,22 @@ static std::string RenderMediaType(MediaItem mi, bool show_info)
     return info;
 }
 
+Gtk::CellRendererText& AppendNameColumn(Gtk::TreeView& tv, const Gtk::TreeModelColumn<RefPtr<Gdk::Pixbuf> >& thumbnail_cln,
+                                        bool set_resizable, RefPtr<ObjectStore> os)
+{
+    Gtk::TreeView::Column& name_cln = NewManaged<Gtk::TreeView::Column>(_("Name"));
+    name_cln.set_resizable(set_resizable);
+
+    name_cln.pack_start(thumbnail_cln, false);
+
+    // имя
+    Gtk::CellRendererText& rndr = MakeNameRenderer();
+    SetupNameRenderer(name_cln, rndr, os);
+
+    tv.append_column(name_cln);
+    return rndr;
+}
+
 MediaBrowser::MediaBrowser(RefPtr<MediaStore> ms, bool show_info)
 {
     set_model(ms);
@@ -917,22 +933,9 @@ MediaBrowser::MediaBrowser(RefPtr<MediaStore> ms, bool show_info)
     SetupBrowser(*this, trk_fields.media.index(), true);
 
     // 1 миниатюра + имя
-    {
-        Gtk::TreeView::Column& name_cln = *Gtk::manage( new Gtk::TreeView::Column(_("Name")) );
-        // ширину колонки можно менять
-        name_cln.set_resizable(true);
+    AppendNameColumn(*this, trk_fields.thumbnail, true, ms);
 
-        name_cln.pack_start(trk_fields.thumbnail, false);
-
-        // 2 имя
-        Gtk::CellRendererText& rndr = MakeNameRenderer();
-        //name_cln.set_renderer(rndr, trk_fields.title);
-        SetupNameRenderer(name_cln, rndr, ms);
-
-        append_column(name_cln);
-    }
-
-    // 3 тип
+    // 2 тип
     {
         Gtk::TreeView::Column& cln  = NewManaged<Gtk::TreeView::Column>(show_info ? _("Information") : _("Type"));
         Gtk::CellRendererText& rndr = *Gtk::manage( new Gtk::CellRendererText() );

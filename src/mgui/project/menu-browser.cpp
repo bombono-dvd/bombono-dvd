@@ -476,20 +476,10 @@ MenuBrowser::MenuBrowser(RefPtr<MenuStore> ms)
     const MenuStore::TrackFields& trk_fields = ms->columns;
 
     // 1 миниатюра + имя
-    {
-        Gtk::TreeView::Column& name_cln = NewManaged<Gtk::TreeView::Column>(Glib::ustring("Name"));
-        name_cln.pack_start(trk_fields.thumbnail, false);
-
-        // 2 имя
-        Gtk::CellRendererText& rndr = MakeNameRenderer();
-
-        rndr.property_size_points() = 13.0; // синхронизировать со стилем "MenuEntryStyle"
-        rndr.property_xpad() = 5;
-        //rndr.property_weight() = PANGO_WEIGHT_BOLD;
-        SetupNameRenderer(name_cln, rndr, ms);
-
-        append_column(name_cln);
-    }
+    Gtk::CellRendererText& rndr = AppendNameColumn(*this, trk_fields.thumbnail, false, ms);
+    rndr.property_size_points() = 13.0; // синхронизировать со стилем "MenuEntryStyle"
+    rndr.property_xpad() = 5;
+    //rndr.property_weight() = PANGO_WEIGHT_BOLD;
 
     SetOnRightButton(*this, bb::bind(&OnRightButton, _1, _2, _3));
 }
