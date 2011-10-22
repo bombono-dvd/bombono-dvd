@@ -134,7 +134,7 @@ class ReadStreambuf: public io::filebuf<char>
           {
               char c;
               xsgetnImpl(&c, 1);
-              res = c;
+              res = (unsigned char)c;
           }
           return res;
       }
