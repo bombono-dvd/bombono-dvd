@@ -355,13 +355,11 @@ bool ADatabase::SaveWithFnr(ArchieveFnr afnr)
         return false;
     IndexOrderArrs();
 
-    xmlpp::Document doc;
-    xmlpp::Element* root_node = doc.create_root_node("AProject");
+    XMLSave xs("AProject");
+    xmlpp::Element* root_node = xs.rootNode;
     root_node->set_attribute("BmdVersion", APROJECT_VERSION);
     root_node->add_child_comment("This document is for " APROGRAM_PRINTABLE_NAME " program");
-
-    DoSaveArchieve(root_node, afnr, PRJ_VERSION);
-    SaveFormattedUTF8Xml(doc, ConvertPathFromUtf8(prjFName));
+    SaveXS(xs, afnr, PRJ_VERSION, ConvertPathFromUtf8(prjFName));
     return true;
 }
 

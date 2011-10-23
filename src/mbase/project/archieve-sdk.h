@@ -28,7 +28,16 @@ namespace Project
 {
 
 void DoLoadArchieve(const std::string& fname, const ArchieveFnr& afnr, const char* root_tag);
-void DoSaveArchieve(xmlpp::Element* root_node, const ArchieveFnr& afnr, int save_ver);
+
+struct XMLSave
+{
+    xmlpp::Document doc;
+    xmlpp::Element* rootNode;
+    
+    XMLSave(const char* root_tag);
+};
+
+void SaveXS(XMLSave& xs, const ArchieveFnr& afnr, int save_ver, const Glib::ustring& filename);
 
 } // namespace Project
 

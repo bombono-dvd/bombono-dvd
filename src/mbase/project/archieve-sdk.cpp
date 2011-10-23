@@ -23,17 +23,22 @@
 
 #include "archieve.h"
 #include "archieve-sdk.h"
+#include "table.h" // SaveFormattedUTF8Xml()
 
 #include <mlib/string.h>
 
 namespace Project
 {
 
-void DoSaveArchieve(xmlpp::Element* root_node, const ArchieveFnr& afnr, int ver_to_save)
+XMLSave::XMLSave(const char* root_tag): rootNode(doc.create_root_node(root_tag)) {}
+
+void SaveXS(XMLSave& xs, const ArchieveFnr& afnr, int save_ver, const Glib::ustring& filename)
 {
-    Archieve ar(root_node, false);
-    ar("Version", ver_to_save);
+    Archieve ar(xs.rootNode, false);
+    ar("Version", save_ver);
     afnr(ar);
+
+    SaveFormattedUTF8Xml(xs.doc, filename);
 }
 
 void DoLoadArchieve(const std::string& fname, const ArchieveFnr& afnr, const char* root_tag)

@@ -53,12 +53,9 @@ std::string PreferencesPath(const char* fname)
 
 void SavePrefs(Project::ArchieveFnr afnr, const char* fname, int version)
 {
-    xmlpp::Document doc;
-    xmlpp::Element* root_node = doc.create_root_node("BmD");
-    root_node->add_child_comment("Preferences for Bombono DVD");
-
-    Project::DoSaveArchieve(root_node, afnr, version);
-    doc.write_to_file_formatted(PreferencesPath(fname));
+    Project::XMLSave xs("BmD");
+    xs.rootNode->add_child_comment("Preferences for Bombono DVD");
+    Project::SaveXS(xs, afnr, version, PreferencesPath(fname));
 }
 
 static bool LoadPrefs(const char* fname, const Project::ArchieveFnr& fnr)
