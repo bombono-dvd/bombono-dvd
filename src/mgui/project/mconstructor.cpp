@@ -240,30 +240,33 @@ Rect GetAllocation(Gtk::Widget& wdg)
 }
 
 static bool EraseTabLineOnExpose(Gtk::Notebook& nbook, GdkEventExpose* event, bool erase_down,
-				 Gtk::Notebook* book_tabs)
+                                 Gtk::Notebook* book_tabs)
 {
     Rect plc = GetAllocation(nbook);
-    if( !plc.IsNull() )
+    if ( !plc.IsNull() )
     {
-        plc.lft += 1;
-        if( erase_down )
-    	{
-    	    plc.rgt -= 1;
-    	    plc.top = plc.btm-1;
-    	}
+        plc.lft += 1; // для Clearlooks границу не стирать (хотя для умолчальной удобнее без уменьшения)
+        // стираем 2 ряда пикселов с каждой стороны:
+        // - clearlooks etc - толщина верхней 2 пиксела, нижней - 1
+        // - умолчальная - наоборот
+        if ( erase_down )
+        {
+            plc.rgt -= 1;
+            plc.top = plc.btm-2;
+        }
         else
-    	{
+        {
             // стираем верхнюю линию рамки только до окончания верхних табов
-    	    plc.rgt = std::min(plc.rgt, GetAllocation(*book_tabs).rgt)-1;
-    	    plc.btm = plc.top+1;
-    	}
-        if( plc.Intersects(MakeRect(event->area)) )
+            plc.rgt = std::min(plc.rgt, GetAllocation(*book_tabs).rgt)-1;
+            plc.btm = plc.top+2;
+        }
+        if ( plc.Intersects(MakeRect(event->area)) )
         {
             Cairo::RefPtr<Cairo::Context> cr = nbook.get_window()->create_cairo_context();
-            cr->set_line_width(erase_down ? 1.0 : 2.0);
+            cr->set_line_width(2.0);
             CR::SetColor(cr, GetBGColor(nbook));
 
-            double y = plc.top + (erase_down ? H_P : 1);
+            double y = plc.top + 1;
             cr->move_to(plc.lft, y);
             cr->line_to(plc.rgt, y);
             cr->stroke();
