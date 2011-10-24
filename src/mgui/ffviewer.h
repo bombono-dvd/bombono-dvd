@@ -36,6 +36,13 @@ C_LINKAGE_END
 
 #include <boost/noncopyable.hpp>
 
+// :TRICKY: для сборок со старыми версиями ffmpeg ~ 0.5
+#if (LIBAVCODEC_VERSION_MAJOR < 53) && !defined(AVMEDIA_TYPE_AUDIO)
+#define AVMEDIA_TYPE_AUDIO      CODEC_TYPE_AUDIO
+#define AVMEDIA_TYPE_VIDEO      CODEC_TYPE_VIDEO
+#endif
+
+
 // иначе импорт только DVD-совместимых файлов 
 #define FFMPEG_IMPORT_POLICY 1
 

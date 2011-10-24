@@ -260,7 +260,11 @@ static void DumpIFile(AVFormatContext* ic, int idx = 0, const std::string& fname
     //const char* fname = "n/a";
     // входной/выходной файл
     int is_output = 0;
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52,101,00)
+    av_dump_format(ic, idx, fname.c_str(), is_output);
+#else
     dump_format(ic, idx, fname.c_str(), is_output);
+#endif
 }
 
 Point VideoSize(AVCodecContext* dec)
@@ -325,25 +329,29 @@ bool OpenInfo(FFData& ffi, const char* fname, FFDiagnosis& diag)
     // создается из av_find_input_format(str), где str из опции -f для ffmpeg
     // (ffmpeg -formats)
     AVInputFormat* file_iformat = 0;
+
+    AVFormatContext* ic = 0;
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(53,2,0)
+    int av_res = avformat_open_input(&ic, fname, file_iformat, 0);
+#else
     // для уточнения параметров входного потока; используется в случаях, когда
     // по самому потоку невозможно определить их (не для контейнеров, а для 
     // элементарных потоков
     AVFormatParameters* ap = 0;
     // всегда нуль (ffmpeg, ffplay)
     int buf_size = 0;
-
-    AVFormatContext* ic = 0;
     int av_res = av_open_input_file(&ic, fname, file_iformat, buf_size, ap);
+#endif
     if( IsFFError(av_res) ) // ошибка
     {
         switch( av_res )
         {
-        case AVERROR_NOENT:
+        case AVERROR(ENOENT):
             // :TODO: решить, ставить в конце точки или нет (сообщения пользователю
             // показывается не HIG-ого)
             err_str = _("No such file");
             break;
-        case AVERROR_NOFMT: // использовалось до 0.6, заменено на AVERROR_INVALIDDATA
+        case AVERROR(EILSEQ): // использовалось до 0.6, заменено на AVERROR_INVALIDDATA
         // основной источник ошибок, ffmpeg'у предлагается открыть явно не видео (вроде текста),
         // см. код ff_probe_input_buffer()
         // :TODO: однако данный код выбрасывается ffmpeg'ом еще в куче мест; если будет
@@ -380,13 +388,13 @@ bool OpenInfo(FFData& ffi, const char* fname, FFDiagnosis& diag)
         {
             AVStream* strm = ic->streams[i];
             AVCodecContext* avctx = strm->codec;
-            if( SetIndex(video_idx, i, avctx->codec_type == CODEC_TYPE_VIDEO) )
+            if( SetIndex(video_idx, i, avctx->codec_type == AVMEDIA_TYPE_VIDEO) )
                 ;
             else
                 // для демиксера имеет значение только NONE и ALL
                 strm->discard = AVDISCARD_ALL;
 
-            SetIndex(audio_idx, i, avctx->codec_type == CODEC_TYPE_AUDIO);
+            SetIndex(audio_idx, i, avctx->codec_type == AVMEDIA_TYPE_AUDIO);
         }
 
         if( video_idx == -1 )
@@ -546,9 +554,30 @@ static double TS2Time(int64_t ts, FFViewer& ffv)
     return tm;
 }
 
+// с версий больше чем 0.6 используем skip_frame вместо hurry_up,
+// потому что все равно отрубят последний
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52,65,0)
+#define USE_SKIP_FRAME
+#endif
+
 static bool IsInHurry(AVCodecContext* dec)
 {
+#ifdef USE_SKIP_FRAME
+    return dec->skip_frame >= AVDISCARD_NONREF;
+#else
     return dec->hurry_up != 0;
+#endif
+}
+
+static void SetHurryUp(AVCodecContext* dec, bool is_on)
+{
+#ifdef USE_SKIP_FRAME
+    UNUSED_VAR(dec);
+    UNUSED_VAR(is_on);
+#else
+    // как признак (хоть и устаревший)
+    dec->hurry_up =  is_on ? 1 : 0;
+#endif
 }
 
 struct HurryModeEnabler
@@ -557,8 +586,7 @@ struct HurryModeEnabler
 
     HurryModeEnabler(AVCodecContext* dec_): dec(dec_)
     {
-        // как признак (хоть и устаревший)
-        dec->hurry_up = 1;
+        SetHurryUp(dec, true);
         // Прирост скорости (h264): 
         // - AVDISCARD_NONREF: 2x
         // - AVDISCARD_BIDIR: для h264 (и других современных кодеков?) разница в скорости 
@@ -578,7 +606,7 @@ struct HurryModeEnabler
     }
    ~HurryModeEnabler()
     {
-        dec->hurry_up = 0;
+        SetHurryUp(dec, false);
         dec->skip_frame = AVDISCARD_DEFAULT;
         //dec->skip_idct = AVDISCARD_DEFAULT;
         //dec->skip_loop_filter = AVDISCARD_DEFAULT;
@@ -1137,17 +1165,33 @@ static void RegisterVobProt()
     {
         is_init = true;
         
-        static URLProtocol bmdvob_protocol = {
-            "bmdvob",
-            VobOpen,
-            VobRead,
-            0, //file_write,
-            VobSeek,
-            VobClose,
-            0,0,0,0
-        };
-        
-        av_register_protocol(&bmdvob_protocol);
+        // так как постоянно добавляют атрибуты, то лучше так
+        //static URLProtocol bmdvob_up = {
+        //    "bmdvob",
+        //    VobOpen,
+        //    VobRead,
+        //    0, //file_write,
+        //    VobSeek,
+        //    VobClose,
+        //    0,0,0,0
+        //};
+        static URLProtocol bmdvob_up;
+        int sz = sizeof(URLProtocol);
+        memset(&bmdvob_up, 0, sz);
+
+        bmdvob_up.name = "bmdvob";
+        bmdvob_up.url_open  = VobOpen;
+        bmdvob_up.url_read  = VobRead;
+        bmdvob_up.url_seek  = VobSeek;
+        bmdvob_up.url_close = VobClose;
+                
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52, 69, 0)
+        // :TRICKY: с некоторого момента сделали его deprecated,
+        // а вместо него ffurl_register_protocol(), только в публичном заголовке его нет
+        av_register_protocol2(&bmdvob_up, sz);
+#else
+        av_register_protocol(&bmdvob_up);
+#endif
     }
 }
    
