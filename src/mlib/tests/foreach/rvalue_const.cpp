@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE( rvalue_const )
         counter += i;
     }
 
-    BOOST_CHECK(16 == counter);
+    BOOST_CHECK_EQUAL(16, counter);
 }
 
 #endif

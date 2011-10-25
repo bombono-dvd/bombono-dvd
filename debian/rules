@@ -22,7 +22,13 @@ endif
 DEB_INSTALL_MANPAGES_bombono-dvd := debian/bombono-dvd.1 debian/mpeg2demux.1
 
 build/bombono-dvd::
-	scons -k $(BUILD_FLAGS) PREFIX=/usr DESTDIR=$(CURDIR)/debian/bombono-dvd
+	# :KLUDGE: in new distros like oneiric libdvdread is built without binding to libdl.so
+	# because something was done in gcc or ld (now -ldl must be after objs for libdvdread);
+	# workaround:
+	# 1) add -ldl here
+	# 2) use gold linker instead of ld because it can handle "-ldl placement before" somehow
+	#    => binutils-gold as Build-Depends
+	scons -k $(BUILD_FLAGS) LDFLAGS='-ldl' PREFIX=/usr DESTDIR=$(CURDIR)/debian/bombono-dvd
 
 cleanbuilddir/bombono-dvd::
 	rm -rf build config.opts tools/scripts/*.pyc
