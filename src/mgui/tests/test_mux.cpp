@@ -32,13 +32,12 @@
 
 BOOST_AUTO_TEST_CASE( TestFileChooser )
 {
-    return;
     InitGtkmm();
 
     const char* path = "/var/tmp";
     Gtk::FileChooserButton btn("Select folder", Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
 
-    BOOST_CHECK( btn.set_filename(path) );
+    BOOST_CHECK( SetFilename(btn, path) );
     //BOOST_CHECK( btn.set_current_folder(path) );
 
     //Gtk::Window win;

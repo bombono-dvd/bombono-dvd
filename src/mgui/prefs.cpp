@@ -128,7 +128,8 @@ void TrySetDirectory(Gtk::FileChooser& fc, const std::string& dir_path)
     {
         LOG_WRN << "TrySetDirectory(" << dir_path << "): " << err.what() << io::endl;
     }
-    fc.set_filename(dir_path);
+    //fc.set_filename(dir_path);
+    SetFilename(fc, dir_path);
 }
 
 static void NotifyToRestart()

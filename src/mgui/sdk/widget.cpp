@@ -102,11 +102,20 @@ std::string _remove_underscore_(const char* str)
 // get_filename() выдает текущий путь вместо "пусто"
 bool SetFilename(Gtk::FileChooser& fc, const std::string& fpath)
 {
-    bool not_empty = !fpath.empty();
-    if( not_empty )
-        fc.set_filename(fpath);
+    bool res = fpath.size();
+    if( res )
+    {
+#if !GTK_CHECK_VERSION(2,24,3)
+        // Federico Mena Quintero поправил ошибку для >= 2.24.3
+        // https://bugzilla.gnome.org/show_bug.cgi?id=643170
+        // (наконец-то, спустя год как я оформил https://bugzilla.gnome.org/show_bug.cgi?id=615353)
+        // для меньших версий проходит только, если только без скрытых файлов
+        fc.set_show_hidden(false);
+#endif
+        res = fc.set_filename(fpath);
+    }
 
-    return not_empty;
+    return res;
 }
 
 Gtk::HBox& PackCompositeWdg(Gtk::Widget& wdg)
