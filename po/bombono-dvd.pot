@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-25 01:40+0400\n"
+"POT-Creation-Date: 2011-11-06 13:00+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -252,35 +252,35 @@ msgstr ""
 msgid "Output file name is empty."
 msgstr ""
 
-#: src/mgui/prefs.cpp:136
+#: src/mgui/prefs.cpp:137
 msgid "You need to restart the application for the changes to take place"
 msgstr ""
 
-#: src/mgui/prefs.cpp:174
+#: src/mgui/prefs.cpp:175
 msgid "Bombono DVD Preferences"
 msgstr ""
 
-#: src/mgui/prefs.cpp:182
+#: src/mgui/prefs.cpp:183
 msgid "Show File Browser"
 msgstr ""
 
-#: src/mgui/prefs.cpp:191
+#: src/mgui/prefs.cpp:192
 msgid "_Default project type"
 msgstr ""
 
-#: src/mgui/prefs.cpp:194
+#: src/mgui/prefs.cpp:195
 msgid "Default _folder for authoring"
 msgstr ""
 
-#: src/mgui/prefs.cpp:199
+#: src/mgui/prefs.cpp:200
 msgid "_Play authoring result in"
 msgstr ""
 
-#: src/mgui/prefs.cpp:209
+#: src/mgui/prefs.cpp:210
 msgid "Multi-core CPU support"
 msgstr ""
 
-#: src/mgui/prefs.cpp:210
+#: src/mgui/prefs.cpp:211
 msgid ""
 "Make use of multi-core CPU for transcoding videos quickly; 1 is not to use "
 "multi-coreness, safe minimum (no possible CPU overheat)"

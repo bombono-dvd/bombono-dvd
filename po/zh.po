@@ -1,403 +1,398 @@
-# Ukrainian translation for bombono-dvd.
-# Copyright © 2010 "Ilya Murav'jov"
+# Chinese simplified translation for bombono-dvd.
+# Copyright (C) 2011 "Ilya Murav'jov"
 # This file is distributed under the same license as the bombono-dvd package.
+# Wylmer Wang <wantinghard@gmail.com>, 2011.
 #
-# Yuri Chornoivan <yurchor@ukr.net>, 2010, 2011.
 msgid ""
 msgstr ""
-"Project-Id-Version: bombono-dvd 1.1.0\n"
+"Project-Id-Version: bombono-dvd-1.1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-10-25 01:40+0400\n"
-"PO-Revision-Date: 2011-10-28 12:14+0200\n"
-"Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
-"Language-Team: Ukrainian <translation-team-uk@lists.sourceforge.net>\n"
-"Language: ukX-Generator: Lokalize 1.2\n"
+"PO-Revision-Date: 2011-10-31 10:17+0800\n"
+"Last-Translator: Wylmer Wang <wantinghard@gmail.com>\n"
+"Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Lokalize 1.2\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: src/mbase/project/media.cpp:68 src/mgui/project/media-browser.cpp:885
 msgid "Chapter"
-msgstr "Частина"
+msgstr "章节"
 
 #: src/mbase/project/media.cpp:119
 #, boost-format
 msgid "Can't create folder %1% (check permissions)"
-msgstr "Не вдалося створити теку %1% (перевірте права доступу)"
+msgstr "无法创建文件夹 %1% (请检查权限)"
 
 #: src/mbase/project/menu.cpp:360
 msgid "Menu"
-msgstr "Меню"
+msgstr "菜单"
 
 #: src/mgui/dvdimport.cpp:84
 msgid "Choose Source DVD-Video"
-msgstr "Виберіть джерело даних відео-DVD"
+msgstr "选择源 DVD 视频"
 
 #: src/mgui/dvdimport.cpp:87
 msgid "Select Videos to Import"
-msgstr "Виберіть відео для імпортування"
+msgstr "选择要导入的视频"
 
 #: src/mgui/dvdimport.cpp:90
 msgid "Select Folder to Save Videos"
-msgstr "Виберіть теку для збереження відео"
+msgstr "选择保存视频的文件夹"
 
 #: src/mgui/dvdimport.cpp:93
 msgid "Importing..."
-msgstr "Імпортування…"
+msgstr "正在导入..."
 
 #: src/mgui/dvdimport.cpp:96
 msgid "Import is completed."
-msgstr "Імпортування завершено."
+msgstr "导入完成。"
 
 #: src/mgui/dvdimport.cpp:217 src/mgui/project/mconstructor.cpp:553
 msgid "MB"
-msgstr "МБ"
+msgstr "MB"
 
 #: src/mgui/dvdimport.cpp:401
 msgid "Select All"
-msgstr "Вибрати все"
+msgstr "全选"
 
 #: src/mgui/dvdimport.cpp:401
 msgid "Unselect All"
-msgstr "Скасувати вибір всього"
+msgstr "全不选"
 
 #. мы не можем пустить исключение здесь, потому что оно пойдет
 #. и через C-шный код (Gtk) - отложим
 #: src/mgui/dvdimport.cpp:423
 msgid "Are you sure to stop importing?"
-msgstr "Припинити імпортування?"
+msgstr "您真的要停止导入吗？"
 
 #: src/mgui/dvdimport.cpp:456
 #, boost-format
 msgid "Can't write to folder %1% (check permissions)."
-msgstr "Не вдалося виконати запис до теки %1% (перевірте права доступу)."
+msgstr "无法写入文件夹 %1% (请检查权限)。"
 
 #: src/mgui/dvdimport.cpp:484 src/mgui/win_utils.cpp:420
 #, boost-format
 msgid "A file named \"%1%\" already exists. Do you want to replace it?"
-msgstr "Файл з назвою «%1%» вже існує. Ви хочете замінити його?"
+msgstr "名为“%1%”的文件已存在。您想替换它吗？"
 
 #: src/mgui/dvdimport.cpp:517
 msgid "Import error!"
-msgstr "Помилка імпортування!"
+msgstr "导入出错！"
 
 #: src/mgui/dvdimport.cpp:521
 msgid "Videos successfully imported."
-msgstr "Відеодані успішно імпортовано."
+msgstr "成功导入了视频。"
 
 #: src/mgui/dvdimport.cpp:522
 msgid "Import has been interrupted."
-msgstr "Імпортування було перервано."
+msgstr "导入被中断。"
 
 #: src/mgui/dvdimport.cpp:556
 msgid "DVD-Video Import"
-msgstr "Імпортування відео-DVD"
+msgstr "DVD 视频导入"
 
 #: src/mgui/dvdimport.cpp:579
 msgid "Choose DVD disc, DVD folder or iso image file."
-msgstr "Виберіть диск DVD, теку з даними DVD або файл образу ISO."
+msgstr "选择 DVD 盘、DVD 文件夹或 ISO 镜像文件。"
 
 #: src/mgui/dvdimport.cpp:597
 msgid "NTSC/PAL mismatch. Try another disc or import to project of corresponding type."
-msgstr "Невідповідність NTSC/PAL. Змініть диск або імпортуйте дані до проекту відповідного типу."
+msgstr "NTSC/PAL 不匹配。请尝试另一盘片或将正确的类型导入项目。"
 
 #. имя
 #. находим колонку
 #: src/mgui/dvdimport.cpp:621 src/mgui/project/media-browser.cpp:808
 #: src/mgui/project/media-browser.cpp:915
 msgid "Name"
-msgstr "Назва"
+msgstr "名称"
 
 #: src/mgui/dvdimport.cpp:634
 msgid "Details"
-msgstr "Параметри"
+msgstr "详情"
 
 #: src/mgui/dvdimport.cpp:680
 msgid "It is desirable the destination folder to be empty."
-msgstr "Бажано, щоб тека призначення була порожньою."
+msgstr "要求目标文件夹为空。"
 
 #. COPY_N_PASTE - тупо сделал содержимое сообщений как у "TSNAMI-MPEG DVD Author"
 #. А что делать - нафига свои придумывать, если смысл один и тот же
 #: src/mgui/execution.cpp:57
 #, boost-format
 msgid "You are about to cancel %1%. Are you sure?"
-msgstr "Ви віддали наказ щодо скасування %1%. Ви бажаєте саме цього?"
+msgstr "将要取消 %1%。您确定吗？"
 
 #: src/mgui/execution.cpp:510
 #, boost-format
 msgid "exit code = %1%"
-msgstr "Код виходу = %1%"
+msgstr "退出代码 = %1%"
 
 #: src/mgui/execution.cpp:512
 #, boost-format
 msgid "broken by signal %1%"
-msgstr "перервано за сигналом %1%"
+msgstr "被信号 %1% 打断"
 
 #. :TODO: решить, ставить в конце точки или нет (сообщения пользователю
 #. показывается не HIG-ого)
 #: src/mgui/ffviewer.cpp:352
 msgid "No such file"
-msgstr "Немає такого файла"
+msgstr "无此文件"
 
 #: src/mgui/ffviewer.cpp:362
 msgid "Unknown file format"
-msgstr "Невідомий формат файла"
+msgstr "未知的文件格式"
 
 #. например .webm для FFmpeg <= 0.5
 #: src/mgui/ffviewer.cpp:380
 #, boost-format
 msgid "Can't find stream information: %1%"
-msgstr "Не вдалося виявити даних щодо потоку: %1%"
+msgstr "找不到流信息：%1%"
 
 #: src/mgui/ffviewer.cpp:402
 msgid "No video stream found"
-msgstr "Не знайдено потоку відеоданих"
+msgstr "未找到视频流"
 
 #: src/mgui/ffviewer.cpp:414
 msgid "Can't find the file duration"
-msgstr "Не вдалося визначити тривалість файла"
+msgstr "找不到文件时长"
 
 #. в 99% отсутствие нач. времени - элементарный поток = без контейнера;
 #. см. особенности ffmpeg, update_initial_timestamps()
 #: src/mgui/ffviewer.cpp:422
 msgid "Start time of the file is unknown"
-msgstr "Час початку відтворення файла невідомий"
+msgstr "文件的开始时刻未知"
 
 #. проверка индекса/возможности перемещения
 #: src/mgui/ffviewer.cpp:430
 msgid "Can't seek through the file"
-msgstr "Позиціювання у файлі неможливе"
+msgstr "无法在文件中搜寻定位"
 
 #: src/mgui/ffviewer.cpp:449
 #, boost-format
 msgid "No decoder found for the stream: %1%"
-msgstr "Не виявлено декодера для потоку: %1%"
+msgstr "未找到此流对应的解码器：%1%"
 
 #: src/mgui/mux.cpp:59
+#, fuzzy
 msgid "muxing"
-msgstr "мікшування"
+msgstr "合成"
 
 #: src/mgui/mux.cpp:75
-#, boost-format
+#, fuzzy, boost-format
 msgid "Muxing \"%1%\""
-msgstr "Мікшування «%1%»"
+msgstr "正在合成“%1%”"
 
 #: src/mgui/mux.cpp:86 src/mgui/author/output.cpp:237
 msgid "Show/_hide Details"
-msgstr "По_казати або приховати подробиці"
+msgstr "显示/隐藏详情(_H)"
 
 #: src/mgui/mux.cpp:109
+#, fuzzy
 msgid "Muxing error"
-msgstr "Помилка мікшування"
+msgstr "合成出错"
 
 #: src/mgui/mux.cpp:110 src/mgui/author/output.cpp:713
 #, boost-format
 msgid "The reason is \"%1%\" (see Details)"
-msgstr "Причиною є «%1%» (див. «Подробиці»)"
+msgstr "原因是“%1%”(参见详情)"
 
 #: src/mgui/mux.cpp:126
 msgid "Select a folder"
-msgstr "Виберіть теку призначення"
+msgstr "选择一个文件夹"
 
 #: src/mgui/mux.cpp:138
+#, fuzzy
 msgid "in"
-msgstr "у"
+msgstr "输入"
 
 #: src/mgui/mux.cpp:172
+#, fuzzy
 msgid "Mux streams"
-msgstr "Мікшувати відео і звук"
+msgstr "合成流"
 
 #: src/mgui/mux.cpp:174
 msgid "Output"
-msgstr "Результат"
+msgstr "输出"
 
 #: src/mgui/mux.cpp:175
 msgid "Select elementary video"
-msgstr "Виберіть відеодоріжку"
+msgstr "选择基础视频"
 
 #: src/mgui/mux.cpp:176
 msgid "Select audio"
-msgstr "Виберіть звукову доріжку"
+msgstr "选择音频"
 
 #. Названия типов для i18n
 #: src/mgui/mux.cpp:180 src/mgui/project/media-browser.cpp:884
 #: src/mgui/timeline/layout-draw.cpp:156
 msgid "Video"
-msgstr "Відео"
+msgstr "视频"
 
 #: src/mgui/mux.cpp:183
 msgid "MPEG2 elementary video (m2v)"
-msgstr "відеодоріжка MPEG2 (m2v)"
+msgstr "MPEG2 基础视频 (m2v)"
 
 #: src/mgui/mux.cpp:188 src/mgui/project/menu-browser.cpp:372
 msgid "Audio"
-msgstr "Звук"
+msgstr "音频"
 
 #: src/mgui/mux.cpp:191 src/mgui/timeline/mviewer.cpp:290
 msgid "Audio for DVD"
-msgstr "Звукові дані для DVD"
+msgstr "DVD 的音频"
 
 #: src/mgui/mux.cpp:216
 msgid "Elementary video file is not selected."
-msgstr "Не вказано файла відеодоріжки."
+msgstr "未选择基础视频文件。"
 
 #: src/mgui/mux.cpp:218
 msgid "Audio file is not selected."
-msgstr "Не вказано файла звукової доріжки."
+msgstr "未选择音频文件。"
 
 #: src/mgui/mux.cpp:220
 msgid "Output file name is empty."
-msgstr "Порожня назва файла результату."
+msgstr "输出文件名为空。"
 
 #: src/mgui/prefs.cpp:136
 msgid "You need to restart the application for the changes to take place"
-msgstr "Щоб зміни набули чинності, програму доведеться перезапустити."
+msgstr "您需要重启应用程序来使更改生效"
 
 #: src/mgui/prefs.cpp:174
 msgid "Bombono DVD Preferences"
-msgstr "Налаштування Bombono DVD"
+msgstr "Bombono DVD 偏好设置"
 
 #: src/mgui/prefs.cpp:182
 msgid "Show File Browser"
-msgstr "Показувати перегляд файлів"
+msgstr "显示文件浏览器"
 
 #: src/mgui/prefs.cpp:191
 msgid "_Default project type"
-msgstr "_Типовий тип проекту"
+msgstr "默认项目类型(_D)"
 
 #: src/mgui/prefs.cpp:194
 msgid "Default _folder for authoring"
-msgstr "Типова т_ека результату"
+msgstr "默认创作文件夹(_F)"
 
 #: src/mgui/prefs.cpp:199
+#, fuzzy
 msgid "_Play authoring result in"
-msgstr "Ві_дтворити результат у"
+msgstr "播放创作结果的程序(_P)"
 
 #: src/mgui/prefs.cpp:209
 msgid "Multi-core CPU support"
-msgstr "Підтримка багатоядерних процесорів"
+msgstr "多核 CPU 支持"
 
 #: src/mgui/prefs.cpp:210
 msgid "Make use of multi-core CPU for transcoding videos quickly; 1 is not to use multi-coreness, safe minimum (no possible CPU overheat)"
-msgstr "Використовувати багатоядерність процесора для пришвидшення перекодування відео. 1 — не використовувати багатоядерність, безпечний мінімум (без перегрівання процесора)."
+msgstr "利用多核 CPU 进行快速视频转码；1 为不使用多核特性，最小安全限度(没有潜在的 CPU 过热风险)"
 
 #: src/mgui/win_utils.cpp:423
 msgid "Replacing the file overwrite its contents."
-msgstr "Заміна файла призведе до перезапису його вмісту."
+msgstr "替换文件会覆盖它的内容。"
 
 #: src/mgui/author/burn.cpp:192
 msgid "Auto"
-msgstr "Авто"
+msgstr "自动"
 
 #: src/mgui/author/burn.cpp:204
 msgid "Update speeds ..."
-msgstr "Оновити швидкості…"
+msgstr "正在更新速度..."
 
 #: src/mgui/author/burn.cpp:330
 msgid "Checking Disc ..."
-msgstr "Перевірка диска…"
+msgstr "正在检查盘片..."
 
 #: src/mgui/author/burn.cpp:344
 msgid "Selected burn drive is for CD discs only. Change to another burn drive."
-msgstr "Вказаний пристрій для запису призначено лише для компакт-дисків. Скористайтеся іншим пристроєм."
+msgstr "所选的刻录光驱只能刻录 CD。请改为其他刻录光驱。"
 
 #: src/mgui/author/burn.cpp:349
 msgid "CD disc is found in the drive, not DVD. Change to DVD disc."
-msgstr "У пристрої для запису виявлено компакт-диск, а не DVD. Вставте у пристрій DVD."
+msgstr "光驱中发现了 CD 盘。请换成 DVD 盘。"
 
 #: src/mgui/author/burn.cpp:354
 msgid "No DVD disc in the drive. Load a clear one and press OK."
-msgstr "У пристрої запису DVD немає дисків. Будь ласка, вставте порожній диск і натисніть кнопку «Гаразд»."
+msgstr "光驱中没有 DVD 盘。请放入一张空盘并点击 确定。"
 
 #: src/mgui/author/burn.cpp:359
 #, boost-format
 msgid "Disc with type \"%1%\" is found in the drive but for DVD-Video disc type should be one from: DVD-R, DVD+R, DVD-RW, DVD+RW. Load a clear one with right type and press OK."
-msgstr "У пристрої для запису виявлено диск типу «%1%», але для запису DVD-Video потрібен диск одного з таких типів: DVD-R, DVD+R, DVD-RW, DVD+RW. Вставте порожній диск вказаного типу і натисніть кнопку «Гаразд»."
+msgstr "光驱中的盘片类型是“%1%”，但对于 DVD 视频视频，盘片类型应为下面里的一种：DVD-R、DVD+R、DVD-RW、DVD+RW。请放入一张正确类型的空盘并点击 确定。"
 
 #: src/mgui/author/burn.cpp:368
 #, boost-format
 msgid "Disc with type \"%1%\" in the drive is not clear. Only clear recordable discs can be used for burning DVD-Video. Load a clear one and press OK."
-msgstr "Диск у пристрої запису типу «%1%» не є порожнім. Для запису DVD-Video можна використовувати лише порожні придатні для запису диски. Вставте такий диск і натисніть кнопку «Гаразд»."
+msgstr "光驱中类型为“%1%”的盘片不是空盘。只有空的可刻录光盘才能用来刻录DVD 视频。请放入一张空盘并点击 确定。"
 
 #: src/mgui/author/burn.cpp:375
 #, boost-format
 msgid "Disc with type \"%1%\" in the drive is not clear. We need to remove its contents before writing new one. Continue?"
-msgstr "Диск у пристрої для запису типу «%1%» не є порожнім. Перш ніж записувати на нього дані, доведеться вилучити попередні записи. Зробити це?"
+msgstr "光驱中类型为“%1%”的盘片不是空盘。我们要擦除其内容然后再写入新内容。继续吗？"
 
 #: src/mgui/author/burn.cpp:379
 msgid "_Try again"
-msgstr "П_овторити"
+msgstr "重试(_T)"
 
 #: src/mgui/author/execute.cpp:59
 msgid "Status: "
-msgstr "Стан: "
+msgstr "状态："
 
 #: src/mgui/author/execute.cpp:188
 #, boost-format
 msgid "chapter \"%1%\" in \"%2%\" is too short (%3% sec)"
-msgstr "частина «%1%» у «%2%» є занадто короткою (%3% секунд)"
+msgstr "第“%1%”/“%2%”章节太短(%3% 秒)"
 
 #: src/mgui/author/indicator.cpp:73
 msgid "Transcoding videos"
-msgstr "Перекодування відео"
+msgstr "正在转码视频"
 
 #: src/mgui/author/indicator.cpp:74
 msgid "Rendering menus"
-msgstr "Обробка меню"
+msgstr "正在渲染菜单"
 
 #: src/mgui/author/indicator.cpp:75
 msgid "Generating DVD-Video"
-msgstr "Створення DVD-Video"
+msgstr "正在生成 DVD 视频"
 
 #: src/mgui/author/indicator.cpp:76
 msgid "Creating ISO image"
-msgstr "Створення образу ISO"
+msgstr "正在创建 ISO 镜像"
 
 #: src/mgui/author/indicator.cpp:77
 msgid "Burning DVD"
-msgstr "Запис DVD"
+msgstr "正在刻录 DVD"
 
 #: src/mgui/author/indicator.cpp:164
 #, boost-format
 msgid "%1% hour %2$02d min remaining"
 msgid_plural "%1% hours %2$02d min remaining"
-msgstr[0] "залишилася %1% година %2$02d хвилин"
-msgstr[1] "залишилося %1% години %2$02d хвилин"
-msgstr[2] "залишилося %1% годин %2$02d хвилин"
-msgstr[3] "залишилася %1% година %2$02d хвилин"
+msgstr[0] "剩余 %1% 小时 %2$02d 分钟"
 
 #: src/mgui/author/indicator.cpp:167
 #, boost-format
 msgid "%1% min %2$02d sec remaining"
 msgid_plural "%1% min %2$02d sec remaining"
-msgstr[0] "залишилася %1% хвилина %2$02d секунд"
-msgstr[1] "залишилося %1% хвилини %2$02d секунд"
-msgstr[2] "залишилося %1% хвилин %2$02d секунд"
-msgstr[3] "залишилася %1% хвилина %2$02d секунд"
+msgstr[0] "剩余 %1% 分钟 %2$02d 秒"
 
 #: src/mgui/author/indicator.cpp:171
 #, boost-format
 msgid "%1% sec remaining"
 msgid_plural "%1% sec remaining"
-msgstr[0] "залишилася %1% секунда"
-msgstr[1] "залишилося %1% секунди"
-msgstr[2] "залишилося %1% секунд"
-msgstr[3] "залишилася %1% секунда"
+msgstr[0] "剩余 %1% 秒"
 
 #: src/mgui/author/output.cpp:57
 msgid "DVD-Video Building"
-msgstr "Побудова DVD-Video"
+msgstr "DVD 视频创建"
 
 #: src/mgui/author/output.cpp:67
 #, boost-format
 msgid "_Cancel %1%"
-msgstr "_Скасувати «%1%»"
+msgstr "取消 %1%(_C)"
 
 #: src/mgui/author/output.cpp:68
 msgid "_Build DVD-Video"
-msgstr "По_будувати DVD-Video"
+msgstr "创建 DVD 视频(_B)"
 
 #. * куда
 #. :TODO: хотелось бы видеть полный путь до папки
@@ -413,71 +408,71 @@ msgstr "По_будувати DVD-Video"
 #. - попробовать libsexy/libview - может там чего есть
 #: src/mgui/author/output.cpp:160
 msgid "Select output _folder"
-msgstr "Ви_беріть теку результату"
+msgstr "选择输出文件夹(_F)"
 
 #: src/mgui/author/output.cpp:182
 msgid "Choose author mode"
-msgstr "Виберіть режим обробки"
+msgstr "选择创作方式"
 
 #. цель по умолчанию
 #: src/mgui/author/output.cpp:189
 msgid "_Write DVD folder"
-msgstr "Зап_исати теку DVD"
+msgstr "写入 DVD 文件夹(_W)"
 
 #: src/mgui/author/output.cpp:190
 msgid "Write disk _image"
-msgstr "Записати _образ диска"
+msgstr "写入磁盘镜像(_I)"
 
 #: src/mgui/author/output.cpp:199
 msgid "Disc label"
-msgstr "Мітка диска"
+msgstr "盘片标签"
 
 #: src/mgui/author/output.cpp:204
 msgid "Burn to _DVD"
-msgstr "За_писати на DVD"
+msgstr "刻录 _DVD"
 
 #: src/mgui/author/output.cpp:212
 msgid "DVD drive"
-msgstr "Пристрій читання DVD"
+msgstr "DVD 光驱"
 
 #: src/mgui/author/output.cpp:218
 msgid "Writing speed"
-msgstr "Швидкість запису"
+msgstr "写入速度"
 
 #: src/mgui/author/output.cpp:229
 msgid "_Rendering only"
-msgstr "_Лише обробка"
+msgstr "只渲染(_R)"
 
 #: src/mgui/author/output.cpp:282
 msgid "Rendering"
-msgstr "Обробка"
+msgstr "渲染"
 
 #: src/mgui/author/output.cpp:366
 msgid "DVD Burning"
-msgstr "Запис DVD"
+msgstr "DVD 刻录"
 
 #: src/mgui/author/output.cpp:410
 msgid "The result is here"
-msgstr "Результат можна знайти тут"
+msgstr "结果在此"
 
 #: src/mgui/author/output.cpp:412
 msgid "You can run authoring manually by executing command \"scons\" at the specified folder. Also, see README file for other options over there."
-msgstr "Ви можете виконати створення структури даних вручну за допомогою команди «scons», відданої з вказаної теки. Крім того, ви можете ознайомитися з іншими варіантами обробки за допомогою файла README, розташованого у цій теці."
+msgstr "您可以在特定文件夹手动执行“scons”命令来开始创作。或者参见 README文件了解其他选项。"
 
 #. Translators: impossible to go on!
 #: src/mgui/author/output.cpp:436
 msgid "Authoring is cancelled."
-msgstr "Створення скасовано."
+msgstr "创作取消。"
 
 #: src/mgui/author/output.cpp:447
 #, boost-format
 msgid "%1% is not a folder"
-msgstr "%1% не є текою."
+msgstr "%1% 不是文件夹"
 
 #: src/mgui/author/output.cpp:458
 #, boost-format
 msgid "Can't have full access to folder %1% (read, write)"
-msgstr "Не вдалося отримати повний доступ до теки %1% (читання, запис)"
+msgstr "无法获得对文件夹 %1% 的完全访问权限(读和写)"
 
 #: src/mgui/author/output.cpp:466
 #, boost-format
@@ -485,133 +480,133 @@ msgid ""
 "Folder %1% is not empty. We need to remove all files in it before authoring.\n"
 "Continue?"
 msgstr ""
-"Тека %1% не є порожньою. Перш ніж туди буде записано дані, попередні дані буде вилучено.\n"
-"Виконати вилучення?"
+"文件夹 %1% 不是空的。创作前我们要移除里面所有的文件。\n"
+"继续吗？"
 
 #: src/mgui/author/output.cpp:472
 #, boost-format
 msgid "Error during removing files: %1%"
-msgstr "Помилка під час спроби вилучення файлів: %1%"
+msgstr "移除文件时出错：%1%"
 
 #: src/mgui/author/output.cpp:710
 #, boost-format
 msgid "%1% cancelled."
-msgstr "Дію %1% скасовано."
+msgstr "%1% 取消。"
 
 #: src/mgui/author/output.cpp:712
 #, boost-format
 msgid "%1% broken."
-msgstr "%1% пошкоджено."
+msgstr "%1% 中断。"
 
 #. Translators: can be tranlated as "Operation "%1%" ..."
 #: src/mgui/author/output.cpp:719
 #, boost-format
 msgid "%1% successfully completed."
-msgstr "Дію %1% успішно завершено."
+msgstr "%1% 成功完成。"
 
 #: src/mgui/author/output.cpp:768 src/mgui/timeline/select.cpp:237
 #, boost-format
 msgid "_Play in %1%"
-msgstr "_Відтворити у %1%"
+msgstr "用 %1% 播放(_P)"
 
 #: src/mgui/author/output.cpp:769
 msgid "_Burn to DVD"
-msgstr "_Записати на DVD"
+msgstr "刻录到 DVD(_B)"
 
 #: src/mgui/author/output.cpp:841
 msgid "DVD capacity is exceeded"
-msgstr "Перевищено місткість DVD"
+msgstr "超过 DVD 容量"
 
 #: src/mgui/author/output.cpp:855
 #, boost-format
 msgid "Items \"%1%\" and \"%2%\" overlap in menu \"%3%\""
-msgstr "Пункти «%1%» і «%2%» у меню «%3%» перекриваються"
+msgstr "菜单“%3%”中的“%1%”项和“%2%”项重叠"
 
 #. * все в одном VTS храним, потому такое ограничение: каждый VTS_01_<N>.VOB <= 1GB,
 #. N - однозначное число, от 1 до 9
 #. 9GB
 #: src/mgui/author/output.cpp:865
 msgid "9GB limit for video is exceeded (one VTS should be less)"
-msgstr "Перевищено обмеження у 9ГБ на відеодані (один з наборів частин має бути меншим)"
+msgstr "超出了视频 9GB 的限制(VTS 会更小)"
 
 #: src/mgui/author/output.cpp:868
 msgid "32 character limit for disc label is exceeded"
-msgstr "Перевищено обмеження у 32 символи для мітки диска"
+msgstr "超出了盘片标签 32 个字符的限制"
 
 #: src/mgui/author/output.cpp:873
 msgid "Error Report"
-msgstr "Звіт щодо помилки"
+msgstr "错误报告"
 
 #: src/mgui/author/output.cpp:873
 msgid "Continue?"
-msgstr "Продовжувати?"
+msgstr "继续？"
 
 #: src/mgui/author/render.cpp:752
 #, boost-format
 msgid "no audio stream in %1%"
-msgstr "у %1% немає потоку звукових даних"
+msgstr "%1% 中没有音频流"
 
 #: src/mgui/author/render.cpp:1117
 msgid "command not found"
-msgstr "команду не знайдено"
+msgstr "找不到命令"
 
 #: src/mgui/author/script.cpp:534
 msgid "There is no media (video or menu)."
-msgstr "Немає даних (ні відео, ні меню)."
+msgstr "没有媒体(视频或菜单)。"
 
 #: src/mgui/author/script.cpp:1332
 #, boost-format
 msgid "%1% failure: %2%"
-msgstr "Помилка %1%: %2%"
+msgstr "%1% 失败：%2%"
 
 #. ApplicationError("", ed);
 #: src/mgui/author/script.cpp:1367
 #, boost-format
 msgid "external command failure: %1%"
-msgstr "помилка під час виконання зовнішньої команди: %1%"
+msgstr "外部命令失败：%1%"
 
 #: src/mgui/editor/select.cpp:392 src/mgui/project/menu-browser.cpp:259
 msgid "Play All"
-msgstr "Відтворити все"
+msgstr "全部播放"
 
 #. для Project::BackSpanType (заполнение, по размеру, растянуть)
 #: src/mgui/editor/select.cpp:650
 msgid "Fill"
-msgstr "Заповнити"
+msgstr "填充"
 
 #: src/mgui/editor/select.cpp:650
 msgid "Fit"
-msgstr "Підібрати"
+msgstr "适合"
 
 #: src/mgui/editor/select.cpp:650
 msgid "Stretch"
-msgstr "Розтягнути"
+msgstr "拉伸"
 
 #. Фон
 #. AddEnabledItem(mn, _("Set Background Color..."), &SetBgColor, !has_selected);
 #: src/mgui/editor/select.cpp:697 src/mgui/editor/select.cpp:909
 msgid "Background Settings"
-msgstr "Параметри тла"
+msgstr "背景设置"
 
 #: src/mgui/editor/select.cpp:705
 msgid "_Style"
-msgstr "С_тиль"
+msgstr "样式(_S)"
 
 #: src/mgui/editor/select.cpp:707
 msgid "_Color"
-msgstr "_Колір"
+msgstr "颜色(_C)"
 
 #: src/mgui/editor/select.cpp:739
 msgid "Go to online image service in web browser"
-msgstr "Перейти до інтернет-служби зберігання зображень у переглядачі"
+msgstr "在浏览器中转到上线图像服务网站"
 
 #: src/mgui/editor/select.cpp:741
 msgid "You can drop background image you like from a web browser directly onto Menu Editor"
-msgstr "Ви можете скинути бажане зображення тла"
+msgstr "您可以从网络浏览器中将喜欢的背景图片直接拽到 菜单编辑器 上"
 
 #: src/mgui/editor/select.cpp:831
 msgid "Delete"
-msgstr "Вилучити"
+msgstr "删除"
 
 #. Link
 #. bool is_background = !has_selected;
@@ -631,212 +626,214 @@ msgstr "Вилучити"
 #. Project::MediaItem(), is_background)));
 #: src/mgui/editor/select.cpp:850
 msgid "Link"
-msgstr "Посилання"
+msgstr "链接"
 
 #: src/mgui/editor/select.cpp:853
 msgid "Remove Link"
-msgstr "Вилучити посилання"
+msgstr "移除链接"
 
 #. Poster Link
 #: src/mgui/editor/select.cpp:870
 msgid "Set Poster"
-msgstr "Вказати постер"
+msgstr ""
 
 #: src/mgui/editor/select.cpp:874
 msgid "Highlight Border Only"
-msgstr "Позначати лише межу"
+msgstr "只突出边框"
 
 #: src/mgui/editor/select.cpp:884
 msgid "Align"
-msgstr "Вирівняти"
+msgstr "对齐"
 
 #: src/mgui/editor/select.cpp:890
 msgid "Align Left"
-msgstr "За лівим краєм"
+msgstr "左对齐"
 
 #: src/mgui/editor/select.cpp:891
 msgid "Align Right"
-msgstr "За правим краєм"
+msgstr "右对齐"
 
 #: src/mgui/editor/select.cpp:892
 msgid "Align Top"
-msgstr "За верхнім краєм"
+msgstr "顶对齐"
 
 #: src/mgui/editor/select.cpp:893
 msgid "Align Bottom"
-msgstr "За нижнім краєм"
+msgstr "底对齐"
 
 #: src/mgui/editor/select.cpp:896
 msgid "Center Horizontally"
-msgstr "По центру горизонтально"
+msgstr "水平居中"
 
 #: src/mgui/editor/select.cpp:897
 msgid "Center Vertically"
-msgstr "По центру вертикально"
+msgstr "竖直居中"
 
 #: src/mgui/editor/select.cpp:902
 msgid "Distribute Horizontally"
-msgstr "Розподілити горизонтально"
+msgstr "水平分布"
 
 #: src/mgui/editor/select.cpp:903
 msgid "Distribute Vertically"
-msgstr "Розподілити вертикально"
+msgstr "竖直分布"
 
 #. Selection Tool
 #: src/mgui/editor/toolbar.cpp:236
 msgid "Selection Tool"
-msgstr "Інструмент вибору"
+msgstr "选择工具"
 
 #. Text Tool
 #: src/mgui/editor/toolbar.cpp:239
 msgid "Text Tool"
-msgstr "Текст"
+msgstr "文本工具"
 
 #: src/mgui/editor/toolbar.cpp:668
 msgid "Add Item"
-msgstr "Додати елемент"
+msgstr "添加项目"
 
 #: src/mgui/editor/toolbar.cpp:690
 msgid "Font Name"
-msgstr "Назва шрифту"
+msgstr "字体名"
 
 #: src/mgui/editor/toolbar.cpp:706
 msgid "Font Size"
-msgstr "Розмір шрифту"
+msgstr "字号"
 
 #. * кнопки стилей шрифта
 #: src/mgui/editor/toolbar.cpp:711
 msgid "Bold"
-msgstr "Жирний"
+msgstr "粗体"
 
 #: src/mgui/editor/toolbar.cpp:712
 msgid "Italic"
-msgstr "Курсив"
+msgstr "斜体"
 
 #: src/mgui/editor/toolbar.cpp:713
 msgid "Underline"
-msgstr "Підкреслений"
+msgstr "下划线"
 
 #: src/mgui/editor/toolbar.cpp:720
 msgid "Pick a Color for Text"
-msgstr "Виберіть колір тексту"
+msgstr "为文本选择一种颜色"
 
 #: src/mgui/editor/toolbar.cpp:722
 msgid "Text Color"
-msgstr "Колір тексту"
+msgstr "文本颜色"
 
 #. * кнопка рамки
 #: src/mgui/editor/toolbar.cpp:731
 msgid "Show Safe Area"
-msgstr "Показати безпечну область"
+msgstr "显示安全区域"
 
 #. *
 #: src/mgui/editor/toolbar.cpp:733
 msgid "Snap To Grid"
-msgstr "Прилипання до сітки"
+msgstr "粘附到网络"
 
 #: src/mgui/project/add.cpp:58
 msgid "yes"
-msgstr "так"
+msgstr "是"
 
 #: src/mgui/project/add.cpp:58
 msgid "no"
-msgstr "ні"
+msgstr "否"
 
 #: src/mgui/project/add.cpp:107 src/mgui/project/media-browser.cpp:449
 msgid "Video bitrate"
-msgstr "Бітова швидкість відео"
+msgstr "视频码率"
 
 #: src/mgui/project/add.cpp:108 src/mgui/project/media-browser.cpp:451
 msgid "kbps"
-msgstr "кбіт/с"
+msgstr "kbps"
 
 #: src/mgui/project/add.cpp:109
 msgid "Maximum data rate for video (9800 kbps) is exceeded."
-msgstr "Перевищено максимальну бітову швидкість відеоданих (9800 кбіт/с)."
+msgstr "超过了视频的最大数据速率(9800 kbps)。"
 
 #: src/mgui/project/add.cpp:112
 #, boost-format
 msgid "The %1% DVD-Video can accept MPEG-2 with resolutions: %2% only."
-msgstr "Диски у форматі DVD-Video %1% можуть зберігати дані MPEG-2 лише таких форматів зображення: %2%."
+msgstr "%1% DVD 视频只接受具有以下分辨率的 MPEG-2：%2%。"
 
 #: src/mgui/project/add.cpp:113
 #, boost-format
 msgid "The %1% DVD-Video can accept MPEG-2 with frame rate: %2% only."
-msgstr "Диски у форматі DVD-Video %1% можуть зберігати дані MPEG-2 лише з такою частотою кадрів: %2%."
+msgstr "%1% DVD 视频只接受具有以下帧率的 MPEG-2：%2%。"
 
 #: src/mgui/project/add.cpp:114
 #, boost-format
 msgid "The %1% DVD-Video can accept MPEG-2 with aspects 4:3, 16:9 only."
-msgstr "Диски у форматі DVD-Video %1% можуть зберігати дані MPEG-2 лише зі співвідношенням розмірів кадру 4:3 або 16:9."
+msgstr "%1% DVD 视频只接受 4:3、16:9 宽高比的 MPEG-2。"
 
 #: src/mgui/project/add.cpp:134
 msgid "Video size"
-msgstr "Розмір зображення"
+msgstr "视频尺寸"
 
 #: src/mgui/project/add.cpp:154 src/mgui/project/media-browser.cpp:485
 msgid "Frame rate"
-msgstr "Частота кадрів"
+msgstr "帧率"
 
 #: src/mgui/project/add.cpp:155 src/mgui/project/media-browser.cpp:486
 msgid "fps"
-msgstr "кд/с"
+msgstr "fps"
 
 #: src/mgui/project/add.cpp:163
 msgid "Aspect ratio"
-msgstr "Співвідношення сторін"
+msgstr "宽高比"
 
 #: src/mgui/project/add.cpp:244
+#, fuzzy
 msgid "Remuxing is required."
-msgstr "Потрібне повторне мікшування."
+msgstr "需要合成。"
 
 #: src/mgui/project/add.cpp:246
+#, fuzzy
 msgid "<b>Bombono DVD</b> can use \"DVD-ready\" video only now. Use muxing programs like \"mplex -f 8\" (from <b>mjpegtools</b>), mencoder (from <b>mplayer</b>) or <b>transcode</b> to make your video ready for <b>Bombono DVD</b>."
-msgstr "Поточна версія <b>Bombono DVD</b> може використовувати лише відео вже підготоване для DVD. Скористайтеся програмами мікшування, наприклад, «mplex -f 8» (з <b>mjpegtools</b>), mencoder (з <b>mplayer</b>) або <b>transcode</b> для приготування відеоданих для <b>Bombono DVD</b>."
+msgstr "<b>Bombono DVD</b> 目前只能使用“DVD 直接可用”的视频。请使用“mplex -f 8”(来自 <b>mjpegtools</b>)、mencoder(来自 <b>mplayer</b>) 或 <b>transcode</b> 等程序来准备您的视频以用于 <b>Bombono DVD</b>。"
 
 #: src/mgui/project/add.cpp:251
 msgid "DVD packs"
-msgstr "DVD-пакети"
+msgstr ""
 
 #: src/mgui/project/add.cpp:253
 msgid "NAV packets"
-msgstr "NAV-пакети"
+msgstr ""
 
 #: src/mgui/project/add.cpp:260
 msgid "This video should be transcoded due to (errors in <span foreground=\"red\">red color</span>):"
-msgstr "Це відео має бути перекодовано, оскільки (помилки позначено <span foreground=\"red\">червоним кольором</span>):"
+msgstr "此视频应该转码，因为(<span foreground=\"red\">红色</span>)中的错误)："
 
 #: src/mgui/project/add.cpp:262
 msgid "This video may not be added due to (errors in <span foreground=\"red\">red color</span>):"
-msgstr "Це відео не може бути додано, оскільки (помилки позначено <span foreground=\"red\">червоним кольором</span>):"
+msgstr "可能无法添加此视频，因为(<span foreground=\"red\">红色</span>中的错误)："
 
 #: src/mgui/project/add.cpp:275
 #, boost-format
 msgid "This video has %1% type can't be added \"as is\" to current project of %2% type. Create new project from menu \"Project->New Project\" with right type."
-msgstr "Це відео належить до типу %1%, його не може бути додано без перетворення до поточного проекту типу %2%. Створіть проект належного типу за допомогою пункту меню «Проект->Створити проект»."
+msgstr "此视频类型为 %1%，不能“原样”添加到当前 %2% 类型的项目中。请从菜单“项目->新项目”创建正确类型的新项目。"
 
 #: src/mgui/project/add.cpp:280
 #, boost-format
 msgid "This video has %1% type and can't be added to current project of %2% type. Create new project from menu \"Project->New Project\" with right type."
-msgstr "Це відео належить до типу %1%, його не може бути додано до поточного проекту типу %2%. Створіть проект належного типу за допомогою пункту меню «Проект->Створити проект»."
+msgstr "此视频类型为 %1%，不能添加到当前 %2% 类型的项目中。请从菜单“项目->新项目”创建正确类型的新项目。"
 
 #: src/mgui/project/add.cpp:315
 msgid "File doesn't exist."
-msgstr "Файла не існує."
+msgstr "文件不存在。"
 
 #: src/mgui/project/add.cpp:320
 msgid "Folders can't be added."
-msgstr "Теки додавати не можна."
+msgstr "无法添加文件夹。"
 
 #. по расширению выводим наиболее вероятную ошибку
 #: src/mgui/project/add.cpp:381
 msgid "Unknown file type."
-msgstr "Невідомий тип файла."
+msgstr "未知的文件类型。"
 
 #: src/mgui/project/add.cpp:457
 #, boost-format
 msgid "Can't add file \"%1%\"."
-msgstr "Не вдалося додати файл «%1%»."
+msgstr "无法添加文件“%1%”。"
 
 #: src/mgui/project/add.cpp:474
 #, boost-format
@@ -844,272 +841,274 @@ msgid ""
 "The file \"%1%\" looks like VOB from DVD.\n"
 "Run import?"
 msgstr ""
-"Файл «%1%»  має ознаки файла VOB з DVD.\n"
-"Імпортувати цей файл?"
+"文件“%1%”似为 DVD 中的 VOB 格式。\n"
+"执行导入吗？"
 
 #: src/mgui/project/add.cpp:491
-#, boost-format
+#, fuzzy, boost-format
 msgid "The file \"%1%\" looks like elementary stream and need to be muxed before using. Run muxing?"
-msgstr "Файл «%1%» має ознаки відео або звукової доріжки. Його слід змікшувати перед додаванням. Виконати мікшування?"
+msgstr "文件“%1%”似为基础流，使用前需要合成。执行合成吗？"
 
 #: src/mgui/project/add.cpp:558
 msgid "Also:"
-msgstr "Крім того:"
+msgstr "同时："
 
 #: src/mgui/project/add.cpp:574
 #, boost-format
 msgid "See more about preparing video for authoring in <a href=\"%1%\">online help</a>."
-msgstr "Докладніше про приготування відеоданих до створення DVD можна дізнатися з <a href=\"%1%\">довідки у інтернеті</a>."
+msgstr "查看 <a href=\"%1%\">在线帮助</a> 中更多有关准备创作用的视频的信息。"
 
 #: src/mgui/project/add.cpp:588
 msgid "Can't add files:"
-msgstr "Не вдалося додати файли:"
+msgstr "无法添加文件："
 
 #: src/mgui/project/browser.cpp:133
 #, boost-format
 msgid "Do you really want to delete \"%1%\" from Media List?"
-msgstr "В справді бажаєте вилучити «%1%» зі списку даних?"
+msgstr "您真的想从媒体列表中删除“%1%”吗？"
 
 #: src/mgui/project/browser.cpp:134
 #, boost-format
 msgid "Do you really want to delete chapter \"%1%\"?"
-msgstr "Ви справді бажаєте вилучити частину «%1%»?"
+msgstr "您真的想删除章节“%1%”吗？"
 
 #: src/mgui/project/browser.cpp:135
 #, boost-format
 msgid "Do you really want to delete menu \"%1%\"?"
-msgstr "Ви справді бажаєте вилучити меню «%1%»?"
+msgstr "您真的想删除菜单“%1%”？"
 
 #: src/mgui/project/browser.cpp:252
 msgid "First-Play media can be Video or Menu only."
-msgstr "Першими даними для відтворення можуть бути лише дані відео або меню."
+msgstr "第一播放媒体只能是视频或菜单。"
 
 #: src/mgui/project/browser.cpp:579
 #, boost-format
 msgid "Getting \"%1%\""
-msgstr "Отримання «%1%»"
+msgstr "正在获取“%1%”"
 
 #: src/mgui/project/browser.cpp:650
 #, boost-format
 msgid "Can't get information about \"%1%\": %2%"
-msgstr "Не вдалося виявити даних щодо «%1%»: %2%"
+msgstr "无法获取有关“%1%”的信息：%2%"
 
 #: src/mgui/project/browser.cpp:715
 #, boost-format
 msgid "Can't get \"%1%\": %2%"
-msgstr "Не вдалося отримати «%1%»: %2%"
+msgstr "无法获取“%1%”：%2%"
 
 #: src/mgui/project/mconstructor.cpp:361
 msgid "Bombono DVD is a DVD authoring program with nice and clean GUI"
-msgstr "Bombono DVD — програма для створення DVD з приємним і акуратним інтерфейсом"
+msgstr "Bombono DVD 是一款用户界面简洁美观的 DVD 创作程序。"
 
 #. dlg.set_authors(authors);
 #. dlg.set_documenters(documenters);
 #. dlg.set_decorated(false);
 #: src/mgui/project/mconstructor.cpp:366
 msgid "translator-credits"
-msgstr "Юрій Чорноіван <yurchor@ukr.net>"
+msgstr "Wylmer Wang <wantinghard@gmail.com>"
 
 #. раньше Brasero использовал KiB, MiB и GiB, как более точные технически
 #. (вроде как размеры HDD принято измерять по 1GB=1000MB); теперь Brasero
 #. перешел на стандарт KB/MB/GB, ну и BmD тоже (а че, мы не гордые :)
 #: src/mgui/project/mconstructor.cpp:553
 msgid "KB"
-msgstr "КБ"
+msgstr "KB"
 
 #: src/mgui/project/mconstructor.cpp:553
 msgid "GB"
-msgstr "ГБ"
+msgstr "GB"
 
 #. for translators: 100MB of 4.3GB
 #: src/mgui/project/mconstructor.cpp:637
 msgid "of"
-msgstr "з"
+msgstr "/"
 
 #. Project
 #: src/mgui/project/mconstructor.cpp:674
 msgid "_Project"
-msgstr "Пр_оект"
+msgstr "项目(_P)"
 
 #: src/mgui/project/mconstructor.cpp:681
 msgid "_Quit"
-msgstr "Ви_йти"
+msgstr "退出(_Q)"
 
 #: src/mgui/project/mconstructor.cpp:683
 msgid "Add Videos from _DVD"
-msgstr "_Додати відео з DVD"
+msgstr "从 _DVD 添加视频"
 
 #: src/mgui/project/mconstructor.cpp:683
 msgid "DVD-Import Assistant"
-msgstr "Допоміжна програма імпортування DVD"
+msgstr "DVD 导入助手"
 
 #: src/mgui/project/mconstructor.cpp:685
+#, fuzzy
 msgid "_Mux"
-msgstr "_Мікшувати"
+msgstr "合成(_M)"
 
 #: src/mgui/project/mconstructor.cpp:685
+#, fuzzy
 msgid "Mux Elementary Streams into MPEG2"
-msgstr "Мікшувати доріжки у MPEG2"
+msgstr "将基础流合并到 MPEG2"
 
 #: src/mgui/project/mconstructor.cpp:687
 msgid "Pr_eferences"
-msgstr "П_араметри…"
+msgstr "偏好设置(_E)"
 
 #. Go
 #: src/mgui/project/mconstructor.cpp:726
 msgid "_Go"
-msgstr "Пе_рехід"
+msgstr "转到(_G)"
 
 #: src/mgui/project/mconstructor.cpp:733
 msgid "_Help"
-msgstr "_Довідка"
+msgstr "帮助(_H)"
 
 #: src/mgui/project/mconstructor.cpp:737
 msgid "_Online Help"
-msgstr "_Довідка у мережі"
+msgstr "在线帮助(_O)"
 
 #: src/mgui/project/mconstructor.cpp:904
 msgctxt "MainTabs"
 msgid "_Source"
-msgstr "Д_жерело"
+msgstr "源(_S)"
 
 #: src/mgui/project/mconstructor.cpp:906
 msgctxt "MainTabs"
 msgid "_Menu"
-msgstr "_Меню"
+msgstr "菜单(_M)"
 
 #: src/mgui/project/mconstructor.cpp:908
 msgctxt "MainTabs"
 msgid "_Output"
-msgstr "_Результат"
+msgstr "输出(_O)"
 
 #. калькулятор
 #: src/mgui/project/media-browser.cpp:437
 #: src/mgui/project/media-browser.cpp:843
 msgid "Bitrate Calculator"
-msgstr "Калькулятор бітової швидкості"
+msgstr "位速率计算器"
 
 #: src/mgui/project/media-browser.cpp:460
 #: src/mgui/project/media-browser.cpp:482
 msgid "Dimensions"
-msgstr "Розміри"
+msgstr "尺寸"
 
 #: src/mgui/project/media-browser.cpp:465
 msgid "Expected file size"
-msgstr "Очікуваний розмір файла"
+msgstr "预期文件大小"
 
 #: src/mgui/project/media-browser.cpp:471
 msgid "_Restore default bitrate"
-msgstr "Від_новити типову бітову швидкість"
+msgstr "恢复默认位速(_R)"
 
 #: src/mgui/project/media-browser.cpp:480
 msgid "Original file info"
-msgstr "Дані щодо початкового файла"
+msgstr "原文件信息"
 
 #. :TODO: убрать подчеркивание
 #: src/mgui/project/media-browser.cpp:484
 #: src/mgui/project/menu-browser.cpp:357
 msgid "_Duration (in seconds)"
-msgstr "_Тривалість (у секундах)"
+msgstr "时长(秒)(_D)"
 
 #: src/mgui/project/media-browser.cpp:496
 msgid "Display aspect ratio"
-msgstr "Співвідношення сторін"
+msgstr "显示宽高比"
 
 #: src/mgui/project/media-browser.cpp:498
 msgid "Number of audio streams"
-msgstr "Кількість потоків звукових даних"
+msgstr "音频流数"
 
 #: src/mgui/project/media-browser.cpp:499
 msgid "File size"
-msgstr "Розмір файла"
+msgstr "文件大小"
 
 #: src/mgui/project/media-browser.cpp:503
 msgid "Additional _ffmpeg options"
-msgstr "_Додаткові параметри ffmpeg"
+msgstr "附加 _ffmpeg 选项"
 
 #: src/mgui/project/media-browser.cpp:505
 msgid "Examples: \"-top 0\", \"-deinterlace\". See FFmpeg documentation for more options."
-msgstr "Приклади: «-top 0», «-deinterlace». Докладніше про параметри можна дізнатися з документації щодо FFmpeg."
+msgstr "例如：“-top 0”和“-deinterlace”。参阅 FFmpeg 文档了解更多选项。"
 
 #: src/mgui/project/media-browser.cpp:547
 #: src/mgui/project/media-browser.cpp:845
 msgid "Reason For Transcoding"
-msgstr "Причина перекодування"
+msgstr "转码原因"
 
 #: src/mgui/project/media-browser.cpp:551
 msgid "The video is DVD compliant."
-msgstr "Відео сумісне з DVD."
+msgstr "此视频与 DVD 兼容。"
 
 #: src/mgui/project/media-browser.cpp:553
 msgid "The video is not MPEG2."
-msgstr "Відео не у форматі MPEG2."
+msgstr "此视频不是 MPEG2 格式。"
 
 #: src/mgui/project/media-browser.cpp:636
 msgid "Do you want to adjust disc usage?"
-msgstr "Бажаєте налаштувати використання диска?"
+msgstr "您想调整盘片使用量吗？"
 
 #: src/mgui/project/media-browser.cpp:663
 msgid "Too many videos for this disc size. Please select a bigger disc size or remove some videos."
-msgstr "Занадто багато відео для одного диску такого розміру. Будь ласка, збільшіть розмір диску або вилучіть частину відеоданих."
+msgstr "视频过多，盘片无法容纳。请选择更大容量的盘片或移除一些视频。"
 
 #: src/mgui/project/media-browser.cpp:666
 #, boost-format
 msgid "Disc usage is %1%%% now."
-msgstr "Зараз диск зайнято %1%%%."
+msgstr "盘片使用量目前为 %1%%%。"
 
 #: src/mgui/project/media-browser.cpp:710
 #: src/mgui/project/media-browser.cpp:720
 msgid "Select subtitles"
-msgstr "Виберіть субтитри"
+msgstr "选择字幕"
 
 #: src/mgui/project/media-browser.cpp:711
 msgid "_Turn on subtitles by default"
-msgstr "Типово _увімкнути субтитри"
+msgstr "默认打开字幕(_T)"
 
 #. CANCEL DELETE DISCARD NO REMOVE STOP CLEAR CLOSE
 #. по поводу очистки GtkFileChooserButton: https://bugzilla.gnome.org/show_bug.cgi?id=612235
 #: src/mgui/project/media-browser.cpp:719
 msgid "Unselect subtitles"
-msgstr "Скасувати вибір субтитрів"
+msgstr "取消选择字幕"
 
 #: src/mgui/project/media-browser.cpp:737
 msgid "_Encoding"
-msgstr "_Кодування"
+msgstr "编码(_E)"
 
 #: src/mgui/project/media-browser.cpp:749
 msgid "Add Subtitles"
-msgstr "Додати субтитри"
+msgstr "添加字幕"
 
 #: src/mgui/project/media-browser.cpp:825
 msgid "Rename"
-msgstr "Перейменувати"
+msgstr "重命名"
 
 #: src/mgui/project/media-browser.cpp:833
 #: src/mgui/project/menu-browser.cpp:393
 msgid "End Action"
-msgstr "Завершальна дія"
+msgstr "结束操作"
 
 #: src/mgui/project/media-browser.cpp:841
 msgid "Adjust Bitrate to Fit to Disc"
-msgstr "Змінити бітову швидкість відповідно до об’єму диска"
+msgstr "调整位速以适应盘片"
 
 #: src/mgui/project/media-browser.cpp:886
 msgid "Still Picture"
-msgstr "Заставка"
+msgstr "静态图片"
 
 #: src/mgui/project/media-browser.cpp:902
 #, boost-format
 msgid "Chapter at %1%"
-msgstr "Частина у %1%"
+msgstr "章节，于 %1%"
 
 #: src/mgui/project/media-browser.cpp:940
 msgid "Information"
-msgstr "Інформація"
+msgstr "信息"
 
 #: src/mgui/project/media-browser.cpp:940
 msgid "Type"
-msgstr "Тип"
+msgstr "类型"
 
 #. // не меньше чем размер шрифта элемента в списке
 #. Gtk::Label& label = *Gtk::manage(new Gtk::Label("<span font_desc=\"Sans Bold 12\">Media List</span>"));
@@ -1120,251 +1119,240 @@ msgstr "Тип"
 #: src/mgui/project/media-browser.cpp:999
 #: src/mgui/project/menu-browser.cpp:789
 msgid "Media List"
-msgstr "Список даних"
+msgstr "媒体列表"
 
 #: src/mgui/project/media-browser.cpp:1027
 msgid "Add Media Files (Use Ctrl Button for Multiple Selection)"
-msgstr "Додати мультимедійні файли (скористайтеся Ctrl для позначення декількох)"
+msgstr "添加媒体文件(用 Ctrl 键多选)"
 
 #: src/mgui/project/media-browser.cpp:1032
 msgid "Add Media from File Browser"
-msgstr "Додати дані з програми для керування файлами"
+msgstr "从文件浏览器添加媒体"
 
 #: src/mgui/project/media-browser.cpp:1057
 msgid "Remove Media"
-msgstr "Вилучити дані"
+msgstr "移除媒体"
 
 #: src/mgui/project/media-browser.cpp:1068
 msgid "Make Chapters for Video"
-msgstr "Створити частини для відео"
+msgstr "为视频生成章节"
 
 #: src/mgui/project/menu-browser.cpp:92 src/mgui/project/menu-browser.cpp:582
 msgid "No Link"
-msgstr "Без зв’язку"
+msgstr "无链接"
 
 #: src/mgui/project/menu-browser.cpp:248
 msgid "Previous Menu"
-msgstr "Попереднє меню"
+msgstr "上个菜单"
 
 #: src/mgui/project/menu-browser.cpp:248 src/mgui/project/menu-browser.cpp:256
 msgid "Next Video"
-msgstr "Наступне відео"
+msgstr "下个视频"
 
 #: src/mgui/project/menu-browser.cpp:249
 #, boost-format
 msgid "Auto (%1%)"
-msgstr "Авто (%1%)"
+msgstr "自动(%1%)"
 
 #: src/mgui/project/menu-browser.cpp:252
 msgid "Loop"
-msgstr "Цикл"
+msgstr "循环"
 
 #: src/mgui/project/menu-browser.cpp:332
 msgid "_Still picture"
-msgstr "_Нерухоме зображення"
+msgstr "静态图像(_S)"
 
 #: src/mgui/project/menu-browser.cpp:337
 msgid "Select external audio file"
-msgstr "Виберіть зовнішній файл звукових даних"
+msgstr "选择外部音频文件"
 
 #: src/mgui/project/menu-browser.cpp:340 src/mgui/project/menu-browser.cpp:342
 msgid "_Motion menu"
-msgstr "_Анімоване меню"
+msgstr "动态菜单(_M)"
 
 #: src/mgui/project/menu-browser.cpp:366
 msgid "Still menu with audio in the background"
-msgstr "Нерухоме меню з фоновим звуковим супроводом"
+msgstr "带背景音的静态菜单"
 
 #: src/mgui/project/menu-browser.cpp:376
 msgid "_From the project"
-msgstr "З п_роекту"
+msgstr "来自项目(_F)"
 
 #: src/mgui/project/menu-browser.cpp:380
 msgid "_External audio"
-msgstr "Зов_нішні звукові дані"
+msgstr "外部音频(_E)"
 
 #: src/mgui/project/menu-browser.cpp:403
+#, fuzzy
 msgid "_Subpicture Colors"
-msgstr "_Кольори підзображення"
+msgstr "小图片颜色(_S)"
 
 #: src/mgui/project/menu-browser.cpp:405
 msgid "S_elected item color"
-msgstr "Колір по_значеного пункту"
+msgstr "所选项目的颜色(_E)"
 
 #: src/mgui/project/menu-browser.cpp:406
 msgid "_Activated item color"
-msgstr "Колір з_адіяного пункту"
+msgstr "激活项目的颜色(_A)"
 
 #: src/mgui/project/menu-browser.cpp:408
 msgid "_Restore default colors"
-msgstr "Від_новити типові кольори"
+msgstr "恢复默认颜色(_R)"
 
 #: src/mgui/project/menu-browser.cpp:441
 msgid "Menu Settings"
-msgstr "Параметри меню"
+msgstr "菜单设置"
 
 #: src/mgui/project/menu-browser.cpp:447
-#, boost-format
+#, fuzzy, boost-format
 msgid "%1% copy"
-msgstr "Копія %1%"
+msgstr "%1% 副本"
 
 #: src/mgui/project/menu-browser.cpp:464
 msgid "Copy Menu"
-msgstr "Копіювати меню"
+msgstr "复制菜单"
 
 #. * subj
 #: src/mgui/project/menu-browser.cpp:754
 msgid "Menu List"
-msgstr "Список меню"
+msgstr "菜单列表"
 
 #: src/mgui/project/menu-browser.cpp:769
 msgid "Add Menu"
-msgstr "Додати меню"
+msgstr "添加菜单"
 
 #: src/mgui/project/menu-browser.cpp:774
 msgid "Remove Menu"
-msgstr "Вилучити меню"
+msgstr "移除菜单"
 
 #: src/mgui/project/menu-browser.cpp:779
 msgid "Edit Menu"
-msgstr "Змінити меню"
+msgstr "编辑菜单"
 
 #: src/mgui/project/serialize.cpp:84
 msgid "Save Project As"
-msgstr "Зберегти проект як"
+msgstr "项目保存为"
 
 #: src/mgui/project/serialize.cpp:116
 #, boost-format
 msgid "Can't open project file \"%1%\""
-msgstr "Не вдалося відкрити файл проекту «%1%»"
+msgstr "无法打开项目文件“%1%”"
 
 #: src/mgui/project/serialize.cpp:189
 #, boost-format
 msgid "Save changes to \"%1%\"?"
-msgstr "Зберегти зміни до «%1%»?"
+msgstr "将更改保存到“%1%”吗？"
 
 #: src/mgui/project/serialize.cpp:191
 msgid "Close _without Saving"
-msgstr "_Не зберігати"
+msgstr "关闭但不保存(_W)"
 
 #: src/mgui/project/serialize.cpp:229
 msgid "New Project"
-msgstr "Створити проект"
+msgstr "新项目"
 
 #: src/mgui/project/serialize.cpp:237
 msgid "Please select a Television standard for your project:"
-msgstr "Будь ласка виберіть ТБ-стандарт для вашого проекту."
+msgstr "请为您的项目选择一项电视标准："
 
 #: src/mgui/project/serialize.cpp:247
 msgid "Remember my choice"
-msgstr "Запам’ятати вибір"
+msgstr "记住我的选择"
 
 #: src/mgui/project/serialize.cpp:312
 msgid "Project files (*.bmd)"
-msgstr "файли проектів (*.bmd)"
+msgstr "项目文件(*.bmd)"
 
 #: src/mgui/project/serialize.cpp:318
 msgid "Open Project"
-msgstr "Відкрити проект"
+msgstr "打开项目"
 
 #: src/mgui/project/serialize.cpp:372
 msgid "_New Project"
-msgstr "С_творити проект"
+msgstr "新项目(_N)"
 
 #: src/mgui/project/serialize.cpp:374
 msgid "_Open..."
-msgstr "_Відкрити…"
+msgstr "打开(_O)..."
 
 #: src/mgui/project/serialize.cpp:376
 msgid "_Save"
-msgstr "З_берегти"
+msgstr "保存(_S)"
 
 #: src/mgui/project/serialize.cpp:378
 msgid "Save _As..."
-msgstr "Зберегти _як…"
+msgstr "保存为(_A)..."
 
 #. Add
 #: src/mgui/timeline/layout.cpp:558 src/mgui/timeline/select.cpp:212
 msgid "Add Chapter Point"
-msgstr "Додати частину"
+msgstr "添加章节点"
 
 #: src/mgui/timeline/mviewer.cpp:96
 msgid "Error while opening file:"
-msgstr "Помилка під час відкриття файла:"
+msgstr "打开文件出错："
 
 #: src/mgui/timeline/mviewer.cpp:295
 msgid "Still images"
-msgstr "Зображення"
+msgstr "静态图像"
 
 #. 0 надпись
 #: src/mgui/timeline/mviewer.cpp:305
 msgid "File Browser"
-msgstr "Перегляд файлів"
+msgstr "文件浏览器"
 
 #: src/mgui/timeline/mviewer.cpp:335 src/mgui/timeline/mviewer.cpp:377
 msgid "All formats"
-msgstr "Всі формати"
+msgstr "所有格式"
 
 #: src/mgui/timeline/mviewer.cpp:337 src/mgui/timeline/mviewer.cpp:379
 msgid "Video files"
-msgstr "Відеофайли"
+msgstr "视频文件"
 
 #: src/mgui/timeline/mviewer.cpp:339
 msgid "MPEG files"
-msgstr "Файли MPEG"
+msgstr "MPEG 文件"
 
 #: src/mgui/timeline/mviewer.cpp:343 src/mgui/timeline/mviewer.cpp:372
 msgid "All files (*.*)"
-msgstr "Всі файли (*.*)"
+msgstr "所有文件(*.*)"
 
 #: src/mgui/timeline/select.cpp:143
 msgid "A_dd to project"
-msgstr "Д_одати до проекту"
+msgstr "添加到项目(_D)"
 
 #: src/mgui/timeline/select.cpp:146
 msgid "Save Frame..."
-msgstr "Зберегти кадр…"
+msgstr "保存帧..."
 
 #: src/mgui/timeline/select.cpp:176
 msgid "Interval between Chapters:"
-msgstr "Проміжок між частинами:"
+msgstr "章节间隔："
 
 #. 5 мин. по умолчанию
 #: src/mgui/timeline/select.cpp:180
 msgid "min."
-msgstr "хв."
+msgstr "最小"
 
 #: src/mgui/timeline/select.cpp:183
 msgid "Remove Existing Chapters"
-msgstr "Вилучити існуючі частини"
+msgstr "移除现有章节"
 
 #. Delete
 #: src/mgui/timeline/select.cpp:215
 msgid "Delete Chapter Point"
-msgstr "Вилучити частину"
+msgstr "删除章节点"
 
 #. Delete All
 #: src/mgui/timeline/select.cpp:219
 msgid "Delete All Chapter Points"
-msgstr "Вилучити всі частини"
+msgstr "删除所有章节点"
 
 #. Add at Intervals
 #: src/mgui/timeline/select.cpp:224 src/mgui/timeline/select.cpp:226
 msgid "Add Chapter Points at Intervals"
-msgstr "Регулярне додавання частин"
+msgstr "在间隔处添加章节点"
 
 #: src/mgui/timeline/select.cpp:234
 msgid "Save Current Frame"
-msgstr "Зберегти поточний кадр"
-
-#~ msgid "_Cancel"
-#~ msgstr "_Скасувати"
-
-#~ msgid "Set Background Color..."
-#~ msgstr "Встановити колір тла…"
-
-#~ msgid "Audio stream number"
-#~ msgstr "Кількість звукових доріжок"
-
-#~ msgid "All Files (*.*)"
-#~ msgstr "всі файли (*.*)"
+msgstr "保存当前帧"
