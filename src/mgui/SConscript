@@ -122,12 +122,23 @@ dest_prefix = user_options_dict['DEST_PREFIX']
 import os
 def MakeDest(tail):
     return os.path.join(dest_prefix, tail)
-def AliasInstall(target):
-    mgui_env.Alias('install', target)
 
-AliasInstall(mgui_env.Install(MakeDest("share/applications"), 'bombono-dvd.desktop'))
-AliasInstall(mgui_env.Install(MakeDest("share/mime/packages"), 'bombono.xml'))
-AliasInstall(mgui_env.InstallAs(MakeDest("share/pixmaps/bombono-dvd.png"), '#resources/bmd-icons/bombono-dvd_32px.png'))
+def AliasInstall(dst_fpath, src_fpath, install_as):
+    """ install_as=False => to directory dst_fpath """
+    dst_fpath = MakeDest(dst_fpath)
+    if install_as:
+        tgt = mgui_env.InstallAs(dst_fpath, src_fpath)
+    else:
+        tgt = mgui_env.Install(dst_fpath, src_fpath)
+    mgui_env.Alias('install', tgt)
+
+AliasInstall("share/applications", 'bombono-dvd.desktop', False)
+AliasInstall("share/mime/packages", 'bombono.xml', False)
+AliasInstall("share/pixmaps/bombono-dvd.png", '#resources/bmd-icons/bombono-dvd_32px.png', True)
+
+for i in [16, 32, 48, 64, 128]:
+    AliasInstall("share/icons/hicolor/%(i)sx%(i)s/apps/bombono-dvd.png" % locals(),
+        '#resources/bmd-icons/bombono-dvd_%(i)spx.png' % locals(), True)
 
 from BuildVars import IsBuildOrRunTests
 # we like tests
