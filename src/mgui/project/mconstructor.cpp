@@ -913,7 +913,7 @@ ActionFunctor BuildConstructor(ConstructorApp& app, const std::string& prj_file_
 static bool DestroyWin(ptr::shared<Gtk::Window>& swin)
 {
     swin.reset();
-    return true;
+    return false;
 }
 
 void RunConstructor(const std::string& prj_file_name, bool ask_save_on_exit)
@@ -922,7 +922,17 @@ void RunConstructor(const std::string& prj_file_name, bool ask_save_on_exit)
     //Gtk::Window splash_win;
     ptr::shared<Gtk::Window> swin(new Gtk::Window);
     Gtk::Window& splash_win = *swin;
+    
+    // :KLUDGE: в идеале правильней явно вызывать gdk_window_set_back_pixmap(),
+    // но иметь дело с устаревающим GdkPixmap (в 3.0 заменен на cairo_surface)
+    // не хочется (тот же depth вычислять),- через стиль проще
+    splash_win.Gtk::Widget::set_name("SplashWin");
+    // :TRICKY: IteratePendingEvents() недостаточно для прорисовки splash'а,-
+    // вроде как нужно устанавливать фон окна вместо добавления Gtk::Image;
+    // при этом нужно явно размеры окна указать - сделаем это неявно, добавлением
+    // того самого Gtk::Image (лень переписывать код)
     Add(splash_win, NewManaged<Gtk::Image>(DataDirImage("splash-bmd.png")));
+    
     splash_win.set_position(Gtk::WIN_POS_CENTER);
     splash_win.set_resizable(false);
     splash_win.set_decorated(false);

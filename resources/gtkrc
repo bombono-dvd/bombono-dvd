@@ -98,3 +98,9 @@ style "AboutDialogButtonStyle"
 widget "*AboutBombonoDVD*GtkLinkButton" style "AboutDialogButtonStyle"
 widget "*AboutBombonoDVD*GtkButton" style "AboutDialogButtonStyle"
 
+style "SplashWinStyle"
+{
+    bg_pixmap[NORMAL]="splash-bmd.png"
+}
+widget "*SplashWin" style "SplashWinStyle"
+
