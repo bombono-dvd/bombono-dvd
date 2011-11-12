@@ -450,6 +450,20 @@ bool OpenInfo(FFData& ffi, const char* fname, FFDiagnosis& diag)
             return false;
         }
 
+	// :TRICKY: вся полезна инфо о дорожке, включая размеры видео, реально парсится 
+	// в av_find_stream_info(), а в avcodec_open() - кодек только привязывается к
+	// контексту
+	// Более того, в версиях libavcodec 53.4.x-53.9.x есть ошибка, портящая размеры
+	// для h.264, в процессе вызова avcodec_open() (попало в Ubuntu Oneiric)
+	// (см. b47904d..2214191, черт бы тебя побрал, Felipe Contreras, лезть не в свое дело!)
+	Point sz(VideoSize(dec));
+	if( sz.IsNull() )
+	{
+	    err_str = "Video has null size";
+	    return false;
+	}
+	ffi.vidSz = sz;
+
         if( IsFFError(avcodec_open(dec, codec)) )
         {
             err_str = boost::format("Can't open codec: %1%") % tag_str % bf::stop;
@@ -460,14 +474,6 @@ bool OpenInfo(FFData& ffi, const char* fname, FFDiagnosis& diag)
         // * декодер настроен
         //
         ffi.videoIdx = video_idx;
-    
-        Point sz(VideoSize(dec));
-        if( sz.IsNull() )
-        {
-            err_str = "Video has null size";
-            return false;
-        }
-        ffi.vidSz = sz;
 
         res = true;
     }
@@ -530,7 +536,7 @@ bool FFViewer::Open(const char* fname, std::string& err_str)
         ASSERT( rgbCnvCtx );
     
         Point dst_sz(sz);
-        uint8_t* rgbBuf = (uint8_t*)av_malloc(avpicture_get_size(dst_pf, dst_sz.x, dst_sz.y) * sizeof(uint8_t));
+        rgbBuf = (uint8_t*)av_malloc(avpicture_get_size(dst_pf, dst_sz.x, dst_sz.y) * sizeof(uint8_t));
         avcodec_get_frame_defaults(&rgbFrame); // не помешает
         avpicture_fill((AVPicture*)&rgbFrame, rgbBuf, dst_pf, dst_sz.x, dst_sz.y);
     }
