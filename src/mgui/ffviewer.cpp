@@ -32,7 +32,15 @@
 #include <mlib/read_stream.h> // ReadAllStream()
 #include <mlib/string.h>
 
-/////////////////////////////////////////
+// Прямой доступ к ff_codec_bmp_tags, в частности, закрыл, некий
+// Anton Khirnov, см. libavformat/libavformat.v (из него генерится скрипт
+// для опции --version-script=<script_file> линковщика ld)
+// Вообще, можно воспользоваться av_codec_get_tag(), а доступ к ff_codec_bmp_tags
+// получить через ff_avi_muxer->codec_tag (самого же найти по имени "avi") или подобный объект,
+// но это сейчас неактуально (никто не попадается на ошибку отсутствия кодека) => игра не стоит свеч
+//#define CALC_FF_TAG
+
+#ifdef CALC_FF_TAG
 // :KLUDGE: потому что riff.h не копируют
 C_LINKAGE_BEGIN
 
@@ -62,7 +70,7 @@ static uint FFCodecID2Tag(CodecID codec_id)
 #endif
 
 C_LINKAGE_END
-/////////////////////////////////////////
+#endif // CALC_FF_TAG
 
 static AVStream* VideoStream(FFData& ffv)
 {
@@ -287,17 +295,18 @@ static bool IsFFError(int av_res)
     return av_res < 0;
 }
 
-static unsigned char GetChar(uint tag, int bit_begin)
-{
-    return (tag>>bit_begin) & 0xFF;
-}
-
 static bool SetIndex(int& idx, int i, bool b)
 {
     bool res = (idx == -1) && b;
     if( res )
         idx = i;
     return res;
+}
+
+#ifdef CALC_FF_TAG
+static unsigned char GetChar(uint tag, int bit_begin)
+{
+    return (tag>>bit_begin) & 0xFF;
 }
 
 static std::string CodecID2Str(CodecID codec_id)
@@ -315,6 +324,15 @@ static std::string CodecID2Str(CodecID codec_id)
 #endif // !_MSC_VER
     return tag_str;
 }
+
+#else // CALC_FF_TAG
+
+static std::string CodecID2Str(CodecID codec_id)
+{
+    return Int2Str(codec_id);
+}
+
+#endif // CALC_FF_TAG
 
 bool OpenInfo(FFData& ffi, const char* fname, FFDiagnosis& diag)
 {
