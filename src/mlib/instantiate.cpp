@@ -39,6 +39,7 @@ INST_BFRMT_PERCENT(unsigned int)
 INST_BFRMT_PERCENT(unsigned char)
 INST_BFRMT_PERCENT(char const)
 INST_BFRMT_PERCENT(long)
+INST_BFRMT_PERCENT(unsigned long)
 INST_BFRMT_PERCENT(const long)
 
 // :KLUDGE: в зависимости от режима оптимизации компиляции инстанцировать приходится разные объекты,
