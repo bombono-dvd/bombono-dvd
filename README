@@ -9,7 +9,7 @@ Bombono DVD is 'Open Source' and licensed under GPL
 (GNU General Public License, version 2), see COPYING. Boost Library is under 
 Boost Software License Version 1.0, see boost-lib/LICENSE_1_0.txt. The 
 following code is licensed under LGPL (GNU Library General Public License, 
-version 2), see docs/COPYING.LIB:
+version 2 or later), see docs/COPYING.LIB:
  * src/mgui/sdk/libgnome
  * code from GTK+, in src/mgui/author/output.cpp
  * libs/mpeg2dec/src/getopt.c
