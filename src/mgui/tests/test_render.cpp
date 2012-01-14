@@ -183,13 +183,14 @@ BOOST_AUTO_TEST_CASE( TestStressFFViewer )
     return;
     //const char* fname = "../AV-Samples/M.Jackson_1080p-h264.mkv";
     const char* fname = "../AV-Samples/Chuzhaja_720w_mpeg4.avi";
+    //const char* fname = "/media/extdata/Materialo/SDTV/Duck_Dodgers_101a_Duck_Deception_[Moonsong].avi";
 
     FFViewer ffv;
     bool res = ffv.Open(fname);
     BOOST_CHECK( res );
 
     double dur = Duration(ffv);
-    BOOST_CHECK_GT( dur, 3600 ); // 1 час
+    BOOST_CHECK_GT( dur, 600 ); // 10 мин.
 
     bool SetTime(FFViewer& ffv, double time);
     for( int i=0; i<5; i++ )

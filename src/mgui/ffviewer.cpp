@@ -280,11 +280,8 @@ Point VideoSize(AVCodecContext* dec)
     return Point(dec->width, dec->height);
 }
 
-static bool SeekCall(AVFormatContext* ic, int64_t ts, bool is_byte_seek)
+static bool SeekCall(AVFormatContext* ic, int64_t ts, int flags)
 {
-    int flags = is_byte_seek ? AVSEEK_FLAG_BYTE
-        : AVSEEK_FLAG_BACKWARD; // чтоб раньше времени пришли
-
     // вполне подойдет поиск по умолчальному потоку (все равно видео выберут)
     int av_res = av_seek_frame(ic, -1, ts, flags);
     return av_res == 0;
@@ -442,7 +439,16 @@ bool OpenInfo(FFData& ffi, const char* fname, FFDiagnosis& diag)
             return false;
         }
 
-        if( !SeekCall(ic, ic->start_time, false) )
+        // :TRICKY: индекс Duck_Dodgers_101a_Duck_Deception_[Moonsong].avi таков,
+        // что в начало не прыгнуть (первое значение > start_time), потому
+        // AVSEEK_FLAG_BACKWARD дает неудачу, хотя в целом перемещаться можно => проверяем
+        // возможность без AVSEEK_FLAG_BACKWARD
+        // Теоретически возможна и обратная ситуация, когда весь индекс < start_time, и
+        // только SeekCall(AVSEEK_FLAG_BACKWARD) == true, но реально это будет означать
+        // бесполезность индекса => ошибка
+        // 
+        //if( !SeekCall(ic, ic->start_time, AVSEEK_FLAG_BACKWARD) )
+        if( !SeekCall(ic, ic->start_time, 0) )
         {
             // проверка индекса/возможности перемещения
             err_str = _("Can't seek through the file");
@@ -894,7 +900,9 @@ static bool DoSeek(FFViewer& ffv, int64_t ts, bool is_byte_seek)
     // * перемещение
     // если перемещение не прошло (индекс частично поломан), то полагаем, что
     // состояние прежнее (обнуление не требуется)
-    bool res = SeekCall(ffv.iCtx, ts, is_byte_seek);
+    int flags = is_byte_seek ? AVSEEK_FLAG_BYTE
+        : AVSEEK_FLAG_BACKWARD; // чтоб раньше времени пришли
+    bool res = SeekCall(ffv.iCtx, ts, flags);
     if( res )
     {
         // * обнуляем
@@ -1011,15 +1019,15 @@ static bool SeekSetTime(FFViewer& ffv, double time)
 
     if( is_begin )
     {
-        if( !TimeSeek(ffv, start_time, time) && CanByteSeek(ffv.iCtx) )
+        bool seek_ok = TimeSeek(ffv, start_time, time);
+        if( !seek_ok && CanByteSeek(ffv.iCtx) )
             // тогда переходим в начало файла
-            DoSeek(ffv, ffv.iCtx->data_offset, true);
-        //TimeSeek(ffv, start_time, time);
+            seek_ok = DoSeek(ffv, ffv.iCtx->data_offset, true);
 
         // некоторое видео глючит в начале (Hellboy), из-за чего
         // последовательный доступ выполняется с перескоками -
         // явно ставим пред. кадр
-        if( IsCurPTS(ffv) )
+        if( seek_ok && IsCurPTS(ffv) )
             // :KLUDGE: -1 уже занят, поэтому -0.5
             // (система работает, пока start_time не бывает отрицательным)
             ffv.prevPTS = start_time - 0.5;
