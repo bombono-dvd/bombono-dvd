@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2007-2009 Ilya Murav'jov <muravev@yandex.ru>
 #
-%global         rel_tag .120118gitbe14cef
+%global         rel_tag .00000000git0000000
 
 Name:           bombono-dvd
 Version:        1.2.0%{?rel_tag}
@@ -14,8 +14,8 @@ License:        GPLv2 and GPLv2+ and Boost and Python and LGPLv2+
 Group:          Applications/Productivity
 Url:            http://www.bombono.org
 # git clone https://git.gitorious.org/bombono-dvd/bombono-dvd.git bombono-dvd
-# tag=%{rel_tag}; cd bombono-dvd;  git reset --hard ${tag##*git}; cd ..
-# tar czf bombono-dvd-%{version}.tar.gz --exclude .git bombono-dvd
+# tag=.00000000git0000000; cd bombono-dvd;  git reset --hard ${tag##*git}; cd ..
+# tar czf bombono-dvd-1.2.0.00000000git0000000.tar.gz --exclude .git bombono-dvd
 Source:         bombono-dvd-%{version}.tar.gz
 
 Provides:       bundled(libmpeg2) = 0.4.0
@@ -34,8 +34,9 @@ BuildRequires:  scons
 Requires:       dvd+rw-tools
 Requires:       dvdauthor
 Requires:       enca
+Requires:       ffmpeg
 Requires:       mjpegtools
-Requires:       twolame
+#Suggests:      totem, gvfs, scons, twolame
 
 Requires(posttrans):    gtk2
 Requires(post):         desktop-file-utils
@@ -69,13 +70,15 @@ re-authoring by importing video from DVD discs is also supported.
 %prep
 %setup -q -n bombono-dvd
 sed -i '\;#![ ]*/usr/bin/env;d'  $(find . -name SCons\*)
-rm -r debian libs/boost-lib src/mlib/tests 
+rm -r debian libs/boost-lib src/mlib/tests
 
 %build
 %scons build
 
 %install
+rm config.opts
 %scons DESTDIR=%{buildroot} install
+rm -rf docs/man docs/TechTasks docs/Atom.planner
 %find_lang %{name}
 desktop-file-validate \
     %{buildroot}%{_datadir}/applications/bombono-dvd.desktop
@@ -107,7 +110,10 @@ fi
 %{_mandir}/man1/mpeg2demux.*
 
 %changelog
-* Sat Jan 14 2012 Alec Leamas <alec@nowhere.com>             1.2.0.120118gitbe14cef-1
+* Day Mon date year Alec Leamas <alec@nowhere.com>   1.2.0.00000000git0000000-1
+- Removing irrelevant files in docs/
+- Updating deps to reflect bb7f789 "twolame is optional..."
+* Sat Jan 21 2012 Alec Leamas <alec@nowhere.com>   1.2.0.20101210git2840c3a-1
 - Updating to latest git source. Many patches accepted.
 - Removing %%defattr.
 * Sat Jan 14 2012 Alec Leamas <alec@nowhere.com>             1.2.0-4
