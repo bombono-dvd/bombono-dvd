@@ -554,13 +554,15 @@ def MakeEndPrefix(prefix_name, f_arg, *args, **kw):
 
 MakeEndPrefix('DEST_PREFIX', prefix)
 bin_prefix  = MakeEndPrefix('BIN_PREFIX',  prefix, 'bin')
-data_prefix = MakeEndPrefix('DATA_PREFIX', prefix, 'share', 'bombono', add_to_dict=0)
-man_prefix = MakeEndPrefix('MAN_PREFIX', prefix, 'share', 'man', add_to_dict=0)
+mgui_env.Alias('install', bin_prefix)
 
-mgui_env.Alias('install', [bin_prefix, data_prefix, man_prefix])
-# resources
-BV.InstallDir(mgui_env, data_prefix, "resources")
-BV.InstallDir(mgui_env, man_prefix, "man1")
+def InstallDir(rel_dst_path, src_dir):
+    data_prefix = MakeEndPrefix('', *[prefix, rel_dst_path], add_to_dict=0)
+    mgui_env.Alias('install', data_prefix)
+    BV.InstallDir(mgui_env, data_prefix, src_dir)
+
+InstallDir('share/bombono', "resources")
+InstallDir('share', "docs/man")
 
 user_options_dict['XGETTEXT_SOURCES'] = []
 def AddSourcesForXgettext(src_files):
