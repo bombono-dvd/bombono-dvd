@@ -19,7 +19,7 @@ ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
     BUILD_FLAGS += TEST=1
 endif
 
-DEB_INSTALL_MANPAGES_bombono-dvd := debian/bombono-dvd.1 debian/mpeg2demux.1
+DEB_INSTALL_MANPAGES_bombono-dvd := man1/bombono-dvd.1 man1/mpeg2demux.1
 
 build/bombono-dvd::
 	# :KLUDGE: in new distros like oneiric libdvdread is built without binding to libdl.so

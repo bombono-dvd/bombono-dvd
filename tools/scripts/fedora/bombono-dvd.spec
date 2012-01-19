@@ -70,7 +70,6 @@ re-authoring by importing video from DVD discs is also supported.
 %setup -q -n bombono-dvd
 sed -i '/^Encoding/d' ./src/mgui/bombono-dvd.desktop
 sed -i '\;#![ ]*/usr/bin/env;d'  $(find . -name SCons\*)
-mv debian/bombono-dvd.1 debian/mpeg2demux.1 .
 mv libs/boost-lib/LICENSE_1_0.txt docs
 rm -r debian libs/boost-lib src/mlib/tests 
 
@@ -82,8 +81,6 @@ rm -r debian libs/boost-lib src/mlib/tests
 %find_lang %{name}
 desktop-file-validate \
     %{buildroot}%{_datadir}/applications/bombono-dvd.desktop
-mkdir -p %{buildroot}%{_mandir}/man1
-install -p -m 644 bombono-dvd.1 mpeg2demux.1 %{buildroot}%{_mandir}/man1
 
 %postun
 /usr/bin/update-desktop-database &> /dev/null || :
