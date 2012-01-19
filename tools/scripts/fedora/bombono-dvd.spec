@@ -68,7 +68,6 @@ re-authoring by importing video from DVD discs is also supported.
 
 %prep
 %setup -q -n bombono-dvd
-sed -i '/^Encoding/d' ./src/mgui/bombono-dvd.desktop
 sed -i '\;#![ ]*/usr/bin/env;d'  $(find . -name SCons\*)
 mv libs/boost-lib/LICENSE_1_0.txt docs
 rm -r debian libs/boost-lib src/mlib/tests 
