@@ -5,16 +5,16 @@
 mpeg2demux \- demuxer for MPEG2 and VOB files.
 .SH SYNOPSIS
 .B mpeg2demux
-.IR src-file 
+.IR src-file
 .IR dst-file-w/o-extension
 
 .SH DESCRIPTION
-Demux video from src-file(.mpg, .vob). If 
-.IR src-file 
+Demux video from src-file(.mpg, .vob). If
+.IR src-file
 has .vob extension then ac3/dts/lpcm audios are to be pulled too.
 .PP
-If there is a lpcm audio in 
-.IR src-file 
+If there is a lpcm audio in
+.IR src-file
 it will have info for mplex muxer in its name, how to mux with -L option.
 
 .SH "SEE ALSO"
