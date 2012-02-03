@@ -103,11 +103,14 @@ struct TripleVersion
 
 struct FFmpegVersion
 {
+    TripleVersion avformat;
     TripleVersion avfilter;
 };
 
+TripleVersion FindAVFilterVersion(const std::string& conts);
+
 // conts - вывод ffmpeg -formats
-FFmpegVersion TestFFmpegForDVDEncoding(const std::string& conts);
+void TestFFmpegForDVDEncoding(const std::string& conts);
 // проверка возможности кодировать совместимый с DVD материал с помощью ffmpeg
 FFmpegVersion CheckFFDVDEncoding();
 
@@ -122,6 +125,9 @@ ReadReadyFnr DetailsAppender(const std::string& print_cmd,
 
 void RunSpumux(const std::string& xml_fname, const std::string& src_fname, const std::string& dst_fname,
                int stream_id = 0, const char* dir = 0);
+
+const char* AVCnvBin();
+
 } // namespace Project
 
 #endif // #ifndef __MGUI_AUTHOR_FFMPEG_H__

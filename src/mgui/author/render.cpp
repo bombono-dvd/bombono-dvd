@@ -515,15 +515,25 @@ static bool IsToBeMoving(MediaItem mi)
     return mi && (IsVideo(mi) || IsChapter(mi));
 }
 
+const char* AVCnvBin()
+{
+#define AVCONV_BIN
+#ifdef AVCONV_BIN
+    return "avconv";
+#else
+    return "ffmpeg";
+#endif
+}
+
 static void FFmpegError(const ExitData& ed)
 {
     //Author::ErrorByED(FFmpegErrorTemplate(), ed);
-    Author::ApplicationError("ffmpeg", ed);
+    Author::ApplicationError(AVCnvBin(), ed);
 }
 
 static void FFmpegError(const std::string& msg)
 {
-    Author::ApplicationError("ffmpeg", msg);
+    Author::ApplicationError(AVCnvBin(), msg);
 }
 
 static std::string errno2str()
@@ -719,6 +729,11 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, bool is_4_3, bool is_p
     return FFmpegToDVDArgs(out_fname, is_4_3, is_pal, td);
 }
 
+static ExitData AVCnvOutput(const std::string& args, std::string& output)
+{
+    return PipeOutput(std::string(AVCnvBin()) + " " + args, output);
+}
+
 std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pal, 
                            const AudioArgInput& aai) //const std::string& a_fname, double a_shift)
 {
@@ -740,7 +755,7 @@ std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pa
             // считается "ошибочным" (но стандарт де факто для получения инфо
             // о файле через ffmpeg)
             std::string a_info;
-            PipeOutput("ffmpeg -i " + a_fname, a_info);
+            AVCnvOutput("-i " + a_fname, a_info);
 
             static re::pattern audio_idx("Stream #"RG_NUM"\\."RG_NUM".*Audio:");
 
@@ -955,7 +970,7 @@ void RunExtCmd(const std::string& cmd, const char* app_name,
 
 void RunFFmpegCmd(const std::string& cmd, const ReadReadyFnr& add_fnr)
 {
-    RunExtCmd(cmd, "ffmpeg", add_fnr);
+    RunExtCmd(cmd, AVCnvBin(), add_fnr);
 }
 
 // кодируем из Menu.png => Menu.mpg
@@ -963,8 +978,14 @@ static void EncodeStillMenu(const std::string& mn_dir, double durtn, const Audio
 {
     std::string img_fname = AppendPath(mn_dir, "Menu.png");
 
-    std::string ffmpeg_cmd = boost::format("ffmpeg -t %3$.2f -loop_input -i \"%1%\" %2%") 
-        % img_fname % MakeFFmpegPostArgs(mn_dir, aai) % durtn % bf::stop;
+    // :TRICKY: в libav на замену -loop_input ввели -loop, в libavformat 53.2.0; в ffmpeg оно попало,
+    // когда версия в libavformat была уже 53.6.0 или около того, и merge понизил версию опять до 53.2.0
+    // (да, вот такой бред теперь происходит из-за войны ffmpeg vs libav => см. в git'е ffmpeg так:
+    // git log -p  -- libavformat/version.h | grep LIBAVFORMAT_VERSION_MINOR | less
+    const char* loop_opt = IsVersionGE(CheckFFDVDEncoding().avformat, TripleVersion(53, 6, 0)) ? "-loop 1" : "-loop_input" ;
+    //std::string ffmpeg_cmd = boost::format("%4% -t %3$.2f -loop_input -i \"%1%\" %2%")
+    std::string ffmpeg_cmd = boost::format("%4% %5% -i \"%1%\" -t %3$.2f %2%") 
+        % img_fname % MakeFFmpegPostArgs(mn_dir, aai) % durtn % AVCnvBin() % loop_opt % bf::stop;
 
     RunFFmpegCmd(ffmpeg_cmd);
 }
@@ -1080,15 +1101,8 @@ TripleVersion FindVersion(const std::string& conts, const re::pattern& ver_pat,
 }
 
 // conts - вывод ffmpeg -formats
-FFmpegVersion TestFFmpegForDVDEncoding(const std::string& conts)
+void TestFFmpegForDVDEncoding(const std::string& conts)
 {
-    // ищем версию libavfilter
-    // пример: " libavfilter    0. 4. 0 / "
-#define RG_PADNUM RG_SPS RG_NUM
-    static re::pattern avfilter_version(RG_BW"libavfilter"RG_PADNUM"\\."RG_PADNUM"\\."RG_PADNUM" / ");
-    FFmpegVersion ff_ver;
-    ff_ver.avfilter = FindVersion(conts, avfilter_version, "ffmpeg", "libavfilter");
-
     CheckNoCodecs(CheckForCodecList(conts));
 
     static re::pattern dvd_format("^ .E dvd"RG_EW);
@@ -1100,41 +1114,73 @@ FFmpegVersion TestFFmpegForDVDEncoding(const std::string& conts)
     // по факту ffmpeg всегда использует ac3, однако mp2 тоже возможен
     static re::pattern ac3_codec("^ .EA... ac3"RG_EW);
     CheckStrippedFFmpeg(ac3_codec, conts, "ac3 audio encoder");
-
-    return ff_ver;
 }
 
-FFmpegVersion CheckFFDVDEncoding()
+TripleVersion FindAVVersion(const std::string& conts, const char* avlib_name)
 {
-    FFmpegVersion ff_ver;
-    // наличие полного ffmpeg
-    std::string ff_formats;
-    ExitData ed = PipeOutput("ffmpeg -formats", ff_formats);
-    // старые версии выходят с 1 для нерабочих режимов -formats, -help, ... (Hardy)
-    bool is_good = ed.IsGood() || ed.IsCode(1);
-    if( !is_good )
+    // * ищем версию libavfilter
+    // пример: " libavfilter    0. 4. 0 / "
+#define RG_PADNUM RG_SPS RG_NUM
+    std::string reg_str = boost::format(RG_BW"%1%"RG_PADNUM"\\."RG_PADNUM"\\."RG_PADNUM" / ")
+        % avlib_name % bf::stop;
+    re::pattern avfilter_version(reg_str.c_str());
+    return FindVersion(conts, avfilter_version, AVCnvBin(), avlib_name);
+}
+
+TripleVersion FindAVFilterVersion(const std::string& conts)
+{
+    return FindAVVersion(conts, "libavfilter");
+}
+
+static FFmpegVersion CalcFFmpegVersion()
+{
+    // *
+    std::string conts;
+    ExitData ed = AVCnvOutput("-version", conts);
+    if( !ed.IsGood() )
     {
         const char* msg = ed.IsCode(127) ? _("command not found") : "unknown error" ;
         FFmpegError(msg);
     }
-    else
+    
+    // *
+    FFmpegVersion ff_ver;
+    ff_ver.avformat = FindAVVersion(conts, "libavformat");
+    ff_ver.avfilter = FindAVFilterVersion(conts);
+    return ff_ver;
+}
+
+// :TRICKY: сейчас делается 3 вызова бинаря; можно свести к двум,
+// если использовать -v verbose (без -version, необходимость которого
+// возникла из-за avconv), но это работает 
+// только для >= ffmpeg 0.8.5
+FFmpegVersion CheckFFDVDEncoding()
+{
+    FFmpegVersion ff_ver = CalcFFmpegVersion();
+
+    // * наличие полного ffmpeg
+    std::string ff_formats;
+    ExitData ed = AVCnvOutput("-formats", ff_formats);
+    // старые версии выходят с 1 для нерабочих режимов -formats, -help, ... (Hardy)
+    bool is_good = ed.IsGood() || ed.IsCode(1);
+    if( !is_good )
+        FFmpegError("-formats");
+    
+    // * в новых версиях ffmpeg распечатка собственно кодеков выделена
+    //  в опцию -codecs
+    // * нормальной (сквозной) нумерации собственно ffmpeg не имеет (см. version.sh,-
+    // может появиться UNKNOWN, SVN-/git-ревизия и собственно версия), потому
+    // определяем по наличию строки "Codecs:"
+    if( !CheckForCodecList(ff_formats) )
     {
-        // * в новых версиях ffmpeg распечатка собственно кодеков выделена
-        //  в опцию -codecs
-        // * нормальной (сквозной) нумерации собственно ffmpeg не имеет (см. version.sh,-
-        // может появиться UNKNOWN, SVN-/git-ревизия и собственно версия), потому
-        // определяем по наличию строки "Codecs:"
-        if( !CheckForCodecList(ff_formats) )
-        {
-            std::string ff_codecs;
-            ExitData ed = PipeOutput("ffmpeg -codecs", ff_codecs);
-            CheckNoCodecs(ed.IsGood());
+        std::string ff_codecs;
+        ExitData ed = AVCnvOutput("-codecs", ff_codecs);
+        CheckNoCodecs(ed.IsGood());
 
-            ff_formats += ff_codecs;
-        }
-
-        ff_ver = TestFFmpegForDVDEncoding(ff_formats);
+        ff_formats += ff_codecs;
     }
+
+    TestFFmpegForDVDEncoding(ff_formats);
     return ff_ver;
 }
 
@@ -1179,8 +1225,8 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
                 // 1. Ставим частоту fps впереди -i pipe, чтобы она воспринималась для входного потока
                 // (а для выходного сработает -target)
                 // 2. И наоборот, для выходные параметры (-aspect, ...) ставим после всех входных файлов
-                std::string ffmpeg_cmd = boost::format("ffmpeg -r %1% -f image2pipe -vcodec ppm -i pipe: %2%")
-                    % MotionTimer::fps % MakeFFmpegPostArgs(mn_dir, MotionMenuAAI(mn)) % bf::stop;
+                std::string ffmpeg_cmd = boost::format("%3% -r %1% -f image2pipe -vcodec ppm -i pipe: %2%")
+                    % MotionTimer::fps % MakeFFmpegPostArgs(mn_dir, MotionMenuAAI(mn)) % AVCnvBin() % bf::stop;
 
                 ExitData ed;
                 {

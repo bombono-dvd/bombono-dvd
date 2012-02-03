@@ -55,8 +55,8 @@ BOOST_AUTO_TEST_CASE( TestRenderTranscoding )
     double shift = 1. / fps;
     double end  = 10.; // секунда
 
-    std::string ffmpeg_cmd = boost::format("ffmpeg -r %1% -f image2pipe -vcodec ppm -i pipe: %2%")
-        % fps % FFmpegPostArgs("../dvd_out/trans.vob", false, is_pal, AudioArgInput(a_fname, 6)) % bf::stop;
+    std::string ffmpeg_cmd = boost::format("%3% -r %1% -f image2pipe -vcodec ppm -i pipe: %2%")
+        % fps % FFmpegPostArgs("../dvd_out/trans.vob", false, is_pal, AudioArgInput(a_fname, 6)) % AVCnvBin() % bf::stop;
     io::cout << ffmpeg_cmd << io::endl;
 
     ExitData ed;
@@ -92,8 +92,8 @@ BOOST_AUTO_TEST_CASE( TestStillTranscoding )
 
     // в случае автономной работы ffmpeg указываем длительность аргументом
     double duration = 15; // 0.1;
-    std::string ffmpeg_cmd = boost::format("ffmpeg -t %3$.2f -loop_input -i \"%1%\" %2%") 
-        % fname % FFmpegPostArgs("../dvd_out/trans.vob", false, true) % duration % bf::stop;
+    std::string ffmpeg_cmd = boost::format("%4% -t %3$.2f -loop_input -i \"%1%\" %2%") 
+        % fname % FFmpegPostArgs("../dvd_out/trans.vob", false, true) % duration % AVCnvBin() % bf::stop;
  
     RunFFmpeg(ffmpeg_cmd);
 }
@@ -131,11 +131,13 @@ BOOST_AUTO_TEST_CASE( TestCheckFFmpeg )
     //std::string conts = Glib::file_get_contents("/home/ilya/opt/programming/atom-project/hardy_formats_.txt");
     //std::string conts = Glib::file_get_contents("/home/ilya/opt/programming/atom-project/lucid_formats.txt");
 
-    TripleVersion filter_ver = TestFFmpegForDVDEncoding(conts).avfilter;
+    TripleVersion filter_ver = FindAVFilterVersion(conts);
     BOOST_CHECK_EQUAL(filter_ver.major, 0);
     BOOST_CHECK_EQUAL(filter_ver.minor, 4);
     BOOST_CHECK_EQUAL(filter_ver.micro, 0);
-}
+    
+    TestFFmpegForDVDEncoding(conts);
+ }
 
 BOOST_AUTO_TEST_CASE( TestSetSubtitles )
 {

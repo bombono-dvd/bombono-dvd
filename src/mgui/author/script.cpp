@@ -685,8 +685,8 @@ static void CheckSpumuxFontFile()
 std::string FFmpegToDVDTranscode(const std::string& src_fname, const std::string& dst_fname,
                                  const AutoDVDTransData& atd, bool is_pal, const DVDTransData& td)
 {
-    return boost::format("ffmpeg -i %1% %2%") % FilenameForCmd(src_fname) 
-        % FFmpegToDVDArgs(dst_fname, atd, is_pal, td) % bf::stop;
+    return boost::format("%3% -i %1% %2%") % FilenameForCmd(src_fname) 
+        % FFmpegToDVDArgs(dst_fname, atd, is_pal, td) % AVCnvBin() % bf::stop;
 }
 
 // ffmpeg выводит статистику первого создаваемого файла каждые полсекунды,
@@ -1061,7 +1061,7 @@ static void AuthorImpl(const std::string& out_dir)
             if( jd.exception.size() )
                 Author::Error(jd.exception);
             Author::CheckAbortByUser();
-            Author::CheckAppED(jd.lastED, "ffmpeg");
+            Author::CheckAppED(jd.lastED, AVCnvBin());
         }
     }
 
