@@ -517,11 +517,31 @@ static bool IsToBeMoving(MediaItem mi)
 
 const char* AVCnvBin()
 {
-#define AVCONV_BIN
-#ifdef AVCONV_BIN
-    return "avconv";
-#else
+    // :TRICKY: под Win32 нельзя запускать (пока) несущ. бинари без вылета;
+    // с другой стороны, runtime-выбор конвертора (!) - тоже вынужденность из-за
+    // множества конфигураций в Linux'е 
+#ifdef _WIN32
     return "ffmpeg";
+#else
+    static std::string cnv_name;
+    if( !cnv_name.size() )
+    {
+        // Поведение execv() довольно сложно, если путь не абслютный, см. спеки и eglibc/posix/execvp.c
+        // (все на стороне пользователя):
+        // - узнается список путей для поиска:
+        //   - проверяется переменная PATH
+        //   - если пусто, то берется confstr(_CS_PATH), которое зависит от платформы 
+        //     (можно посмотреть с "getconf CS_PATH", под Linux - "/bin:/usr/bin") и прибавляется в конец
+        //     ":."
+        // - в цикле проверяются все абсолютные пути явным запуском ядерного вызова execve
+        // - если ошибка ENOEXEC (не выполняемый формат файла; например, в случае скриптов), то запускается  
+        //   "/bin/sh" с этим скриптом
+        // 
+        // Вывод: идем простым путем
+        std::string output;
+        cnv_name = PipeOutput("avconv -version", output).IsGood() ? "avconv" : "ffmpeg";
+    }
+    return cnv_name.c_str();
 #endif
 }
 
