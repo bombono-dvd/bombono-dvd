@@ -665,9 +665,9 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData
 {
     // * предполагается после создания команды ее вызов => требуется
     // проверка такой возможности
-    TripleVersion filter_ver = CheckFFDVDEncoding().avfilter;
+    FFmpegVersion ff_ver = CheckFFDVDEncoding();
     // вместо -padX использовать -vf pad=w:h:x:y:black
-    bool is_vf = IsVersionGE(filter_ver, TripleVersion(1, 20, 0));
+    bool is_vf = IsVersionGE(ff_ver.avfilter, TripleVersion(1, 20, 0));
 
     // *
     const char* target =  is_pal ? "pal" : "ntsc" ;
@@ -680,7 +680,8 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData
     ASSERT( vrate >= 0 );
     if( vrate )
         bitrate_str = boost::format("-b %1%k ") % vrate % bf::stop;
-    bitrate_str += boost::format("-ab %1%k ") % TRANS_AUDIO_BITRATE % bf::stop;
+    bitrate_str += boost::format("%2% %1%k") % TRANS_AUDIO_BITRATE 
+        % (IsVersionGE(ff_ver.avcodec, TripleVersion(53, 25, 0)) ? "-b:a" : "-ab") % bf::stop;
 
     // * соотношение
     bool is_4_3 = atd.is4_3;
@@ -701,11 +702,6 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData
         if( val )
             sz_str = FFSizeSet(sz, val, false, is_vf);
     }
-    // * дополнительные аудио
-    std::string add_audio_str;
-    for( int i=0; i<(atd.asd.audioNum-1); i++ )
-        // ffmpeg обнуляет audio_codec_name после каждого -newaudio и -i
-        add_audio_str += " -acodec ac3 -newaudio";
 
     // * доп. опции
     std::string add_opts("-mbd rd -trellis 2 -cmp 2 -subcmp 2");
@@ -716,7 +712,26 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData
     AppendOpts(add_opts, PrefContents("ffmpeg_options"));
     AppendOpts(add_opts, td.ctmFFOpt);
 
-    return boost::format("-target %1%-dvd -aspect %2% %3% %4%-y %7% %5%%6%")
+    // * дополнительные аудио
+    std::string add_audio_str;
+    int anum = atd.asd.audioNum;
+    if( IsVersionGE(ff_ver.avcodec, TripleVersion(53, 15, 0)) )
+    {
+        // :KLUDGE: 1) не учитываем audioNum, но пока все равно пользователь
+        // не может его изменить
+        // 2) видео явно записывать приходится из-за использования -map => берем одно=первое
+        // (алгоритм без -map выбирает с наибольшим разрешением)
+        if( anum > 1 )
+            AppendOpts(add_opts, "-map 0:v:0 -map 0:a");
+    }
+    else
+    {
+        for( int i=0; i<(anum-1); i++ )
+            // ffmpeg обнуляет audio_codec_name после каждого -newaudio и -i
+            add_audio_str += " -acodec ac3 -newaudio";
+    }
+    
+    return boost::format("-target %1%-dvd -aspect %2% %3% %4% -y %7% %5%%6%")
         % target % (is_4_3 ? "4:3" : "16:9") % sz_str
         % bitrate_str % FilenameForCmd(out_fname) % add_audio_str % add_opts % bf::stop;
 }
@@ -757,7 +772,14 @@ std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pa
             std::string a_info;
             AVCnvOutput("-i " + a_fname, a_info);
 
-            static re::pattern audio_idx("Stream #"RG_NUM"\\."RG_NUM".*Audio:");
+            // нужно второе число из информации по первому аудиопотоку; оно равно
+            // индексу этого потока в массиве AVFormatContext.streams (их число -
+            // AVFormatContext.nb_streams; , см. проверку в opt_map:
+            // check_stream_specifier(input_files[file_idx].ctx, input_files[file_idx].ctx->streams[i])
+            // 
+            // :KLUDGE: (только) в ffmpeg, avformat 53.13.0, поменяли . на : => надо
+            // самим открывать файл и узнавать индекс! 
+            static re::pattern audio_idx("Stream #"RG_NUM"[\\.|:]"RG_NUM".*Audio:");
 
             re::match_results what;
             // флаг означает, что перевод строки не может быть точкой
@@ -767,7 +789,8 @@ std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pa
                 FFmpegError(BF_("no audio stream in %1%") % a_fname % bf::stop);
         }
         ASSERT( idx >= 0 );
-        // каждая опция -map задает соответ. одному выходному потоку входной поток
+        // каждая опция -map добавляет (до libav 0.8 - только назначает) один поток из файла 
+        // под номером до ":" и с номерем потока в том файле - после ":" 
         std::string map = boost::format("-map 0:0 -map 1:%1%") % idx % bf::stop;
 
         std::string shift; // без смещения
@@ -1145,6 +1168,7 @@ static FFmpegVersion CalcFFmpegVersion()
     
     // *
     FFmpegVersion ff_ver;
+    ff_ver.avcodec  = FindAVVersion(conts, "libavcodec");
     ff_ver.avformat = FindAVVersion(conts, "libavformat");
     ff_ver.avfilter = FindAVFilterVersion(conts);
     return ff_ver;

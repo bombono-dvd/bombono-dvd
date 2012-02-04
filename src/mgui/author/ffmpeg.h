@@ -103,6 +103,7 @@ struct TripleVersion
 
 struct FFmpegVersion
 {
+    TripleVersion avcodec;
     TripleVersion avformat;
     TripleVersion avfilter;
 };
