@@ -32,6 +32,16 @@
 #include <mlib/read_stream.h> // ReadAllStream()
 #include <mlib/string.h>
 
+#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(54,00,00)
+#define AVFORMAT_54
+#endif
+
+#ifdef AVFORMAT_54
+C_LINKAGE_BEGIN
+#include <libavformat/url.h> // ffurl_register_protocol()
+C_LINKAGE_END
+#endif
+
 // Прямой доступ к ff_codec_bmp_tags, в частности, закрыл, некий
 // Anton Khirnov, см. libavformat/libavformat.v (из него генерится скрипт
 // для опции --version-script=<script_file> линковщика ld)
@@ -222,7 +232,11 @@ void CloseInfo(FFData& ffi)
         // судя по тому как, например, поле ctx_flags нигде не обнуляется
         // (кроме как при инициализации), то повторно использовать структуру
         // не принято -> все заново создаем при переоткрытии
+#ifdef AVFORMAT_54
+        avformat_close_input(&ffi.iCtx);
+#else
         av_close_input_file(ffi.iCtx);
+#endif
         ffi.iCtx = 0;
     }
 }
@@ -388,7 +402,11 @@ bool OpenInfo(FFData& ffi, const char* fname, FFDiagnosis& diag)
         //
         ffi.iCtx = ic;
     
+#ifdef AVFORMAT_54
+        av_res = avformat_find_stream_info(ic, 0);
+#else
         av_res = av_find_stream_info(ic);
+#endif
         if( IsFFError(av_res) )
         {
             // например .webm для FFmpeg <= 0.5 
@@ -474,21 +492,25 @@ bool OpenInfo(FFData& ffi, const char* fname, FFDiagnosis& diag)
             return false;
         }
 
-	// :TRICKY: вся полезна инфо о дорожке, включая размеры видео, реально парсится 
-	// в av_find_stream_info(), а в avcodec_open() - кодек только привязывается к
-	// контексту
-	// Более того, в версиях libavcodec 53.4.x-53.9.x есть ошибка, портящая размеры
-	// для h.264, в процессе вызова avcodec_open() (попало в Ubuntu Oneiric)
-	// (см. b47904d..2214191, черт бы тебя побрал, Felipe Contreras, лезть не в свое дело!)
-	Point sz(VideoSize(dec));
-	if( sz.IsNull() )
-	{
-	    err_str = "Video has null size";
-	    return false;
-	}
-	ffi.vidSz = sz;
+        // :TRICKY: вся полезна инфо о дорожке, включая размеры видео, реально парсится 
+        // в av_find_stream_info(), а в avcodec_open() - кодек только привязывается к
+        // контексту
+        // Более того, в версиях libavcodec 53.4.x-53.9.x есть ошибка, портящая размеры
+        // для h.264, в процессе вызова avcodec_open() (попало в Ubuntu Oneiric)
+        // (см. b47904d..2214191, черт бы тебя побрал, Felipe Contreras, лезть не в свое дело!)
+        Point sz(VideoSize(dec));
+        if( sz.IsNull() )
+        {
+            err_str = "Video has null size";
+            return false;
+        }
+        ffi.vidSz = sz;
 
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(54,0,0)
+        if( IsFFError(avcodec_open2(dec, codec, 0)) )
+#else
         if( IsFFError(avcodec_open(dec, codec)) )
+#endif
         {
             err_str = boost::format("Can't open codec: %1%") % tag_str % bf::stop;
             return false;
@@ -745,7 +767,7 @@ static bool DoDecode(FFViewer& ffv)
         }
         av_free_packet(&pkt);
     }
-    else if( av_res == AVERROR_EOF ) // для mpegts также -EIO приходит
+    else if( av_res == (int)AVERROR_EOF ) // для mpegts также -EIO приходит
     {
         // остатки в декодере забираем
         DoVideoDecode(ffv, got_picture, 0);
@@ -1119,7 +1141,11 @@ static int VobOpen(URLContext *h, const char *filename, int flags)
 {
     // параметры передаем внешним образом
     ASSERT( strcmp(filename, "bmdvob:") == 0 );
+#ifdef AVFORMAT_54
+    ASSERT( flags == AVIO_FLAG_READ );
+#else
     ASSERT( flags == URL_RDONLY );
+#endif
     
     VobCtx* vc = new VobCtx(BmdVob, BmdDVD);
     h->priv_data = (void*) vc;
@@ -1217,7 +1243,9 @@ static void RegisterVobProt()
         bmdvob_up.url_seek  = VobSeek;
         bmdvob_up.url_close = VobClose;
                 
-#if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52, 69, 0)
+#ifdef AVFORMAT_54
+        ffurl_register_protocol(&bmdvob_up, sz);
+#elif LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52, 69, 0)
         // :TRICKY: с некоторого момента сделали его deprecated,
         // а вместо него ffurl_register_protocol(), только в публичном заголовке его нет
         av_register_protocol2(&bmdvob_up, sz);
