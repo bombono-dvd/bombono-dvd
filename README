@@ -16,7 +16,7 @@ version 2 or later), see docs/COPYING.LIB:
 Boyer-Moore algorithm code in src/mlib/sdk/memmem.h is licensed under
 docs/Python-License.txt.
 
-Version: 1.2.0
+Version: 1.2.1
 
 Author:
  Ilya Murav'jov <muravev@yandex.ru>
