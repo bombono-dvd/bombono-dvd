@@ -176,7 +176,7 @@ Str::List& IconsDirs()
 {
     static Str::List dirs;
     if( !dirs.size() )
-	Project::AddSrcDirs(dirs, "icons");
+        Project::AddSrcDirs(dirs, "icons");
     return dirs;
 }
 
