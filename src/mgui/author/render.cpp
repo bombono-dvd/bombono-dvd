@@ -1016,6 +1016,8 @@ void RunFFmpegCmd(const std::string& cmd, const ReadReadyFnr& add_fnr)
     RunExtCmd(cmd, AVCnvBin(), add_fnr);
 }
 
+static FFmpegVersion CalcFFmpegVersion();
+
 // кодируем из Menu.png => Menu.mpg
 static void EncodeStillMenu(const std::string& mn_dir, double durtn, const AudioArgInput& aai)
 {
@@ -1025,7 +1027,7 @@ static void EncodeStillMenu(const std::string& mn_dir, double durtn, const Audio
     // когда версия в libavformat была уже 53.6.0 или около того, и merge понизил версию опять до 53.2.0
     // (да, вот такой бред теперь происходит из-за войны ffmpeg vs libav => см. в git'е ffmpeg так:
     // git log -p  -- libavformat/version.h | grep LIBAVFORMAT_VERSION_MINOR | less
-    const char* loop_opt = IsVersionGE(CheckFFDVDEncoding().avformat, TripleVersion(53, 6, 0)) ? "-loop 1" : "-loop_input" ;
+    const char* loop_opt = IsVersionGE(CalcFFmpegVersion().avformat, TripleVersion(53, 6, 0)) ? "-loop 1" : "-loop_input" ;
     //std::string ffmpeg_cmd = boost::format("%4% -t %3$.2f -loop_input -i \"%1%\" %2%")
     std::string ffmpeg_cmd = boost::format("%4% %5% -i \"%1%\" -t %3$.2f %2%") 
         % img_fname % MakeFFmpegPostArgs(mn_dir, aai) % durtn % AVCnvBin() % loop_opt % bf::stop;
