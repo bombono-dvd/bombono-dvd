@@ -36,7 +36,13 @@
 #define AVFORMAT_54
 #endif
 
-#ifdef AVFORMAT_54
+// разрабы libav считают себя самыми умными и потому решили
+// закрыть простым смертным доступ к ffurl_register_protocol() 
+// (бывшая av_register_protocol2()),- https://bugzilla.libav.org/show_bug.cgi?id=224
+// 
+// Поэтому: пользователи Linux остаются без предпросмотра содержимого DVD,
+// пользователи же Windows не страдают из-за подобного политгемора
+#if defined(AVFORMAT_54) && defined(_WIN32)
 C_LINKAGE_BEGIN
 #include <libavformat/url.h> // ffurl_register_protocol()
 C_LINKAGE_END
@@ -1125,6 +1131,8 @@ RefPtr<Gdk::Pixbuf> GetRawFrame(double time, FFViewer& ffv)
 
 namespace DVD {
 
+#if !defined(AVFORMAT_54) || defined(_WIN32)
+
 struct VobCtx
 {
    int64_t  curPos;
@@ -1266,6 +1274,17 @@ bool OpenVob(FFViewer& ffv, VobPtr vob, dvd_reader_t* dvd, std::string& err_str)
     BmdDVD = 0;
     return res;
 }
+    
+#else    
+    
+bool OpenVob(FFViewer&, VobPtr, dvd_reader_t*, std::string& err_str)
+{
+    err_str = "Libav: no soup for Linux users^W^W^W^W^W see https://bugzilla.libav.org/show_bug.cgi?id=224";
+    return false;
+}
+    
+#endif
+    
 
 } // namespace DVD
 

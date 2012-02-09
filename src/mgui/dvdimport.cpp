@@ -173,7 +173,7 @@ static bool OnSelectIdle(ImportData& id)
             row[VF().thumbnail] = Project::VideoPE(plyr, preview_time).Make(sz).RWPixbuf(); //MakeMpegPlayerPE(plyr, preview_time).Make(sz).RWPixbuf();
         }
         else
-            LOG_INF << "OpenFBuf() failed: " << err_str/*plyr.MInfo().ErrorReason()*/ << io::endl;
+            LOG_WRN << "OnSelectIdle() failed: " << err_str/*plyr.MInfo().ErrorReason()*/ << io::endl;
 
         plyr.Close(); // CloseFBuf();
     }
