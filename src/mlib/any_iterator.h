@@ -27,6 +27,16 @@
 #define ADOBE_AIT 
 
 #ifdef ADOBE_AIT
+
+#ifdef _RWSTD_VER
+#ifdef __SUNPRO_CC
+// http://developers.sun.com/solaris/articles/cmp_stlport_libCstd.html
+#error "May not be built with Rogue Wave STL library; use -library=stlport4 option to prefer libstlport for Sun C++ compiler"
+#else
+#error "May not be built with Rogue Wave STL library"
+#endif
+#endif // #ifdef _RWSTD_VER
+
 #   include <mlib/adobe/any_iterator.hpp>
 #else
 #   include <mlib/any_iterator/any_iterator.hpp>
