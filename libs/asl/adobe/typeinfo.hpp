@@ -11,7 +11,7 @@
 
 /**************************************************************************************************/
 
-#include <mlib/adobe/config.hpp>
+#include <adobe/config.hpp>
 
 #include <boost/operators.hpp>
 #include <boost/range/as_literal.hpp>
@@ -21,7 +21,7 @@
 #include <string>
 #include <typeinfo>
 
-#include <mlib/adobe/algorithm/copy.hpp>
+#include <adobe/algorithm/copy.hpp>
 
 #ifndef NDEBUG
 #include <iosfwd>

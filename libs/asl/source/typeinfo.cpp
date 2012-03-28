@@ -6,7 +6,7 @@
 
 /**************************************************************************************************/
 
-#include <mlib/adobe/typeinfo.hpp>
+#include <adobe/typeinfo.hpp>
 
 #include <fstream>
 #include <iterator>

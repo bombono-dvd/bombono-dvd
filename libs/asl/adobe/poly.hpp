@@ -9,12 +9,8 @@
 #ifndef ADOBE_POLY_HPP
 #define ADOBE_POLY_HPP
 
-#include <mlib/adobe/config.hpp>
+#include <adobe/config.hpp>
 
-#include <mlib/tech.h>
-#ifdef __GNUC_INCORRECT_SAR__
-#pragma GCC system_header
-#endif
 
 #include <boost/type_traits/is_base_of.hpp>
 #include <boost/type_traits/remove_reference.hpp>
@@ -25,9 +21,9 @@
 #include <boost/mpl/bool.hpp>
 #include <boost/type_traits/has_nothrow_constructor.hpp>
 
-#include <mlib/adobe/move.hpp>
-#include <mlib/adobe/implementation/swap.hpp>
-#include <mlib/adobe/typeinfo.hpp>
+#include <adobe/move.hpp>
+#include <adobe/implementation/swap.hpp>
+#include <adobe/typeinfo.hpp>
 
 /*************************************************************************************************/
 

@@ -630,3 +630,7 @@ def InitUOD(user_options_dict):
     UserOptDict = user_options_dict
     UserOptDict['make_source_files'] = make_source_files
 
+def SetUnionDict(dct, env):
+    for key in dct:
+        dct[key] += env[key]
+    return dct

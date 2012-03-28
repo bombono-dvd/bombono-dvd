@@ -13,12 +13,12 @@
 
 #if defined __GNUC__
     //  GNU C++: (including Darwin)
-    #include <mlib/adobe/config/compiler/gcc.hpp>
+    #include <adobe/config/compiler/gcc.hpp>
 
 #elif defined _MSC_VER
     //  Must remain the last #elif since some other vendors (Metrowerks, for
     //  example) also #define _MSC_VER
-    #include <mlib/adobe/config/compiler/visualc.hpp>
+    #include <adobe/config/compiler/visualc.hpp>
 
 #endif
 

@@ -9,17 +9,12 @@
 #ifndef ADOBE_ANY_ITERATOR_HPP
 #define ADOBE_ANY_ITERATOR_HPP
 
-#include <mlib/adobe/config.hpp>
+#include <adobe/config.hpp>
 
 #include <boost/concept_check.hpp>
 
-#include <mlib/adobe/move.hpp>
-#include <mlib/adobe/poly.hpp>
-
-#include <mlib/tech.h>
-#ifdef __GNUC_INCORRECT_SAR__
-#pragma GCC system_header
-#endif
+#include <adobe/move.hpp>
+#include <adobe/poly.hpp>
 
 /*************************************************************************************************/
 

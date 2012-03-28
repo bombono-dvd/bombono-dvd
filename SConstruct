@@ -423,6 +423,7 @@ mlib_env = boost_env.Clone()
 mlib_env.Append(CPPPATH = ['#libs/boost-logging']) #, LIBS = ['pthread']))
 # libboost_system.a linking is needed only for static builds
 mlib_env.Append( LIBS = ['boost_filesystem', 'boost_system', 'boost_regex'] )
+mlib_env.Append(CPPPATH=['#libs/asl'], LIBS=['asl_dev'])
 Export('mlib_env')
 
 # 

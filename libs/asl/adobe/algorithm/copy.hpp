@@ -9,7 +9,7 @@
 #ifndef ADOBE_ALGORITHM_COPY_HPP
 #define ADOBE_ALGORITHM_COPY_HPP
 
-#include <mlib/adobe/config.hpp>
+#include <adobe/config.hpp>
 
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>

@@ -39,6 +39,14 @@ if embedded_boost:
     SConscript( 'boost-lib/SConscript' )
 
 #
+# ASL 
+#
+    
+asl_dct = {"CPPPATH": ['#libs/asl']}
+boost_env.Library(target=user_options_dict['LIB_BUILD_DIR']+'/asl_dev', source=['asl/source/typeinfo.cpp'],
+    **BV.SetUnionDict(asl_dct, boost_env))
+
+#
 # mpeg2dec
 #
 
