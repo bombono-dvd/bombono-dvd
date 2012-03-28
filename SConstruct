@@ -216,6 +216,9 @@ def ParseVariables(user_options):
             (BoolVariable('TEST_BUILD',
                         'Set to 1 if you want to build with tests (all).',
                         'false')),
+            (BoolVariable('USE_EXT_ASL',
+                        'Leave this setting 0 to use embedded ASL library version (recommended).',
+                        'false')),
             )
     # we need to add 'lib dict vars' user_options to load in user_options_env
     AddLibOptions(user_options)
@@ -328,6 +331,7 @@ else:
         # this one has only one purpose I can say: just build all
         # to test/profile SCons speed
         config.write('TEST_BUILD = %r\n' % (BV.BuildTests))
+        write_dict_value('USE_EXT_ASL')
 
         config.close()
     except:
@@ -423,7 +427,7 @@ mlib_env = boost_env.Clone()
 mlib_env.Append(CPPPATH = ['#libs/boost-logging']) #, LIBS = ['pthread']))
 # libboost_system.a linking is needed only for static builds
 mlib_env.Append( LIBS = ['boost_filesystem', 'boost_system', 'boost_regex'] )
-mlib_env.Append(CPPPATH=['#libs/asl'], LIBS=['asl_dev'])
+mlib_env.Append(**user_options_dict['ASL_DCT'])
 Export('mlib_env')
 
 # 

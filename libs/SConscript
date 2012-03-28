@@ -42,9 +42,15 @@ if embedded_boost:
 # ASL 
 #
     
-asl_dct = {"CPPPATH": ['#libs/asl']}
-boost_env.Library(target=user_options_dict['LIB_BUILD_DIR']+'/asl_dev', source=['asl/source/typeinfo.cpp'],
-    **BV.SetUnionDict(asl_dct, boost_env))
+asl_name = "asl_dev"
+if not user_options_dict['USE_EXT_ASL']:
+    asl_dct = {"CPPPATH": ['#libs/asl']}
+    boost_env.Library(target=user_options_dict['LIB_BUILD_DIR']+ '/' + asl_name, source=['asl/source/typeinfo.cpp'],
+        **BV.SetUnionDict(asl_dct, boost_env))
+else:
+    asl_dct = {}
+asl_dct['LIBS'] = asl_name
+user_options_dict['ASL_DCT'] = asl_dct
 
 #
 # mpeg2dec
