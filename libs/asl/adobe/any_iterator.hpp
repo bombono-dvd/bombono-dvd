@@ -47,7 +47,10 @@ struct poly_iterator_instance {
     {
         typedef typename optimized_storage_type<I, poly_iterator_interface<V, R, D> >::type base_t;
     
-        //BOOST_CLASS_REQUIRE(I, boost, ForwardIteratorConcept);      
+// this is too restrictive check; need to make appropriate one
+#ifndef NO_ASL_AI_CONCEPT_CHECK
+        BOOST_CLASS_REQUIRE(I, boost, ForwardIteratorConcept);      
+#endif
 
         type(const I& x) : base_t (x)
             { }
@@ -133,8 +136,9 @@ struct any_bidirectional_iterator_instance {
     {
         typedef typename optimized_storage_type<I, any_bidirectional_iterator_interface<V, R, D> >::type base_t;
     
-        // :KLUDGE: this is too restrictive check; need to make appropriate one
-        //BOOST_CLASS_REQUIRE(I, boost, BidirectionalIteratorConcept);      
+#ifndef NO_ASL_AI_CONCEPT_CHECK
+        BOOST_CLASS_REQUIRE(I, boost, BidirectionalIteratorConcept);      
+#endif
 
         type(const I& x) 
             : base_t(x) {}
@@ -236,7 +240,9 @@ struct any_random_access_iterator_instance {
     {
         typedef typename optimized_storage_type<I, any_random_access_iterator_interface<V, R, D> >::type base_t;
     
-        //BOOST_CLASS_REQUIRE(I, boost, RandomAccessIteratorConcept);      
+#ifndef NO_ASL_AI_CONCEPT_CHECK
+        BOOST_CLASS_REQUIRE(I, boost, RandomAccessIteratorConcept);      
+#endif
 
         type(const I& x) 
             : base_t(x) {}

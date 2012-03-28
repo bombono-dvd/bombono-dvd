@@ -209,6 +209,7 @@
 			<F N="../libs/boost-logging/lib/logging/tests/test_tss/test_tss_objects.cpp"/>
 			<F N="../libs/boost-logging/lib/logging/tests/test_tss/test_tss_on_end_delete.cpp"/>
 			<F N="../libs/boost-logging/lib/logging/samples/scenarios/ts_loger_one_filter.cpp"/>
+			<F N="../libs/asl/source/typeinfo.cpp"/>
 			<F N="../libs/boost-logging/lib/logging/samples/scenarios/using_tags.cpp"/>
 			<F N="../libs/boost-logging/lib/logging/samples/basic_usage/util.cpp"/>
 			<F N="../libs/boost-logging/lib/logging/samples/scenarios/your_scenario.cpp"/>
@@ -217,11 +218,14 @@
 			Name="Header Files"
 			Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
 			<F N="../libs/boost-logging/boost/logging/detail/raw_doc/acknowledgments.hpp"/>
+			<F N="../libs/asl/adobe/any_iterator.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/format/array.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/raw_doc/changelog.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/raw_doc/common_usage_steps_fd.hpp"/>
+			<F N="../libs/asl/adobe/config.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/format/destination/convert_destination.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/format/formatter/convert_format.hpp"/>
+			<F N="../libs/asl/adobe/algorithm/copy.hpp"/>
 			<F N="../libs/boost-logging/lib/logging/tests/test_tss/count.h"/>
 			<F N="../libs/boost-logging/boost/logging/detail/raw_doc/customize_manipulator.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/defaults.hpp"/>
@@ -246,6 +250,7 @@
 			<F N="../libs/boost-logging/boost/logging/detail/format_write_detail.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/forward_constructor.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/fwd.hpp"/>
+			<F N="../libs/asl/adobe/config/compiler/gcc.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/raw_doc/headers_to_include.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/level.hpp"/>
 			<F N="../libs/boost-logging/lib/logging/samples/basic_usage/log.h"/>
@@ -258,19 +263,23 @@
 			<F N="../libs/boost-logging/boost/logging/detail/raw_doc/main.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/manipulator.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/raw_doc/miscelaneous.hpp"/>
+			<F N="../libs/asl/adobe/move.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/raw_doc/namespace_concepts.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/writer/on_dedicated_thread.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/format/op_equal.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/format/optimize.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/gather/ostream_like.hpp"/>
 			<F N="../libs/boost-logging/lib/logging/samples/basic_usage/parse_file.h"/>
+			<F N="../libs/asl/adobe/poly.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/raw_doc/requirements.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/format/destination/rolling_file.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/scenario.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/raw_doc/scenarios.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/raw_doc/scenarios_code.hpp"/>
+			<F N="../libs/asl/adobe/config/select_compiler.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/format/destination/shared_memory.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/raw_doc/starter_project.hpp"/>
+			<F N="../libs/asl/adobe/implementation/swap.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/raw_doc/table_of_contents.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/tags.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/format/formatter/tags.hpp"/>
@@ -291,9 +300,11 @@
 			<F N="../libs/boost-logging/boost/logging/detail/tss/tss_impl.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/tss/tss_impl_pthread.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/tss/tss_impl_win32.hpp"/>
+			<F N="../libs/asl/adobe/typeinfo.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/use_format_write.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/util.hpp"/>
 			<F N="../libs/boost-logging/lib/logging/samples/basic_usage/util.h"/>
+			<F N="../libs/asl/adobe/config/compiler/visualc.hpp"/>
 			<F N="../libs/boost-logging/boost/logging/detail/raw_doc/workflow.hpp"/>
 		</Folder>
 		<Folder

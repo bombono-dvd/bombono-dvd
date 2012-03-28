@@ -1,0 +1,88 @@
+diff -Naur source_release_orig/adobe/any_iterator.hpp source_release/adobe/any_iterator.hpp
+--- source_release_orig/adobe/any_iterator.hpp	2010-11-08 21:18:19.000000000 +0300
++++ source_release/adobe/any_iterator.hpp	2012-03-28 16:59:42.000000000 +0400
+@@ -47,7 +47,10 @@
+     {
+         typedef typename optimized_storage_type<I, poly_iterator_interface<V, R, D> >::type base_t;
+     
++// this is too restrictive check; need to make appropriate one
++#ifndef NO_ASL_AI_CONCEPT_CHECK
+         BOOST_CLASS_REQUIRE(I, boost, ForwardIteratorConcept);      
++#endif
+ 
+         type(const I& x) : base_t (x)
+             { }
+@@ -133,7 +136,9 @@
+     {
+         typedef typename optimized_storage_type<I, any_bidirectional_iterator_interface<V, R, D> >::type base_t;
+     
++#ifndef NO_ASL_AI_CONCEPT_CHECK
+         BOOST_CLASS_REQUIRE(I, boost, BidirectionalIteratorConcept);      
++#endif
+ 
+         type(const I& x) 
+             : base_t(x) {}
+@@ -235,7 +240,9 @@
+     {
+         typedef typename optimized_storage_type<I, any_random_access_iterator_interface<V, R, D> >::type base_t;
+     
++#ifndef NO_ASL_AI_CONCEPT_CHECK
+         BOOST_CLASS_REQUIRE(I, boost, RandomAccessIteratorConcept);      
++#endif
+ 
+         type(const I& x) 
+             : base_t(x) {}
+diff -Naur source_release_orig/adobe/poly.hpp source_release/adobe/poly.hpp
+--- source_release_orig/adobe/poly.hpp	2010-11-08 21:18:20.000000000 +0300
++++ source_release/adobe/poly.hpp	2012-03-28 17:01:40.000000000 +0400
+@@ -70,8 +70,10 @@
+     virtual const void* cast() const = 0;
+     virtual const std::type_info& type_info() const = 0;
+ 
++#ifndef NO_ASL_AI_CONCEPT_CHECK
+     // Precondition of assignment: this->type_info() == x.type_info()
+     virtual void assign(const poly_copyable_interface& x) = 0;
++#endif
+ 
+     // Precondition of exchange: this->type_info() == x.type_info()
+     virtual void exchange(poly_copyable_interface& x) = 0;
+@@ -107,9 +109,11 @@
+     ~poly_state_remote()
+     { delete value_ptr_m; }
+ 
++#ifndef NO_ASL_AI_CONCEPT_CHECK
+     // Precondition : this->type_info() == x.type_info()
+     void assign(const poly_copyable_interface& x)
+     { *value_ptr_m = *static_cast<const poly_state_remote&>(x).value_ptr_m; }
++#endif
+ 
+     const std::type_info& type_info() const
+     { return typeid(value_type); }
+@@ -144,9 +148,11 @@
+     explicit poly_state_local(value_type x)
+         : value_m(adobe::move(x)) { }
+ 
++#ifndef NO_ASL_AI_CONCEPT_CHECK
+     // Precondition : this->type_info() == x.type_info()
+     void assign(const poly_copyable_interface& x)
+     { value_m = static_cast<const poly_state_local&>(x).value_m; }
++#endif
+ 
+     const std::type_info& type_info() const
+     { return typeid(value_type); }
+@@ -342,6 +348,7 @@
+         return true;
+     }
+ 
++#ifndef NO_ASL_AI_CONCEPT_CHECK
+     template <typename T> poly_base& assign(const T& x)
+     {
+         if (type_info() == typeid(T))
+@@ -364,6 +371,7 @@
+         interface_ref().~interface_type();
+         x.interface_ref().clone(storage());
+     }
++#endif
+ 
+     const interface_type* operator->() const
+     { return &interface_ref(); }

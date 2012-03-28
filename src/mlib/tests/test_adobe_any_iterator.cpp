@@ -8,6 +8,8 @@
 
 #include <mlib/tests/_pc_.h>
 
+#include <mlib/sdk/asl_any_iter.h>
+
 //#include <cassert>
 #include <algorithm>
 #include <list>
@@ -17,8 +19,6 @@
 #include <iostream>
 
 #include <boost/range/functions.hpp>
-
-#include <adobe/any_iterator.hpp>
 
 /*************************************************************************************************/
 
