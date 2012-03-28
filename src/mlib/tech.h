@@ -88,13 +88,6 @@ void AssertImpl(const char* assertion, const char* file,
 
 #define BOOST_MINOR_VERSION (BOOST_VERSION / 100 % 1000)
 
-// gcc 4.4 вываливает кучу предупреждений о strict-alias rules
-// (только при >= -O2), но чувствую, что неправильно
-
-#if defined(NDEBUG) && defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ == 4)
-#define __GNUC_INCORRECT_SAR__
-#endif
-
 // помечаем так переменные, чтобы убрать warning: unused variable;
 // которые тем не менее используются, но не всегда, см. ASSERT()
 #define UNUSED_VAR(x) ((void)(x))
