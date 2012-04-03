@@ -28,12 +28,6 @@
 
 #include "gb_devices.h"
 
-#include <glib/gthread.h>
-#include <glib/gmessages.h>
-#include <glib/ghash.h>
-/* 
-#include <glib/gfileutils.h> 
-*/ 
 #include <glib.h>
 
 #include <stdlib.h>
