@@ -956,7 +956,15 @@ void RunSpumux(const std::string& xml_fname, const std::string& src_fname, const
 {
     CheckSpumuxFontFile();
     std::string spumux_cmd = boost::format("spumux -m dvd -s%4% %1% < %2% > %3%") 
-        % FilenameForCmd(xml_fname) % src_fname % dst_fname % stream_id % bf::stop;
+        % FilenameForCmd(xml_fname)
+#ifdef _WIN32
+	% src_fname % dst_fname 
+#else
+	// :KLUDGE: из-за неправильного решения с реализацией перенаправления
+	// приходится действовать #ifdef'ами
+        % FilenameForCmd(src_fname) % FilenameForCmd(dst_fname) 
+#endif      
+	% stream_id % bf::stop;
     RunExtCmd(spumux_cmd, "spumux", ReadReadyFnr(), dir);
 }
 
