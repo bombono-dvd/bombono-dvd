@@ -257,8 +257,10 @@ void SPRenderVis::Visit(TextObj& t_obj)
         Make(t_obj).Render();
         // все равно приходится явно дискретизировать, потому что подчеркивание, например,
         // добавляет еще несколько цветов (особенно если есть пересечение его с буквой)
-        Rect plc = CalcRelPlacement(t_obj.Placement());
-        DiscreteByAlpha(MakeSubPixbuf(drw->Canvas(), plc), clr);
+        RefPtr<Gdk::Pixbuf> canv_pix = drw->Canvas();
+        // :TRICKY: раз уж напрямую правим, то явно соблюдаем ограничения
+        Rect plc = Intersection(CalcRelPlacement(t_obj.Placement()), PixbufBounds(canv_pix));
+        DiscreteByAlpha(MakeSubPixbuf(canv_pix, plc), clr);
 
         ScriptButton(spuNode, isSelect, plc, cnvBuf);
     }
