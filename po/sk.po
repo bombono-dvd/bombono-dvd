@@ -7,8 +7,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-06 13:00+0300\n"
-"PO-Revision-Date: 2012-06-03 13:32+0200\n"
-"Last-Translator: Dušan Kazik <prescott66@gmail.com>\n"
+"PO-Revision-Date: 2012-07-09 18:57+0200\n"
+"Last-Translator: Dušan <prescott66@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
@@ -435,7 +435,7 @@ msgstr "_Zostaviť DVD-Video"
 #. - попробовать libsexy/libview - может там чего есть
 #: src/mgui/author/output.cpp:160
 msgid "Select output _folder"
-msgstr "Vybrať výstupnú _zložku"
+msgstr "Výber výstupnej _zložky"
 
 #: src/mgui/author/output.cpp:182
 msgid "Choose author mode"
@@ -529,7 +529,7 @@ msgstr "%1% zrušené."
 #: src/mgui/author/output.cpp:712
 #, boost-format
 msgid "%1% broken."
-msgstr "%1% je poškodený."
+msgstr "%1% je poškodené."
 
 #. Translators: can be tranlated as "Operation "%1%" ..."
 #: src/mgui/author/output.cpp:719
@@ -1130,7 +1130,7 @@ msgstr ""
 #: src/mgui/project/media-browser.cpp:666
 #, boost-format
 msgid "Disc usage is %1%%% now."
-msgstr "Využitie disku je teraz %1%%%."
+msgstr "Využitie disku je teraz %1%%% ."
 
 #: src/mgui/project/media-browser.cpp:710
 #: src/mgui/project/media-browser.cpp:720
