@@ -223,6 +223,7 @@ static void OnDeleteEndAction(MediaItem mi, const char* action)
 AStores& InitAStores()
 {
     RefPtr<MediaStore> md_store = CreateEmptyMediaStore();
+    //md_store->signal_row_inserted().connect(&OnInsertedRow);
     RefPtr<MenuStore>  mn_store = CreateEmptyMenuStore();
 
     AStores& as = GetAStores();

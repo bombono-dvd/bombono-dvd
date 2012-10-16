@@ -761,10 +761,31 @@ void SetTextRendererFnr(Gtk::TreeView::Column& name_cln, Gtk::CellRendererText& 
     name_cln.set_cell_data_func(rndr, bb::bind(&RenderField, _1, _2, fnr));
 }
 
+static void LogItr(const char* label, const Gtk::TreeIter& itr)
+{
+    // сам itr.gobj() не является инвариантом ряда в TreeView/TreeStore,
+    // в отличие от user_data
+    io::cout << label << ": " << itr.gobj()->user_data << io::endl;
+}
+
 static std::string Iter2MI(RefPtr<ObjectStore> os, const RFFunctor& fnr,
                            const Gtk::TreeModel::iterator& iter)
 {
-    return fnr(os->GetMedia(iter));
+    MediaItem mi = os->GetMedia(iter);
+
+    std::string res;
+    if( mi )
+        res = fnr(mi);
+    else
+    {
+        // :TRICKY: такое означает, что раньше прошло исключение (скорее всего), а сейчас
+        // мы ничего уже поделать не можем, кроме оттягивания конца 
+        // (пример - плохая картинка .wbmp у Roonwhit <roonwhit@gmail.com>)
+        res = "<no text>";
+        LogItr("No media object for row", iter);
+    }
+
+    return res;
 }
 
 void SetRendererFnr(Gtk::TreeView::Column& name_cln, Gtk::CellRendererText& rndr, 

@@ -426,12 +426,88 @@ bool CheckKeepOrigin(const std::string& fname)
     return res;
 }
 
+static void PresentGtkmmedException(const std::string& reason)
+{
+    const char* title = "Unhandled Exception within GTK Signal";
+    std::string text = reason +
+        "\n\n"
+        // :TODO: refactor
+        "To help us diagnose and fix the problem please send this text "
+        "to support@bombono.org (use Ctrl+A, Ctrl+C to copy; Ctrl+V to paste)."
+        "\n\n"
+        "The program's operation may be unstable until restart.";
+
+    io::cout << title << io::endl;
+    io::cout << text << io::endl;
+
+    // :TODO: очень опасно запускать нативный диалог, ведь события
+    // перерисовки скомпрометированного приложения, например, все равно 
+    // будут проходить во время его отображения; потому надо:
+    // - лучше всего запускать отдельный процесс с диалогом, а приложение пусть ждет
+    // - под Linux есть Zenity для простых диалогов
+    // - для Win можно создать отдельный поток с ожиданием и WinMsgBox(), как для OnMinidumpCallback()
+#ifdef _WIN32
+    WinMsgBox(text, title);
+#else
+    ErrorBox(title, text);
+#endif
+}
+
+std::string GlibError2Str(const Glib::Error& err)
+{
+    const GError* error = err.gobj();
+    ASSERT_RTL( error );
+
+    std::string err_text = boost::format(
+        "Type: Glib::Error\n"
+        "Domain: %s\n"
+        "Code: %d\n"
+        "What: %s")
+        % g_quark_to_string(error->domain) % error->code
+        % ((error->message) ? error->message : "(null)") % bf::stop;
+    return err_text;
+}
+
+// по мотиву glibmm_unexpected_exception()
+static void OnGtkmmedException()
+{
+    // :TODO: хотелось бы не только ловить С++-исключения, но
+    // и место их возникновения; однако есть проблемы:
+    // - без замены всех первичных catch(...) в gtkmm на
+    //   __except( DumpException(GetExceptionInformation()) )
+    //   нельзя получить доступ к контексту возникновения (а это кучи мест;
+    //   и хоть все они затем вызывают наш OnGtkmmedException(), время уже упущено)
+    // - другая фундаментальная проблема - "либо C++, либо SEH (но не вместе)",
+    //   см. test_breakpad()
+    try
+    {
+        throw; // заново бросаем для конкретизации типа исключения
+    }
+    catch(const Glib::Error& err)
+    {
+        PresentGtkmmedException(GlibError2Str(err));
+    }
+    catch(const std::exception& except)
+    {
+        PresentGtkmmedException(std::string(
+            "Type: std::exception\n"
+            "What: ") + except.what());
+    }
+    catch(...)
+    {
+        PresentGtkmmedException("Type: unknown");
+    }
+}
+
 void InitGtkmm(int argc, char** argv)
 {
     static ptr::one<Gtk::Main> si;
     if( !si )
     {
         si = new Gtk::Main(argc, argv);
+
+        Glib::add_exception_handler(&OnGtkmmedException);
+
         // стили виджетов программы
         gtk_rc_parse(DataDirPath("gtkrc").c_str());
     }

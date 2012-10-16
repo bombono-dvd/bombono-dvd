@@ -123,5 +123,10 @@ void AddDialogItem(Gtk::Menu& menu, const DialogParams& dp, bool is_enabled = tr
 std::string QuoteForGMarkupParser(const std::string& str);
 std::string MarkError(const std::string& val, bool not_error);
 
+void SetZeroBorder(Gtk::Dialog& dlg);
+Gtk::VBox& SetImageCaption(Gtk::Dialog& dlg);
+
+std::string GlibError2Str(const Glib::Error& err);
+
 #endif // #ifndef __MGUI_DIALOG_H__
 

@@ -126,8 +126,8 @@ void PublishMediaVis::Visit(VideoMD& obj)
 
 void PublishMedia(const Gtk::TreeIter& itr, RefPtr<MediaStore> ms, MediaItem mi)
 {
-    FillThumbnail(itr, ms, *mi);
     (*itr)[MediaStore::Fields().media] = mi;
+    FillThumbnail(itr, ms, *mi);
 
     PublishMediaVis vis(itr, ms);
     mi->Accept(vis);

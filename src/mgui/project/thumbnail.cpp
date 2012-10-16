@@ -29,6 +29,7 @@
 #include <mgui/sdk/browser.h>
 #include <mgui/img-factory.h>
 #include <mgui/ffviewer.h>
+#include <mgui/dialog.h> // ErrorBox()
 
 #include <mbase/project/table.h>
 #include <mbase/project/colormd.h>
@@ -283,13 +284,35 @@ void SetDirtyCacheShot(MediaItem mi)
     mi->Accept(upd_vis);
 }
 
+void MakeEmpty(RefPtr<Gdk::Pixbuf>& img, const Point& sz)
+{
+    // :TODO: refactor
+    img = CreatePixbuf(sz);
+    FillEmpty(img);
+}
+
 RefPtr<Gdk::Pixbuf> ImgFilePE::MakeImage(const Point& sz)
 {
     RefPtr<Gdk::Pixbuf> img;
-    if( !IsNullSize(sz) )
-        img = Gdk::Pixbuf::create_from_file(imgFName, sz.x, sz.y, false);
-    else
-        img = Gdk::Pixbuf::create_from_file(imgFName);
+    std::string err_text;
+    try
+    {
+        if( !IsNullSize(sz) )
+            img = Gdk::Pixbuf::create_from_file(imgFName, sz.x, sz.y, false);
+        else
+            img = Gdk::Pixbuf::create_from_file(imgFName);
+    }
+    catch(const Glib::Error& err)
+    {
+        err_text = GlibError2Str(err);
+    }
+
+    if( err_text.size() )
+    {
+        ErrorBox("Can't load the image " + imgFName, err_text);
+        MakeEmpty(img, sz);
+    }
+
     return img;
 }
 
@@ -355,8 +378,7 @@ PixbufSource VideoPE::Make(const Point& sz)
         return FormPixbufSource(sz, img, true);
     else
     {
-        img = CreatePixbuf(sz);
-        FillEmpty(img);
+        MakeEmpty(img, sz);
         return PixbufSource(img, false);
     }
 }
