@@ -8,9 +8,7 @@
 #
 
 from call_cmd import call_cmd, make_call_in_dst
-import os
-import shutil
-
+import os, o_p
 
 def add_options(parser):
     parser.add_option("--bcp", action="store", dest="bcp", metavar='bcp_path', 
@@ -29,10 +27,7 @@ if __name__ == '__main__':
             if not fname in lst:
                 fpath = os.path.join(boost_dst, fname)
                 print 'rm', fpath
-                if os.path.isfile(fpath):
-                    os.remove(fpath)
-                else:
-                    shutil.rmtree(fpath)
+                o_p.del_any_fpath(fpath)
     
     cmd = '''%(bcp)s --boost=%(boost_src)s boost/smart_ptr.hpp boost/test boost/function.hpp boost/lambda boost/bind \
 boost/filesystem system boost/regex format boost/foreach.hpp boost/iterator boost/cast.hpp boost/range/reference.hpp \
