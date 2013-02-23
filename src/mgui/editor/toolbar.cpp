@@ -283,12 +283,12 @@ Toolbar::Toolbar(): selTool(MakeSelectionToolImage()), txtTool(MakeTextToolLabel
     	Str::List o_lst;
     	boost_foreach( const std::string& str, IconsDirs() )
     	{
-    	    fs::path dir = fs::path(str);
+            fs::path dir = fs::path(str);
     	    if( fs::is_directory(dir) )
-    	    {    
-    		boost_foreach( const fs::path& pth, dir_range(dir) )
-    		    o_lst.push_back(pth.filename());
-    	    }
+    	    {
+                boost_foreach( const fs::path& pth, dir_range(dir) )
+                    o_lst.push_back(fs::name_str(pth));
+            }
     	}
     	std::sort(o_lst.begin(), o_lst.end(), &ByExtName);
         Project::MakeUnique(o_lst);
