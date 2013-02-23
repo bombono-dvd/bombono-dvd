@@ -153,6 +153,7 @@ class shared: public boost::shared_ptr<T>
             return *this;
         }
 
+#if 0
         // кострукторы приведения
         template<class Y>
         shared(const shared<Y>& r, boost::detail::static_cast_tag t)
@@ -165,22 +166,31 @@ class shared: public boost::shared_ptr<T>
         template<class Y>
         shared(const shared<Y>& r, boost::detail::dynamic_cast_tag t)
             : my_parent(r, t) {}
-
+#endif
 };
 
 template<class T, class U> shared<T> static_pointer_cast(shared<U> const & r)
 {
-    return shared<T>(r, boost::detail::static_cast_tag());
+    typedef typename shared<T>::element_type E;
+
+    E* p = static_cast<E*>(r.get());
+    return shared<T>(r, p);
 }
 
 template<class T, class U> shared<T> const_pointer_cast(shared<U> const & r)
 {
-    return shared<T>(r, boost::detail::const_cast_tag());
+    typedef typename shared<T>::element_type E;
+
+    E* p = const_cast<E*>(r.get());
+    return shared<T>( r, p );
 }
 
 template<class T, class U> shared<T> dynamic_pointer_cast(shared<U> const & r)
 {
-    return shared<T>(r, boost::detail::dynamic_cast_tag());
+    typedef typename shared<T>::element_type E;
+
+    E* p = dynamic_cast<E*>(r.get());
+    return p ? shared<T>(r, p) : shared<T>();
 }
 
 // Базовый класс для объектов с ссылками (=> intrusive_ptr)
