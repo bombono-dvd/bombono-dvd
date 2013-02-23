@@ -26,7 +26,15 @@
 // :TRICKY: со временем может измениться (в бусте), но создавать
 // свою хлопотнее пока, см. boost/detail/utf8_codecvt_facet.hpp
 #include <boost/filesystem/detail/utf8_codecvt_facet.hpp>
-#include <boost/filesystem/v3/path_traits.hpp> // boost::filesystem3::convert()
+// в 1.51 v2 удалена полностью (svn diff -r 77555:HEAD -- boost/version.hpp | less)
+#if BOOST_MINOR_VERSION >= 51
+#define BOOST_FS_3 boost::filesystem
+#include <boost/filesystem/path_traits.hpp> // boost::filesystem::convert()
+#else
+#define BOOST_FS_3 boost::filesystem3
+#include <boost/filesystem/v3/path_traits.hpp>
+#endif 
+
 
 #include <string.h> // strstr()
 
@@ -141,7 +149,7 @@ std::wstring Utf8ToUcs16(const char* utf8_str)
 #ifdef _WIN32
     // можно напрямую использовать utf8_codecvt_facet, но так проще
     // (будет работать при fs::path::imbue(utf8_loc);)
-    boost::filesystem3::path_traits::convert(utf8_str, 0, res, fs::path::codecvt());
+    BOOST_FS_3::path_traits::convert(utf8_str, 0, res, fs::path::codecvt());
 #else
     ASSERT(0);
 #endif
