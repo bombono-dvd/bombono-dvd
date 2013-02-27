@@ -98,6 +98,11 @@ AVCodecContext* GetVideoCtx(FFData& ffv)
     return VideoStream(ffv)->codec;
 }
 
+static bool IsValidRational(const AVRational& r)
+{
+    return r.num && r.den;
+}
+
 Point DAspectRatio(FFData& ffv)
 {
     if( !ffv.IsOpened() )
@@ -107,7 +112,7 @@ Point DAspectRatio(FFData& ffv)
     AVRational sample_r = VideoStream(ffv)->sample_aspect_ratio;
     if( !sample_r.num )
         sample_r = GetVideoCtx(ffv)->sample_aspect_ratio;
-    if( !sample_r.num || !sample_r.den )
+    if( !IsValidRational(sample_r) )
     {
         sample_r.num = 1;
         sample_r.den = 1;
@@ -123,19 +128,49 @@ static double VideoFrameLength(AVCodecContext* dec, int ticks)
     return av_q2d(dec->time_base) * ticks;
 }
 
+// в ffmpeg в декабре 2012 было принято решение вести MICRO-версии со 100,
+// чтобы пользователь мог различить ffmpeg против libav, также см. тест-код в функциях
+// avXXX_version() (похоже так хитро сделано, чтобы libav не смог простым образом
+// нарушить такой способ различения)
+// до этого, же, придется искать способы работы единым образом
+#if LIBAVFORMAT_VERSION_MICRO > 99 || LIBAVCODEC_VERSION_MICRO > 99 || LIBAVUTIL_VERSION_MICRO > 99
+#define IS_FFMPEG
+#endif
+
+static bool TryCalcRational(const AVRational& fr, double& val)
+{
+    bool res = IsValidRational(fr);
+    if( res )
+        val = av_q2d(fr);
+    return res;
+}
+
 double FrameFPS(FFData& ffv)
 {
+    // умолчальное значение призвано еще защищать от нулевых ситуаций
+    // (чтобы не было нуля и бесконечности)
     double res = Mpeg::PAL_SECAM_FRAME_FPS;
     if( ffv.IsOpened() )
     {
+        AVStream* st = VideoStream(ffv);
+#if defined(IS_FFMPEG) || LIBAVFORMAT_VERSION_INT <= AV_VERSION_INT(54,13,00)
         // не работает для mpegts (Панама, Плавание)
         // хоть и пишется, что r_frame_rate "just a guess", но
         // все применяют его (mplayer, ffmpeg.c)
-        res = av_q2d(VideoStream(ffv)->r_frame_rate);
-
-        // не всегда работает для MPEG4+AVI (Пацаны)
-        //AVCodecContext* dec = GetVideoCtx(ffv);
-        //res = 1.0/VideoFrameLength(dec, dec->ticks_per_frame);
+        TryCalcRational(st->r_frame_rate, res);
+#else
+        // libav отказалась от .r_frame_rate, потому что "неасилила", с заменой
+        // на .avg_frame_rate; но avg_frame_rate менее надежно реализован, поэтому
+        // вспоминаем и свой опыт
+        if( !TryCalcRational(st->avg_frame_rate, res) )
+        {
+            AVCodecContext* dec = st->codec;
+            if( IsValidRational(dec->time_base) )
+                // не всегда работает для MPEG4+AVI (Пацаны)
+                res = 1.0/VideoFrameLength(dec, dec->ticks_per_frame);
+        }
+        
+#endif
     }
     return res; 
 }
@@ -247,6 +282,30 @@ void CloseInfo(FFData& ffi)
     }
 }
 
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(54,32,00)
+#define AVFRAME_INIT_CHANGE
+#endif
+
+static void InitFrame(AVFrame& frame)
+{
+#ifdef AVFRAME_INIT_CHANGE
+    // с этого момента avcodec_get_frame_defaults() не достаточен для инициализации
+    memset(&frame, 0, sizeof(AVFrame));
+#endif
+}
+
+static void FreeFrame(AVFrame& frame)
+{
+#ifdef AVFRAME_INIT_CHANGE
+    // :TRICKY: своя реализация avcodec_free_frame(), так как
+    // удаления самого кадра не требуется; если будут усложнять avcodec_free_frame(),
+    // то проще будет работать с указателями AVFrame* и напрямую вызывать avcodec_free_frame()
+    
+    if( frame.extended_data != frame.data )
+        av_freep(&frame.extended_data);
+#endif
+}
+
 static void ResetCurPTS(FFViewer& ffv);
 
 FFViewer::FFViewer(): rgbBuf(0), rgbCnvCtx(0)
@@ -269,6 +328,9 @@ void FFViewer::Close()
     if( IsOpened() )
     {
         ResetCurPTS(*this);
+        
+        FreeFrame(srcFrame);
+        FreeFrame(rgbFrame);
 
         av_free(rgbBuf);
         rgbBuf = 0;
@@ -563,6 +625,9 @@ bool FFViewer::Open(const char* fname, std::string& err_str)
     bool res = OpenInfo(*this, fname, err_str);
     if( res )
     {
+        InitFrame(srcFrame);
+        InitFrame(rgbFrame);
+
         Point sz(vidSz);
         // по умолчанию такое использует ffmpeg/ffplay
         // (для переопределения у них используется временный&глобальный
@@ -697,7 +762,12 @@ static void DoVideoDecode(FFViewer& ffv, int& got_picture, AVPacket* pkt)
     //CodecDebugEnabler cde(GetVideoCtx(ffv), FF_DEBUG_PICT_INFO);
 
     AVFrame& picture = ffv.srcFrame;
+#ifdef AVFRAME_INIT_CHANGE
+    // avcodec_get_frame_defaults() перенесли в avcodec_decode_video2()
+#else
     avcodec_get_frame_defaults(&picture); // ffmpeg.c очищает каждый раз
+#endif
+
 #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(52,25,00)
     if( !pkt )
     {

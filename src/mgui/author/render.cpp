@@ -650,24 +650,38 @@ static std::string FFImgSizeOption(const Point& sz, int val, bool is_left_right)
     return FFSizeOption(img_sz);
 }
 
-static std::string FFPadFilterSet(const Point& sz, int val, bool is_left_right)
-{
-    int x = 0, y = 0;
-    if( is_left_right )
-        x = val;
-    else
-        y = val;
-
-    return boost::format("%1% -vf pad=%2%:%3%:%4%:%5%:black") 
-        % FFImgSizeOption(sz, val, is_left_right) % sz.x % sz.y % x % y % bf::stop;
-}
-
 static std::string FFSizeSet(const Point& sz, int val, 
-                                  bool is_left_right, bool is_vf)
+                             bool is_left_right, const FFmpegVersion& ff_ver)
 {
     std::string sz_str;
-    if( is_vf )
-        sz_str = FFPadFilterSet(sz, val, is_left_right);
+    // вместо -padX использовать -vf pad=w:h:x:y:black
+    if( IsVersionGE(ff_ver.avfilter, TripleVersion(1, 20, 0)) )
+    {
+        int x = 0, y = 0;
+        if( is_left_right )
+            x = val;
+        else
+            y = val;
+
+        std::string pad_filter = boost::format("pad=%1%:%2%:%3%:%4%:black") % sz.x % sz.y % x % y % bf::stop;
+        if( IsVersionGE(ff_ver.avfilter, TripleVersion(2, 20, 1)) )
+        {
+            // теперь фильтр скалирования, -s wxh, поставлен в конец цепочки, и вроде
+            // как нет способа это изменить; поэтому:
+            // - нужно предварительное скалирование (-vf scale=wxh)
+            // - а вот -s full_w x full_h тоже нужен, потому что иначе сработает -s из
+            //   опции -target 
+            // - хорошо хоть конечное скалирование тривиально (и afilter это понимает),
+            //   так как размер картинки после pad равен -s
+            sz_str = boost::format("%1% -vf scale=%2%:%3%,%4%") 
+                % FFSizeOption(sz) % (sz.x-2*x) % (sz.y-2*y) % pad_filter % bf::stop;
+        }
+        else
+        {
+            sz_str = boost::format("%1% -vf %2%") 
+                % FFImgSizeOption(sz, val, is_left_right) % pad_filter % bf::stop;
+        }
+    }
     else
     {
         const char* fmt = is_left_right ? "%1% -padleft %2% -padright %2%" : "%1% -padtop %2% -padbottom %2%" ;
@@ -688,11 +702,36 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData
     // * предполагается после создания команды ее вызов => требуется
     // проверка такой возможности
     FFmpegVersion ff_ver = CheckFFDVDEncoding();
-    // вместо -padX использовать -vf pad=w:h:x:y:black
-    bool is_vf = IsVersionGE(ff_ver.avfilter, TripleVersion(1, 20, 0));
-
     // *
-    const char* target =  is_pal ? "pal" : "ntsc" ;
+    std::string target = boost::format("-target %1%-dvd") % (is_pal ? "pal" : "ntsc") % bf::stop ;
+    if( IsVersionGE(ff_ver.avformat, TripleVersion(54, 20, 1)) )
+    {
+        // :KLUDGE: новый парсер параметров от Anton Khirnov сломал установка всех opt_default(),
+        // вызванных ненапрямую (например -target), поэтому вручную (пока)
+        
+        // Применение опций (:TODO: диагноз => добавить как ошибку в libav):
+        //split_commandline() = opt_default(): av_dict_set(&codec_opts, opt, arg)
+        //finish_group(): g->codec_opts  = codec_opts;
+        //# как исправить: в open_files(), между parse_optgroup() и open_file() скопировать опции в OptionsContext.g->codec_opts,
+        //# а также возможно и в ->format_opts и ->opts
+        //new_output_stream(): ost->opts = filter_codec_opts(OptionsContext.g->codec_opts)
+        //transcode_init():    avcodec_open2(ost->st->codec, codec, &ost->opts) => AVCodecContext.rc_max_rate
+        
+        //opt_default(NULL, "g", norm == PAL ? "15" : "18");
+        //
+        //opt_default(NULL, "b", "6000000");
+        //opt_default(NULL, "maxrate", "9000000");
+        //opt_default(NULL, "minrate", "0"); // 1500000;
+        //opt_default(NULL, "bufsize", "1835008"); // 224*1024*8;
+        //
+        //opt_default(NULL, "packetsize", "2048");  // from www.mpucoder.com: DVD sectors contain 2048 bytes of data, this is also the size of one pack.
+        //opt_default(NULL, "muxrate", "10080000"); // from mplex project: data_rate = 1260000. mux_rate = data_rate * 8
+        //
+        //opt_default(NULL, "b:a", "448000");
+        target = boost::format("%1% -g %2% -b 6000000 -maxrate 9000000 -minrate 0 -bufsize 1835008 -packetsize 2048 -muxrate 10080000 -b:a 448000")
+            % target % (is_pal ? "15" : "18") % bf::stop;
+    }
+    
     Point DVDDimension(DVDDims dd, bool is_pal);
     Point sz = DVDDimension(td.dd, is_pal);
 
@@ -715,14 +754,14 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData
         // справа и слева
         int val = PadSize(sz.x - img_sz.x);
         if( val )
-            sz_str = FFSizeSet(sz, val, true, is_vf);
+            sz_str = FFSizeSet(sz, val, true, ff_ver);
     }
     else if( img_sz.y < sz.y )
     {
         // сверху и снизу
         int val = PadSize(sz.y - img_sz.y);
         if( val )
-            sz_str = FFSizeSet(sz, val, false, is_vf);
+            sz_str = FFSizeSet(sz, val, false, ff_ver);
     }
 
     // * доп. опции
@@ -753,7 +792,7 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData
             add_audio_str += " -acodec ac3 -newaudio";
     }
     
-    return boost::format("-target %1%-dvd -aspect %2% %3% %4% -y %7% %5%%6%")
+    return boost::format("%1% -aspect %2% %3% %4% -y %7% %5%%6%")
         % target % (is_4_3 ? "4:3" : "16:9") % sz_str
         % bitrate_str % FilenameForCmd(out_fname) % add_audio_str % add_opts % bf::stop;
 }
@@ -1155,12 +1194,16 @@ void TestFFmpegForDVDEncoding(const std::string& conts)
     static re::pattern dvd_format("^ .E dvd"RG_EW);
     CheckStrippedFFmpeg(dvd_format, conts, "dvd format");
 
-    static re::pattern mpeg2video_codec("^ .EV... mpeg2video"RG_EW);
+// :TRICKY: с версии libavcodec 54 при выводе начальный пробел не ставят => поэтому ?
+// ("спасибо" Anton Khirnov за очередное "улучшение") 
+#define _CPP_ "^ ?"
+    static re::pattern mpeg2video_codec(_CPP_".EV... mpeg2video"RG_EW);
     CheckStrippedFFmpeg(mpeg2video_codec, conts, "mpeg2 video encoder");
 
     // по факту ffmpeg всегда использует ac3, однако mp2 тоже возможен
-    static re::pattern ac3_codec("^ .EA... ac3"RG_EW);
+    static re::pattern ac3_codec(_CPP_".EA... ac3"RG_EW);
     CheckStrippedFFmpeg(ac3_codec, conts, "ac3 audio encoder");
+#undef _CPP_
 }
 
 TripleVersion FindAVVersion(const std::string& conts, const char* avlib_name)
