@@ -55,8 +55,11 @@ BOOST_AUTO_TEST_CASE( TestRenderTranscoding )
     double shift = 1. / fps;
     double end  = 10.; // секунда
 
+    AudioArgInput aai;
+    aai.fName = a_fname;
+    aai.shift = 6;
     std::string ffmpeg_cmd = boost::format("%3% -r %1% -f image2pipe -vcodec ppm -i pipe: %2%")
-        % fps % FFmpegPostArgs("../dvd_out/trans.vob", false, is_pal, AudioArgInput(a_fname, 6)) % AVCnvBin() % bf::stop;
+        % fps % FFmpegPostArgs("../dvd_out/trans.vob", false, is_pal, aai) % AVCnvBin() % bf::stop;
     io::cout << ffmpeg_cmd << io::endl;
 
     ExitData ed;

@@ -53,9 +53,10 @@ struct AudioArgInput
 {
     std::string  fName;
          double  shift;
+         double  durtn; // передаем так длительность выходного видео для установки после опций AAI
 
-    AudioArgInput(const std::string& a_fname = std::string(), double a_shift = 0.)
-        :fName(a_fname), shift(a_shift) {}
+    AudioArgInput(double durtn_ = 0.)
+        :shift(0.), durtn(durtn_) {}
 };
 
 std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pal, 

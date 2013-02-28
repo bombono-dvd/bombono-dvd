@@ -859,6 +859,9 @@ std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pa
             shift = boost::format("-ss %.2f ") % aai.shift % bf::stop;
         a_input = boost::format("%2%-i %1% %3%") % a_fname % shift % map % bf::stop; 
     }
+    // начиная с libav 0.8 ставить -t нужно прямо перед опциями выходного файла => после всех -i
+    if( aai.durtn )
+        a_input = boost::format("%1% -t %2$.2f") % a_input % aai.durtn % bf::stop;
 
     return a_input + " " + FFmpegToDVDArgs(out_fname, is_4_3, is_pal);
 }
@@ -1060,7 +1063,7 @@ void RunFFmpegCmd(const std::string& cmd, const ReadReadyFnr& add_fnr)
 static FFmpegVersion CalcFFmpegVersion();
 
 // кодируем из Menu.png => Menu.mpg
-static void EncodeStillMenu(const std::string& mn_dir, double durtn, const AudioArgInput& aai)
+static void EncodeStillMenu(const std::string& mn_dir, const AudioArgInput& aai)
 {
     std::string img_fname = AppendPath(mn_dir, "Menu.png");
 
@@ -1070,8 +1073,8 @@ static void EncodeStillMenu(const std::string& mn_dir, double durtn, const Audio
     // git log -p  -- libavformat/version.h | grep LIBAVFORMAT_VERSION_MINOR | less
     const char* loop_opt = IsVersionGE(CalcFFmpegVersion().avformat, TripleVersion(53, 6, 0)) ? "-loop 1" : "-loop_input" ;
     //std::string ffmpeg_cmd = boost::format("%4% -t %3$.2f -loop_input -i \"%1%\" %2%")
-    std::string ffmpeg_cmd = boost::format("%4% %5% -i \"%1%\" -t %3$.2f %2%") 
-        % img_fname % MakeFFmpegPostArgs(mn_dir, aai) % durtn % AVCnvBin() % loop_opt % bf::stop;
+    std::string ffmpeg_cmd = boost::format("%3% %4% -i \"%1%\" %2%") 
+        % img_fname % MakeFFmpegPostArgs(mn_dir, aai) % AVCnvBin() % loop_opt % bf::stop;
 
     RunFFmpegCmd(ffmpeg_cmd);
 }
@@ -1079,7 +1082,10 @@ static void EncodeStillMenu(const std::string& mn_dir, double durtn, const Audio
 static void SaveStillMenuMpg(const std::string& mn_dir, Menu mn)
 {
     SaveMenuPng(mn_dir, mn);
-    EncodeStillMenu(mn_dir, MenuDuration(mn), MotionMenuAAI(mn));
+    AudioArgInput aai = MotionMenuAAI(mn);
+    aai.durtn = MenuDuration(mn);
+    
+    EncodeStillMenu(mn_dir, aai);
 }
 
 FFmpegCloser::~FFmpegCloser()
@@ -1368,7 +1374,8 @@ bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
         // поэтому и 3 кадров мадо (0.1 секунда) => увеличил до 0.2
         // а лучше надо разобраться, почему в первый раз q (ff_rate_estimate_qscale(s))
         // сильно отличается от второго раза, и почему так происходит
-        EncodeStillMenu(mn_dir, 0.2, AudioArgInput());
+        double dur = 0.2;
+        EncodeStillMenu(mn_dir, AudioArgInput(dur));
     }
 
     if( IsMenuToBe4_3() )
