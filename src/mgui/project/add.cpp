@@ -142,8 +142,13 @@ void CheckVideoFormat(ErrorDesc& ed, const Mpeg::SequenceData& vid, bool is_ntsc
     std::string frate_list;
     if( is_ntsc )
     {
-        frate_ok = frate == Point(24, 1) || frate == Point(30000, 1001);
-        frate_list = FpsToStr(Point(24, 1)) + ", " + FpsToStr(Point(30000, 1001));
+        // :TRICKY: ffmpeg -target film-dvd does 24000/1001; it is not good for DVD-Video
+        // (only 30000/1001 is) though:
+        // - TSUNAMI reject it
+        // - xine stutters with it
+        // , but some players accept (and people want) it - the ticket #85
+        frate_ok = frate == Point(24000, 1001) || frate == Point(30000, 1001);
+        frate_list = FpsToStr(Point(24000, 1001)) + ", " + FpsToStr(Point(30000, 1001));
     }
     else
     {
