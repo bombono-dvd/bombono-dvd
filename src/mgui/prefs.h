@@ -42,6 +42,8 @@ struct Preferences: public Singleton<Preferences>
       std::string  authorPath;
              bool  showSrcFileBrowser; // добавление медиа по-старому
               int  maxCPUWorkload;
+              
+             bool  is2Pass;
 
             Preferences() { Init(); }
 

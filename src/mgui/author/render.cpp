@@ -619,7 +619,7 @@ AutoSrcData::AutoSrcData(bool is4_3_): videoOK(false),
     dar(DVDAspect(is4_3_)), audioNum(1) {}
 
 AutoDVDTransData::AutoDVDTransData(bool is4_3_): is4_3(is4_3_), 
-    asd(is4_3_), threadsCnt(1) {}
+    asd(is4_3_), threadsCnt(1), pass(0) {}
 
 static int PadSize(int free_space)
 {
@@ -792,9 +792,28 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData
             add_audio_str += " -acodec ac3 -newaudio";
     }
     
+    std::string full_out_path = out_fname;
+    // * двухпроходное кодирование
+    int pass = atd.pass;
+    if( pass )
+    {
+        AppendOpts(add_opts, boost::format("-pass %1% -passlogfile %2%") % pass % FilenameForCmd(full_out_path + ".vlog") % bf::stop);
+        if( pass == 1 )
+        {
+            // :TRICKY: на первом шаге важна только статистика, но
+            // ffmpeg предлагает отрубить только запись в выходной файл и не писать аудио
+#ifdef _WIN32
+            full_out_path = "NUL";
+#else
+            full_out_path = "/dev/null";
+#endif
+            AppendOpts(add_opts, "-an");
+        }
+    }
+    
     return boost::format("%1% -aspect %2% %3% %4% -y %7% %5%%6%")
         % target % (is_4_3 ? "4:3" : "16:9") % sz_str
-        % bitrate_str % FilenameForCmd(out_fname) % add_audio_str % add_opts % bf::stop;
+        % bitrate_str % FilenameForCmd(full_out_path) % add_audio_str % add_opts % bf::stop;
 }
 
 std::string FFmpegToDVDArgs(const std::string& out_fname, bool is_4_3, bool is_pal)

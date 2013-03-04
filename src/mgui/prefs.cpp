@@ -80,7 +80,7 @@ static bool LoadPrefs(const char* fname, const Project::ArchieveFnr& fnr)
 // Preferences
 // 
 
-const int PREFS_VERSION = 6;
+const int PREFS_VERSION = 7;
 
 void SerializePrefs(Project::Archieve& ar)
 {
@@ -96,6 +96,8 @@ void SerializePrefs(Project::Archieve& ar)
         ar("ShowSrcFileBrowser", Prefs().showSrcFileBrowser);
     if( CanSrl(ar, 4) )
         ar("MaxCPUWorkload", Prefs().maxCPUWorkload);
+    if( CanSrl(ar, 7) )
+        ar("Is2Pass", Prefs().is2Pass);
 }
 
 void Preferences::Init()
@@ -106,6 +108,8 @@ void Preferences::Init()
     authorPath = (fs::path(Glib::get_user_cache_dir()) / "bombono-dvd-video").string();
     showSrcFileBrowser = false;
     maxCPUWorkload = 1;
+    
+    is2Pass = false;
 }
 
 const char* PrefsName = "preferences.xml";
@@ -182,6 +186,7 @@ void ShowPrefs(Gtk::Window* win)
     Gtk::CheckButton& fb_btn = NewManaged<Gtk::CheckButton>(_("Show File Browser"));
     int max_val = MaxCPUWorkload();
     Gtk::HScale& wl_hs = NewManaged<Gtk::HScale>(CreateAdj(Prefs().maxCPUWorkload, max_val));
+    Gtk::CheckButton& two_pass_btn = NewManaged<Gtk::CheckButton>(_("Use Two-Pass Encoding"));
     {
         DialogVBox& vbox = AddHIGedVBox(dlg);
 
@@ -209,6 +214,11 @@ void ShowPrefs(Gtk::Window* win)
         AppendWithLabel(vbox, wl_hs, _("Multi-core CPU support"));
         SetTip(wl_hs, _("Make use of multi-core CPU for transcoding videos quickly; 1 is not to use multi-coreness, safe minimum (no possible CPU overheat)"));
 
+        // :REFACTOR:
+        two_pass_btn.set_active(Prefs().is2Pass);
+        PackStart(vbox, two_pass_btn);
+        SetTip(two_pass_btn, _("More accurate output file sizes but 2 times slower"));
+        
         CompleteDialog(dlg, true);
     }
 
@@ -220,6 +230,7 @@ void ShowPrefs(Gtk::Window* win)
         Prefs().authorPath = a_btn.get_filename();
         Prefs().showSrcFileBrowser = fb_btn.get_active();
         Prefs().maxCPUWorkload = wl_hs.get_value();
+        Prefs().is2Pass = two_pass_btn.get_active();
 
         SavePrefs();
     }

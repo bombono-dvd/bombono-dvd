@@ -40,6 +40,7 @@ struct AutoDVDTransData
        bool  is4_3;
 AutoSrcData  asd;   
         int  threadsCnt;
+        int  pass; // для двухпроходного кодирования
 
     AutoDVDTransData(bool is4_3_);
 };

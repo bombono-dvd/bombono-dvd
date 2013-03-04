@@ -721,13 +721,17 @@ struct JobData
         JobList  jLst;
             int  todoIdx;
     
+                 // :KLUDGE: проброс для UpdateJobs() - 
+                 // можно как замыкание оформить (атрибут на JobData вместо UpdateJobs())
         io::pos  transDone;
         io::pos  transTotal;
     std::string  outDir;
+            int  pass;
+            
        ExitData  lastED;
     std::string  exception; // проброс исключений из gtk_main()
-           
-    JobData(): todoIdx(0), transDone(0), transTotal(0) {}
+            
+    JobData(): todoIdx(0), transDone(0), transTotal(0), pass(0) {}
 };
 
 static double CalcTransPercent(double cur_dur, Job& job, JobData& jd, double full_dur)
@@ -741,7 +745,7 @@ static double CalcTransPercent(double cur_dur, Job& job, JobData& jd, double ful
     return (res + jd.transDone)/double(jd.transTotal);
 }
 
-static void OnTranscodePrintParse(const char* dat, int sz, const PercentFunctor& fnr)
+static void OnTranscodePrintParse(const char* dat, int sz, const PercentFunctor& fnr, int pass)
 {
     re::match_results what;
     // лучше вычислять не по выданному размеру, а по времени, так как итоговый размер
@@ -765,6 +769,17 @@ static void OnTranscodePrintParse(const char* dat, int sz, const PercentFunctor&
         if( ExtractDouble(dur, what) )
         {
             double per = fnr(dur);
+            if( pass )
+            {
+                // :TRICKY: первый проход делается чуть быстрее из-за
+                // отсутствия реальной записи и отсутствия кодирования звука,
+                // но это все равно мало - делим 50/50
+                if( pass == 1 )
+                    per /= 2;
+                else
+                    // pass == 2
+                    per = (1 + per) / 2;
+            }
             Author::SetStageProgress(per);
         }
     }
@@ -846,6 +861,7 @@ static bool UpdateJobs(JobData& jd)
             atd.asd = rtc.asd;
             atd.asd.audioNum = OutAudioNum(atd.asd);
             atd.threadsCnt = coeff;
+            atd.pass = jd.pass;
 
             DVDTransData td = GetRealTransData(vi);
             td.ctmFFOpt = CustomFFOpts(vi);
@@ -855,7 +871,7 @@ static bool UpdateJobs(JobData& jd)
             Job& new_job = jl.back();
 
             PercentFunctor fnr = bb::bind(&CalcTransPercent, _1, b::ref(new_job), b::ref(jd), rtc.duration);
-            ReadReadyFnr rr_fnr = bb::bind(&OnTranscodePrintParse, _1, _2, fnr);
+            ReadReadyFnr rr_fnr = bb::bind(&OnTranscodePrintParse, _1, _2, fnr, jd.pass);
 
             int out_err[2];
             GPid pid = Spawn(0, ffmpeg_cmd.c_str(), out_err, true);
@@ -1018,6 +1034,27 @@ bool IsSConsAuthoring()
     return PrefToBool(PrefContents("script_authoring"));
 }
 
+static void TranscodeVideos(int pass, const std::string& out_dir)
+{
+    JobData jd;
+    jd.transTotal = ProjectStat().transSum;
+    jd.outDir     = out_dir;
+    jd.pass       = pass;
+    
+    if( UpdateJobs(jd) )
+    {
+        ActionFunctor& stop_fnr = Author::GetES().eDat.stopFnr;
+        stop_fnr = bb::bind(&StopJobPool, b::ref(jd));
+        Gtk::Main::run();
+        stop_fnr.clear();
+        
+        if( jd.exception.size() )
+            Author::Error(jd.exception);
+        Author::CheckAbortByUser();
+        Author::CheckAppED(jd.lastED, AVCnvBin());
+    }
+}
+
 static void AuthorImpl(const std::string& out_dir)
 {
     AuthorSectionInfo((str::stream() << "Build DVD-Video in folder: " << out_dir).str());
@@ -1027,6 +1064,7 @@ static void AuthorImpl(const std::string& out_dir)
     Author::ExecState& es = Author::GetES();
 
     // * транскодирование
+    Author::SetStage(Author::stTRANSCODE);
     //io::pos trans_done = 0, trans_total = ProjectStat().transSum;
     //boost_foreach( VideoItem vi, AllTransVideos() )
     //{
@@ -1053,25 +1091,14 @@ static void AuthorImpl(const std::string& out_dir)
     //
     //    trans_done += trans_val;
     //}
-    Author::SetStage(Author::stTRANSCODE);
+
+    if( Prefs().is2Pass )
     {
-        JobData jd;
-        jd.transTotal = ProjectStat().transSum;
-        jd.outDir     = out_dir;
-        
-        if( UpdateJobs(jd) )
-        {
-            ActionFunctor& stop_fnr = es.eDat.stopFnr;
-            stop_fnr = bb::bind(&StopJobPool, b::ref(jd));
-            Gtk::Main::run();
-            stop_fnr.clear();
-            
-            if( jd.exception.size() )
-                Author::Error(jd.exception);
-            Author::CheckAbortByUser();
-            Author::CheckAppED(jd.lastED, AVCnvBin());
-        }
+        TranscodeVideos(1, out_dir);
+        TranscodeVideos(2, out_dir);
     }
+    else
+        TranscodeVideos(0, out_dir);
 
     // * субтитры
     boost_foreach( VideoItem vi, AllVideos() )
