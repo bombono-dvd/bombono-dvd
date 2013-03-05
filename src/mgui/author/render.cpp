@@ -807,7 +807,14 @@ std::string FFmpegToDVDArgs(const std::string& out_fname, const AutoDVDTransData
 #else
             full_out_path = "/dev/null";
 #endif
-            AppendOpts(add_opts, "-an");
+            // :TRICKY: с -an второй проход может быть неидентичен первому,
+            // что выдает ошибку на Chinese_1080p-mpeg2.ts, ffmpeg 1.1.3:
+            // Input is longer than 2-pass log file
+            // Video encoding failed
+            // :TODO: пока убрал эту опцию для более надежной работы, но
+            // вообще-то надо разрешить проблему и определиться (да/нет, 
+            // вопрос только в чуть более быстрой скорости)
+            //AppendOpts(add_opts, "-an");
         }
     }
     
