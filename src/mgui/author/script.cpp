@@ -689,14 +689,7 @@ std::string FFmpegToDVDTranscode(const std::string& src_fname, const std::string
         % FFmpegToDVDArgs(dst_fname, atd, is_pal, td) % AVCnvBin() % bf::stop;
 }
 
-// ffmpeg выводит статистику первого создаваемого файла каждые полсекунды,
-// см. print_report() (при verbose=1, по умолчанию)
-// Формат размера: "size=%8.0fkB"
-re::pattern FFmpegSizePat( "size= *"RG_NUM"kB"); 
-// Формат длительности: "time=%0.2f"
-re::pattern FFmpegDurPat( "time="RG_FLT);
-
-typedef boost::function<double(double)> PercentFunctor;
+typedef boost::function<void(double)> PercentFunctor;
 
 struct Job
 {
@@ -721,7 +714,7 @@ struct JobData
         JobList  jLst;
             int  todoIdx;
     
-                 // :KLUDGE: проброс для UpdateJobs() - 
+                 // :KLUDGE: проброс для UpdateJobs() и CalcTransPercent() - 
                  // можно как замыкание оформить (атрибут на JobData вместо UpdateJobs())
         io::pos  transDone;
         io::pos  transTotal;
@@ -734,7 +727,7 @@ struct JobData
     JobData(): todoIdx(0), transDone(0), transTotal(0), pass(0) {}
 };
 
-static double CalcTransPercent(double cur_dur, Job& job, JobData& jd, double full_dur)
+static void CalcTransPercent(double cur_dur, Job& job, JobData& jd, double full_dur)
 {
     //return (std::min(sz * 1024, trans_val) + trans_done)/double(trans_total);
     //return (std::min(cur_dur/full_dur, 1.) * trans_val + trans_done)/double(trans_total);
@@ -742,10 +735,31 @@ static double CalcTransPercent(double cur_dur, Job& job, JobData& jd, double ful
     double res = 0.;
     boost_foreach( Job& j, jd.jLst )
         res += j.transDone;
-    return (res + jd.transDone)/double(jd.transTotal);
+    double per = (res + jd.transDone)/double(jd.transTotal);
+    
+    int pass = jd.pass;
+    if( pass )
+    {
+        // :TRICKY: первый проход делается чуть быстрее из-за
+        // отсутствия реальной записи и отсутствия кодирования звука,
+        // но это все равно мало - делим 50/50
+        if( pass == 1 )
+            per /= 2;
+        else
+            // pass == 2
+            per = (1 + per) / 2;
+    }
+    Author::SetStageProgress(per);
 }
 
-static void OnTranscodePrintParse(const char* dat, int sz, const PercentFunctor& fnr, int pass)
+// ffmpeg выводит статистику первого создаваемого файла каждые полсекунды,
+// см. print_report() (при verbose=1, по умолчанию)
+// Формат размера: "size=%8.0fkB"
+re::pattern FFmpegSizePat( "size= *"RG_NUM"kB"); 
+// Формат длительности: "time=%0.2f"
+re::pattern FFmpegDurPat( "time="RG_FLT);
+
+static void OnTranscodePrintParse(const char* dat, int sz, const PercentFunctor& fnr)
 {
     re::match_results what;
     // лучше вычислять не по выданному размеру, а по времени, так как итоговый размер
@@ -767,20 +781,25 @@ static void OnTranscodePrintParse(const char* dat, int sz, const PercentFunctor&
     {
         double dur;
         if( ExtractDouble(dur, what) )
+            fnr(dur);
+    }
+}
+
+// Формат длительности для ffmpeg c коммита dd471070: "time=%02d:%02d:%02d.%02d"
+// Образец: frame=  208 fps= 58 q=2.0 size=     476kB time=00:00:08.44 bitrate= 461.9kbits/s dup=1 drop=0
+re::pattern FFmpegNewDurPat( "time="RG_NUM":"RG_NUM":"RG_FLT);
+
+static void OnTranscodeHMSParse(const char* dat, int sz, const PercentFunctor& fnr)
+{
+    re::match_results what;
+    if( re::search(std::string(dat, sz), what, FFmpegNewDurPat) )
+    {
+        int hours = AsInt(what, 1), mins = AsInt(what, 2);
+        double secs;
+        if( ExtractDouble(secs, what, 3) )
         {
-            double per = fnr(dur);
-            if( pass )
-            {
-                // :TRICKY: первый проход делается чуть быстрее из-за
-                // отсутствия реальной записи и отсутствия кодирования звука,
-                // но это все равно мало - делим 50/50
-                if( pass == 1 )
-                    per /= 2;
-                else
-                    // pass == 2
-                    per = (1 + per) / 2;
-            }
-            Author::SetStageProgress(per);
+            double dur = (hours * 60 + mins) * 60 + secs;
+            fnr(dur);
         }
     }
 }
@@ -871,7 +890,13 @@ static bool UpdateJobs(JobData& jd)
             Job& new_job = jl.back();
 
             PercentFunctor fnr = bb::bind(&CalcTransPercent, _1, b::ref(new_job), b::ref(jd), rtc.duration);
-            ReadReadyFnr rr_fnr = bb::bind(&OnTranscodePrintParse, _1, _2, fnr, jd.pass);
+            // так определяем avconv vs. ffmpeg в runtime
+            bool is_ffmpeg_bin = strcmp(AVCnvBin(), "ffmpeg") == 0;
+            ReadReadyFnr rr_fnr;
+            if( is_ffmpeg_bin && IsVersionGE(CalcFFmpegVersion().avformat, TripleVersion(53, 2, 1)) )
+                rr_fnr = bb::bind(&OnTranscodeHMSParse, _1, _2, fnr);
+            else
+                rr_fnr = bb::bind(&OnTranscodePrintParse, _1, _2, fnr);
 
             int out_err[2];
             GPid pid = Spawn(0, ffmpeg_cmd.c_str(), out_err, true);

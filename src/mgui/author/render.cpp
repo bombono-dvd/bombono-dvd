@@ -1079,8 +1079,6 @@ void RunFFmpegCmd(const std::string& cmd, const ReadReadyFnr& add_fnr)
     RunExtCmd(cmd, AVCnvBin(), add_fnr);
 }
 
-static FFmpegVersion CalcFFmpegVersion();
-
 // кодируем из Menu.png => Menu.mpg
 static void EncodeStillMenu(const std::string& mn_dir, const AudioArgInput& aai)
 {
@@ -1247,7 +1245,7 @@ TripleVersion FindAVFilterVersion(const std::string& conts)
     return FindAVVersion(conts, "libavfilter");
 }
 
-static FFmpegVersion CalcFFmpegVersion()
+FFmpegVersion CalcFFmpegVersion()
 {
     // *
     std::string conts;

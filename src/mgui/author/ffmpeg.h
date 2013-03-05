@@ -130,6 +130,7 @@ void RunSpumux(const std::string& xml_fname, const std::string& src_fname, const
                int stream_id = 0, const char* dir = 0);
 
 const char* AVCnvBin();
+FFmpegVersion CalcFFmpegVersion();
 
 } // namespace Project
 
