@@ -448,6 +448,21 @@ static bool CanUseForAuthoring(const std::string& dir_str)
                    Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK);
         res = false;
     }
+    else if( dir_str == g_get_home_dir() )
+    {
+        // :TRICKY: GtkFileChooser часто в случае проблем (собственных или чужих), 
+        // да и по умолчанию, указывает на домашнюю директорию, получая ее с помощью g_get_home_dir()
+        // имея несколько неприятных прецендентов, явно проверяем эту возможную проблему
+        err_str = BF_("%1% is your home directory") % dir_str % bf::stop + abort_str;
+        
+#if GTK_CHECK_VERSION(2,24,11) && !GTK_CHECK_VERSION(2,24,15)
+        err_str += "\n\n" "There is a known bug in GtkFileChooser, introduced in the GTK+ library 2.24.11 and fixed in 2.24.15: "
+            "if user doesn't select a folder clearly then GtkFileChooser output the home directory. Users are encouraged to update to GTK >= 2.24.15.";
+#endif
+        
+        ErrorBox(err_str);
+        res = false;
+    }
     if( !res )
         return false;
 
