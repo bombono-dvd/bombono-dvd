@@ -1,383 +1,481 @@
 # Vietnamese translation for Bombono DVD.
-# Copyright © 2010 Free Software Foundation, Inc.
-# Copyright © 2010 Ilya Murav'jov.
+# Copyright © 2012 Free Software Foundation, Inc.
+# Copyright © 2012 Ilya Murav'jov.
 # This file is distributed under the same license as the bombono-dvd package.
 # Clytie Siddall <clytie@riverland.net.au>, 2010.
+# Trần Ngọc Quân <vnwildman@gmail.com>, 2012.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: bombono-dvd 0.7.0\n"
+"Project-Id-Version: bombono-dvd-1.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-08 00:37+0400\n"
-"PO-Revision-Date: 2010-10-08 17:00+1030\n"
-"Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
-"Language-Team: Vietnamese <vi-VN@googlegroups.com>\n"
+"POT-Creation-Date: 2011-10-25 01:40+0400\n"
+"PO-Revision-Date: 2012-04-13 08:50+0700\n"
+"Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
+"Language-Team: Vietnamese <translation-team-vi@lists.sourceforge.net>\n"
+"Language: vi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: LocFactoryEditor 1.8\n"
+"X-Poedit-Language: Vietnamese\n"
+"X-Poedit-Country: VIET NAM\n"
+"X-Poedit-SourceCharset: utf-8\n"
 
-#: src/mbase/project/media.cpp:68 src/mgui/project/media-browser.cpp:202
+#: src/mbase/project/media.cpp:68 src/mgui/project/media-browser.cpp:885
 msgid "Chapter"
 msgstr "Tập"
 
-#: src/mbase/project/media.cpp:114
+#: src/mbase/project/media.cpp:119
 #, boost-format
-msgid "Cant create folder %1% (check permissions)"
+msgid "Can't create folder %1% (check permissions)"
 msgstr "Không thể tạo thư mục %1% (kiểm tra quyền hạn)"
 
-#: src/mbase/project/menu.cpp:276
+#: src/mbase/project/menu.cpp:360
 msgid "Menu"
 msgstr "Trình đơn"
 
-#: src/mgui/dvdimport.cpp:83
+#: src/mgui/dvdimport.cpp:84
 msgid "Choose Source DVD-Video"
-msgstr "Chọn DVD Phim nguồn"
+msgstr "Chọn Phim-DVD nguồn"
 
-#: src/mgui/dvdimport.cpp:86
+#: src/mgui/dvdimport.cpp:87
 msgid "Select Videos to Import"
 msgstr "Chọn các phim cần nhập"
 
-#: src/mgui/dvdimport.cpp:89
+#: src/mgui/dvdimport.cpp:90
 msgid "Select Folder to Save Videos"
-msgstr "Chọn thư mục vào đó cần lưu phim"
+msgstr "Chọn thư mục để Lưu phim"
 
-#: src/mgui/dvdimport.cpp:92
+#: src/mgui/dvdimport.cpp:93
 msgid "Importing..."
 msgstr "Đang nhập..."
 
-#: src/mgui/dvdimport.cpp:95
+#: src/mgui/dvdimport.cpp:96
 msgid "Import is completed."
 msgstr "Hoàn tất nhập vào."
 
-#: src/mgui/dvdimport.cpp:208 src/mgui/project/mconstructor.cpp:527
+#: src/mgui/dvdimport.cpp:217 src/mgui/project/mconstructor.cpp:553
 msgid "MB"
 msgstr "MB"
 
-#: src/mgui/dvdimport.cpp:389
+#: src/mgui/dvdimport.cpp:401
 msgid "Select All"
 msgstr "Chọn tất cả"
 
-#: src/mgui/dvdimport.cpp:389
+#: src/mgui/dvdimport.cpp:401
 msgid "Unselect All"
 msgstr "Bỏ chọn tất cả"
 
 #. мы не можем пустить исключение здесь, потому что оно пойдет
 #. и через C-шный код (Gtk) - отложим
-#: src/mgui/dvdimport.cpp:411
+#: src/mgui/dvdimport.cpp:423
 msgid "Are you sure to stop importing?"
-msgstr "Bạn chắc chắn muốn dừng chạy tiến trình nhập không?"
+msgstr "Bạn có chắc chắn muốn dừng chạy tiến trình nhập dữ liệu vào không?"
 
-#: src/mgui/dvdimport.cpp:444
+#: src/mgui/dvdimport.cpp:456
 #, boost-format
-msgid "Cant write to folder %1% (check permissions)."
-msgstr "Không thẻ ghi lên thư mục %1% (kiểm tra quyền hạn)."
+msgid "Can't write to folder %1% (check permissions)."
+msgstr "Không thể ghi lên thư mục %1% (kiểm tra quyền hạn)."
 
-#: src/mgui/dvdimport.cpp:472 src/mgui/win_utils.cpp:322
+#: src/mgui/dvdimport.cpp:484 src/mgui/win_utils.cpp:420
 #, boost-format
 msgid "A file named \"%1%\" already exists. Do you want to replace it?"
-msgstr "Một tập tin tên « %1% » đã có. Bạn có muốn thay thế nó không?"
+msgstr "Tập tin với tên « %1% » đã sẵn có rồi. Bạn có muốn thay thế nó không?"
 
-#: src/mgui/dvdimport.cpp:505
+#: src/mgui/dvdimport.cpp:517
 msgid "Import error!"
 msgstr "Lỗi nhập !"
 
-#: src/mgui/dvdimport.cpp:509
+#: src/mgui/dvdimport.cpp:521
 msgid "Videos successfully imported."
 msgstr "Các phim đã được nhập."
 
-#: src/mgui/dvdimport.cpp:510
+#: src/mgui/dvdimport.cpp:522
 msgid "Import has been interrupted."
 msgstr "Tiến trình nhập bị gián đoạn."
 
-#: src/mgui/dvdimport.cpp:544
+#: src/mgui/dvdimport.cpp:556
 msgid "DVD-Video Import"
 msgstr "Nhập DVD Phim"
 
-#: src/mgui/dvdimport.cpp:567
+#: src/mgui/dvdimport.cpp:579
 msgid "Choose DVD disc, DVD folder or iso image file."
 msgstr "Chọn đĩa DVD, thư mục DVD hay tập tin ảnh ISO."
 
-#: src/mgui/dvdimport.cpp:585
+#: src/mgui/dvdimport.cpp:597
 msgid "NTSC/PAL mismatch. Try another disc or import to project of corresponding type."
 msgstr "NTSC/PAL không tương ứng. Hãy thử một đĩa khác hoặc nhập vào một dự án có kiểu thích hợp."
 
 #. имя
-#: src/mgui/dvdimport.cpp:609 src/mgui/project/media-browser.cpp:219
+#. находим колонку
+#: src/mgui/dvdimport.cpp:621 src/mgui/project/media-browser.cpp:808
+#: src/mgui/project/media-browser.cpp:915
 msgid "Name"
 msgstr "Tên"
 
-#: src/mgui/dvdimport.cpp:622
+#: src/mgui/dvdimport.cpp:634
 msgid "Details"
 msgstr "Chi tiết"
 
-#: src/mgui/dvdimport.cpp:668
+#: src/mgui/dvdimport.cpp:680
 msgid "It is desirable the destination folder to be empty."
 msgstr "Tốt hơn nếu thư mục đích vẫn trống."
 
 #. COPY_N_PASTE - тупо сделал содержимое сообщений как у "TSNAMI-MPEG DVD Author"
 #. А что делать - нафига свои придумывать, если смысл один и тот же
-#: src/mgui/execution.cpp:52
+#: src/mgui/execution.cpp:57
 #, boost-format
 msgid "You are about to cancel %1%. Are you sure?"
 msgstr "Bạn sắp thôi tiến trình %1%. Bạn có chắc chưa?"
 
-#: src/mgui/execution.cpp:411
+#: src/mgui/execution.cpp:510
 #, boost-format
 msgid "exit code = %1%"
 msgstr "mã thoát = %1%"
 
-#: src/mgui/execution.cpp:413
+#: src/mgui/execution.cpp:512
 #, boost-format
 msgid "broken by signal %1%"
 msgstr "bị ngắt do tín hiệu %1%"
 
-#: src/mgui/mux.cpp:50
+#. :TODO: решить, ставить в конце точки или нет (сообщения пользователю
+#. показывается не HIG-ого)
+#: src/mgui/ffviewer.cpp:352
+msgid "No such file"
+msgstr "Không có tập tin như vậy"
+
+#: src/mgui/ffviewer.cpp:362
+msgid "Unknown file format"
+msgstr "Không hiểu định dạng tập tin"
+
+#. например .webm для FFmpeg <= 0.5
+#: src/mgui/ffviewer.cpp:380
+#, boost-format
+msgid "Can't find stream information: %1%"
+msgstr "Không thể lấy thông tin dòng dữ liệu: %1%"
+
+#: src/mgui/ffviewer.cpp:402
+msgid "No video stream found"
+msgstr "Không tìm thấy dòng hình ảnh"
+
+#: src/mgui/ffviewer.cpp:414
+msgid "Can't find the file duration"
+msgstr "Không thể tìm thấy độ dài thời gian tập tin"
+
+#. в 99% отсутствие нач. времени - элементарный поток = без контейнера;
+#. см. особенности ffmpeg, update_initial_timestamps()
+#: src/mgui/ffviewer.cpp:422
+msgid "Start time of the file is unknown"
+msgstr "Thời điểm bắt đầu của tập tin không được chấp nhận"
+
+#. проверка индекса/возможности перемещения
+#: src/mgui/ffviewer.cpp:430
+msgid "Can't seek through the file"
+msgstr "Không thể tìm kiếm (seek) thông qua tập tin"
+
+#: src/mgui/ffviewer.cpp:449
+#, boost-format
+msgid "No decoder found for the stream: %1%"
+msgstr "Không tìm thấy bộ giải mã cho dòng: %1%"
+
+#: src/mgui/mux.cpp:59
 msgid "muxing"
 msgstr "đang kết hợp lại"
 
-#: src/mgui/mux.cpp:66
+#: src/mgui/mux.cpp:75
 #, boost-format
 msgid "Muxing \"%1%\""
 msgstr "Đang kết hợp lại « %1% »"
 
-#: src/mgui/mux.cpp:77 src/mgui/author/output.cpp:231
-msgid "Show/_Hide Details"
-msgstr "_Hiện/ẩn chi tiết"
+#: src/mgui/mux.cpp:86 src/mgui/author/output.cpp:237
+msgid "Show/_hide Details"
+msgstr "Ẩn/_Hiện Chi tiết"
 
-#: src/mgui/mux.cpp:101
+#: src/mgui/mux.cpp:109
 msgid "Muxing error"
 msgstr "Lỗi kết hợp lại"
 
-#: src/mgui/mux.cpp:102 src/mgui/author/output.cpp:654
+#: src/mgui/mux.cpp:110 src/mgui/author/output.cpp:713
 #, boost-format
 msgid "The reason is \"%1%\" (see Details)"
 msgstr "Lý do là « %1% » (xem Chi tiết)"
 
-#: src/mgui/mux.cpp:118
+#: src/mgui/mux.cpp:126
 msgid "Select a folder"
 msgstr "Chọn một thư mục"
 
-#: src/mgui/mux.cpp:130
+#: src/mgui/mux.cpp:138
 msgid "in"
 msgstr "trong"
 
-#: src/mgui/mux.cpp:164
+#: src/mgui/mux.cpp:172
 msgid "Mux streams"
 msgstr "Kết hợp lại các luồng"
 
-#: src/mgui/mux.cpp:166
+#: src/mgui/mux.cpp:174
 msgid "Output"
 msgstr "Xuất"
 
-#: src/mgui/mux.cpp:167
+#: src/mgui/mux.cpp:175
 msgid "Select elementary video"
 msgstr "Chọn phim cơ bản"
 
-#: src/mgui/mux.cpp:168
+#: src/mgui/mux.cpp:176
 msgid "Select audio"
 msgstr "Chọn âm thanh"
 
 #. Названия типов для i18n
-#: src/mgui/mux.cpp:172 src/mgui/project/media-browser.cpp:201
+#: src/mgui/mux.cpp:180 src/mgui/project/media-browser.cpp:884
 #: src/mgui/timeline/layout-draw.cpp:156
 msgid "Video"
 msgstr "Phim"
 
-#: src/mgui/mux.cpp:175
+#: src/mgui/mux.cpp:183
 msgid "MPEG2 elementary video (m2v)"
-msgstr "Phim cơ bản MPEG2 (m2v)"
+msgstr "Phim MPEG2 cơ bản (m2v)"
 
-#: src/mgui/mux.cpp:180
+#: src/mgui/mux.cpp:188 src/mgui/project/menu-browser.cpp:372
 msgid "Audio"
 msgstr "Âm thanh"
 
-#: src/mgui/mux.cpp:183 src/mgui/timeline/mviewer.cpp:281
+#: src/mgui/mux.cpp:191 src/mgui/timeline/mviewer.cpp:290
 msgid "Audio for DVD"
 msgstr "Âm thanh cho DVD"
 
-#: src/mgui/mux.cpp:208
+#: src/mgui/mux.cpp:216
 msgid "Elementary video file is not selected."
 msgstr "Chưa chọn tập tin phim cơ bản."
 
-#: src/mgui/mux.cpp:210
+#: src/mgui/mux.cpp:218
 msgid "Audio file is not selected."
 msgstr "Chưa chọn tập tin âm thanh."
 
-#: src/mgui/mux.cpp:212
+#: src/mgui/mux.cpp:220
 msgid "Output file name is empty."
 msgstr "Tên tập tin kết xuất còn trống."
 
-#: src/mgui/prefs.cpp:143
+#: src/mgui/prefs.cpp:136
+msgid "You need to restart the application for the changes to take place"
+msgstr "Bạn cần khởi động lại ứng dụng để các thay đổi có tác dụng"
+
+#: src/mgui/prefs.cpp:174
 msgid "Bombono DVD Preferences"
 msgstr "Tùy thích Bombono DVD"
 
-#: src/mgui/prefs.cpp:157
+#: src/mgui/prefs.cpp:182
+msgid "Show File Browser"
+msgstr "Hiển thị trình duyệt tập tin"
+
+#: src/mgui/prefs.cpp:191
 msgid "_Default project type"
 msgstr "Kiểu _dự án mặc định"
 
-#: src/mgui/prefs.cpp:160
+#: src/mgui/prefs.cpp:194
 msgid "Default _folder for authoring"
 msgstr "Thư _mục mặc định để sáng tạo"
 
-#: src/mgui/prefs.cpp:165
+#: src/mgui/prefs.cpp:199
 msgid "_Play authoring result in"
 msgstr "_Phát kết quả sáng tạo bằng"
 
-#: src/mgui/win_utils.cpp:325
+#: src/mgui/prefs.cpp:209
+msgid "Multi-core CPU support"
+msgstr "Hỗ trợ CPU nhiều nhân"
+
+#: src/mgui/prefs.cpp:210
+msgid "Make use of multi-core CPU for transcoding videos quickly; 1 is not to use multi-coreness, safe minimum (no possible CPU overheat)"
+msgstr "Việc sử dụng CPU nhiều nhân sẽ làm cho việc xử lý phim nhanh hơn; 1 là chỉ sử dụng đơn nhân. mức tối thiểu an toàn (không sợ CPU bị quá nhiệt)"
+
+#: src/mgui/win_utils.cpp:423
 msgid "Replacing the file overwrite its contents."
 msgstr "Việc thay thế tập tin đó thì cũng ghi đè lên nội dung của nó."
 
-#: src/mgui/author/burn.cpp:199
+#: src/mgui/author/burn.cpp:192
 msgid "Auto"
 msgstr "Tự động"
 
-#: src/mgui/author/burn.cpp:211
+#: src/mgui/author/burn.cpp:204
 msgid "Update speeds ..."
-msgstr "Thời gian cập nhật ..."
+msgstr "Tốc độ cập nhật ..."
 
-#: src/mgui/author/burn.cpp:332
+#: src/mgui/author/burn.cpp:330
 msgid "Checking Disc ..."
 msgstr "Đang kiểm tra đĩa ..."
 
-#: src/mgui/author/burn.cpp:346
+#: src/mgui/author/burn.cpp:344
 msgid "Selected burn drive is for CD discs only. Change to another burn drive."
 msgstr "Bạn đã chọn một ổ đĩa chép ra dành cho đĩa CD. Chuyển đổi sang một ổ đĩa khác."
 
-#: src/mgui/author/burn.cpp:351
+#: src/mgui/author/burn.cpp:349
 msgid "CD disc is found in the drive, not DVD. Change to DVD disc."
 msgstr "Bạn đã nạp một đĩa CD, không phải DVD. Chuyển đổi sang một đĩa DVD."
 
-#: src/mgui/author/burn.cpp:356
+#: src/mgui/author/burn.cpp:354
 msgid "No DVD disc in the drive. Load a clear one and press OK."
 msgstr "Ổ đĩa không chứa đĩa DVD. Nạp một đĩa DVD trống và bấm nút OK."
 
-#: src/mgui/author/burn.cpp:361
+#: src/mgui/author/burn.cpp:359
 #, boost-format
 msgid "Disc with type \"%1%\" is found in the drive but for DVD-Video disc type should be one from: DVD-R, DVD+R, DVD-RW, DVD+RW. Load a clear one with right type and press OK."
 msgstr "Bạn đã nạp một đĩa kiểu « %1% », nhưng mà đối với đĩa DVD Phim nên có một của những kiểu này: DVD-R, DVD+R, DVD-RW, DVD+RW. Hãy nạp một đĩa trống có kiểu đúng, sau đó bấm nút OK."
 
-#: src/mgui/author/burn.cpp:370
+#: src/mgui/author/burn.cpp:368
 #, boost-format
 msgid "Disc with type \"%1%\" in the drive is not clear. Only clear recordable discs can be used for burning DVD-Video. Load a clear one and press OK."
 msgstr "Bạn đã nạp một đĩa kiểu « %1% » mà không trống. Chỉ đĩa thu được vẫn trống có thể được sử dụng để chép ra đĩa DVD Phim. Hãy nạp một đĩa trống, và bấm nút OK."
 
-#: src/mgui/author/burn.cpp:377
+#: src/mgui/author/burn.cpp:375
 #, boost-format
 msgid "Disc with type \"%1%\" in the drive is not clear. We need to remove its contents before writing new one. Continue?"
 msgstr "Bạn đã nạp một đĩa kiểu « %1% » mà không trống. Có nên xoá bỏ nội dung của nó trước khi ghi dữ liệu mới. Tiếp tục ?"
 
-#: src/mgui/author/burn.cpp:381
-msgid "_Cancel"
-msgstr "_Thôi"
-
-#: src/mgui/author/burn.cpp:382
+#: src/mgui/author/burn.cpp:379
 msgid "_Try again"
 msgstr "Thử _lại"
 
-#: src/mgui/author/execute.cpp:62
+#: src/mgui/author/execute.cpp:59
 msgid "Status: "
 msgstr "Trạng thái: "
 
-#: src/mgui/author/indicator.cpp:66
-msgid "Rendering Menus"
-msgstr "Đang vẽ các trình đơn"
+#: src/mgui/author/execute.cpp:188
+#, boost-format
+msgid "chapter \"%1%\" in \"%2%\" is too short (%3% sec)"
+msgstr "tập \"%1%\" trong \"%2%\" quá ngắn (%3% sec)"
 
-#: src/mgui/author/indicator.cpp:67
+#: src/mgui/author/indicator.cpp:73
+msgid "Transcoding videos"
+msgstr "Các phim chuyển mã."
+
+#: src/mgui/author/indicator.cpp:74
+msgid "Rendering menus"
+msgstr "Trình đơn thể hiện hình hành"
+
+#: src/mgui/author/indicator.cpp:75
 msgid "Generating DVD-Video"
 msgstr "Đang tạo ra đĩa DVD phim"
 
-#: src/mgui/author/indicator.cpp:68
-msgid "Creating ISO Image"
-msgstr "Đang tạo ảnh ISO"
+#: src/mgui/author/indicator.cpp:76
+msgid "Creating ISO image"
+msgstr "Đang tạo ảnh đĩa ISO"
 
-#: src/mgui/author/indicator.cpp:69
+#: src/mgui/author/indicator.cpp:77
 msgid "Burning DVD"
 msgstr "Đang chép ra đĩa DVD"
 
-#: src/mgui/author/output.cpp:53
+#: src/mgui/author/indicator.cpp:164
+#, boost-format
+msgid "%1% hour %2$02d min remaining"
+msgid_plural "%1% hours %2$02d min remaining"
+msgstr[0] "còn lại %1% giờ %2$02d phút"
+
+#: src/mgui/author/indicator.cpp:167
+#, boost-format
+msgid "%1% min %2$02d sec remaining"
+msgid_plural "%1% min %2$02d sec remaining"
+msgstr[0] "còn lại %1% phút %2$02d giây"
+
+#: src/mgui/author/indicator.cpp:171
+#, boost-format
+msgid "%1% sec remaining"
+msgid_plural "%1% sec remaining"
+msgstr[0] "Còn lại %1% giây"
+
+#: src/mgui/author/output.cpp:57
 msgid "DVD-Video Building"
 msgstr "Xây dựng đĩa DVD Phim"
 
-#: src/mgui/author/output.cpp:63
+#: src/mgui/author/output.cpp:67
 #, boost-format
 msgid "_Cancel %1%"
 msgstr "_Thôi %1%"
 
-#: src/mgui/author/output.cpp:64
+#: src/mgui/author/output.cpp:68
 msgid "_Build DVD-Video"
 msgstr "Xây dựng DVD Phim"
 
-#: src/mgui/author/output.cpp:161
-msgid "Select Output _Folder:"
-msgstr "Chọn thư mục _kết xuất:"
+#. * куда
+#. :TODO: хотелось бы видеть полный путь до папки
+#. Реализовать на основе Gtk::Button, с внешним видом как у ComboBox:
+#. - gtk_icon_theme_load_icon (theme, "gnome-fs-regular", priv->icon_size, 0, NULL);
+#. - gtk_icon_theme_load_icon (icon_theme, "gnome-fs-directory", button->priv->icon_size, 0, NULL);
+#. - gtk_vseparator_new (), gtk_toggle_button_new (), gtk_arrow_new (GTK_ARROW_DOWN, GTK_SHADOW_NONE)
+#.
+#. Или варианты:
+#. - взять код gtkfilechooserbutton.c и изменить упаковку комбо-бокса, см. gtk_file_chooser_button_init(),
+#. где добавление атрибутов (более простой способ - удалить все атрибуты и набрать самому, но до номеров
+#. столбцов не достучаться)
+#. - попробовать libsexy/libview - может там чего есть
+#: src/mgui/author/output.cpp:160
+msgid "Select output _folder"
+msgstr "Chọn thư mục kết xuất"
 
-#: src/mgui/author/output.cpp:177
-msgid " Choose Author Mode: "
-msgstr "Chọn chế độ tạo tác: "
+#: src/mgui/author/output.cpp:182
+msgid "Choose author mode"
+msgstr "Chọn chế độ tác quyền"
 
 #. цель по умолчанию
-#: src/mgui/author/output.cpp:183
-msgid "_Write DVD Folder"
-msgstr "_Ghi thư mục DVD"
+#: src/mgui/author/output.cpp:189
+msgid "_Write DVD folder"
+msgstr "thư mục _ghi DVD"
 
-#: src/mgui/author/output.cpp:184
-msgid "Write Disk _Image"
-msgstr "Gh_i ảnh đĩa"
+#: src/mgui/author/output.cpp:190
+msgid "Write disk _image"
+msgstr "Ghi ảnh_đĩa"
 
-#: src/mgui/author/output.cpp:193
-msgid "Disc Label: "
-msgstr "Nhãn đĩa: "
+#: src/mgui/author/output.cpp:199
+msgid "Disc label"
+msgstr "Nhãn đĩa"
 
-#: src/mgui/author/output.cpp:198
+#: src/mgui/author/output.cpp:204
 msgid "Burn to _DVD"
 msgstr "Chép vào _DVD"
 
-#: src/mgui/author/output.cpp:206
-msgid "DVD Drive: "
-msgstr "Ổ đĩa DVD: "
-
 #: src/mgui/author/output.cpp:212
-msgid "Writing Speed: "
-msgstr "Tốc độ ghi: "
+msgid "DVD drive"
+msgstr "Ổ đĩa DVD"
 
-#: src/mgui/author/output.cpp:223
+#: src/mgui/author/output.cpp:218
+msgid "Writing speed"
+msgstr "Tốc độ ghi"
+
+#: src/mgui/author/output.cpp:229
 msgid "_Rendering only"
 msgstr "Chỉ _vẽ"
 
-#: src/mgui/author/output.cpp:277
+#: src/mgui/author/output.cpp:282
 msgid "Rendering"
 msgstr "Đang dựng hình"
 
-#: src/mgui/author/output.cpp:354
+#: src/mgui/author/output.cpp:366
 msgid "DVD Burning"
-msgstr "Chép ra đĩa DVD"
+msgstr "Ghi đĩa DVD"
 
-#: src/mgui/author/output.cpp:398
+#: src/mgui/author/output.cpp:410
 msgid "The result is here"
 msgstr "Kết quả ở đây"
 
-#: src/mgui/author/output.cpp:400
+#: src/mgui/author/output.cpp:412
 msgid "You can run authoring manually by executing command \"scons\" at the specified folder. Also, see README file for other options over there."
 msgstr "Bạn cũng có thể tự thực hiện bằng cách chạy lệnh « scons » trong thư mục đưa ra. Cũng xem tập tin Đọc Đi (README) để tìm thêm tuỳ chọn."
 
 #. Translators: impossible to go on!
-#: src/mgui/author/output.cpp:424
+#: src/mgui/author/output.cpp:436
 msgid "Authoring is cancelled."
 msgstr "Tiến trình tạo tác bị thôi."
 
-#: src/mgui/author/output.cpp:435
+#: src/mgui/author/output.cpp:447
 #, boost-format
 msgid "%1% is not a folder"
 msgstr "%1% không phải là thư mục"
 
-#: src/mgui/author/output.cpp:446
+#: src/mgui/author/output.cpp:458
 #, boost-format
-msgid "Cant have full access to folder %1% (read, write)"
-msgstr "Không thể truy cập hoàn toàn đến thư mục %1% (đọc và ghi)"
+msgid "Can't have full access to folder %1% (read, write)"
+msgstr "Không có toàn quyền truy cập thư mục %1% (đọc, ghi)"
 
-#: src/mgui/author/output.cpp:454
+#: src/mgui/author/output.cpp:466
 #, boost-format
 msgid ""
 "Folder %1% is not empty. We need to remove all files in it before authoring.\n"
@@ -386,237 +484,357 @@ msgstr ""
 "Thư mục %1% không trống. Có nên xoá bỏ tất cả các tập tin khỏi nó trước khi tạo dữ liệu mới.\n"
 "Tiếp tục ?"
 
-#: src/mgui/author/output.cpp:460
+#: src/mgui/author/output.cpp:472
 #, boost-format
 msgid "Error during removing files: %1%"
 msgstr "Gặp lỗi trong khi gỡ bỏ tập tin: %1%"
 
-#: src/mgui/author/output.cpp:651
+#: src/mgui/author/output.cpp:710
 #, boost-format
 msgid "%1% cancelled."
 msgstr "%1% bị thôi."
 
-#: src/mgui/author/output.cpp:653
+#: src/mgui/author/output.cpp:712
 #, boost-format
 msgid "%1% broken."
 msgstr "%1% bị hỏng."
 
 #. Translators: can be tranlated as "Operation "%1%" ..."
-#: src/mgui/author/output.cpp:660
+#: src/mgui/author/output.cpp:719
 #, boost-format
 msgid "%1% successfully completed."
-msgstr "Hoàn tất thành công chạy thao tác %1%."
+msgstr " %1% được thực hiện thành công."
 
-#: src/mgui/author/output.cpp:690 src/mgui/timeline/select.cpp:239
+#: src/mgui/author/output.cpp:768 src/mgui/timeline/select.cpp:237
 #, boost-format
 msgid "_Play in %1%"
 msgstr "_Phát bằng %1%"
 
-#: src/mgui/author/output.cpp:691
+#: src/mgui/author/output.cpp:769
 msgid "_Burn to DVD"
-msgstr "_Chép vào DVD"
+msgstr "_Ghi vào DVD"
 
-#: src/mgui/author/script.cpp:391
+#: src/mgui/author/output.cpp:841
+msgid "DVD capacity is exceeded"
+msgstr "Đã vượt dung lượng của đĩa DVD"
+
+#: src/mgui/author/output.cpp:855
+#, boost-format
+msgid "Items \"%1%\" and \"%2%\" overlap in menu \"%3%\""
+msgstr "Các mục \"%1%\" và \"%2%\" chồng lên nhau trong trình đơn \"%3%\""
+
+#. * все в одном VTS храним, потому такое ограничение: каждый VTS_01_<N>.VOB <= 1GB,
+#. N - однозначное число, от 1 до 9
+#. 9GB
+#: src/mgui/author/output.cpp:865
+msgid "9GB limit for video is exceeded (one VTS should be less)"
+msgstr "Đã vượt giới hạn 9GB dành cho phim (VTS còn nhỏ hơn thế)"
+
+#: src/mgui/author/output.cpp:868
+msgid "32 character limit for disc label is exceeded"
+msgstr "đã vượt quá ngưỡng 32 ký tự dành cho nhãn đĩa"
+
+#: src/mgui/author/output.cpp:873
+msgid "Error Report"
+msgstr "Báo cáo Lỗi"
+
+#: src/mgui/author/output.cpp:873
+msgid "Continue?"
+msgstr "Tiếp tục?"
+
+#: src/mgui/author/render.cpp:752
+#, boost-format
+msgid "no audio stream in %1%"
+msgstr "không có âm thanh trong %1%"
+
+#: src/mgui/author/render.cpp:1117
+msgid "command not found"
+msgstr "không tìm thấy lệnh"
+
+#: src/mgui/author/script.cpp:534
 msgid "There is no media (video or menu)."
 msgstr "Không có phương tiện (phim hay trình đơn)."
 
-#: src/mgui/author/script.cpp:556
+#: src/mgui/author/script.cpp:1332
+#, boost-format
+msgid "%1% failure: %2%"
+msgstr "%1% thất bại: %2%"
+
+#. ApplicationError("", ed);
+#: src/mgui/author/script.cpp:1367
 #, boost-format
 msgid "external command failure: %1%"
 msgstr "lỗi chạy câu lệnh mở ngoài: %1%"
 
-#: src/mgui/editor/select.cpp:599
+#: src/mgui/editor/select.cpp:392 src/mgui/project/menu-browser.cpp:259
+msgid "Play All"
+msgstr "Phát tất cả"
+
+#. для Project::BackSpanType (заполнение, по размеру, растянуть)
+#: src/mgui/editor/select.cpp:650
+msgid "Fill"
+msgstr "Điền đầy"
+
+#: src/mgui/editor/select.cpp:650
+msgid "Fit"
+msgstr "Vừa khớp"
+
+#: src/mgui/editor/select.cpp:650
+msgid "Stretch"
+msgstr "Co giãn"
+
+#. Фон
+#. AddEnabledItem(mn, _("Set Background Color..."), &SetBgColor, !has_selected);
+#: src/mgui/editor/select.cpp:697 src/mgui/editor/select.cpp:909
+msgid "Background Settings"
+msgstr "Cài đặt nền"
+
+#: src/mgui/editor/select.cpp:705
+msgid "_Style"
+msgstr "_Kiểu dáng"
+
+#: src/mgui/editor/select.cpp:707
+msgid "_Color"
+msgstr "_Màu"
+
+#: src/mgui/editor/select.cpp:739
+msgid "Go to online image service in web browser"
+msgstr "Truy cập vào dịch vụ ảnh trực tuyến trong trình duyệt web"
+
+#: src/mgui/editor/select.cpp:741
+msgid "You can drop background image you like from a web browser directly onto Menu Editor"
+msgstr "Bạn có thể kéo thả ảnh nền mà mình thích trực tiếp từ trình duyệt web vào trong Chưong trình biên soạn trình đơn"
+
+#: src/mgui/editor/select.cpp:831
 msgid "Delete"
 msgstr "Xoá"
 
-#: src/mgui/editor/select.cpp:613
+#. Link
+#. bool is_background = !has_selected;
+#. Project::Menu cur_mn = edt_area.CurMenu();
+#. Project::SetLinkMenu& slm = cur_mn->GetData<Project::SetLinkMenu>();
+#. slm.isForBack = is_background;
+#. slm.newLink   = GetCurObjectLink(is_background);
+#.
+#. InvokeOn(cur_mn, "SetLinkMenu");
+#. if( slm.linkMenu )
+#. {
+#. mn.items().push_back(MenuElem(_("Link")));
+#. mn.items().back().set_submenu(*slm.linkMenu.release());
+#. }
+#. mn.items().push_back(
+#. MenuElem(_("Remove Link"), bb::bind(&SetSelObjectsLinks,
+#. Project::MediaItem(), is_background)));
+#: src/mgui/editor/select.cpp:850
 msgid "Link"
 msgstr "Liên kết"
 
-#: src/mgui/editor/select.cpp:617
+#: src/mgui/editor/select.cpp:853
 msgid "Remove Link"
 msgstr "Gỡ bỏ liên kết"
 
 #. Poster Link
-#: src/mgui/editor/select.cpp:621
+#: src/mgui/editor/select.cpp:870
 msgid "Set Poster"
 msgstr "Lập bích chương"
 
-#: src/mgui/editor/select.cpp:630
+#: src/mgui/editor/select.cpp:874
+msgid "Highlight Border Only"
+msgstr "Chỉ tô sáng đường biên"
+
+#: src/mgui/editor/select.cpp:884
 msgid "Align"
 msgstr "Sắp hàng"
 
-#: src/mgui/editor/select.cpp:638
+#: src/mgui/editor/select.cpp:890
 msgid "Align Left"
 msgstr "Sắp hàng bên trái"
 
-#: src/mgui/editor/select.cpp:639
+#: src/mgui/editor/select.cpp:891
 msgid "Align Right"
 msgstr "Sắp hàng bên phải"
 
-#: src/mgui/editor/select.cpp:640
+#: src/mgui/editor/select.cpp:892
 msgid "Align Top"
 msgstr "Sắp hàng bên trên"
 
-#: src/mgui/editor/select.cpp:641
+#: src/mgui/editor/select.cpp:893
 msgid "Align Bottom"
 msgstr "Sắp hàng bên dưới"
 
-#: src/mgui/editor/select.cpp:644
+#: src/mgui/editor/select.cpp:896
 msgid "Center Horizontally"
 msgstr "Đặt vào giữa theo chiều ngang"
 
-#: src/mgui/editor/select.cpp:645
+#: src/mgui/editor/select.cpp:897
 msgid "Center Vertically"
 msgstr "Đặt vào giữa theo chiều dọc"
 
-#: src/mgui/editor/select.cpp:650
+#: src/mgui/editor/select.cpp:902
 msgid "Distribute Horizontally"
 msgstr "Phân phát theo chiều ngang"
 
-#: src/mgui/editor/select.cpp:651
+#: src/mgui/editor/select.cpp:903
 msgid "Distribute Vertically"
 msgstr "Phân phát theo chiều dọc"
 
-#. Set Background Color
-#: src/mgui/editor/select.cpp:656 src/mgui/editor/select.cpp:908
-msgid "Set Background Color..."
-msgstr "Chọn màu nền..."
-
 #. Selection Tool
-#: src/mgui/editor/toolbar.cpp:135
+#: src/mgui/editor/toolbar.cpp:236
 msgid "Selection Tool"
 msgstr "Công cụ Lựa chọn"
 
 #. Text Tool
-#: src/mgui/editor/toolbar.cpp:138
+#: src/mgui/editor/toolbar.cpp:239
 msgid "Text Tool"
 msgstr "Công cụ Văn bản"
 
-#: src/mgui/editor/toolbar.cpp:495
+#: src/mgui/editor/toolbar.cpp:668
 msgid "Add Item"
 msgstr "Thêm mục"
 
-#: src/mgui/editor/toolbar.cpp:517
+#: src/mgui/editor/toolbar.cpp:690
 msgid "Font Name"
 msgstr "Tên phông chữ"
 
-#: src/mgui/editor/toolbar.cpp:533
+#: src/mgui/editor/toolbar.cpp:706
 msgid "Font Size"
 msgstr "Cỡ phông chữ"
 
 #. * кнопки стилей шрифта
-#: src/mgui/editor/toolbar.cpp:538
+#: src/mgui/editor/toolbar.cpp:711
 msgid "Bold"
 msgstr "Đậm"
 
-#: src/mgui/editor/toolbar.cpp:539
+#: src/mgui/editor/toolbar.cpp:712
 msgid "Italic"
 msgstr "Nghiêng"
 
-#: src/mgui/editor/toolbar.cpp:540
+#: src/mgui/editor/toolbar.cpp:713
 msgid "Underline"
 msgstr "Gạch dưới"
 
-#: src/mgui/editor/toolbar.cpp:549
+#: src/mgui/editor/toolbar.cpp:720
 msgid "Pick a Color for Text"
 msgstr "Chọn màu chữ"
 
-#: src/mgui/editor/toolbar.cpp:551
+#: src/mgui/editor/toolbar.cpp:722
 msgid "Text Color"
 msgstr "Màu chữ"
 
-#: src/mgui/editor/toolbar.cpp:563
+#. * кнопка рамки
+#: src/mgui/editor/toolbar.cpp:731
 msgid "Show Safe Area"
 msgstr "Hiện vùng an toàn"
 
-#: src/mgui/project/add.cpp:37
+#. *
+#: src/mgui/editor/toolbar.cpp:733
+msgid "Snap To Grid"
+msgstr "Dính lưới"
+
+#: src/mgui/project/add.cpp:58
 msgid "yes"
 msgstr "có"
 
-#: src/mgui/project/add.cpp:37
+#: src/mgui/project/add.cpp:58
 msgid "no"
 msgstr "không"
 
-#: src/mgui/project/add.cpp:86
+#: src/mgui/project/add.cpp:107 src/mgui/project/media-browser.cpp:449
 msgid "Video bitrate"
 msgstr "Tỷ lệ bit phim"
 
-#: src/mgui/project/add.cpp:87
+#: src/mgui/project/add.cpp:108 src/mgui/project/media-browser.cpp:451
 msgid "kbps"
 msgstr "kb/giây"
 
-#: src/mgui/project/add.cpp:88
+#: src/mgui/project/add.cpp:109
 msgid "Maximum data rate for video (9800 kbps) is exceeded."
 msgstr "Vượt quá tốc độ dữ liệu cho phim (9800 kilô-byte/giây)."
 
-#: src/mgui/project/add.cpp:91
+#: src/mgui/project/add.cpp:112
 #, boost-format
 msgid "The %1% DVD-Video can accept MPEG-2 with resolutions: %2% only."
 msgstr "Đĩa DVD Phim %1% chỉ chấp nhận định dạng MPEG-2 có độ phân giải %2%."
 
-#: src/mgui/project/add.cpp:92
+#: src/mgui/project/add.cpp:113
 #, boost-format
 msgid "The %1% DVD-Video can accept MPEG-2 with frame rate: %2% only."
 msgstr "Đĩa DVD Phim %1% chỉ chấp nhận định dạng MPEG-2 có tỷ lệ khung %2%."
 
-#: src/mgui/project/add.cpp:93
+#: src/mgui/project/add.cpp:114
 #, boost-format
 msgid "The %1% DVD-Video can accept MPEG-2 with aspects 4:3, 16:9 only."
 msgstr "Đĩa DVD Phim %1% chỉ chấp nhận định dạng MPEG-2 có tỷ lệ hình thể 4:3 hay 16:9."
 
-#: src/mgui/project/add.cpp:113
+#: src/mgui/project/add.cpp:134
 msgid "Video size"
 msgstr "Kích cỡ phim"
 
-#: src/mgui/project/add.cpp:133
+#: src/mgui/project/add.cpp:154 src/mgui/project/media-browser.cpp:485
 msgid "Frame rate"
 msgstr "Tỷ lệ khung"
 
-#: src/mgui/project/add.cpp:134
+#: src/mgui/project/add.cpp:155 src/mgui/project/media-browser.cpp:486
 msgid "fps"
 msgstr "khung/giây"
 
-#: src/mgui/project/add.cpp:142
+#: src/mgui/project/add.cpp:163
 msgid "Aspect ratio"
 msgstr "Tỷ lệ hình thể"
 
-#: src/mgui/project/add.cpp:217
+#: src/mgui/project/add.cpp:244
+msgid "Remuxing is required."
+msgstr "Remuxing là bắt buộc."
+
+#: src/mgui/project/add.cpp:246
 msgid "<b>Bombono DVD</b> can use \"DVD-ready\" video only now. Use muxing programs like \"mplex -f 8\" (from <b>mjpegtools</b>), mencoder (from <b>mplayer</b>) or <b>transcode</b> to make your video ready for <b>Bombono DVD</b>."
 msgstr "<b>Bombono DVD</b> giờ có khả năng sử dụng chỉ phim « sẵn sàng cho đĩa DVD ». Hãy dùng chương trình kết hợp lại (muxer) như « mplex -f 8 » (từ bộ công cụ <b>mjpegtools</b>), mencoder (từ <b>mplayer</b>) hay <b>transcode</b> để chuẩn bị phim cho trình <b>Bombono DVD</b>."
 
-#: src/mgui/project/add.cpp:221
+#: src/mgui/project/add.cpp:251
 msgid "DVD packs"
 msgstr "Bó DVD"
 
-#: src/mgui/project/add.cpp:223
+#: src/mgui/project/add.cpp:253
 msgid "NAV packets"
 msgstr "Gói tin NAV"
 
-#: src/mgui/project/add.cpp:229
+#: src/mgui/project/add.cpp:260
+msgid "This video should be transcoded due to (errors in <span foreground=\"red\">red color</span>):"
+msgstr "Phim này có thể đã bị chuyển mã bởi vì (lỗi trong <span foreground=\"red\">màu đỏ</span>):"
+
+#: src/mgui/project/add.cpp:262
 msgid "This video may not be added due to (errors in <span foreground=\"red\">red color</span>):"
 msgstr "Phim này có thể không được thêm do (lỗi trong <span foreground=\"red\">màu đỏ</span>):"
 
-#. подскажем пользователю, что он ошибся форматом проекта
-#: src/mgui/project/add.cpp:240
+#: src/mgui/project/add.cpp:275
+#, boost-format
+msgid "This video has %1% type can't be added \"as is\" to current project of %2% type. Create new project from menu \"Project->New Project\" with right type."
+msgstr "Phim này có kiểu %1% thì không thêm được vào dự án hiện hành \"mà nó lại thuộc\" kiểu %2%. Hãy tạo một dự án mới trong trình đơn « Dự án > Dự án mới » với kiểu phù hợp."
+
+#: src/mgui/project/add.cpp:280
 #, boost-format
 msgid "This video has %1% type and can't be added to current project of %2% type. Create new project from menu \"Project->New Project\" with right type."
 msgstr "Phim này có kiểu %1% thì không thêm được vào dự án kiểu %2%. Hãy tạo một dự án mới trong trình đơn « Dự án > Dự án mới », cũng gán kiểu đúng."
 
-#: src/mgui/project/add.cpp:269
+#: src/mgui/project/add.cpp:315
 msgid "File doesn't exist."
 msgstr "Tập tin không tồn tại."
 
-#: src/mgui/project/add.cpp:274
+#: src/mgui/project/add.cpp:320
 msgid "Folders can't be added."
 msgstr "Không thêm được thư mục."
 
 #. по расширению выводим наиболее вероятную ошибку
-#: src/mgui/project/add.cpp:309
+#: src/mgui/project/add.cpp:381
 msgid "Unknown file type."
 msgstr "Không rõ dạng tập tin."
 
-#: src/mgui/project/add.cpp:379
+#: src/mgui/project/add.cpp:457
+#, boost-format
+msgid "Can't add file \"%1%\"."
+msgstr "Không thêm được tập tin « %1% »."
+
+#: src/mgui/project/add.cpp:474
 #, boost-format
 msgid ""
 "The file \"%1%\" looks like VOB from DVD.\n"
@@ -625,148 +843,267 @@ msgstr ""
 "Tập tin « %1% » hình như VOB từ đĩa DVD.\n"
 "Chạy tiến trình nhập vào ?"
 
-#: src/mgui/project/add.cpp:396
+#: src/mgui/project/add.cpp:491
 #, boost-format
 msgid "The file \"%1%\" looks like elementary stream and need to be muxed before using. Run muxing?"
 msgstr "Tập tin « %1% » hình như một luồng cơ bản thì cần phải được kết hợp lại (mux) trước khi sử dụng. Chạy tiến trình kết hợp lại ?"
 
-#: src/mgui/project/add.cpp:458
+#: src/mgui/project/add.cpp:558
 msgid "Also:"
 msgstr "Cũng: "
 
-#: src/mgui/project/add.cpp:471
+#: src/mgui/project/add.cpp:574
 #, boost-format
 msgid "See more about preparing video for authoring in <a href=\"%1%\">online help</a>."
 msgstr "Xem thêm về chuẩn bị phim để tạo đĩa trong <a href=\"%1%\">trợ giúp trực tuyến</a>."
 
-#: src/mgui/project/add.cpp:482
-#, boost-format
-msgid "Can't add file \"%1%\"."
-msgstr "Không thêm được tập tin « %1% »."
-
-#: src/mgui/project/add.cpp:484
+#: src/mgui/project/add.cpp:588
 msgid "Can't add files:"
 msgstr "Không thể thêm những tập tin:"
 
-#: src/mgui/project/browser.cpp:128
+#: src/mgui/project/browser.cpp:133
 #, boost-format
 msgid "Do you really want to delete \"%1%\" from Media List?"
 msgstr "Bạn có chắc muốn xoá « %1% » khỏi Danh sách Nhạc/Phim không?"
 
-#: src/mgui/project/browser.cpp:129
+#: src/mgui/project/browser.cpp:134
 #, boost-format
 msgid "Do you really want to delete chapter \"%1%\"?"
 msgstr "Bạn thực sự muốn xoá tập « %1% » không?"
 
-#: src/mgui/project/browser.cpp:130
+#: src/mgui/project/browser.cpp:135
 #, boost-format
 msgid "Do you really want to delete menu \"%1%\"?"
 msgstr "Bạn thực sự muốn xoá trình đơn « %1% » không?"
 
-#: src/mgui/project/browser.cpp:242
+#: src/mgui/project/browser.cpp:252
 msgid "First-Play media can be Video or Menu only."
 msgstr "Phương tiện Phát-Trước chỉ có thể là Phim hay Trình đơn."
 
-#: src/mgui/project/mconstructor.cpp:335
+#: src/mgui/project/browser.cpp:579
+#, boost-format
+msgid "Getting \"%1%\""
+msgstr "Chào hỏi \"%1%\""
+
+#: src/mgui/project/browser.cpp:650
+#, boost-format
+msgid "Can't get information about \"%1%\": %2%"
+msgstr "Không thể lấy thông tin về \"%1%\": %2%"
+
+#: src/mgui/project/browser.cpp:715
+#, boost-format
+msgid "Can't get \"%1%\": %2%"
+msgstr "Không lấy được \"%1%\": %2%"
+
+#: src/mgui/project/mconstructor.cpp:361
 msgid "Bombono DVD is a DVD authoring program with nice and clean GUI"
 msgstr "Bombono DVD là một chương trình tạo đĩa DVD có một giao diện đồ họa đẹp và thân thiện với người dùng"
 
 #. dlg.set_authors(authors);
 #. dlg.set_documenters(documenters);
 #. dlg.set_decorated(false);
-#: src/mgui/project/mconstructor.cpp:340
+#: src/mgui/project/mconstructor.cpp:366
 msgid "translator-credits"
 msgstr "Clytie Siddall (clytie@riverland.net.au)"
 
 #. раньше Brasero использовал KiB, MiB и GiB, как более точные технически
 #. (вроде как размеры HDD принято измерять по 1GB=1000MB); теперь Brasero
 #. перешел на стандарт KB/MB/GB, ну и BmD тоже (а че, мы не гордые :)
-#: src/mgui/project/mconstructor.cpp:527
+#: src/mgui/project/mconstructor.cpp:553
 msgid "KB"
 msgstr "KB"
 
-#: src/mgui/project/mconstructor.cpp:527
+#: src/mgui/project/mconstructor.cpp:553
 msgid "GB"
 msgstr "GB"
 
+#. for translators: 100MB of 4.3GB
+#: src/mgui/project/mconstructor.cpp:637
+msgid "of"
+msgstr "của"
+
 #. Project
-#: src/mgui/project/mconstructor.cpp:635
+#: src/mgui/project/mconstructor.cpp:674
 msgid "_Project"
 msgstr "_Dự án"
 
-#: src/mgui/project/mconstructor.cpp:642
+#: src/mgui/project/mconstructor.cpp:681
 msgid "_Quit"
 msgstr "T_hoát"
 
-#: src/mgui/project/mconstructor.cpp:644
+#: src/mgui/project/mconstructor.cpp:683
 msgid "Add Videos from _DVD"
 msgstr "Thêm phim từ _DVD"
 
-#: src/mgui/project/mconstructor.cpp:644
+#: src/mgui/project/mconstructor.cpp:683
 msgid "DVD-Import Assistant"
 msgstr "Trợ lý nhập DVD"
 
-#: src/mgui/project/mconstructor.cpp:646
+#: src/mgui/project/mconstructor.cpp:685
 msgid "_Mux"
 msgstr "_Kết hợp lại"
 
-#: src/mgui/project/mconstructor.cpp:646
+#: src/mgui/project/mconstructor.cpp:685
 msgid "Mux Elementary Streams into MPEG2"
 msgstr "Kết hợp lại các luồng cơ bản thành MPEG2"
 
-#: src/mgui/project/mconstructor.cpp:648
+#: src/mgui/project/mconstructor.cpp:687
 msgid "Pr_eferences"
 msgstr "T_uỳ thích"
 
 #. Go
-#: src/mgui/project/mconstructor.cpp:687
+#: src/mgui/project/mconstructor.cpp:726
 msgid "_Go"
 msgstr "_Tới"
 
-#. первый вставляем сразу
-#. Help
-#: src/mgui/project/mconstructor.cpp:693
+#: src/mgui/project/mconstructor.cpp:733
 msgid "_Help"
 msgstr "Trợ g_iúp"
 
-#: src/mgui/project/mconstructor.cpp:818
+#: src/mgui/project/mconstructor.cpp:737
+msgid "_Online Help"
+msgstr "_Trợ Giúp Trực tuyến"
+
+#: src/mgui/project/mconstructor.cpp:904
 msgctxt "MainTabs"
 msgid "_Source"
 msgstr "_Nguồn"
 
-#: src/mgui/project/mconstructor.cpp:820
+#: src/mgui/project/mconstructor.cpp:906
 msgctxt "MainTabs"
 msgid "_Menu"
 msgstr "T_rình đơn"
 
-#: src/mgui/project/mconstructor.cpp:822
+#: src/mgui/project/mconstructor.cpp:908
 msgctxt "MainTabs"
 msgid "_Output"
 msgstr "_Xuất"
 
-#: src/mgui/project/media-browser.cpp:148
-msgid "Previous Menu"
-msgstr "Trình đơn trước"
+#. калькулятор
+#: src/mgui/project/media-browser.cpp:437
+#: src/mgui/project/media-browser.cpp:843
+msgid "Bitrate Calculator"
+msgstr "Công cụ tính Bitrate"
 
-#: src/mgui/project/media-browser.cpp:148
-#: src/mgui/project/media-browser.cpp:150
-msgid "Next Video"
-msgstr "Phim tiếp"
+#: src/mgui/project/media-browser.cpp:460
+#: src/mgui/project/media-browser.cpp:482
+msgid "Dimensions"
+msgstr "Các chiều"
 
-#: src/mgui/project/media-browser.cpp:149
+#: src/mgui/project/media-browser.cpp:465
+msgid "Expected file size"
+msgstr "Đã mong đợi kích thước tập tin"
+
+#: src/mgui/project/media-browser.cpp:471
+msgid "_Restore default bitrate"
+msgstr "_Phục hồi lại bitrate mặc định"
+
+#: src/mgui/project/media-browser.cpp:480
+msgid "Original file info"
+msgstr "Thông tin tập tin gốc"
+
+#. :TODO: убрать подчеркивание
+#: src/mgui/project/media-browser.cpp:484
+#: src/mgui/project/menu-browser.cpp:357
+msgid "_Duration (in seconds)"
+msgstr "Độ _dài (tính bằng giây)"
+
+#: src/mgui/project/media-browser.cpp:496
+msgid "Display aspect ratio"
+msgstr "Hiển thị tỷ lệ hình thể"
+
+#: src/mgui/project/media-browser.cpp:498
+msgid "Number of audio streams"
+msgstr "Số luồng âm thanh"
+
+#: src/mgui/project/media-browser.cpp:499
+msgid "File size"
+msgstr "Kích cỡ tập tin"
+
+#: src/mgui/project/media-browser.cpp:503
+msgid "Additional _ffmpeg options"
+msgstr "Các tuỳ chọn _ffmpeg bổ xung"
+
+#: src/mgui/project/media-browser.cpp:505
+msgid "Examples: \"-top 0\", \"-deinterlace\". See FFmpeg documentation for more options."
+msgstr "Ví dụ: \"-top 0\", \"-deinterlace\". Xem thêm tài liệu FFmpeg để biết cách dùng các tuỳ chọn khác nữa."
+
+#: src/mgui/project/media-browser.cpp:547
+#: src/mgui/project/media-browser.cpp:845
+msgid "Reason For Transcoding"
+msgstr "Nguyên nhân chuyển mã"
+
+#: src/mgui/project/media-browser.cpp:551
+msgid "The video is DVD compliant."
+msgstr "Phim tuân theo chuẩn DVD"
+
+#: src/mgui/project/media-browser.cpp:553
+msgid "The video is not MPEG2."
+msgstr "Đoạn video này không thuộc kiểu MPEG2."
+
+#: src/mgui/project/media-browser.cpp:636
+msgid "Do you want to adjust disc usage?"
+msgstr "Bạn có thực sự muốn chỉnh sửa dung lượng đĩa không?"
+
+#: src/mgui/project/media-browser.cpp:663
+msgid "Too many videos for this disc size. Please select a bigger disc size or remove some videos."
+msgstr "Quá nhiều phim cho kích thước đĩa này. Xin hãy chọn một kích thước đĩa lớn hơn hay gỡ bỏ đi một số phim."
+
+#: src/mgui/project/media-browser.cpp:666
 #, boost-format
-msgid "Auto (%1%)"
-msgstr "Tự động (%1%)"
+msgid "Disc usage is %1%%% now."
+msgstr "Dung lượng đĩa đã dùng hiện giờ là %1%%%."
 
-#: src/mgui/project/media-browser.cpp:179
+#: src/mgui/project/media-browser.cpp:710
+#: src/mgui/project/media-browser.cpp:720
+msgid "Select subtitles"
+msgstr "Chọn phụ đề"
+
+#: src/mgui/project/media-browser.cpp:711
+msgid "_Turn on subtitles by default"
+msgstr "_Bật phụ đề theo mặc định"
+
+#. CANCEL DELETE DISCARD NO REMOVE STOP CLEAR CLOSE
+#. по поводу очистки GtkFileChooserButton: https://bugzilla.gnome.org/show_bug.cgi?id=612235
+#: src/mgui/project/media-browser.cpp:719
+msgid "Unselect subtitles"
+msgstr "Không chọn phụ đề"
+
+#: src/mgui/project/media-browser.cpp:737
+msgid "_Encoding"
+msgstr "_Mã hóa"
+
+#: src/mgui/project/media-browser.cpp:749
+msgid "Add Subtitles"
+msgstr "Thêm Phụ đề"
+
+#: src/mgui/project/media-browser.cpp:825
+msgid "Rename"
+msgstr "Đổi tên"
+
+#: src/mgui/project/media-browser.cpp:833
+#: src/mgui/project/menu-browser.cpp:393
 msgid "End Action"
 msgstr "Kết thúc hành vi"
 
-#: src/mgui/project/media-browser.cpp:203
+#: src/mgui/project/media-browser.cpp:841
+msgid "Adjust Bitrate to Fit to Disc"
+msgstr "Tự điều chỉnh Bitrate cho khớp với đĩa"
+
+#: src/mgui/project/media-browser.cpp:886
 msgid "Still Picture"
 msgstr "Ảnh tĩnh"
 
-#: src/mgui/project/media-browser.cpp:235
+#: src/mgui/project/media-browser.cpp:902
+#, boost-format
+msgid "Chapter at %1%"
+msgstr "Tập tại %1%"
+
+#: src/mgui/project/media-browser.cpp:940
+msgid "Information"
+msgstr "Thông tin"
+
+#: src/mgui/project/media-browser.cpp:940
 msgid "Type"
 msgstr "Kiểu"
 
@@ -776,123 +1113,205 @@ msgstr "Kiểu"
 #. vbox.pack_start(label, Gtk::PACK_SHRINK);
 #. Gtk::Requisition req = label.size_request();
 #. label.set_size_request(0, req.height+10);
-#: src/mgui/project/media-browser.cpp:293
-#: src/mgui/project/menu-browser.cpp:374
+#: src/mgui/project/media-browser.cpp:999
+#: src/mgui/project/menu-browser.cpp:789
 msgid "Media List"
 msgstr "Danh sách Nhạc/Phim"
 
-#: src/mgui/project/media-browser.cpp:333
+#: src/mgui/project/media-browser.cpp:1027
+msgid "Add Media Files (Use Ctrl Button for Multiple Selection)"
+msgstr "Thêm các tập tin đa phương tiện (Sử dụng phím Ctrl để chọn nhiều tập tin một lúc)"
+
+#: src/mgui/project/media-browser.cpp:1032
 msgid "Add Media from File Browser"
 msgstr "Thêm nhạc/phim từ Bộ Quản lý Tập tin"
 
-#: src/mgui/project/media-browser.cpp:342
+#: src/mgui/project/media-browser.cpp:1057
 msgid "Remove Media"
 msgstr "Bỏ nhạc/phim"
 
-#: src/mgui/project/media-browser.cpp:353
+#: src/mgui/project/media-browser.cpp:1068
 msgid "Make Chapters for Video"
 msgstr "Chia phim ra các tập"
 
-#: src/mgui/project/menu-browser.cpp:191
+#: src/mgui/project/menu-browser.cpp:92 src/mgui/project/menu-browser.cpp:582
 msgid "No Link"
 msgstr "Không có liên kết"
 
+#: src/mgui/project/menu-browser.cpp:248
+msgid "Previous Menu"
+msgstr "Trình đơn trước"
+
+#: src/mgui/project/menu-browser.cpp:248 src/mgui/project/menu-browser.cpp:256
+msgid "Next Video"
+msgstr "Phim tiếp"
+
+#: src/mgui/project/menu-browser.cpp:249
+#, boost-format
+msgid "Auto (%1%)"
+msgstr "Tự động (%1%)"
+
+#: src/mgui/project/menu-browser.cpp:252
+msgid "Loop"
+msgstr "Vòng lặp"
+
+#: src/mgui/project/menu-browser.cpp:332
+msgid "_Still picture"
+msgstr "Các ảnh _khác"
+
+#: src/mgui/project/menu-browser.cpp:337
+msgid "Select external audio file"
+msgstr "Chọn phần đuôi mở rộng cho tập tin"
+
+#: src/mgui/project/menu-browser.cpp:340 src/mgui/project/menu-browser.cpp:342
+msgid "_Motion menu"
+msgstr "Trình đơn _Chuyển động"
+
+#: src/mgui/project/menu-browser.cpp:366
+msgid "Still menu with audio in the background"
+msgstr "Vẫn còn trình đơn với âm thanh ở dưới nền"
+
+#: src/mgui/project/menu-browser.cpp:376
+msgid "_From the project"
+msgstr "_Từ đề án"
+
+#: src/mgui/project/menu-browser.cpp:380
+msgid "_External audio"
+msgstr "Âm thanh _bên ngoài"
+
+#: src/mgui/project/menu-browser.cpp:403
+msgid "_Subpicture Colors"
+msgstr "Màu sắc Ảnh _phụ"
+
+#: src/mgui/project/menu-browser.cpp:405
+msgid "S_elected item color"
+msgstr "Màu cho mục được chọ_n"
+
+#: src/mgui/project/menu-browser.cpp:406
+msgid "_Activated item color"
+msgstr "Màu cho mục Được _kích hoạt"
+
+#: src/mgui/project/menu-browser.cpp:408
+msgid "_Restore default colors"
+msgstr "_Phục hồi lại màu mặc định"
+
+#: src/mgui/project/menu-browser.cpp:441
+msgid "Menu Settings"
+msgstr "Cài đặt trình đơn"
+
+#: src/mgui/project/menu-browser.cpp:447
+#, boost-format
+msgid "%1% copy"
+msgstr "%1% sao chép"
+
+#: src/mgui/project/menu-browser.cpp:464
+msgid "Copy Menu"
+msgstr "Trình đơn Sao chép"
+
 #. * subj
-#: src/mgui/project/menu-browser.cpp:338
+#: src/mgui/project/menu-browser.cpp:754
 msgid "Menu List"
 msgstr "Danh sách Trình đơn"
 
-#: src/mgui/project/menu-browser.cpp:354
+#: src/mgui/project/menu-browser.cpp:769
 msgid "Add Menu"
 msgstr "Thêm trình đơn"
 
-#: src/mgui/project/menu-browser.cpp:359
+#: src/mgui/project/menu-browser.cpp:774
 msgid "Remove Menu"
 msgstr "Bỏ trình đơn"
 
-#: src/mgui/project/menu-browser.cpp:364
+#: src/mgui/project/menu-browser.cpp:779
 msgid "Edit Menu"
 msgstr "Sửa trình đơn"
 
-#: src/mgui/project/serialize.cpp:61
-msgid "Save Project As..."
-msgstr "Lưu dự án dạng..."
+#: src/mgui/project/serialize.cpp:84
+msgid "Save Project As"
+msgstr "Ghi Đề án vói tên mới"
 
-#: src/mgui/project/serialize.cpp:93
+#: src/mgui/project/serialize.cpp:116
 #, boost-format
-msgid "Cant open project file \"%1%\""
-msgstr "Không thể mở tập tin dự án « %1% »"
+msgid "Can't open project file \"%1%\""
+msgstr "Không thể mở tập tin đề án \"%1%\""
 
-#: src/mgui/project/serialize.cpp:166
+#: src/mgui/project/serialize.cpp:189
 #, boost-format
 msgid "Save changes to \"%1%\"?"
 msgstr "Lưu các thay đổi vào %1% ?"
 
-#: src/mgui/project/serialize.cpp:168
+#: src/mgui/project/serialize.cpp:191
 msgid "Close _without Saving"
 msgstr "Đóng mà _không lưu"
 
-#: src/mgui/project/serialize.cpp:206
+#: src/mgui/project/serialize.cpp:229
 msgid "New Project"
 msgstr "Dự án mới"
 
-#: src/mgui/project/serialize.cpp:215
+#: src/mgui/project/serialize.cpp:237
 msgid "Please select a Television standard for your project:"
 msgstr "Hãy chọn một tiêu chuẩn TV cho dự án này:"
 
-#: src/mgui/project/serialize.cpp:237
+#: src/mgui/project/serialize.cpp:247
+msgid "Remember my choice"
+msgstr "Nhớ lựa chọn của tôi"
+
+#: src/mgui/project/serialize.cpp:312
+msgid "Project files (*.bmd)"
+msgstr "Tập tin đề án (*.bmd)"
+
+#: src/mgui/project/serialize.cpp:318
 msgid "Open Project"
 msgstr "Mở dự án"
 
-#: src/mgui/project/serialize.cpp:241
-msgid "Project files (*.xml)"
-msgstr "Tập tin dự án (*.xml)"
-
-#: src/mgui/project/serialize.cpp:246 src/mgui/timeline/mviewer.cpp:283
-msgid "All Files (*.*)"
-msgstr "Mọi tập tin (*.*)"
-
-#: src/mgui/project/serialize.cpp:308
+#: src/mgui/project/serialize.cpp:372
 msgid "_New Project"
 msgstr "Dự á_n mới"
 
-#: src/mgui/project/serialize.cpp:310
+#: src/mgui/project/serialize.cpp:374
 msgid "_Open..."
 msgstr "_Mở..."
 
-#: src/mgui/project/serialize.cpp:312
+#: src/mgui/project/serialize.cpp:376
 msgid "_Save"
 msgstr "_Lưu"
 
-#: src/mgui/project/serialize.cpp:314
+#: src/mgui/project/serialize.cpp:378
 msgid "Save _As..."
 msgstr "Lưu _dạng..."
 
 #. Add
-#: src/mgui/timeline/layout.cpp:526 src/mgui/timeline/select.cpp:216
+#: src/mgui/timeline/layout.cpp:558 src/mgui/timeline/select.cpp:212
 msgid "Add Chapter Point"
 msgstr "Thêm điểm Tập "
 
-#: src/mgui/timeline/mviewer.cpp:76
+#: src/mgui/timeline/mviewer.cpp:96
 msgid "Error while opening file:"
 msgstr "Gặp lỗi trong khi mở tập tin:"
 
+#: src/mgui/timeline/mviewer.cpp:295
+msgid "Still images"
+msgstr "Các ảnh khác"
+
 #. 0 надпись
-#: src/mgui/timeline/mviewer.cpp:249
+#: src/mgui/timeline/mviewer.cpp:305
 msgid "File Browser"
 msgstr "Bộ duyệt tập tin"
 
-#: src/mgui/timeline/mviewer.cpp:279
+#: src/mgui/timeline/mviewer.cpp:335 src/mgui/timeline/mviewer.cpp:377
 msgid "All formats"
 msgstr "Mọi định dạng"
 
-#: src/mgui/timeline/mviewer.cpp:280
+#: src/mgui/timeline/mviewer.cpp:337 src/mgui/timeline/mviewer.cpp:379
+msgid "Video files"
+msgstr "Tập tin video"
+
+#: src/mgui/timeline/mviewer.cpp:339
 msgid "MPEG files"
 msgstr "Tập tin MPEG"
 
-#: src/mgui/timeline/mviewer.cpp:282
-msgid "Still Images"
-msgstr "Ảnh tĩnh"
+#: src/mgui/timeline/mviewer.cpp:343 src/mgui/timeline/mviewer.cpp:372
+msgid "All files (*.*)"
+msgstr "Mọi tập tin (*.*)"
 
 #: src/mgui/timeline/select.cpp:143
 msgid "A_dd to project"
@@ -902,33 +1321,40 @@ msgstr "Thêm vào _dự án"
 msgid "Save Frame..."
 msgstr "Lưu khung..."
 
-#. Add at Intervals
-#: src/mgui/timeline/select.cpp:170 src/mgui/timeline/select.cpp:228
-msgid "Add Chapter Points at Intervals"
-msgstr "Thêm điểm Tập theo khoảng"
-
 #: src/mgui/timeline/select.cpp:176
 msgid "Interval between Chapters:"
-msgstr "Khoảng giữa hai Tập:"
+msgstr "Khoảng thời gian giữa hai Tập:"
+
+#. 5 мин. по умолчанию
+#: src/mgui/timeline/select.cpp:180
+msgid "min."
+msgstr "phút."
 
 #: src/mgui/timeline/select.cpp:183
-msgid "min."
-msgstr "phút"
-
-#: src/mgui/timeline/select.cpp:186
 msgid "Remove Existing Chapters"
 msgstr "Bỏ các Tập đã có"
 
 #. Delete
-#: src/mgui/timeline/select.cpp:219
+#: src/mgui/timeline/select.cpp:215
 msgid "Delete Chapter Point"
 msgstr "Xoá điểm Tập"
 
 #. Delete All
-#: src/mgui/timeline/select.cpp:223
+#: src/mgui/timeline/select.cpp:219
 msgid "Delete All Chapter Points"
 msgstr "Xoá mọi điểm Tập"
 
-#: src/mgui/timeline/select.cpp:236
+#. Add at Intervals
+#: src/mgui/timeline/select.cpp:224 src/mgui/timeline/select.cpp:226
+msgid "Add Chapter Points at Intervals"
+msgstr "Thêm điểm Tập theo khoảng"
+
+#: src/mgui/timeline/select.cpp:234
 msgid "Save Current Frame"
 msgstr "Lưu khung hiện tại"
+
+#~ msgid "_Cancel"
+#~ msgstr "_Thôi"
+
+#~ msgid "Set Background Color..."
+#~ msgstr "Chọn màu nền..."
