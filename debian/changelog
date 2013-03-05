@@ -1,3 +1,9 @@
+bombono-dvd (1.2.2-1) lucid; urgency=low
+
+  * New upstream release.
+
+ -- Ilya Murav'jov <muravev@yandex.ru>  Wed, 06 Mar 2013 00:21:23 +0400
+
 bombono-dvd (1.2.1-1) lucid; urgency=low
 
   * New upstream release.
