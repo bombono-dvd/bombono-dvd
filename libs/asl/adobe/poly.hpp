@@ -247,12 +247,35 @@ public:
   of the small storage optimization.
 */
 
+
+#define	GCC_CHECK_VERSION(major,minor,micro)	\
+    (__GNUC__ > (major) || \
+     (__GNUC__ == (major) && __GNUC_MINOR__ > (minor)) || \
+     (__GNUC__ == (major) && __GNUC_MINOR__ == (minor) && \
+      __GNUC_PATCHLEVEL__ >= (micro)))
+
 template <typename ConcreteType, typename Interface>
-struct optimized_storage_type : 
-    boost::mpl::if_<implementation::is_small<implementation::poly_state_local<ConcreteType, Interface> >,
-                    implementation::poly_state_local<ConcreteType, Interface>,
-                    implementation::poly_state_remote<ConcreteType, Interface> > {
+struct optimized_storage_type
+#if GCC_CHECK_VERSION(4,7,0)
+    // :TRICKY: например, в Ubuntu Quantal и Raring непонятно почему валится (bad_cast) тест
+    //      BOOST_CHECK(i1.cast<std::list<int>::iterator>() == boost::end(l));
+    // , непонятно почему, и только без отладки; если поставить атрибут noinline для метода poly_base::type_info(),
+    // то типы будут нормальные, но BOOST_CHECK() все равно не проходит;
+    // с другой стороны, выцепить нормальный пример поведения (ошибки) не могу, потому что
+    // код дурацки написан. Но мнение все равно - версия gcc в Ubuntu сломана:
+    // gcc version 4.7.2 (Ubuntu/Linaro 4.7.2-2ubuntu1) 
+    // gcc version 4.7.2 (Ubuntu/Linaro 4.7.2-22ubuntu2)
+    // Вообще, в таком случае лучше не чинить мертвый код (больше пользователей не найти), а обновить
+    // версию Boost'а, в котором есть аналогичный функционал (= быть с толпой)
+{
+    typedef typename implementation::poly_state_remote<ConcreteType, Interface> type;
 };
+#else
+    : boost::mpl::if_<implementation::is_small<implementation::poly_state_local<ConcreteType, Interface> >,
+                    implementation::poly_state_local<ConcreteType, Interface>,
+                    implementation::poly_state_remote<ConcreteType, Interface> >
+{};
+#endif
 
 
 /*************************************************************************************************/
