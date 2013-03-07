@@ -8,24 +8,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-21 03:22+0400\n"
-"PO-Revision-Date: 2011-10-21 03:22+0300\n"
+"POT-Creation-Date: 2013-03-07 19:44+0300\n"
+"PO-Revision-Date: 2013-03-07 21:05+0300\n"
 "Last-Translator: Ilya Murav'jov <muravev@yandex.ru>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
-"10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: src\mbase\project\media.cpp:66 src\mgui\project\media-browser.cpp:883
+#: src\mbase\project\media.cpp:66
+#: src\mgui\project\media-browser.cpp:904
 msgid "Chapter"
 msgstr "Глава"
-
-#: src\mbase\project\media.cpp:117
-#, boost-format
-msgid "Can't create folder %1% (check permissions)"
-msgstr "Не удалось создать папку %1% (проверьте права доступа)"
 
 #: src\mbase\project\menu.cpp:360
 msgid "Menu"
@@ -51,8 +46,9 @@ msgstr "Импорт..."
 msgid "Import is completed."
 msgstr "Импорт завершён"
 
-#: src\mgui\dvdimport.cpp:221 src\mgui\project\mconstructor.cpp:589
-#: src\mgui\project\mconstructor.cpp:658
+#: src\mgui\dvdimport.cpp:221
+#: src\mgui\project\mconstructor.cpp:590
+#: src\mgui\project\mconstructor.cpp:659
 msgid "MB"
 msgstr "МБ"
 
@@ -75,7 +71,8 @@ msgstr "Прекратить импорт?"
 msgid "Can't write to folder %1% (check permissions)."
 msgstr "Не могу записывать в папку %1% (проверьте права)."
 
-#: src\mgui\dvdimport.cpp:483 src\mgui\win_utils.cpp:421
+#: src\mgui\dvdimport.cpp:483
+#: src\mgui\win_utils.cpp:421
 #, boost-format
 msgid "A file named \"%1%\" already exists. Do you want to replace it?"
 msgstr "Файл с именем \"%1%\" уже существует. Заменить его?"
@@ -101,17 +98,14 @@ msgid "Choose DVD disc, DVD folder or iso image file."
 msgstr "Выберите DVD диск, папку DVD или iso-образ."
 
 #: src\mgui\dvdimport.cpp:596
-msgid ""
-"NTSC/PAL mismatch. Try another disc or import to project of corresponding "
-"type."
-msgstr ""
-"Несоответствие NTSC/PAL. Попробуйте другой диск или импортируйте в проект "
-"соответствующего типа."
+msgid "NTSC/PAL mismatch. Try another disc or import to project of corresponding type."
+msgstr "Несоответствие NTSC/PAL. Попробуйте другой диск или импортируйте в проект соответствующего типа."
 
 #. имя
 #. находим колонку
-#: src\mgui\dvdimport.cpp:620 src\mgui\project\media-browser.cpp:806
-#: src\mgui\project\media-browser.cpp:913
+#: src\mgui\dvdimport.cpp:620
+#: src\mgui\project\media-browser.cpp:827
+#: src\mgui\project\media-browser.cpp:934
 msgid "Name"
 msgstr "Имя"
 
@@ -140,48 +134,47 @@ msgstr "Код выхода: %1%"
 msgid "broken by signal %1%"
 msgstr "прервано по сигналу %1%"
 
-#: src\mgui\ffviewer.cpp:354
+#: src\mgui\ffviewer.cpp:449
 #, boost-format
 msgid "Can't convert filename \"%1%\" to user Windows encoding"
-msgstr ""
-"Не могу преобразовать имя файла \"%1%\" в пользовательскую кодировку Windows"
+msgstr "Не могу преобразовать имя файла \"%1%\" в пользовательскую кодировку Windows"
 
 #. :TODO: решить, ставить в конце точки или нет (сообщения пользователю
 #. показывается не HIG-ого)
-#: src\mgui\ffviewer.cpp:365
+#: src\mgui\ffviewer.cpp:471
 msgid "No such file"
 msgstr "Нет такого файла"
 
-#: src\mgui\ffviewer.cpp:375
+#: src\mgui\ffviewer.cpp:481
 msgid "Unknown file format"
 msgstr "Неизвестный формат файла."
 
 #. например .webm для FFmpeg <= 0.5
-#: src\mgui\ffviewer.cpp:393
+#: src\mgui\ffviewer.cpp:503
 #, boost-format
 msgid "Can't find stream information: %1%"
 msgstr "Не могу найти информацию о потоках: %1%"
 
-#: src\mgui\ffviewer.cpp:415
+#: src\mgui\ffviewer.cpp:525
 msgid "No video stream found"
 msgstr "Не найден видеопоток"
 
-#: src\mgui\ffviewer.cpp:427
+#: src\mgui\ffviewer.cpp:537
 msgid "Can't find the file duration"
 msgstr "Не могу узнать продолжительность файла"
 
 #. в 99% отсутствие нач. времени - элементарный поток = без контейнера;
 #. см. особенности ffmpeg, update_initial_timestamps()
-#: src\mgui\ffviewer.cpp:435
+#: src\mgui\ffviewer.cpp:545
 msgid "Start time of the file is unknown"
 msgstr "Начало время файла неизвестно"
 
 #. проверка индекса/возможности перемещения
-#: src\mgui\ffviewer.cpp:443
+#: src\mgui\ffviewer.cpp:562
 msgid "Can't seek through the file"
 msgstr "Не могу перемещаться по файлу"
 
-#: src\mgui\ffviewer.cpp:462
+#: src\mgui\ffviewer.cpp:581
 #, boost-format
 msgid "No decoder found for the stream: %1%"
 msgstr "Не найден декодер для потока: %1%"
@@ -195,7 +188,8 @@ msgstr "микширование"
 msgid "Muxing \"%1%\""
 msgstr "Микширование \"%1%\""
 
-#: src\mgui\mux.cpp:93 src\mgui\author\output.cpp:244
+#: src\mgui\mux.cpp:93
+#: src\mgui\author\output.cpp:244
 msgid "Show/_hide Details"
 msgstr "По_казать/скрыть подробности"
 
@@ -203,7 +197,8 @@ msgstr "По_казать/скрыть подробности"
 msgid "Muxing error"
 msgstr "Ошибка микширования"
 
-#: src\mgui\mux.cpp:117 src\mgui\author\output.cpp:784
+#: src\mgui\mux.cpp:117
+#: src\mgui\author\output.cpp:799
 #, boost-format
 msgid "The reason is \"%1%\" (see Details)"
 msgstr "Причина \"%1%\" (см. Подробности)"
@@ -233,7 +228,8 @@ msgid "Select audio"
 msgstr "Выберите аудиодорожку"
 
 #. Названия типов для i18n
-#: src\mgui\mux.cpp:194 src\mgui\project\media-browser.cpp:882
+#: src\mgui\mux.cpp:194
+#: src\mgui\project\media-browser.cpp:903
 #: src\mgui\timeline\layout-draw.cpp:156
 msgid "Video"
 msgstr "Видео"
@@ -242,11 +238,13 @@ msgstr "Видео"
 msgid "MPEG2 elementary video (m2v)"
 msgstr "MPEG2-видео (m2v)"
 
-#: src\mgui\mux.cpp:202 src\mgui\project\menu-browser.cpp:373
+#: src\mgui\mux.cpp:202
+#: src\mgui\project\menu-browser.cpp:373
 msgid "Audio"
 msgstr "Звук"
 
-#: src\mgui\mux.cpp:205 src\mgui\timeline\mviewer.cpp:290
+#: src\mgui\mux.cpp:205
+#: src\mgui\timeline\mviewer.cpp:290
 msgid "Audio for DVD"
 msgstr "Звук для DVD"
 
@@ -262,55 +260,53 @@ msgstr "Файл аудиодорожки не выбран."
 msgid "Output file name is empty."
 msgstr "Имя нового файла пустое."
 
-#: src\mgui\prefs.cpp:171
+#: src\mgui\prefs.cpp:165
 msgid "You need to restart the application for the changes to take place"
-msgstr ""
-"Вам необходимо перезапустить приложение, чтобы изменения вступили в силу"
+msgstr "Вам необходимо перезапустить приложение, чтобы изменения вступили в силу"
 
-#: src\mgui\prefs.cpp:261
+#: src\mgui\prefs.cpp:255
 msgid "Bombono DVD Preferences"
 msgstr "Настройки Bombono DVD"
 
-#: src\mgui\prefs.cpp:270
+#: src\mgui\prefs.cpp:264
 msgid "Show File Browser"
 msgstr "Показывать Браузер Файлов"
 
-#: src\mgui\prefs.cpp:279
+#: src\mgui\prefs.cpp:267
+msgid "Use Two-Pass Encoding"
+msgstr "Задействовать двухпроходное кодирование"
+
+#: src\mgui\prefs.cpp:274
 msgid "_Default project type"
 msgstr "_Тип проекта по умолчанию"
 
-#: src\mgui\prefs.cpp:282
+#: src\mgui\prefs.cpp:277
 msgid "Default _folder for authoring"
 msgstr "_Папка для авторинга по умолчанию"
 
-#: src\mgui\prefs.cpp:295
+#: src\mgui\prefs.cpp:290
 msgid "_Play authoring result in"
 msgstr "_Воспроизводить результат авторинга в"
 
-#: src\mgui\prefs.cpp:305
+#: src\mgui\prefs.cpp:300
 msgid "Multi-core CPU support"
 msgstr "Поддержка многоядерных CPU"
 
-#: src\mgui\prefs.cpp:306
-msgid ""
-"Make use of multi-core CPU for transcoding videos quickly; 1 is not to use "
-"multi-coreness, safe minimum (no possible CPU overheat)"
-msgstr ""
-"Использовать многоядерный процессор для быстрого транскодирования видео; 1 - "
-"не использовать многоядерность, безопасный минимум (без возможного перегрева "
-"процессора)"
+#: src\mgui\prefs.cpp:301
+msgid "Make use of multi-core CPU for transcoding videos quickly; 1 is not to use multi-coreness, safe minimum (no possible CPU overheat)"
+msgstr "Использовать многоядерный процессор для быстрого транскодирования видео; 1 - не использовать многоядерность, безопасный минимум (без возможного перегрева процессора)"
 
-#: src\mgui\prefs.cpp:319
+#: src\mgui\prefs.cpp:314
 msgid "Appearance"
 msgstr "Внешний вид"
 
-#: src\mgui\prefs.cpp:320
-msgid ""
-"Experimental support for themes; if you encounter visual glitches after "
-"switching from Windows theme then restart the application"
-msgstr ""
-"Экспериментальная поддержка тем; если появились визуальные артефакты после "
-"смены с темы Windows, то перезапустите приложение"
+#: src\mgui\prefs.cpp:315
+msgid "Experimental support for themes; if you encounter visual glitches after switching from Windows theme then restart the application"
+msgstr "Экспериментальная поддержка тем; если появились визуальные артефакты после смены с темы Windows, то перезапустите приложение"
+
+#: src\mgui\prefs.cpp:321
+msgid "More accurate output file sizes but 2 times slower"
+msgstr "Более точные размеры файлов на выходе, но в 2 раза медленнее"
 
 #: src\mgui\win_utils.cpp:424
 msgid "Replacing the file overwrite its contents."
@@ -350,32 +346,18 @@ msgstr "DVD-диск не найден в приводе. Загрузите ч�
 
 #: src\mgui\author\burn.cpp:367
 #, boost-format
-msgid ""
-"Disc with type \"%1%\" is found in the drive but for DVD-Video disc type "
-"should be one from: DVD-R, DVD+R, DVD-RW, DVD+RW. Load a clear one with "
-"right type and press OK."
-msgstr ""
-"Диск с типом \"%1%\" найден в приводе, но для DVD-Video тип диска должен "
-"быть одним из: DVD-R, DVD+R, DVD-RW, DVD+RW. Загрузите чистый диск "
-"соответствующего типа и нажмите ОК."
+msgid "Disc with type \"%1%\" is found in the drive but for DVD-Video disc type should be one from: DVD-R, DVD+R, DVD-RW, DVD+RW. Load a clear one with right type and press OK."
+msgstr "Диск с типом \"%1%\" найден в приводе, но для DVD-Video тип диска должен быть одним из: DVD-R, DVD+R, DVD-RW, DVD+RW. Загрузите чистый диск соответствующего типа и нажмите ОК."
 
 #: src\mgui\author\burn.cpp:376
 #, boost-format
-msgid ""
-"Disc with type \"%1%\" in the drive is not clear. Only clear recordable "
-"discs can be used for burning DVD-Video. Load a clear one and press OK."
-msgstr ""
-"Диск с типом \"%1%\" не пустой. Только чистые записываемые диски могут быть "
-"использованы для записи DVD-Video. Загрузите чистый диск и нажмите ОК."
+msgid "Disc with type \"%1%\" in the drive is not clear. Only clear recordable discs can be used for burning DVD-Video. Load a clear one and press OK."
+msgstr "Диск с типом \"%1%\" не пустой. Только чистые записываемые диски могут быть использованы для записи DVD-Video. Загрузите чистый диск и нажмите ОК."
 
 #: src\mgui\author\burn.cpp:383
 #, boost-format
-msgid ""
-"Disc with type \"%1%\" in the drive is not clear. We need to remove its "
-"contents before writing new one. Continue?"
-msgstr ""
-"Диск с типом \"%1%\" не пустой. Необходимо удалить его содержимое перед "
-"записью. Продолжать?"
+msgid "Disc with type \"%1%\" in the drive is not clear. We need to remove its contents before writing new one. Continue?"
+msgstr "Диск с типом \"%1%\" не пустой. Необходимо удалить его содержимое перед записью. Продолжать?"
 
 #: src\mgui\author\burn.cpp:387
 msgid "_Try again"
@@ -509,12 +491,8 @@ msgid "The result is here"
 msgstr "Результат находится здесь"
 
 #: src\mgui\author\output.cpp:419
-msgid ""
-"You can run authoring manually by executing command \"scons\" at the "
-"specified folder. Also, see README file for other options over there."
-msgstr ""
-"Вы можете довести авторинг вручную, выполнив команду \"scons\" в указанной "
-"папке. Дополнительные опции смотрите в файле README там же."
+msgid "You can run authoring manually by executing command \"scons\" at the specified folder. Also, see README file for other options over there."
+msgstr "Вы можете довести авторинг вручную, выполнив команду \"scons\" в указанной папке. Дополнительные опции смотрите в файле README там же."
 
 #. Translators: impossible to go on!
 #: src\mgui\author\output.cpp:443
@@ -526,69 +504,73 @@ msgstr "Авторинг прекращен."
 msgid "%1% is not a folder"
 msgstr "%1% не является папкой"
 
-#: src\mgui\author\output.cpp:465
+#. :TRICKY: GtkFileChooser часто в случае проблем (собственных или чужих),
+#. да и по умолчанию, указывает на домашнюю директорию, получая ее с помощью g_get_home_dir()
+#. имея несколько неприятных прецендентов, явно проверяем эту возможную проблему
+#: src\mgui\author\output.cpp:463
+#, boost-format
+msgid "%1% is your home directory"
+msgstr "%1% — это ваша домашняя директория"
+
+#: src\mgui\author\output.cpp:480
 #, boost-format
 msgid "Can't have full access to folder %1% (read, write)"
 msgstr "Не удалось получить полный доступ к папке  %1% (read, write)"
 
-#: src\mgui\author\output.cpp:473
+#: src\mgui\author\output.cpp:488
 #, boost-format
 msgid ""
-"Folder %1% is not empty. We need to remove all files in it before "
-"authoring.\n"
+"Folder %1% is not empty. We need to remove all files in it before authoring.\n"
 "Continue?"
 msgstr ""
 "Папка %1% не пуста. Требуется удалить все файлы в ней перед авторингом.\n"
 "Продолжать?"
 
-#: src\mgui\author\output.cpp:479
+#: src\mgui\author\output.cpp:494
 #, boost-format
 msgid "Error during removing files: %1%"
 msgstr "Ошибка во время удаления файлов: %1%"
 
-#: src\mgui\author\output.cpp:781
+#: src\mgui\author\output.cpp:796
 #, boost-format
 msgid "%1% cancelled."
 msgstr "Операция \"%1%\" отменена."
 
-#: src\mgui\author\output.cpp:783
+#: src\mgui\author\output.cpp:798
 #, boost-format
 msgid "%1% broken."
 msgstr "Операция \"%1%\" завершена неудачно."
 
 #. Translators: can be tranlated as "Operation "%1%" ..."
-#: src\mgui\author\output.cpp:790
+#: src\mgui\author\output.cpp:805
 #, boost-format
 msgid "%1% successfully completed."
 msgstr "Операция \"%1%\" успешно завершена."
 
-#: src\mgui\author\output.cpp:839 src\mgui\timeline\select.cpp:245
+#: src\mgui\author\output.cpp:854
+#: src\mgui\timeline\select.cpp:245
 #, boost-format
 msgid "_Play in %1%"
 msgstr "_Воспроизвести в %1%"
 
-#: src\mgui\author\output.cpp:840
+#: src\mgui\author\output.cpp:855
 msgid "_Burn to DVD"
 msgstr "_Записать на DVD"
 
+#: src\mgui\author\output.cpp:923
 #, boost-format
 msgid "Thank you for using a 30 day trial version of %1%"
 msgstr "Спасибо за использование 30-дневной пробной версии %1%"
 
-msgid ""
-"Please note, as a trial restriction, watermark will be added to the "
-"processed menus. To remove the limitations of the trial version, please get "
-"a full license."
-msgstr ""
-"Пожалуйста, обратите внимание, что в качестве ограничения пробной версии "
-"будет добавлен \"водяной знак\" в создаваемых меню. Чтобы убрать это "
-"ограничение, пожалуйста, приобретите полную лицензию."
+#: src\mgui\author\output.cpp:924
+msgid "Please note, as a trial restriction, watermark will be added to the processed menus. To remove the limitations of the trial version, please get a full license."
+msgstr "Пожалуйста, обратите внимание, что в качестве ограничения пробной версии будет добавлен \"водяной знак\" в создаваемых меню. Чтобы убрать это ограничение, пожалуйста, приобретите полную лицензию."
 
-#: src\mgui\author\output.cpp:918
+#: src\mgui\author\output.cpp:933
 msgid "DVD capacity is exceeded"
 msgstr "Превышена вместимость DVD"
 
-#: src\mgui\author\output.cpp:932
+#: src\mgui\author\output.cpp:947
 #, boost-format
 msgid "Items \"%1%\" and \"%2%\" overlap in menu \"%3%\""
 msgstr "Элементы \"%1%\" и \"%2%\" перекрываются в меню \"%3%\""
@@ -596,29 +578,28 @@ msgstr "Элементы \"%1%\" и \"%2%\" перекрываются в мен
 #. * все в одном VTS храним, потому такое ограничение: каждый VTS_01_<N>.VOB <= 1GB,
 #. N - однозначное число, от 1 до 9
 #. 9GB
-#: src\mgui\author\output.cpp:942
+#: src\mgui\author\output.cpp:957
 msgid "9GB limit for video is exceeded (one VTS should be less)"
-msgstr ""
-"Превышен предельный размер в 9ГБ для видео (один VTS должен быть меньше)"
+msgstr "Превышен предельный размер в 9ГБ для видео (один VTS должен быть меньше)"
 
-#: src\mgui\author\output.cpp:945
+#: src\mgui\author\output.cpp:960
 msgid "32 character limit for disc label is exceeded"
 msgstr "Превышен предельный размер метки диска в 32 знака"
 
-#: src\mgui\author\output.cpp:950
+#: src\mgui\author\output.cpp:965
 msgid "Error Report"
 msgstr "Отчет об ошибках"
 
-#: src\mgui\author\output.cpp:950
+#: src\mgui\author\output.cpp:965
 msgid "Continue?"
 msgstr "Продолжать?"
 
-#: src\mgui\author\render.cpp:766
+#: src\mgui\author\render.cpp:881
 #, boost-format
 msgid "no audio stream in %1%"
 msgstr "нет аудиопотока в %1%"
 
-#: src\mgui\author\render.cpp:1175
+#: src\mgui\author\render.cpp:1311
 msgid "command not found"
 msgstr "команда не найдена"
 
@@ -626,18 +607,24 @@ msgstr "команда не найдена"
 msgid "There is no media (video or menu)."
 msgstr "Нечего авторить (ни видео, ни меню)."
 
-#: src\mgui\author\script.cpp:1344
+#: src\mgui\author\script.cpp:1404
 #, boost-format
 msgid "%1% failure: %2%"
 msgstr "ошибка %1%: %2%"
 
 #. ApplicationError("", ed);
-#: src\mgui\author\script.cpp:1379
+#: src\mgui\author\script.cpp:1439
 #, boost-format
 msgid "external command failure: %1%"
 msgstr "ошибка выполнения внешней команды: %1%"
 
-#: src\mgui\editor\select.cpp:392 src\mgui\project\menu-browser.cpp:259
+#: src\mgui\author\script.cpp:1461
+#, boost-format
+msgid "Can't create folder %1% (check permissions)"
+msgstr "Не удалось создать папку %1% (проверьте права доступа)"
+
+#: src\mgui\editor\select.cpp:392
+#: src\mgui\project\menu-browser.cpp:259
 msgid "Play All"
 msgstr "Смотреть всё"
 
@@ -656,7 +643,8 @@ msgstr "Растянуть"
 
 #. Фон
 #. AddEnabledItem(mn, _("Set Background Color..."), &SetBgColor, !has_selected);
-#: src\mgui\editor\select.cpp:697 src\mgui\editor\select.cpp:909
+#: src\mgui\editor\select.cpp:697
+#: src\mgui\editor\select.cpp:909
 msgid "Background Settings"
 msgstr "Настройки фона"
 
@@ -673,12 +661,8 @@ msgid "Go to online image service in web browser"
 msgstr "Открыть онлайн-сервис изображений в веб-браузере"
 
 #: src\mgui\editor\select.cpp:741
-msgid ""
-"You can drop background image you like from a web browser directly onto Menu "
-"Editor"
-msgstr ""
-"Можно перетащить понравившееся изображение-фон из веб-браузера прямо в "
-"Редактор Меню"
+msgid "You can drop background image you like from a web browser directly onto Menu Editor"
+msgstr "Можно перетащить понравившееся изображение-фон из веб-браузера прямо в Редактор Меню"
 
 #: src\mgui\editor\select.cpp:831
 msgid "Delete"
@@ -814,11 +798,13 @@ msgstr "да"
 msgid "no"
 msgstr "нет"
 
-#: src\mgui\project\add.cpp:106 src\mgui\project\media-browser.cpp:449
+#: src\mgui\project\add.cpp:106
+#: src\mgui\project\media-browser.cpp:449
 msgid "Video bitrate"
 msgstr "Видеобитрейт"
 
-#: src\mgui\project\add.cpp:107 src\mgui\project\media-browser.cpp:451
+#: src\mgui\project\add.cpp:107
+#: src\mgui\project\media-browser.cpp:451
 msgid "kbps"
 msgstr "кбит/с"
 
@@ -829,115 +815,91 @@ msgstr "Превышен максимальный битрейт для виде
 #: src\mgui\project\add.cpp:111
 #, boost-format
 msgid "The %1% DVD-Video can accept MPEG-2 with resolutions: %2% only."
-msgstr ""
-"DVD-Video формата %1% может принимать MPEG-2 только следующих размеров: %2%."
+msgstr "DVD-Video формата %1% может принимать MPEG-2 только следующих размеров: %2%."
 
 #: src\mgui\project\add.cpp:112
 #, boost-format
 msgid "The %1% DVD-Video can accept MPEG-2 with frame rate: %2% only."
-msgstr ""
-"DVD-Video формата %1% может принимать MPEG-2 только с частотой кадров: %2%."
+msgstr "DVD-Video формата %1% может принимать MPEG-2 только с частотой кадров: %2%."
 
 #: src\mgui\project\add.cpp:113
 #, boost-format
 msgid "The %1% DVD-Video can accept MPEG-2 with aspects 4:3, 16:9 only."
-msgstr ""
-"DVD-Video формата %1% может принимать MPEG-2 только следующих соотношений: "
-"4:3, 16:9."
+msgstr "DVD-Video формата %1% может принимать MPEG-2 только следующих соотношений: 4:3, 16:9."
 
 #: src\mgui\project\add.cpp:133
 msgid "Video size"
 msgstr "Размер видео"
 
-#: src\mgui\project\add.cpp:153 src\mgui\project\media-browser.cpp:485
+#: src\mgui\project\add.cpp:158
+#: src\mgui\project\media-browser.cpp:485
 msgid "Frame rate"
 msgstr "Частота кадров"
 
-#: src\mgui\project\add.cpp:154 src\mgui\project\media-browser.cpp:486
+#: src\mgui\project\add.cpp:159
+#: src\mgui\project\media-browser.cpp:486
 msgid "fps"
 msgstr "кадров/с"
 
-#: src\mgui\project\add.cpp:162
+#: src\mgui\project\add.cpp:167
 msgid "Aspect ratio"
 msgstr "Соотношение сторон"
 
-#: src\mgui\project\add.cpp:243
+#: src\mgui\project\add.cpp:248
 msgid "Remuxing is required."
 msgstr "Требуется перемикширование."
 
-#: src\mgui\project\add.cpp:245
-msgid ""
-"<b>Bombono DVD</b> can use \"DVD-ready\" video only now. Use muxing programs "
-"like \"mplex -f 8\" (from <b>mjpegtools</b>), mencoder (from <b>mplayer</b>) "
-"or <b>transcode</b> to make your video ready for <b>Bombono DVD</b>."
-msgstr ""
-"<b>Bombono DVD</b> может использовать сейчас только \"готовые для DVD\" "
-"видео. Используйте программы мультиплексирования, например \"mplex -f 8"
-"\" (из <b>mjpegtools</b>), mencoder (из <b>mplayer</b>) или <b>transcode</"
-"b>, чтобы подготовить видео для <b>Bombono DVD</b>."
-
 #: src\mgui\project\add.cpp:250
+msgid "<b>Bombono DVD</b> can use \"DVD-ready\" video only now. Use muxing programs like \"mplex -f 8\" (from <b>mjpegtools</b>), mencoder (from <b>mplayer</b>) or <b>transcode</b> to make your video ready for <b>Bombono DVD</b>."
+msgstr "<b>Bombono DVD</b> может использовать сейчас только \"готовые для DVD\" видео. Используйте программы мультиплексирования, например \"mplex -f 8\" (из <b>mjpegtools</b>), mencoder (из <b>mplayer</b>) или <b>transcode</b>, чтобы подготовить видео для <b>Bombono DVD</b>."
+
+#: src\mgui\project\add.cpp:255
 msgid "DVD packs"
 msgstr "DVD-пакеты"
 
-#: src\mgui\project\add.cpp:252
+#: src\mgui\project\add.cpp:257
 msgid "NAV packets"
 msgstr "NAV-пакеты"
 
-#: src\mgui\project\add.cpp:259
-msgid ""
-"This video should be transcoded due to (errors in <span foreground=\"red"
-"\">red color</span>):"
-msgstr ""
-"Это видео следует перекодировать из-за (ошибки <span foreground=\"red"
-"\">красным цветом</span>):"
+#: src\mgui\project\add.cpp:264
+msgid "This video should be transcoded due to (errors in <span foreground=\"red\">red color</span>):"
+msgstr "Это видео следует перекодировать из-за (ошибки <span foreground=\"red\">красным цветом</span>):"
 
-#: src\mgui\project\add.cpp:261
-msgid ""
-"This video may not be added due to (errors in <span foreground=\"red\">red "
-"color</span>):"
-msgstr ""
-"Это видео не может быть добавлено из-за (ошибки <span foreground=\"red"
-"\">красным цветом</span>):"
-
-#: src\mgui\project\add.cpp:274
-#, boost-format
-msgid ""
-"This video has %1% type can't be added \"as is\" to current project of %2% "
-"type. Create new project from menu \"Project->New Project\" with right type."
-msgstr ""
-"Это видео имеет тип %1% и не может быть добавлено \"как есть\" в текущий "
-"проект типа %2%.\n"
-"Создайте новый проект из меню \"Проект->Новый проект\" соответствующего типа."
+#: src\mgui\project\add.cpp:266
+msgid "This video may not be added due to (errors in <span foreground=\"red\">red color</span>):"
+msgstr "Это видео не может быть добавлено из-за (ошибки <span foreground=\"red\">красным цветом</span>):"
 
 #: src\mgui\project\add.cpp:279
 #, boost-format
-msgid ""
-"This video has %1% type and can't be added to current project of %2% type. "
-"Create new project from menu \"Project->New Project\" with right type."
+msgid "This video has %1% type can't be added \"as is\" to current project of %2% type. Create new project from menu \"Project->New Project\" with right type."
 msgstr ""
-"Это видео имеет тип %1% и не может быть добавлено в текущий проект типа %2%. "
+"Это видео имеет тип %1% и не может быть добавлено \"как есть\" в текущий проект типа %2%.\n"
 "Создайте новый проект из меню \"Проект->Новый проект\" соответствующего типа."
 
-#: src\mgui\project\add.cpp:314
+#: src\mgui\project\add.cpp:284
+#, boost-format
+msgid "This video has %1% type and can't be added to current project of %2% type. Create new project from menu \"Project->New Project\" with right type."
+msgstr "Это видео имеет тип %1% и не может быть добавлено в текущий проект типа %2%. Создайте новый проект из меню \"Проект->Новый проект\" соответствующего типа."
+
+#: src\mgui\project\add.cpp:319
 msgid "File doesn't exist."
 msgstr "Файл не существует."
 
-#: src\mgui\project\add.cpp:319
+#: src\mgui\project\add.cpp:324
 msgid "Folders can't be added."
 msgstr "Каталоги нельзя добавлять."
 
 #. по расширению выводим наиболее вероятную ошибку
-#: src\mgui\project\add.cpp:380
+#: src\mgui\project\add.cpp:385
 msgid "Unknown file type."
 msgstr "Неизвестный тип файла."
 
-#: src\mgui\project\add.cpp:456
+#: src\mgui\project\add.cpp:461
 #, boost-format
 msgid "Can't add file \"%1%\"."
 msgstr "Не удалось добавить файл \"%1%\"."
 
-#: src\mgui\project\add.cpp:473
+#: src\mgui\project\add.cpp:478
 #, boost-format
 msgid ""
 "The file \"%1%\" looks like VOB from DVD.\n"
@@ -946,29 +908,21 @@ msgstr ""
 "Файл \"%1%\" похож на VOB с DVD.\n"
 "Запустить импорт?"
 
-#: src\mgui\project\add.cpp:490
+#: src\mgui\project\add.cpp:495
 #, boost-format
-msgid ""
-"The file \"%1%\" looks like elementary stream and need to be muxed before "
-"using. Run muxing?"
-msgstr ""
-"Файл \"%1%\" похож видео/аудио-дорожку. Необходимо смикшировать видео перед "
-"использованием. Выполнить микширование?"
+msgid "The file \"%1%\" looks like elementary stream and need to be muxed before using. Run muxing?"
+msgstr "Файл \"%1%\" похож видео/аудио-дорожку. Необходимо смикшировать видео перед использованием. Выполнить микширование?"
 
-#: src\mgui\project\add.cpp:557
+#: src\mgui\project\add.cpp:562
 msgid "Also:"
 msgstr "А также:"
 
-#: src\mgui\project\add.cpp:573
+#: src\mgui\project\add.cpp:578
 #, boost-format
-msgid ""
-"See more about preparing video for authoring in <a href=\"%1%\">online help</"
-"a>."
-msgstr ""
-"Подробнее о подготовке видео для авторинга смотрите в <a href=\"%1%\">онлайн-"
-"справке</a>."
+msgid "See more about preparing video for authoring in <a href=\"%1%\">online help</a>."
+msgstr "Подробнее о подготовке видео для авторинга смотрите в <a href=\"%1%\">онлайн-справке</a>."
 
-#: src\mgui\project\add.cpp:587
+#: src\mgui\project\add.cpp:592
 msgid "Can't add files:"
 msgstr "Не удалось добавить файлы:"
 
@@ -1006,7 +960,7 @@ msgstr "Не могу найти информацию о \"%1%\": %2%"
 msgid "Can't get \"%1%\": %2%"
 msgstr "Не могу получить \"%1%\": %2%"
 
-#: src\mgui\project\mconstructor.cpp:381
+#: src\mgui\project\mconstructor.cpp:382
 msgid "Bombono DVD is a DVD authoring program with nice and clean GUI"
 msgstr "Bombono DVD - программа авторинга с аккуратным графическим интерфейсом"
 
@@ -1014,92 +968,94 @@ msgstr "Bombono DVD - программа авторинга с аккуратн�
 #. dlg.set_authors(authors);
 #. dlg.set_documenters(documenters);
 #. dlg.set_decorated(false);
-#: src\mgui\project\mconstructor.cpp:386
+#: src\mgui\project\mconstructor.cpp:387
 msgid "translator-credits"
 msgstr "Илья Муравьев <muravev@yandex.ru>"
 
 #. PackStart(vbox, NewManaged<Gtk::HSeparator>());
-#: src\mgui\project\mconstructor.cpp:391
-#: src\mgui\project\media-browser.cpp:938
+#: src\mgui\project\mconstructor.cpp:392
+#: src\mgui\project\media-browser.cpp:959
 msgid "Information"
 msgstr "Информация"
 
 #. раньше Brasero использовал KiB, MiB и GiB, как более точные технически
 #. (вроде как размеры HDD принято измерять по 1GB=1000MB); теперь Brasero
 #. перешел на стандарт KB/MB/GB, ну и BmD тоже (а че, мы не гордые :)
-#: src\mgui\project\mconstructor.cpp:589 src\mgui\project\mconstructor.cpp:658
+#: src\mgui\project\mconstructor.cpp:590
+#: src\mgui\project\mconstructor.cpp:659
 msgid "KB"
 msgstr "КБ"
 
-#: src\mgui\project\mconstructor.cpp:589 src\mgui\project\mconstructor.cpp:658
+#: src\mgui\project\mconstructor.cpp:590
+#: src\mgui\project\mconstructor.cpp:659
 msgid "GB"
 msgstr "ГБ"
 
 #. for translators: 100MB of 4.3GB
-#: src\mgui\project\mconstructor.cpp:707
+#: src\mgui\project\mconstructor.cpp:708
 msgid "of"
 msgstr "из"
 
 #. Project
-#: src\mgui\project\mconstructor.cpp:744
+#: src\mgui\project\mconstructor.cpp:745
 msgid "_Project"
 msgstr "_Проект"
 
-#: src\mgui\project\mconstructor.cpp:751
+#: src\mgui\project\mconstructor.cpp:752
 msgid "_Quit"
 msgstr "_Выход"
 
-#: src\mgui\project\mconstructor.cpp:753
+#: src\mgui\project\mconstructor.cpp:754
 msgid "Add Videos from _DVD"
 msgstr "_Добавить видео с DVD"
 
-#: src\mgui\project\mconstructor.cpp:753
+#: src\mgui\project\mconstructor.cpp:754
 msgid "DVD-Import Assistant"
 msgstr "Помощник по импорту с DVD"
 
-#: src\mgui\project\mconstructor.cpp:755
+#: src\mgui\project\mconstructor.cpp:756
 msgid "_Mux"
 msgstr "_Микшировать"
 
-#: src\mgui\project\mconstructor.cpp:755
+#: src\mgui\project\mconstructor.cpp:756
 msgid "Mux Elementary Streams into MPEG2"
 msgstr "Микшировать дорожки в MPEG2"
 
-#: src\mgui\project\mconstructor.cpp:757
+#: src\mgui\project\mconstructor.cpp:758
 msgid "Pr_eferences"
 msgstr "_Параметры"
 
 #. Go
-#: src\mgui\project\mconstructor.cpp:796
+#: src\mgui\project\mconstructor.cpp:797
 msgid "_Go"
 msgstr "П_ерейти"
 
-#: src\mgui\project\mconstructor.cpp:803
+#: src\mgui\project\mconstructor.cpp:804
 msgid "_Help"
 msgstr "_Справка"
 
-#: src\mgui\project\mconstructor.cpp:807
+#: src\mgui\project\mconstructor.cpp:808
 msgid "_Online Help"
 msgstr "_Справка в интернете"
 
-#: src\mgui\project\mconstructor.cpp:1020
+#: src\mgui\project\mconstructor.cpp:1021
 msgctxt "MainTabs"
 msgid "_Source"
 msgstr "_Начало"
 
-#: src\mgui\project\mconstructor.cpp:1022
+#: src\mgui\project\mconstructor.cpp:1023
 msgctxt "MainTabs"
 msgid "_Menu"
 msgstr "_Меню"
 
-#: src\mgui\project\mconstructor.cpp:1024
+#: src\mgui\project\mconstructor.cpp:1025
 msgctxt "MainTabs"
 msgid "_Output"
 msgstr "_Результат"
 
 #. калькулятор
 #: src\mgui\project\media-browser.cpp:437
-#: src\mgui\project\media-browser.cpp:841
+#: src\mgui\project\media-browser.cpp:862
 msgid "Bitrate Calculator"
 msgstr "Калькулятор битрейта"
 
@@ -1143,14 +1099,11 @@ msgid "Additional _ffmpeg options"
 msgstr "_Дополнительные опции ffmpeg"
 
 #: src\mgui\project\media-browser.cpp:505
-msgid ""
-"Examples: \"-top 0\", \"-deinterlace\". See FFmpeg documentation for more "
-"options."
-msgstr ""
-"Примеры: \"-top 0\", \"-deinterlace\". См. подробнее документацию FFmpeg."
+msgid "Examples: \"-top 0\", \"-deinterlace\". See FFmpeg documentation for more options."
+msgstr "Примеры: \"-top 0\", \"-deinterlace\". См. подробнее документацию FFmpeg."
 
 #: src\mgui\project\media-browser.cpp:547
-#: src\mgui\project\media-browser.cpp:843
+#: src\mgui\project\media-browser.cpp:864
 msgid "Reason For Transcoding"
 msgstr "Причина перекодирования"
 
@@ -1167,12 +1120,8 @@ msgid "Do you want to adjust disc usage?"
 msgstr "Вы хотите настроить использование диска?"
 
 #: src\mgui\project\media-browser.cpp:663
-msgid ""
-"Too many videos for this disc size. Please select a bigger disc size or "
-"remove some videos."
-msgstr ""
-" Слишком много видео для этого размера диска. Пожалуйста, выберите больший "
-"размер диска или удалите некоторые файлы."
+msgid "Too many videos for this disc size. Please select a bigger disc size or remove some videos."
+msgstr " Слишком много видео для этого размера диска. Пожалуйста, выберите больший размер диска или удалите некоторые файлы."
 
 #: src\mgui\project\media-browser.cpp:666
 #, boost-format
@@ -1202,29 +1151,29 @@ msgstr "_Кодировка"
 msgid "Add Subtitles"
 msgstr "Добавить субтитры"
 
-#: src\mgui\project\media-browser.cpp:823
+#: src\mgui\project\media-browser.cpp:844
 msgid "Rename"
 msgstr "Переименовать"
 
-#: src\mgui\project\media-browser.cpp:831
+#: src\mgui\project\media-browser.cpp:852
 #: src\mgui\project\menu-browser.cpp:394
 msgid "End Action"
 msgstr "Действие по окончанию"
 
-#: src\mgui\project\media-browser.cpp:839
+#: src\mgui\project\media-browser.cpp:860
 msgid "Adjust Bitrate to Fit to Disc"
 msgstr "Настроить битрейт по размеру диска"
 
-#: src\mgui\project\media-browser.cpp:884
+#: src\mgui\project\media-browser.cpp:905
 msgid "Still Picture"
 msgstr "Рисунок"
 
-#: src\mgui\project\media-browser.cpp:900
+#: src\mgui\project\media-browser.cpp:921
 #, boost-format
 msgid "Chapter at %1%"
 msgstr "Глава в %1%"
 
-#: src\mgui\project\media-browser.cpp:938
+#: src\mgui\project\media-browser.cpp:959
 msgid "Type"
 msgstr "Тип"
 
@@ -1234,29 +1183,29 @@ msgstr "Тип"
 #. vbox.pack_start(label, Gtk::PACK_SHRINK);
 #. Gtk::Requisition req = label.size_request();
 #. label.set_size_request(0, req.height+10);
-#: src\mgui\project\media-browser.cpp:997
+#: src\mgui\project\media-browser.cpp:1018
 #: src\mgui\project\menu-browser.cpp:789
 msgid "Media List"
 msgstr "Список медиа"
 
-#: src\mgui\project\media-browser.cpp:1025
+#: src\mgui\project\media-browser.cpp:1046
 msgid "Add Media Files (Use Ctrl Button for Multiple Selection)"
-msgstr ""
-"Добавить медиа-файлы (используйте кнопку Ctrl для множественного выделения)"
+msgstr "Добавить медиа-файлы (используйте кнопку Ctrl для множественного выделения)"
 
-#: src\mgui\project\media-browser.cpp:1030
+#: src\mgui\project\media-browser.cpp:1051
 msgid "Add Media from File Browser"
 msgstr "Добавить медиа из браузера"
 
-#: src\mgui\project\media-browser.cpp:1055
+#: src\mgui\project\media-browser.cpp:1076
 msgid "Remove Media"
 msgstr "Удалить медиа"
 
-#: src\mgui\project\media-browser.cpp:1066
+#: src\mgui\project\media-browser.cpp:1087
 msgid "Make Chapters for Video"
 msgstr "Разметить главы для видео"
 
-#: src\mgui\project\menu-browser.cpp:92 src\mgui\project\menu-browser.cpp:582
+#: src\mgui\project\menu-browser.cpp:92
+#: src\mgui\project\menu-browser.cpp:582
 msgid "No Link"
 msgstr "Без связи"
 
@@ -1264,7 +1213,8 @@ msgstr "Без связи"
 msgid "Previous Menu"
 msgstr "Вернуться в предыдущее меню"
 
-#: src\mgui\project\menu-browser.cpp:248 src\mgui\project\menu-browser.cpp:256
+#: src\mgui\project\menu-browser.cpp:248
+#: src\mgui\project\menu-browser.cpp:256
 msgid "Next Video"
 msgstr "Следующее видео"
 
@@ -1285,7 +1235,8 @@ msgstr "_Неподвижная картинка"
 msgid "Select external audio file"
 msgstr "Выберите внешний аудиофайл"
 
-#: src\mgui\project\menu-browser.cpp:341 src\mgui\project\menu-browser.cpp:343
+#: src\mgui\project\menu-browser.cpp:341
+#: src\mgui\project\menu-browser.cpp:343
 msgid "_Motion menu"
 msgstr "_Анимационное Меню"
 
@@ -1351,135 +1302,184 @@ msgstr "Редактировать меню"
 msgid "Save Project As"
 msgstr "Сохранить проект как"
 
-#: src\mgui\project\serialize.cpp:116
+#: src\mgui\project\serialize.cpp:162
+msgid "Crash Tester"
+msgstr ""
+
+#: src\mgui\project\serialize.cpp:168
+msgid "Deref Null Pointer"
+msgstr ""
+
+#: src\mgui\project\serialize.cpp:169
+msgid "abort() Call"
+msgstr ""
+
+#: src\mgui\project\serialize.cpp:170
+msgid "Divide by Zero"
+msgstr ""
+
+#: src\mgui\project\serialize.cpp:171
+msgid "Stack Overflow"
+msgstr ""
+
+#: src\mgui\project\serialize.cpp:172
+msgid "Breakpoint"
+msgstr ""
+
+#: src\mgui\project\serialize.cpp:181
 #, boost-format
 msgid "Can't open project file \"%1%\""
 msgstr "Не удалось открыть файл проекта \"%1%\""
 
-#: src\mgui\project\serialize.cpp:189
+#: src\mgui\project\serialize.cpp:254
 #, boost-format
 msgid "Save changes to \"%1%\"?"
 msgstr "Сохранить изменения в \"%1%\"?"
 
-#: src\mgui\project\serialize.cpp:191
+#: src\mgui\project\serialize.cpp:256
 msgid "Close _without Saving"
 msgstr "Закрыть _без сохранения"
 
-#: src\mgui\project\serialize.cpp:229
+#: src\mgui\project\serialize.cpp:294
 msgid "New Project"
 msgstr "Создать проект"
 
-#: src\mgui\project\serialize.cpp:236
+#: src\mgui\project\serialize.cpp:301
 msgid "Please select a Television standard for your project:"
 msgstr "Выберите, пожалуйста, ТВ-стандарт для вашего проекта:"
 
-#: src\mgui\project\serialize.cpp:246
+#: src\mgui\project\serialize.cpp:311
 msgid "Remember my choice"
 msgstr "Запомнить мой выбор"
 
-#: src\mgui\project\serialize.cpp:311
+#: src\mgui\project\serialize.cpp:376
 msgid "Project files (*.bmd)"
 msgstr "Файлы проектов (*.bmd)"
 
-#: src\mgui\project\serialize.cpp:317
+#: src\mgui\project\serialize.cpp:382
 msgid "Open Project"
 msgstr "Открыть проект"
 
-#: src\mgui\project\serialize.cpp:371
+#: src\mgui\project\serialize.cpp:436
 msgid "_New Project"
 msgstr "_Создать проект"
 
-#: src\mgui\project\serialize.cpp:373
+#: src\mgui\project\serialize.cpp:438
 msgid "_Open..."
 msgstr "_Открыть..."
 
-#: src\mgui\project\serialize.cpp:375
+#: src\mgui\project\serialize.cpp:440
 msgid "_Save"
 msgstr "Со_хранить"
 
-#: src\mgui\project\serialize.cpp:377
+#: src\mgui\project\serialize.cpp:442
 msgid "Save _As..."
 msgstr "Сохранить _как..."
 
+#. :TRICKY: лучше узнать размер, занимаемый типовым серийником (CalcAbsSizes+set_size_request),
+#. см. метку заполненности диска, но лень
+#: src\mgui\protection\protection.cpp:319
+#: src\mgui\protection\protection.cpp:704
 msgid "Enter registration info"
 msgstr "Ввести регистрационную информацию"
 
+#. переводим слово как пишут в http://ru.wikipedia.org/wiki/Электронная_почта
+#: src\mgui\protection\protection.cpp:326
+msgid "Email"
+msgstr "Электронная почта"
+
+#. en.wiki советует как "Product key", но так лучше,- все-таки программа это более эфемерная
+#. сущность, чем традиционный товар => полагаемся на юридическое название, а не экономическое
+#: src\mgui\protection\protection.cpp:330
 msgid "License key"
 msgstr "Лицензионный ключ"
 
+#: src\mgui\protection\protection.cpp:339
 msgid "Thank you for choosing Bombono DVD."
 msgstr "Благодарим Вас за выбор Bombono DVD."
 
+#: src\mgui\protection\protection.cpp:344
 msgid "Invalid name or key."
 msgstr "Неверное имя или ключ."
 
+#: src\mgui\protection\protection.cpp:663
 #, boost-format
 msgid "%1% days left"
 msgstr "осталось %1% дней"
 
+#: src\mgui\protection\protection.cpp:663
 msgid "expired"
 msgstr "истекла"
 
+#: src\mgui\protection\protection.cpp:664
 #, boost-format
 msgid "Bombono DVD trial license (%1%)"
 msgstr "Пробная версия Bombono DVD (%1%)"
 
+#: src\mgui\protection\protection.cpp:685
 #, boost-format
 msgid ""
-"<span foreground=\"#%1%\" size=\"larger\" weight=\"bold\">Thank you for "
-"choosing Bombono DVD</span>\n"
+"<span foreground=\"#%1%\" size=\"larger\" weight=\"bold\">Thank you for choosing Bombono DVD</span>\n"
 "— the software to make DVD video with ease.\n"
 "\n"
 "Please note that this is a free 30 day trial version of the program.\n"
 "\n"
-"Buy a full license today and remove the trial restrictions. The fee you pay "
-"will support further program development."
+"Buy a full license today and remove the trial restrictions. The fee you pay will support further program development."
 msgstr ""
-"<span foreground=\"#%1%\" size=\"larger\" weight=\"bold\">Благодарим Вас за "
-"выбор Bombono DVD</span>\n"
+"<span foreground=\"#%1%\" size=\"larger\" weight=\"bold\">Благодарим Вас за выбор Bombono DVD</span>\n"
 "— программы для создания DVD-видеодисков без усилий.\n"
 "\n"
-"Пожалуйста, обратите внимание, что это бесплатная 30-дневная пробная версия "
-"программы.\n"
+"Пожалуйста, обратите внимание, что это бесплатная 30-дневная пробная версия программы.\n"
 "\n"
-"Купите полную лицензию сегодня и пользуйтесь программой без ограничений "
-"пробной версии. Вырученные средства пойдут на дальнейшее развитие программы."
+"Купите полную лицензию сегодня и пользуйтесь программой без ограничений пробной версии. Вырученные средства пойдут на дальнейшее развитие программы."
 
+#: src\mgui\protection\protection.cpp:697
 msgid "Try"
 msgstr "Попробовать"
 
+#: src\mgui\protection\protection.cpp:699
 msgid "Buy Now"
 msgstr "Купить"
 
+#: src\mgui\protection\protection.cpp:700
 msgid "Buy online or visit www.bombono.org for details"
 msgstr "Купить \"онлайн\" или посмотреть подробности на www.bombono.org"
 
+#: src\mgui\protection\protection.cpp:705
 msgid "Exit"
 msgstr " Выход"
 
+#: src\mgui\protection\protection.cpp:733
 msgid "Trial version"
 msgstr "Пробная версия"
 
+#: src\mgui\protection\protection.cpp:736
 msgid "Licensed to"
 msgstr "Зарегистрирована на"
 
+#: src\mgui\protection\protection.cpp:737
 msgid "Serial number"
 msgstr "Серийный номер"
 
+#: src\mgui\protection\protection.cpp:739
 msgid "App version"
 msgstr "Версия"
 
+#: src\mgui\protection\protection.cpp:753
 msgid "OS version"
 msgstr "Версия ОС"
 
+#: src\mgui\protection\protection.cpp:754
 msgid "CPU"
 msgstr "CPU"
 
+#: src\mgui\protection\protection.cpp:755
 msgid "Locale"
 msgstr "Локаль"
 
 #. Add
-#: src\mgui\timeline\layout.cpp:558 src\mgui\timeline\select.cpp:220
+#: src\mgui\timeline\layout.cpp:558
+#: src\mgui\timeline\select.cpp:220
 msgid "Add Chapter Point"
 msgstr "Добавить главу"
 
@@ -1496,11 +1496,13 @@ msgstr "Рисунки"
 msgid "File Browser"
 msgstr "Браузер файлов"
 
-#: src\mgui\timeline\mviewer.cpp:335 src\mgui\timeline\mviewer.cpp:377
+#: src\mgui\timeline\mviewer.cpp:335
+#: src\mgui\timeline\mviewer.cpp:377
 msgid "All formats"
 msgstr "Поддерживаемые форматы"
 
-#: src\mgui\timeline\mviewer.cpp:337 src\mgui\timeline\mviewer.cpp:379
+#: src\mgui\timeline\mviewer.cpp:337
+#: src\mgui\timeline\mviewer.cpp:379
 msgid "Video files"
 msgstr "Видеофайлы"
 
@@ -1508,7 +1510,8 @@ msgstr "Видеофайлы"
 msgid "MPEG files"
 msgstr "Файлы MPEG"
 
-#: src\mgui\timeline\mviewer.cpp:343 src\mgui\timeline\mviewer.cpp:372
+#: src\mgui\timeline\mviewer.cpp:343
+#: src\mgui\timeline\mviewer.cpp:372
 msgid "All files (*.*)"
 msgstr "Все файлы (*.*)"
 
@@ -1544,7 +1547,8 @@ msgid "Delete All Chapter Points"
 msgstr "Удалить все главы"
 
 #. Add at Intervals
-#: src\mgui\timeline\select.cpp:232 src\mgui\timeline\select.cpp:234
+#: src\mgui\timeline\select.cpp:232
+#: src\mgui\timeline\select.cpp:234
 msgid "Add Chapter Points at Intervals"
 msgstr "Добавить главы через интервал"
 
@@ -1572,7 +1576,7 @@ msgstr "Сохранить текущий кадр"
 
 #~ msgid "_Mux Streams"
 #~ msgstr "_Микшировать"
-
 #~ msgctxt "MenuBrowser"
+
 #~ msgid "Edit"
 #~ msgstr " "
