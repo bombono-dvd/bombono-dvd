@@ -633,12 +633,16 @@ FFInfo::~FFInfo()
     CloseInfo(*this);
 }
 
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(57,5,00)
 static int bmd_avpicture_fill(AVFrame *picture, const uint8_t *ptr,
                               AVPixelFormat pix_fmt, int width, int height)
 {
     return av_image_fill_arrays(picture->data, picture->linesize,
                                 ptr, pix_fmt, width, height, 1);
 }
+#else
+#define bmd_avpicture_fill avpicture_fill
+#endif
 
 bool FFViewer::Open(const char* fname, std::string& err_str)
 {
