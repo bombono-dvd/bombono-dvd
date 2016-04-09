@@ -279,7 +279,7 @@ static void AddPostCmd(xmlpp::Element* pgc_node, MediaItem mi)
 
     ASSERT_RTL( vi || mn );
     // VTS domain
-    bool is_video = vi;
+    bool is_video = bool(vi);
     const PostAction& pa = is_video ? vi->PAction() : mn->MtnData().pAct ;
 
     std::string jnt_cmd;

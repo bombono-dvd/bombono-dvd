@@ -854,7 +854,7 @@ static void OnMBButtonPress(ObjectBrowser& brw, MediaItem mi, GdkEventButton* ev
     Gtk::MenuItem& ea_itm = AppendMI(mn, NewManaged<Gtk::MenuItem>(_("End Action")));
     // только видео
     VideoItem vi = IsVideo(mi);
-    if( SetEnabled(ea_itm, vi) )
+    if( SetEnabled(ea_itm, bool(vi)) )
         ea_itm.set_submenu(EndActionMenuBld(vi->PAction(), boost::function_identity,
                                             VideoAddConstantChoice).Create());
 
@@ -863,10 +863,10 @@ static void OnMBButtonPress(ObjectBrowser& brw, MediaItem mi, GdkEventButton* ev
     // калькулятор
     AddDialogItem(mn, DialogParams(_("Bitrate Calculator"), bb::bind(&RunBitrateCalc, vi, _1, b::ref(brw)), 
                                    350, &brw), tr_enabled);
-    AddEnabledItem(mn, _("Reason For Transcoding"), bb::bind(&ShowDVDCompliantStatus, vi), vi);
+    AddEnabledItem(mn, _("Reason For Transcoding"), bb::bind(&ShowDVDCompliantStatus, vi), bool(vi));
     AppendSeparator(mn);
 
-    AddDialogItem(mn, SubtitlesDialog(vi, &brw), vi);
+    AddDialogItem(mn, SubtitlesDialog(vi, &brw), bool(vi));
 
     Popup(mn, event, true);
 }

@@ -153,6 +153,11 @@ class shared: public boost::shared_ptr<T>
             return *this;
         }
 
+        operator bool () const
+        {
+            return this->get() != 0;
+        }
+
 #if 0
         // кострукторы приведения
         template<class Y>

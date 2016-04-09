@@ -415,7 +415,7 @@ void TryAddMediaQuiet(const std::string& fname, const std::string& desc)
 {
     std::string err_str;
     Gtk::TreePath pth;
-    bool res = TryAddMedia(fname.c_str(), pth, err_str);
+    bool res = bool(TryAddMedia(fname.c_str(), pth, err_str));
     if( !res )
     {    
         LOG_ERR << "TryAddMediaQuiet error (" << desc << "): " << err_str << io::endl;
@@ -538,7 +538,7 @@ void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
             continue;
         }
 
-        bool res = TryAddMedia(fpath.c_str(), brw_pth, err_str, insert_after);
+        bool res = bool(TryAddMedia(fpath.c_str(), brw_pth, err_str, insert_after));
         if( res )
         {
             insert_after = true; // вставляем друг за другом

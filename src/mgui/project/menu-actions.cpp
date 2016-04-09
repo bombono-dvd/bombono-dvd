@@ -197,9 +197,11 @@ void UpdateMenuRegionObject(Comp::Object* obj, const Point& menu_sz, RectListRgn
 void EraseLinkedMenus(MenuPack& mp)
 {
     CanvasBuf& cb = mp.thRgn.GetCanvasBuf();
+    const Point& menu_sz = cb.Size();
+    RectListRgn& lst = cb.RenderList();
     ForeachLinked(mp.Owner(), bb::bind(&UpdateMenuRegionObject, 
-                                       _1, boost::cref(cb.Size()), 
-                                       boost::ref(cb.RenderList())));
+                                       _1, boost::cref(menu_sz),
+                                       boost::ref(lst)));
 }
 
 void RegionEraserVis::ProcessImpl(bool exceed)
