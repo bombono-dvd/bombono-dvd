@@ -69,8 +69,11 @@ def CalcCommonFlags():
     global common_warn_flags, cxx_warn_flags, debug_flags, defines
     if BV.IsGccCompiler():
         # GCC
+        common_warn_flags = ['-ansi']
         # -std=c++11 is required by sigc++, shit
-        common_warn_flags = ['-ansi', '-std=c++11']
+        # and auto_ptr is deprecated, so
+        common_warn_flags.extend(['-std=c++11', "-Wno-deprecated-declarations"])
+
         # -Wno-reorder - not to warn if not accurate order in ctor (let compiler do!)
         # :TODO: why 
         #   CXXCOM = $CXX -o $TARGET -c $CXXFLAGS $CCFLAGS ...
@@ -207,8 +210,8 @@ def ParseVariables(user_options):
                         'Set to 1 if you want to build and run tests.',
                         'false')),
             (BoolVariable('USE_EXT_BOOST',
-                        'Leave this setting 0 to use embedded Boost library version (recommended).',
-                        'false')),
+                        'Leave this setting 0 to use embedded Boost library version (not recommended).',
+                        'true')),
             ('BOOST_INCLUDE', 'Set to include path for external(not embedded) version of the Boost library.', ''),
             ('BOOST_LIBPATH', 'Set to library dir path for external(not embedded) version of the Boost library.', ''),
             ('DVDREAD_INCLUDE', 'Set to include path for libdvdread header files.', ''),
