@@ -69,7 +69,8 @@ def CalcCommonFlags():
     global common_warn_flags, cxx_warn_flags, debug_flags, defines
     if BV.IsGccCompiler():
         # GCC
-        common_warn_flags = ['-ansi']
+        # -std=c++11 is required by sigc++, shit
+        common_warn_flags = ['-ansi', '-std=c++11']
         # -Wno-reorder - not to warn if not accurate order in ctor (let compiler do!)
         # :TODO: why 
         #   CXXCOM = $CXX -o $TARGET -c $CXXFLAGS $CCFLAGS ...
