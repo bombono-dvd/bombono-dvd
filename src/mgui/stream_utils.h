@@ -42,8 +42,8 @@ class stream
                 stream(std::iostream& strm): io_strm(strm) {}
 
  std::iostream& strm() { return io_strm; }
-                operator void*() const { return (void*)io_strm; }
-          bool  operator!() const { return !operator void*(); }
+                //operator void*() const { return (void*)io_strm; }
+          //bool  operator!() const { return !operator void*(); }
         stream& seekg(streamoff off, ios_base::seekdir dir)
                 { io_strm.seekg(off, dir); return *this; }
         stream& seekp(streamoff off, ios_base::seekdir dir)

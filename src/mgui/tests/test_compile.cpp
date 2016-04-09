@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE( test_lambda )
     std::for_each(r_lst.begin(), r_lst.end(), (
         lambda::var(cut_rct) = lambda::bind(Intersection<int>, lambda::_1, ref(plc_rct)),
         lambda::if_then( !lambda::bind(&RectT<int>::IsNull, lambda::var(cut_rct)),
-            lambda::bind(&DrwFunctor::operator(), ref(drw_fnr), lambda::var(cut_rct)) )
+            lambda::bind(&DrwFunctor::operator(), drw_fnr, lambda::var(cut_rct)) )
                                               ) );
 }
 
