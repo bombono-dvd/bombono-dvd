@@ -1,7 +1,10 @@
 [Desktop Entry]
 Type=Application
 Name=Bombono DVD
+GenericName=Making DVD-Video
+GenericName[ru]=Создание DVD-Video
 Comment=DVD authoring program
+Comment[ru]=Программа для DVD-авторинга
 Icon=bombono-dvd
 Exec=bombono-dvd
 Categories=Video;AudioVideo;DiscBurning;GTK;
