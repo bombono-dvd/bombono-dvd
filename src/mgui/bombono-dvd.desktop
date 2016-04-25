@@ -2,8 +2,10 @@
 Type=Application
 Name=Bombono DVD
 GenericName=Making DVD-Video
+GenericName=[es]=Crea DVD de Vídeo
 GenericName[ru]=Создание DVD-Video
 Comment=DVD authoring program
+Comment[es]=Autoría de DVD de Vídeo
 Comment[ru]=Программа для DVD-авторинга
 Icon=bombono-dvd
 Exec=bombono-dvd
