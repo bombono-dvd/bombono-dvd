@@ -74,7 +74,7 @@ C_LINKAGE_BEGIN
 
 typedef struct AVCodecTag {
 #if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52,39,00)
-    enum CodecID id;
+    enum AVCodecID id;
 #else
     int id;
 #endif
@@ -82,14 +82,14 @@ typedef struct AVCodecTag {
 } AVCodecTag;
 
 #if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52,34,00)
-static uint FFCodecID2Tag(CodecID codec_id) 
+static uint FFCodecID2Tag(AVCodecID codec_id) 
 {
     unsigned int ff_codec_get_tag(const AVCodecTag *tags, int id);
     extern const AVCodecTag ff_codec_bmp_tags[];
     return ff_codec_get_tag(ff_codec_bmp_tags, codec_id);
 }
 #else
-static uint FFCodecID2Tag(CodecID codec_id) 
+static uint FFCodecID2Tag(AVCodecID codec_id) 
 {
     unsigned int codec_get_tag(const AVCodecTag *tags, int id);
     extern const AVCodecTag codec_bmp_tags[];
@@ -400,7 +400,7 @@ static unsigned char GetChar(uint tag, int bit_begin)
     return (tag>>bit_begin) & 0xFF;
 }
 
-static std::string CodecID2Str(CodecID codec_id)
+static std::string CodecID2Str(AVCodecID codec_id)
 {
 #ifdef _MSC_VER
     std::string tag_str = boost::format("%1%") % codec_id % bf::stop;
