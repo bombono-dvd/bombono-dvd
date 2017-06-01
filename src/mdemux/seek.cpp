@@ -37,8 +37,10 @@ std::string SecToHMS(double len, bool round_sec)
     int hh    = min / 60;
     int mm    = min - hh*60;
 
-    return (str::stream() << set_hms() << hh << ":" 
-                          << set_hms() << mm << ":" << set_hms() << ss).str();
+    str::stream strss;
+    strss << set_hms() << hh << ":"
+      << set_hms() << mm << ":" << set_hms() << ss;
+    return strss.str();
 }
 
 bool MediaInfo::InitBegin(VideoLine& vl)

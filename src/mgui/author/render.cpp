@@ -1307,7 +1307,9 @@ FFmpegVersion CheckFFDVDEncoding()
 
 bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
 {
-    Author::Info((str::stream() << "Rendering menu \"" << mn->mdName << "\" ...").str());
+    str::stream ss;
+    ss << "Rendering menu \"" << mn->mdName << "\" ...";
+    Author::Info(ss.str());
     const std::string mn_dir = MakeMenuPath(out_dir, mn, i);
 
     if( IsMotion(mn) )

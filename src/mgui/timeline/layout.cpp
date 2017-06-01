@@ -600,8 +600,10 @@ time4_t FramesToTime(int cnt, double fps)
 void FramesToTime(std::string& str, int cnt, double fps)
 {
     time4_t t4 = FramesToTime(cnt, fps);
-    str = (str::stream() << Mpeg::set_hms() << t4.hh << ":" << Mpeg::set_hms() << t4.mm << ":"
-                         << Mpeg::set_hms() << t4.ss << ";" << Mpeg::set_hms() << t4.ff).str();
+    str::stream ss;
+    ss << Mpeg::set_hms() << t4.hh << ":" << Mpeg::set_hms() << t4.mm << ":"
+      << Mpeg::set_hms() << t4.ss << ";" << Mpeg::set_hms() << t4.ff;
+    str = ss.str();
 }
 
 } // namespace TimeLine

@@ -86,7 +86,9 @@ static void SetImportError(ErrorDesc& ed, bool is_good, const std::string& out_s
 
 static std::string FpsToStr(const Point& frate)
 {
-    return (str::stream() << (double)frate.x/frate.y).str();
+    str::stream ss;
+    ss << (double)frate.x/frate.y;
+    return ss.str();
 }
 
 static std::string TVTypeStr(bool is_ntsc)
@@ -163,7 +165,9 @@ void CheckVideoFormat(ErrorDesc& ed, const Mpeg::SequenceData& vid, bool is_ntsc
     // *
     bool is_aspect_ok = vid.sarCode == af4_3 || vid.sarCode == af16_9;
     Point aspect = vid.SizeAspect();
-    std::string aspect_str = (str::stream() << aspect.x << ':' << aspect.y).str();
+    str::stream ss;
+    ss << aspect.x << ':' << aspect.y;
+    std::string aspect_str = ss.str();
     SetImportError(ed, is_aspect_ok, 
                    std::string(_("Aspect ratio")) + ": \t" + MarkError(aspect_str, is_aspect_ok),
                    BF_(Descriptions[2]) % tv_type % bf::stop);

@@ -130,7 +130,9 @@ static std::string MakeFPTarget(MediaItem mi)
     {
         VideoItem vi = IsVideo(mi);
         ASSERT( vi );
-        str = (str::stream() << "title " << GetAuthorNumber(vi)).str();
+        str::stream ss;
+        ss << "title " << GetAuthorNumber(vi);
+        str = ss.str();
     }
     return str;
 }
@@ -179,7 +181,9 @@ void TargetCommandVis::Visit(VideoChapterMD& obj)
     // Потому: для удоства пользователей даем создавать нулевую главу, разрешая это здесь 
     // (однако доп. нулевые главы будут приводить к ошибке Cannot jump to chapter N ... only M exist)
     int c_num = ChapterPosInt(&obj) + (owner->List()[0]->chpTime ? 2 : 1) ;
-    res = (str::stream() << "jump title " << v_num << " chapter " << c_num << ";").str();
+    str::stream ss;
+    ss << "jump title " << v_num << " chapter " << c_num << ";";
+    res = ss.str();
 }
 
 static std::string MakeButtonJump(MediaItem mi, bool vts_domain)
@@ -204,7 +208,9 @@ std::string MenuAuthorDir(Menu mn, int idx, bool cnv_from_utf8)
     if( !fs::native(name) )
         name = "Menu";
 
-    std::string fname = (str::stream() << idx+1 << "." << name).str();
+    str::stream ss;
+    ss << idx+1 << "." << name;
+    std::string fname = ss.str();
     return cnv_from_utf8 ? ConvertPathFromUtf8(fname) : fname ;
 }
 
@@ -626,7 +632,9 @@ static void CopyRootFile(const std::string& fname, const std::string& out_dir)
 void AuthorSectionInfo(const std::string& str)
 {
     Author::Info("\n#", false);
-    Author::Info((str::stream() << "# " << str).str(), false);
+    str::stream ss;
+    ss << "# " << str;
+    Author::Info(ss.str(), false);
     Author::Info("#\n", false);
 }
 
@@ -1082,7 +1090,9 @@ static void TranscodeVideos(int pass, const std::string& out_dir)
 
 static void AuthorImpl(const std::string& out_dir)
 {
-    AuthorSectionInfo((str::stream() << "Build DVD-Video in folder: " << out_dir).str());
+    str::stream ss;
+    ss << "Build DVD-Video in folder: " << out_dir;
+    AuthorSectionInfo(ss.str());
     IteratePendingEvents();
 
     IndexVideosForAuthoring();
