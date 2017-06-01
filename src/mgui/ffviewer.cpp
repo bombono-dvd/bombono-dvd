@@ -36,6 +36,10 @@
 #define AVFORMAT_54
 #endif
 
+C_LINKAGE_BEGIN
+#include <libavutil/imgutils.h>
+C_LINKAGE_END
+
 // разрабы libav считают себя самыми умными и потому решили
 // закрыть простым смертным доступ к ffurl_register_protocol() 
 // (бывшая av_register_protocol2()),- https://bugzilla.libav.org/show_bug.cgi?id=224
@@ -807,7 +811,7 @@ static void DoVideoDecode(FFViewer& ffv, int& got_picture, AVPacket* pkt)
 #ifdef AVFRAME_INIT_CHANGE
     // avcodec_get_frame_defaults() перенесли в avcodec_decode_video2()
 #else
-    avcodec_get_frame_defaults(&picture); // ffmpeg.c очищает каждый раз
+    av_frame_unref (&picture);
 #endif
 
 #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(52,25,00)
