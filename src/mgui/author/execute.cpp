@@ -64,9 +64,9 @@ static void InitFoundStageTag(RefPtr<Gtk::TextTag> tag)
     tag->property_foreground() = "darkgreen";
 }
 
-re::pattern DVDAuthorRE(RG_CMD_BEG"dvdauthor"RG_EW ".*-x"RG_EW RG_SPS RG_BW"DVDAuthor\\.xml"RG_EW);
-re::pattern MkIsoFsRE(RG_CMD_BEG MK_ISO_CMD RG_EW ".*-dvd-video"RG_EW ".*>.*"RG_BW"dvd.iso"RG_EW);
-re::pattern GrowIsoFsRE(RG_CMD_BEG"growisofs"RG_EW ".*-dvd-compat"RG_EW ".*-dvd-video"RG_EW); 
+re::pattern DVDAuthorRE(RG_CMD_BEG"dvdauthor" RG_EW ".*-x" RG_EW RG_SPS RG_BW "DVDAuthor\\.xml" RG_EW);
+re::pattern MkIsoFsRE(RG_CMD_BEG MK_ISO_CMD RG_EW ".*-dvd-video" RG_EW ".*>.*" RG_BW "dvd.iso" RG_EW);
+re::pattern GrowIsoFsRE(RG_CMD_BEG"growisofs" RG_EW ".*-dvd-compat" RG_EW ".*-dvd-video" RG_EW); 
 
 //static void PrintMatchResults(const re::match_results& what)
 //{
@@ -94,7 +94,7 @@ class MkIsoFsPP: public ProgressParser
     virtual void  Filter(const std::string& line);
 };
 
-re::pattern MkIsoFsPercent_RE( RG_FLT"?% done");
+re::pattern MkIsoFsPercent_RE( RG_FLT "?% done");
 
 void MkIsoFsPP::Filter(const std::string& line)
 {
@@ -126,8 +126,8 @@ class DVDAuthorPP: public ProgressParser
             bool  fixStage;
 };
 
-re::pattern DVDAuthorVOB_RE( "^STAT: VOBU "RG_NUM" at "RG_NUM"MB"); 
-re::pattern DVDAuthorFix_RE( "^STAT: fixing VOBU at "RG_NUM"MB \\("RG_NUM"/"RG_NUM", "RG_NUM"%\\)"); 
+re::pattern DVDAuthorVOB_RE( "^STAT: VOBU " RG_NUM " at " RG_NUM "MB"); 
+re::pattern DVDAuthorFix_RE( "^STAT: fixing VOBU at " RG_NUM "MB \\(" RG_NUM "/" RG_NUM ", " RG_NUM "%\\)"); 
 
 void DVDAuthorPP::Filter(const std::string& line)
 {
@@ -157,7 +157,7 @@ void DVDAuthorPP::Filter(const std::string& line)
     if( p )
         of.SetProgress(p);
     
-    static re::pattern ch_error_re("ERR:.*Cannot jump to chapter "RG_NUM" of title "RG_NUM", only "RG_NUM" exist");
+    static re::pattern ch_error_re("ERR:.*Cannot jump to chapter " RG_NUM " of title " RG_NUM ", only " RG_NUM " exist");
     if( re::search(line, what, ch_error_re) )
     {
         std::string& err_str = of.firstError;

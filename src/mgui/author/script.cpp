@@ -755,9 +755,9 @@ static void CalcTransPercent(double cur_dur, Job& job, JobData& jd, double full_
 // ffmpeg выводит статистику первого создаваемого файла каждые полсекунды,
 // см. print_report() (при verbose=1, по умолчанию)
 // Формат размера: "size=%8.0fkB"
-re::pattern FFmpegSizePat( "size= *"RG_NUM"kB"); 
+re::pattern FFmpegSizePat( "size= *" RG_NUM "kB"); 
 // Формат длительности: "time=%0.2f"
-re::pattern FFmpegDurPat( "time="RG_FLT);
+re::pattern FFmpegDurPat( "time=" RG_FLT);
 
 static void OnTranscodePrintParse(const char* dat, int sz, const PercentFunctor& fnr)
 {
@@ -787,7 +787,7 @@ static void OnTranscodePrintParse(const char* dat, int sz, const PercentFunctor&
 
 // Формат длительности для ffmpeg c коммита dd471070: "time=%02d:%02d:%02d.%02d"
 // Образец: frame=  208 fps= 58 q=2.0 size=     476kB time=00:00:08.44 bitrate= 461.9kbits/s dup=1 drop=0
-re::pattern FFmpegNewDurPat( "time="RG_NUM":"RG_NUM":"RG_FLT);
+re::pattern FFmpegNewDurPat( "time=" RG_NUM ":" RG_NUM ":" RG_FLT);
 
 static void OnTranscodeHMSParse(const char* dat, int sz, const PercentFunctor& fnr)
 {
@@ -1136,7 +1136,7 @@ static void AuthorImpl(const std::string& out_dir)
             // 2) парсер dvdauthor не любит незнакомые ему атрибуты => spumux < 0.7 не работает
             std::string help_str;
             PipeOutput("spumux -h", help_str);
-            static re::pattern spumux_version("DVDAuthor::spumux, version "RG_NUM"\\."RG_NUM"\\."RG_NUM"\\.\n");
+            static re::pattern spumux_version("DVDAuthor::spumux, version " RG_NUM "\\." RG_NUM "\\." RG_NUM "\\.\n");
             if( IsVersionGE(FindVersion(help_str, spumux_version, "spumux"), TripleVersion(0, 7, 0)) )
                 AddFormatAttr(sp);
 
