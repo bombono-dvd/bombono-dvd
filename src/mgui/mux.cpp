@@ -162,7 +162,7 @@ static void OnVideoSelected(Gtk::FileChooserButton& v_btn, Gtk::FileChooserButto
     fs::path pth = GetFilename(v_btn);
     if( pth.empty() )
         return;
-    std::string folder = pth.branch_path().string();
+    std::string folder = pth.parent_path().string();
 
     if( a_btn.get_filename().empty() )
         a_btn.set_current_folder(folder);

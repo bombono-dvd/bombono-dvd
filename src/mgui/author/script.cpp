@@ -676,7 +676,7 @@ static void CheckSpumuxFontFile()
     if( !fs::exists(font_path) )
     {
         std::string err_str;
-        if( !CreateDirs(font_path.branch_path(), err_str) )
+        if( !CreateDirs(font_path.parent_path(), err_str) )
             Error(err_str.c_str());
         fs::copy_file(DataDirPath("copy-n-paste/FreeSans.ttf"), font_path);
     }

@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE( TestMediaList )
         // проверка чтения/записи путей
         boost::intrusive_ptr<StillImageMD> pict2 = ptr::dynamic_pointer_cast<StillImageMD>(ml[2]);
         fs::path pth = pict2->GetPath();
-        BOOST_CHECK( pth.is_complete() );
+        BOOST_CHECK( pth.is_absolute() );
         BOOST_CHECK( fs::exists(pth) );
 
         // проверка ссылок

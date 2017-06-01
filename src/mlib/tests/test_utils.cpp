@@ -139,17 +139,17 @@ BOOST_AUTO_TEST_CASE( TestFilesystem )
 #endif
     }
 
-    // is_complete
+    // is_absolute
     {
         fs::path pth("../some_file");
-        BOOST_CHECK( !pth.is_complete() );
-        BOOST_CHECK( fs::current_path().is_complete() );
+        BOOST_CHECK( !pth.is_absolute() );
+        BOOST_CHECK( fs::current_path().is_absolute() );
 
         fs::path apth = Project::MakeAbsolutePath(pth);
         //LOG_INF << "Making abs path: " << pth.string() << " => " << apth.string() << io::endl;
 
-        BOOST_CHECK( Project::MakeAbsolutePath(pth, MakeRootComplete("/")).is_complete() );
-        BOOST_CHECK( !Project::MakeAbsolutePath(pth, "./").is_complete() );
+        BOOST_CHECK( Project::MakeAbsolutePath(pth, MakeRootComplete("/")).is_absolute() );
+        BOOST_CHECK( !Project::MakeAbsolutePath(pth, "./").is_absolute() );
     }
 
     // MakeRelativeToDir

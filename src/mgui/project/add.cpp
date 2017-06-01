@@ -479,7 +479,7 @@ void TryAddMedias(const Str::List& paths, MediaBrowser& brw,
                 MessageBox(BF_("The file \"%1%\" looks like VOB from DVD.\nRun import?") % leaf % bf::stop,
                            Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL) == Gtk::RESPONSE_OK )
             {
-                DVD::RunImport(*GetTopWindow(brw), pth.branch_path().string());
+                DVD::RunImport(*GetTopWindow(brw), pth.parent_path().string());
                 return;
             }
         }
