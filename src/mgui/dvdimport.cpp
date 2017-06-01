@@ -275,7 +275,7 @@ static ReaderPtr OpenDVD(const std::string& dvd_path, ImportData& id)
         id.errLbl.hide();
 
     id.reader = rd;
-    SetCurPageComplete(id.ast, id.reader);
+    SetCurPageComplete(id.ast, bool(id.reader));
 
     return rd;
 }
