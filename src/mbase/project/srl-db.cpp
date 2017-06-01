@@ -102,7 +102,7 @@ void DbSerializeProjectImpl(Archieve& ar)
 }
 
 void ADatabase::Load(const std::string& fname,
-                     const std::string& cur_dir) throw (std::exception)
+                     const std::string& cur_dir)
 {
     try
     {
