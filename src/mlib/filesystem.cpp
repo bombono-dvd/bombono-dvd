@@ -30,6 +30,7 @@
 #if BOOST_MINOR_VERSION >= 51
 #define BOOST_FS_3 boost::filesystem
 #include <boost/filesystem/path_traits.hpp> // boost::filesystem::convert()
+#include <boost/filesystem/directory.hpp>
 #else
 #define BOOST_FS_3 boost::filesystem3
 #include <boost/filesystem/v3/path_traits.hpp>

@@ -52,6 +52,8 @@
 // COPY_N_PASTE_ETALON из go-file.c, проект Gnumeric, http://projects.gnome.org/gnumeric/
 //
 
+#include <boost/filesystem/directory.hpp>
+
 #ifndef GOFFICE_WITH_GNOME
 static char *
 check_program (char const *prog)

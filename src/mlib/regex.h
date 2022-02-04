@@ -27,6 +27,7 @@
 #include <boost/regex/v4/regbase.hpp>
 #include <boost/regex/v4/match_flags.hpp>
 
+#include <boost/mpl/bool.hpp>
 #include <mlib/ptr.h>
 
 #include <string>

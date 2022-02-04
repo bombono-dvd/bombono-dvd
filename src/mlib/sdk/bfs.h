@@ -7,6 +7,7 @@
 //#define BOOST_FILESYSTEM_NO_DEPRECATED
 
 #include <boost/filesystem/path.hpp>
+#include <boost/filesystem/exception.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/convenience.hpp> // fs::create_directories()
 

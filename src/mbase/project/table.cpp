@@ -29,6 +29,7 @@
 #include "theme.h"
 
 #include <mbase/resources.h>
+#include <boost/filesystem/directory.hpp>
 
 
 const char* APROJECT_VERSION = "1.2.4";

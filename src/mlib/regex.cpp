@@ -22,7 +22,7 @@
 #include "regex.h"
 #include "string.h"
 
-#include <boost/regex.hpp>
+#include <boost/regex/v4/regex.hpp>
 
 namespace re
 {
