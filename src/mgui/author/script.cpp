@@ -130,7 +130,9 @@ static std::string MakeFPTarget(MediaItem mi)
     {
         VideoItem vi = IsVideo(mi);
         ASSERT( vi );
-        str = (str::stream() << "title " << GetAuthorNumber(vi)).str();
+        str::stream ss;
+        ss << "title " << GetAuthorNumber(vi);
+        str = ss.str();
     }
     return str;
 }
@@ -179,7 +181,9 @@ void TargetCommandVis::Visit(VideoChapterMD& obj)
     // Потому: для удоства пользователей даем создавать нулевую главу, разрешая это здесь 
     // (однако доп. нулевые главы будут приводить к ошибке Cannot jump to chapter N ... only M exist)
     int c_num = ChapterPosInt(&obj) + (owner->List()[0]->chpTime ? 2 : 1) ;
-    res = (str::stream() << "jump title " << v_num << " chapter " << c_num << ";").str();
+    str::stream ss;
+    ss << "jump title " << v_num << " chapter " << c_num << ";";
+    res = ss.str();
 }
 
 static std::string MakeButtonJump(MediaItem mi, bool vts_domain)
@@ -204,7 +208,9 @@ std::string MenuAuthorDir(Menu mn, int idx, bool cnv_from_utf8)
     if( !fs::native(name) )
         name = "Menu";
 
-    std::string fname = (str::stream() << idx+1 << "." << name).str();
+    str::stream ss;
+    ss << idx+1 << "." << name;
+    std::string fname = ss.str();
     return cnv_from_utf8 ? ConvertPathFromUtf8(fname) : fname ;
 }
 
@@ -626,7 +632,9 @@ static void CopyRootFile(const std::string& fname, const std::string& out_dir)
 void AuthorSectionInfo(const std::string& str)
 {
     Author::Info("\n#", false);
-    Author::Info((str::stream() << "# " << str).str(), false);
+    str::stream ss;
+    ss << "# " << str;
+    Author::Info(ss.str(), false);
     Author::Info("#\n", false);
 }
 
@@ -676,7 +684,7 @@ static void CheckSpumuxFontFile()
     if( !fs::exists(font_path) )
     {
         std::string err_str;
-        if( !CreateDirs(font_path.branch_path(), err_str) )
+        if( !CreateDirs(font_path.parent_path(), err_str) )
             Error(err_str.c_str());
         fs::copy_file(DataDirPath("copy-n-paste/FreeSans.ttf"), font_path);
     }
@@ -755,9 +763,9 @@ static void CalcTransPercent(double cur_dur, Job& job, JobData& jd, double full_
 // ffmpeg выводит статистику первого создаваемого файла каждые полсекунды,
 // см. print_report() (при verbose=1, по умолчанию)
 // Формат размера: "size=%8.0fkB"
-re::pattern FFmpegSizePat( "size= *"RG_NUM"kB"); 
+re::pattern FFmpegSizePat( "size= *" RG_NUM "kB"); 
 // Формат длительности: "time=%0.2f"
-re::pattern FFmpegDurPat( "time="RG_FLT);
+re::pattern FFmpegDurPat( "time=" RG_FLT);
 
 static void OnTranscodePrintParse(const char* dat, int sz, const PercentFunctor& fnr)
 {
@@ -787,7 +795,7 @@ static void OnTranscodePrintParse(const char* dat, int sz, const PercentFunctor&
 
 // Формат длительности для ffmpeg c коммита dd471070: "time=%02d:%02d:%02d.%02d"
 // Образец: frame=  208 fps= 58 q=2.0 size=     476kB time=00:00:08.44 bitrate= 461.9kbits/s dup=1 drop=0
-re::pattern FFmpegNewDurPat( "time="RG_NUM":"RG_NUM":"RG_FLT);
+re::pattern FFmpegNewDurPat( "time=" RG_NUM ":" RG_NUM ":" RG_FLT);
 
 static void OnTranscodeHMSParse(const char* dat, int sz, const PercentFunctor& fnr)
 {
@@ -1082,7 +1090,9 @@ static void TranscodeVideos(int pass, const std::string& out_dir)
 
 static void AuthorImpl(const std::string& out_dir)
 {
-    AuthorSectionInfo((str::stream() << "Build DVD-Video in folder: " << out_dir).str());
+    str::stream ss;
+    ss << "Build DVD-Video in folder: " << out_dir;
+    AuthorSectionInfo(ss.str());
     IteratePendingEvents();
 
     IndexVideosForAuthoring();
@@ -1136,7 +1146,7 @@ static void AuthorImpl(const std::string& out_dir)
             // 2) парсер dvdauthor не любит незнакомые ему атрибуты => spumux < 0.7 не работает
             std::string help_str;
             PipeOutput("spumux -h", help_str);
-            static re::pattern spumux_version("DVDAuthor::spumux, version "RG_NUM"\\."RG_NUM"\\."RG_NUM"\\.\n");
+            static re::pattern spumux_version("DVDAuthor::spumux, version " RG_NUM "\\." RG_NUM "\\." RG_NUM "\\.\n");
             if( IsVersionGE(FindVersion(help_str, spumux_version, "spumux"), TripleVersion(0, 7, 0)) )
                 AddFormatAttr(sp);
 

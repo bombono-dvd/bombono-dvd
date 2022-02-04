@@ -26,7 +26,7 @@
 //  Технические вещи
 // 
 #include <boost/current_function.hpp>  // для BOOST_CURRENT_FUNCTION
-#include <boost/detail/endian.hpp>     // для BOOST_XXX_ENDIAN
+#include <boost/predef/other/endian.h> // BOOST_ENDIAN_*_BYTE
 #include <boost/version.hpp>           // для BOOST_MINOR_VERSION
 
 // для С-шного кода в С++
@@ -78,9 +78,9 @@ void AssertImpl(const char* assertion, const char* file,
                 long line, const char* function);
 
 // endianness
-#if defined(BOOST_BIG_ENDIAN)
+#if defined(BOOST_ENDIAN_BIG_BYTE)
 #   define HAS_BIG_ENDIAN
-#elif defined(BOOST_LITTLE_ENDIAN)
+#elif defined(BOOST_ENDIAN_LITTLE_BYTE)
 #   define HAS_LITTLE_ENDIAN
 #else
 #   error mlib/tech.h: unknown endianness (legacy PDP arch?)

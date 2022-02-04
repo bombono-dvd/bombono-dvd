@@ -128,7 +128,7 @@ class ADatabase: public Singleton<ADatabase>, public DataWare
                  void  ClearSettings();
 
                  void  Load(const std::string& fname,
-                            const std::string& cur_dir = std::string()) throw (std::exception);
+                            const std::string& cur_dir = std::string());
                  bool  Save();
 
                  bool  SaveAs(const std::string& fname,

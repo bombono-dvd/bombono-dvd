@@ -28,7 +28,9 @@
 int GetMemSize()
 {
     pid_t pid = getpid();
-    std::string str = (str::stream() << "/proc/" << pid << "/statm").str();
+    str::stream ss;
+    ss << "/proc/" << pid << "/statm";
+    std::string str = ss.str();
 
     io::stream strm(str.c_str(), iof::in);
     int mem;

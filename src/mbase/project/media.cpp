@@ -58,7 +58,9 @@ void StorageMD::MakeByPath(const std::string& path, bool cnv_to_utf8,
 
 std::string MakeAutoName(const std::string& str, int old_sz)
 {
-    return (str::stream() << str << " " << old_sz+1).str();
+    str::stream ss;
+    ss << str << " " << old_sz+1;
+    return ss.str();
 }
 
 void VideoMD::AddChapter(ChapterItem chp)

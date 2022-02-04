@@ -866,7 +866,7 @@ std::string FFmpegPostArgs(const std::string& out_fname, bool is_4_3, bool is_pa
             // 
             // :KLUDGE: (только) в ffmpeg, avformat 53.13.0, поменяли . на : => надо
             // самим открывать файл и узнавать индекс! 
-            static re::pattern audio_idx("Stream #"RG_NUM"[\\.|:]"RG_NUM".*Audio:");
+            static re::pattern audio_idx("Stream #" RG_NUM "[\\.|:]" RG_NUM ".*Audio:");
 
             re::match_results what;
             // флаг означает, что перевод строки не может быть точкой
@@ -1221,17 +1221,17 @@ void TestFFmpegForDVDEncoding(const std::string& conts)
 {
     CheckNoCodecs(CheckForCodecList(conts));
 
-    static re::pattern dvd_format("^ .E dvd"RG_EW);
+    static re::pattern dvd_format("^ .E dvd" RG_EW);
     CheckStrippedFFmpeg(dvd_format, conts, "dvd format");
 
 // :TRICKY: с версии libavcodec 54 при выводе начальный пробел не ставят => поэтому ?
 // ("спасибо" Anton Khirnov за очередное "улучшение") 
 #define _CPP_ "^ ?"
-    static re::pattern mpeg2video_codec(_CPP_".EV... mpeg2video"RG_EW);
+    static re::pattern mpeg2video_codec(_CPP_ ".EV... mpeg2video" RG_EW);
     CheckStrippedFFmpeg(mpeg2video_codec, conts, "mpeg2 video encoder");
 
     // по факту ffmpeg всегда использует ac3, однако mp2 тоже возможен
-    static re::pattern ac3_codec(_CPP_".EA... ac3"RG_EW);
+    static re::pattern ac3_codec(_CPP_ ".EA... ac3" RG_EW);
     CheckStrippedFFmpeg(ac3_codec, conts, "ac3 audio encoder");
 #undef _CPP_
 }
@@ -1241,7 +1241,7 @@ TripleVersion FindAVVersion(const std::string& conts, const char* avlib_name)
     // * ищем версию libavfilter
     // пример: " libavfilter    0. 4. 0 / "
 #define RG_PADNUM RG_SPS RG_NUM
-    std::string reg_str = boost::format(RG_BW"%1%"RG_PADNUM"\\."RG_PADNUM"\\."RG_PADNUM" / ")
+    std::string reg_str = boost::format(RG_BW "%1%" RG_PADNUM "\\." RG_PADNUM "\\." RG_PADNUM " / ")
         % avlib_name % bf::stop;
     re::pattern avfilter_version(reg_str.c_str());
     return FindVersion(conts, avfilter_version, AVCnvBin(), avlib_name);
@@ -1307,7 +1307,9 @@ FFmpegVersion CheckFFDVDEncoding()
 
 bool RenderMainPicture(const std::string& out_dir, Menu mn, int i)
 {
-    Author::Info((str::stream() << "Rendering menu \"" << mn->mdName << "\" ...").str());
+    str::stream ss;
+    ss << "Rendering menu \"" << mn->mdName << "\" ...";
+    Author::Info(ss.str());
     const std::string mn_dir = MakeMenuPath(out_dir, mn, i);
 
     if( IsMotion(mn) )

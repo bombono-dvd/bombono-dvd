@@ -85,7 +85,7 @@ BurnData& GetInitedBD()
     return bd;
 }
 
-re::pattern WriteSpeed_RE("Write Speed #"RG_NUM":"RG_SPS RG_NUM"\\."RG_NUM "x1385"); 
+re::pattern WriteSpeed_RE("Write Speed #" RG_NUM ":" RG_SPS RG_NUM "\\." RG_NUM "x1385"); 
 
 RefPtr<Gtk::ListStore> sp_store;
 
@@ -253,7 +253,7 @@ DVDInfo ParseDVDInfo(bool is_good, const std::string& out_info)
     }
     else
     {
-        static re::pattern media_type_re("Mounted Media:"RG_SPS"[0-9A-F]+h, ([^ \n]+)");
+        static re::pattern media_type_re("Mounted Media:" RG_SPS "[0-9A-F]+h, ([^ \n]+)");
         re::match_results what;
 
         bool is_found = re::search(out_info, what, media_type_re);
@@ -277,7 +277,7 @@ DVDInfo ParseDVDInfo(bool is_good, const std::string& out_info)
         // isBlank
         if( res != dvdOTHER )
         {
-            static re::pattern media_status_re("Disc status:"RG_SPS"([a-z]+)\n");
+            static re::pattern media_status_re("Disc status:" RG_SPS "([a-z]+)\n");
             bool is_found = re::search(out_info, what, media_status_re);
             ASSERT_RTL( is_found );
 

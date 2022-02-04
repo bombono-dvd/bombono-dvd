@@ -173,12 +173,16 @@ std::string PointToStr(const Point& pnt)
 std::string Double2Str(double val)
 {
     //return boost::format("%1%") % val % bf::stop;
-    return (str::stream() << val).str();
+    str::stream ss;
+    ss << val;
+    return ss.str();
 }
 
 std::string Int2Str(int val)
 {
-    return (str::stream() << val).str();
+    str::stream ss;
+    ss << val;
+    return ss.str();
 }
 
 static bool ICaseMatch(const std::string& str, const std::string& pat_str)

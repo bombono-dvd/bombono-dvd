@@ -45,6 +45,8 @@
 #include <mlib/sdk/logger.h>
 #include <mlib/range/enumerate.h>
 
+#include <boost/filesystem/directory.hpp>
+
 namespace Editor
 {
 

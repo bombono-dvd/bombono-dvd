@@ -328,7 +328,7 @@ Gtk::HButtonBox& CreateMListButtonBox()
     return hb;
 }
 
-std::string MediaItemDnDTVType() { return "DnDTreeView<"DND_MI_NAME">"; }
+std::string MediaItemDnDTVType() { return "DnDTreeView<" DND_MI_NAME ">"; }
 
 void SetupBrowser(ObjectBrowser& brw, int dnd_column, bool is_media_brw)
 {

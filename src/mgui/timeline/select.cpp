@@ -152,7 +152,7 @@ static void SaveFrame(DAMonitor& mon)
 
         mon.FramePixbuf()->save(fnam, ext);
 
-        SaveFrameDir() = fs::path(fnam).branch_path().string();
+        SaveFrameDir() = fs::path(fnam).parent_path().string();
         if( add_btn.get_active() )
             Project::TryAddMediaQuiet(fnam, "SaveFrame");
     }

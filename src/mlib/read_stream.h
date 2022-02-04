@@ -22,6 +22,8 @@
 #ifndef __MLIB_READ_STREAM_H__
 #define __MLIB_READ_STREAM_H__
 
+#include <boost/mpl/bool.hpp>
+
 #include "stream.h"
 #include "filesystem.h"
 

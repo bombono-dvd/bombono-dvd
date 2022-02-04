@@ -211,10 +211,11 @@ static void OnPreparePage(ImportData& id)
                 row[VF().selState]  = false;
                 row[VF().name]      = VobFName(vob.pos);
                 row[VF().thumbnail] = vob.aspect == af4_3 ? pix4_3 : pix16_9;
-                std::string desc = (str::stream(Mpeg::SecToHMS(vob.tmLen, true)) <<  ", "
-                                    << vob.sz.x << "x" << vob.sz.y << ", "
-                                    << (vob.aspect == af4_3 ? "4:3" : "16:9") << ", " 
-                                    << std::fixed << std::setprecision(2) << vob.Count()/512. << " " << _("MB")).str();
+                str::stream ss (Mpeg::SecToHMS(vob.tmLen, true));
+                ss << ", " << vob.sz.x << "x" << vob.sz.y << ", "
+                  << (vob.aspect == af4_3 ? "4:3" : "16:9") << ", " 
+                  << std::fixed << std::setprecision(2) << vob.Count()/512. << " " << _("MB");
+                std::string desc = ss.str();
                 row[VF().desc]      = desc;
             }
             CompleteSelection(id, false);
@@ -275,7 +276,7 @@ static ReaderPtr OpenDVD(const std::string& dvd_path, ImportData& id)
         id.errLbl.hide();
 
     id.reader = rd;
-    SetCurPageComplete(id.ast, id.reader);
+    SetCurPageComplete(id.ast, bool(id.reader));
 
     return rd;
 }

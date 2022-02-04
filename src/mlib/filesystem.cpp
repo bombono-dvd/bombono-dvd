@@ -30,6 +30,7 @@
 #if BOOST_MINOR_VERSION >= 51
 #define BOOST_FS_3 boost::filesystem
 #include <boost/filesystem/path_traits.hpp> // boost::filesystem::convert()
+#include <boost/filesystem/directory.hpp>
 #else
 #define BOOST_FS_3 boost::filesystem3
 #include <boost/filesystem/v3/path_traits.hpp>
@@ -161,25 +162,16 @@ namespace Project
 
 fs::path MakeAbsolutePath(const fs::path& pth, const fs::path& cur_dir)
 {
-    fs::path res;
-
-    if( pth.is_complete() )
-        res = pth;
-    else
-    {
-        fs::path dir = cur_dir.empty() ? fs::current_path() : cur_dir ;
-        res = dir/pth;
-    }
-    return res.normalize();
+    return absolute(pth, cur_dir);
 }
 
 // оба аргумента должны быть абсолютными путями
 bool MakeRelativeToDir(fs::path& pth, fs::path dir)
 {
-    pth.normalize();
-    dir.normalize();
-    ASSERT( pth.is_complete() );
-    ASSERT( dir.is_complete() );
+    pth = canonical(pth);
+    dir = canonical(dir);
+    ASSERT( pth.is_absolute() );
+    ASSERT( dir.is_absolute() );
 
     fs::path::iterator p_itr = pth.begin(), p_end = pth.end();
     fs::path::iterator d_itr = dir.begin(), d_end = dir.end();

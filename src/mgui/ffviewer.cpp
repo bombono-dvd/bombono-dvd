@@ -36,6 +36,10 @@
 #define AVFORMAT_54
 #endif
 
+C_LINKAGE_BEGIN
+#include <libavutil/imgutils.h>
+C_LINKAGE_END
+
 // разрабы libav считают себя самыми умными и потому решили
 // закрыть простым смертным доступ к ffurl_register_protocol() 
 // (бывшая av_register_protocol2()),- https://bugzilla.libav.org/show_bug.cgi?id=224
@@ -74,7 +78,7 @@ C_LINKAGE_BEGIN
 
 typedef struct AVCodecTag {
 #if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52,39,00)
-    enum CodecID id;
+    enum AVCodecID id;
 #else
     int id;
 #endif
@@ -82,14 +86,14 @@ typedef struct AVCodecTag {
 } AVCodecTag;
 
 #if LIBAVFORMAT_VERSION_INT >= AV_VERSION_INT(52,34,00)
-static uint FFCodecID2Tag(CodecID codec_id) 
+static uint FFCodecID2Tag(AVCodecID codec_id) 
 {
     unsigned int ff_codec_get_tag(const AVCodecTag *tags, int id);
     extern const AVCodecTag ff_codec_bmp_tags[];
     return ff_codec_get_tag(ff_codec_bmp_tags, codec_id);
 }
 #else
-static uint FFCodecID2Tag(CodecID codec_id) 
+static uint FFCodecID2Tag(AVCodecID codec_id) 
 {
     unsigned int codec_get_tag(const AVCodecTag *tags, int id);
     extern const AVCodecTag codec_bmp_tags[];
@@ -400,7 +404,7 @@ static unsigned char GetChar(uint tag, int bit_begin)
     return (tag>>bit_begin) & 0xFF;
 }
 
-static std::string CodecID2Str(CodecID codec_id)
+static std::string CodecID2Str(AVCodecID codec_id)
 {
 #ifdef _MSC_VER
     std::string tag_str = boost::format("%1%") % codec_id % bf::stop;
@@ -807,7 +811,7 @@ static void DoVideoDecode(FFViewer& ffv, int& got_picture, AVPacket* pkt)
 #ifdef AVFRAME_INIT_CHANGE
     // avcodec_get_frame_defaults() перенесли в avcodec_decode_video2()
 #else
-    avcodec_get_frame_defaults(&picture); // ffmpeg.c очищает каждый раз
+    av_frame_unref (&picture);
 #endif
 
 #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(52,25,00)

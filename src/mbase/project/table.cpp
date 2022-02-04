@@ -29,6 +29,7 @@
 #include "theme.h"
 
 #include <mbase/resources.h>
+#include <boost/filesystem/directory.hpp>
 
 
 const char* APROJECT_VERSION = "1.2.4";
@@ -154,7 +155,7 @@ NameValueT<Media> LoadMedia(Archieve& ar, MediaList& md_list)
 void SerializePath(Archieve& ar, const char* tag_name, std::string& fpath)
 {
     //ar & NameValue("Path", mdPath);
-    fs::path rel_to_dir = fs::path(AData().GetProjectFName()).branch_path();
+    fs::path rel_to_dir = fs::path(AData().GetProjectFName()).parent_path();
     if( ar.IsLoad() )
     {
         ar >> NameValue(tag_name, fpath);
@@ -162,7 +163,7 @@ void SerializePath(Archieve& ar, const char* tag_name, std::string& fpath)
         if( !fpath.empty() )
         {
             fs::path pth(fpath);
-            if( !pth.is_complete() )
+            if( !pth.is_absolute() )
                 fpath = (rel_to_dir/fpath).string();
         }
     }
