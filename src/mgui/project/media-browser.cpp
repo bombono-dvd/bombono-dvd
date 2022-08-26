@@ -240,8 +240,8 @@ RTCache& GetRTC(VideoItem vi)
         a_cnt = 0;
         for( int i=0; i < (int)ic->nb_streams; i++ )
         {
-            AVCodecContext* avctx = ic->streams[i]->codec;
-            if( avctx->codec_type == AVMEDIA_TYPE_AUDIO )
+            AVCodecParameters* avp = ic->streams[i]->codecpar;
+            if( avp->codec_type == AVMEDIA_TYPE_AUDIO )
                 a_cnt++;
         }
 
