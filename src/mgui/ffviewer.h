@@ -53,6 +53,7 @@ struct FFViewer;
 //
 typedef FFViewer VideoViewer;
 
+struct AVCodecContext;
 struct FFData;
 double FrameFPS(FFData& ffv);
 double Duration(FFData& ffv);
@@ -70,6 +71,7 @@ RefPtr<Gdk::Pixbuf> GetRawFrame(double time, FFViewer& ffv);
 struct FFData: public boost::noncopyable
 {
     AVFormatContext* iCtx;
+     AVCodecContext* videoCtx;
                 int  videoIdx;
               Point  vidSz; // первоначальный размер
 
